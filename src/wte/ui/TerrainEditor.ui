@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TerrainEdit</class>
+ <widget class="QDialog" name="TerrainEdit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>320</width>
+    <height>255</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Terrain editor</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout_2">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Brush</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Size:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="brushSize">
+        <property name="value">
+         <number>15</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Pressure:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSlider" name="pressure">
+        <property name="value">
+         <number>20</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Sculpting</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="comboBox">
+         <item>
+          <property name="text">
+           <string>Elevate</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Lower</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Smooth</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Painting</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Material index:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="materialIndex">
+         <item>
+          <property name="text">
+           <string>0 (red)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1 (green)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2 (blue)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="buttonBrush">
+     <property name="text">
+      <string>Activated Brush</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>TerrainEdit</receiver>
+   <slot>onResetHeightmap()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>197</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>29</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>TerrainEdit</receiver>
+   <slot>onSaveTexture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>297</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>39</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>TerrainEdit</receiver>
+   <slot>onSaveHeightmap()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>203</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>TerrainEdit</receiver>
+   <slot>onResetTexture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>297</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>241</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBrush</sender>
+   <signal>clicked()</signal>
+   <receiver>TerrainEdit</receiver>
+   <slot>onBrushActivated()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>143</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onSaveHeightmap()</slot>
+  <slot>onResetHeightmap()</slot>
+  <slot>onSaveTexture()</slot>
+  <slot>onResetTexture()</slot>
+  <slot>onBrushActivated()</slot>
+ </slots>
+</ui>

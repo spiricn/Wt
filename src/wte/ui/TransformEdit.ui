@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TransformEdit</class>
+ <widget class="QWidget" name="TransformEdit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>375</width>
+    <height>257</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="1" colspan="2">
+       <widget class="Vec3View" name="translation" native="true"/>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="Vec3View" name="rotAxis" native="true"/>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <widget class="Vec3View" name="scle" native="true"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Scale</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Rotation angle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Rotation axis</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Translation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string/>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QSlider" name="angleSlider">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="rotAngle">
+           <property name="maximum">
+            <double>360.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Vec3View</class>
+   <extends>QWidget</extends>
+   <header>vec3view.h</header>
+   <container>1</container>
+   <slots>
+    <signal>onValueChanged()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>translation</sender>
+   <signal>onValueChanged()</signal>
+   <receiver>TransformEdit</receiver>
+   <slot>onTranslationChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>142</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>2</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rotAxis</sender>
+   <signal>onValueChanged()</signal>
+   <receiver>TransformEdit</receiver>
+   <slot>onRotAxisChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>scle</sender>
+   <signal>onValueChanged()</signal>
+   <receiver>TransformEdit</receiver>
+   <slot>onScaleChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>251</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>109</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>angleSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>TransformEdit</receiver>
+   <slot>onAngleSliderChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>347</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>301</x>
+     <y>1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rotAngle</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>TransformEdit</receiver>
+   <slot>onAngleSpinboxChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>470</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>504</x>
+     <y>101</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onTranslationChanged()</slot>
+  <slot>onRotAxisChanged()</slot>
+  <slot>onRotAngleChanged()</slot>
+  <slot>onScaleChanged()</slot>
+  <slot>onAngleSliderChanged(int)</slot>
+  <slot>onAngleSpinboxChanged(double)</slot>
+ </slots>
+</ui>

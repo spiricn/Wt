@@ -1,0 +1,928 @@
+#include "wt/stdafx.h"
+
+#include "wt/Renderer.h"
+#include "wt/DevilImageLoader.h"
+
+
+namespace wt{
+
+
+void Renderer::initGodray(){
+	{ // Godray setup
+		
+		if(mGodrayFBO.isCreated()){
+			mGodrayFBO.destroy();
+		}
+
+		mGodrayFBO.create();
+
+		mGodrayFBO.bind(Gl::FrameBuffer::DRAW);
+
+		mGodrayPass1.create();
+		mGodrayPass1.bind();
+		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
+
+		float portW = mViewPort.x;
+		float portH = mViewPort.y;
+		mGodrayPass1.setData(portW, portH,
+			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
+
+		mGodrayPass2.create();
+		mGodrayPass2.bind();
+		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
+		mGodrayPass2.setData(portW, portH,
+			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
+
+		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT0, &mGodrayPass1);
+		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT1, &mGodrayPass2);
+
+		WT_ASSERT(mGodrayFBO.isComplete(), "Godray FBO incomplete");
+
+		struct vertex{
+			float x,y;
+			float s,t;
+		};
+
+		vertex vertices[] = {
+			{0, 0, 0, 0}, {portW, 0, portW, 0}, {portW, portH, portW, portH}, {0, portH, 0, portH}
+		};
+
+		Uint32 indices[4] = {0, 1, 2, 3};
+
+		mGodrayBatch.destroy();
+		mGodrayBatch.create(vertices, 4, sizeof(vertex),
+			indices, 4, sizeof(Uint32), GL_QUADS);
+
+		// inPosition
+		mGodrayBatch.setVertexAttribute(0, 2, GL_FLOAT, offsetof(vertex, x));
+		// inTexCoord
+		mGodrayBatch.setVertexAttribute(1, 2, GL_FLOAT, offsetof(vertex, s));
+	}
+}
+
+void Renderer::init(Uint32 portW, Uint32 portH ){
+	LOGV(TAG, "Initializing...");
+
+	LOGV(TAG, "GL_VERSION = %s", glGetString(GL_VERSION));
+	LOGV(TAG, "GL_VENDOR = %s", glGetString(GL_VENDOR));
+	LOGV(TAG, "GL_RENDERER = %s", glGetString(GL_RENDERER));
+
+	mMatStack.pushIdentity();
+
+	setViewPort(portW, portH);
+
+	gl( Enable(GL_DEPTH_TEST) );
+
+	setFaceCulling(BACK_FACE);
+
+	setPolygoneMode(FILL);
+
+	GLenum r = glewInit();
+
+	LOGV(TAG, "Initializing glew");
+	if(r != GLEW_OK){
+		WT_EXCEPT("Renderer", "GLEW_ERROR", "Error initializing glew \"%s\"", (const char*)glewGetErrorString(r));
+	}
+
+	LOGV(TAG, "Compiling shaders");
+	LOGV(TAG, "Compiling basic..");
+	mBasicShader.create();
+	LOGV(TAG, "Compiling sky..");
+	mSkyShader.create();
+	LOGV(TAG, "Compiling terrain..");
+	mTerrainShader.create();
+	LOGV(TAG, "Compiling godray..");
+	mGodRayShader.create();
+	LOGV(TAG, "Compiling rect..");
+	mRectShader.create();
+
+	mGodraySunShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
+	mGodraySunShader.bindAttribLocation(0, "inPosition");
+	mGodraySunShader.link();
+
+
+
+	Utils::makeCube(mCubeBatch, 0.01, BasicShader::VERTEX, BasicShader::TEXTURE_COORDS, BasicShader::NORMALS);
+
+	LOGV(TAG, "Generating default texture");
+	gl( GenTextures(1, &mFontTexture) );
+	gl( BindTexture(GL_TEXTURE_2D, mFontTexture) );
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
+ 
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
+
+
+	Buffer<unsigned char> bfr;
+	Utils::makeCheckboard(bfr, 100, 100, 5, 5, Color(246/255.0, 2/255.0, 134/255.0), Color::black());
+	mInvalidTex.create();
+	mInvalidTex.setData(100, 100, GL_RGB, GL_RGB, (const GLbyte*)bfr.getData());
+
+	// font batch
+		
+	//
+	//mShadowFBO.create();
+	
+
+
+	initGodray();
+
+	{
+		// godray sun
+		float vertices[] = {0,0,0};
+		Uint32 indices[] = {0};
+		mSunBatch.create(vertices, 1, sizeof(float)*3,
+			indices, 1, sizeof(Uint32), GL_POINTS);
+		mSunBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
+	}
+	setClearColor(Color(0.3, 0.3, 0.3));
+
+
+	// TODO move to encoded header file
+	TextureLoader::getSingleton().load("assets/brushes/images/circle_soft.png", &mGodraySunTexture);
+
+	LOGV(TAG, "Initialized OK");
+}
+
+
+
+void extractFrustum(float frustum[6][4], const glm::mat4& view, const glm::mat4& proj){
+		const float* clip = glm::value_ptr( (proj*view) );
+		float t;
+
+	 /* Extract the numbers for the RIGHT plane */
+	   frustum[0][0] = clip[ 3] - clip[ 0];
+	   frustum[0][1] = clip[ 7] - clip[ 4];
+	   frustum[0][2] = clip[11] - clip[ 8];
+	   frustum[0][3] = clip[15] - clip[12];
+	 /* Normalize the result */
+	   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2]    * frustum[0][2] );
+	   frustum[0][0] /= t;
+	   frustum[0][1] /= t;
+	   frustum[0][2] /= t;
+	   frustum[0][3] /= t;
+	 /* Extract the numbers for the LEFT plane */
+	   frustum[1][0] = clip[ 3] + clip[ 0];
+	   frustum[1][1] = clip[ 7] + clip[ 4];
+	   frustum[1][2] = clip[11] + clip[ 8];
+	   frustum[1][3] = clip[15] + clip[12];
+	 /* Normalize the result */
+	   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2]    * frustum[1][2] );
+	   frustum[1][0] /= t;
+	   frustum[1][1] /= t;
+	   frustum[1][2] /= t;
+	   frustum[1][3] /= t;
+	 /* Extract the BOTTOM plane */
+	   frustum[2][0] = clip[ 3] + clip[ 1];
+	   frustum[2][1] = clip[ 7] + clip[ 5];
+	   frustum[2][2] = clip[11] + clip[ 9];
+	   frustum[2][3] = clip[15] + clip[13];
+	 /* Normalize the result */
+	   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2]    * frustum[2][2] );
+	   frustum[2][0] /= t;
+	   frustum[2][1] /= t;
+	   frustum[2][2] /= t;
+	   frustum[2][3] /= t;
+	 /* Extract the TOP plane */
+	   frustum[3][0] = clip[ 3] - clip[ 1];
+	   frustum[3][1] = clip[ 7] - clip[ 5];
+	   frustum[3][2] = clip[11] - clip[ 9];
+	   frustum[3][3] = clip[15] - clip[13];
+	 /* Normalize the result */
+	   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2]    * frustum[3][2] );
+	   frustum[3][0] /= t;
+	   frustum[3][1] /= t;
+	   frustum[3][2] /= t;
+	   frustum[3][3] /= t;
+	 /* Extract the FAR plane */
+	   frustum[4][0] = clip[ 3] - clip[ 2];
+	   frustum[4][1] = clip[ 7] - clip[ 6];
+	   frustum[4][2] = clip[11] - clip[10];
+	   frustum[4][3] = clip[15] - clip[14];
+	 /* Normalize the result */
+	   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2]    * frustum[4][2] );
+	   frustum[4][0] /= t;
+	   frustum[4][1] /= t;
+	   frustum[4][2] /= t;
+	   frustum[4][3] /= t;
+	 /* Extract the NEAR plane */
+	   frustum[5][0] = clip[ 3] + clip[ 2];
+	   frustum[5][1] = clip[ 7] + clip[ 6];
+	   frustum[5][2] = clip[11] + clip[10];
+	   frustum[5][3] = clip[15] + clip[14];
+	 /* Normalize the result */
+	   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2]    * frustum[5][2] );
+	   frustum[5][0] /= t;
+	   frustum[5][1] /= t;
+	   frustum[5][2] /= t;
+	   frustum[5][3] /= t;
+}
+
+bool pointInFrustum(const float frustum[6][4], const PxVec3& point){
+  int p;
+  for( p = 0; p < 6; p++ )
+    if( frustum[p][0] * point.x + frustum[p][1] * point.y + frustum[p][2] * point.z + frustum[p][3] <= 0 ){
+      return false;
+	}
+  return true;
+}
+
+bool inFrustum(const float frustum[6][4], const physx::PxBounds3& bounds){
+	PxVec3 c = bounds.getCenter();
+	PxVec3 e = bounds.getExtents();
+
+	#define test(point) do{if(pointInFrustum(frustum, point)) return true;}while(0)
+
+	// lower front left
+	test(PxVec3(c.x - e.x, c.y - e.y, c.z + e.z));
+
+	// lower front right
+	test(PxVec3(c.x + e.x, c.y - e.y, c.z + e.z));
+
+	// upper front right
+	test(PxVec3(c.x + e.x, c.y + e.y, c.z + e.z));
+
+	// upper front left
+	test(PxVec3(c.x - e.x, c.y + e.y, c.z + e.z));
+
+
+	// lower back left
+	test(PxVec3(c.x - e.x, c.y - e.y, c.z - e.z));
+
+	// lower back right
+	test(PxVec3(c.x + e.x, c.y - e.y, c.z - e.z));
+
+	// upper back right
+	test(PxVec3(c.x + e.x, c.y + e.y, c.z - e.z));
+
+	// upper back left
+	test(PxVec3(c.x - e.x, c.y + e.y, c.z - e.z));
+
+	#undef test
+
+	return false;
+}
+
+void saveDepthTexture(Texture2D* texture, const String& path){
+	texture->bind();
+	Buffer<float> p;
+	Uint32 w=texture->getWidth();
+	Uint32 h=texture->getHeigth();
+	p.create(w*h);
+	gl( GetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)p.getData()) );
+
+	Buffer<unsigned char> rgb;
+	rgb.create(w*h*3);
+	for(Uint32 i=0; i<w*h; i++){
+		Uint8 depth = (Uint8)((1.0 - (1.0 - p[i]) * 25.0)*255.0);
+
+		rgb[i*3 + 0] = depth;
+		rgb[i*3 + 1] = depth;
+		rgb[i*3 + 2] = depth;
+	}
+
+	Image img;
+	img.setData(w, h, Image::RGB, 3, (unsigned char*)rgb.getData());
+	DevilImageLoader::getSingleton().save(path, &img);
+}
+
+math::Camera lightCamera;
+
+const char* Renderer::TAG = "Renderer";
+
+void Renderer::render(Scene* scene, SceneActor* actor, SkeletonBone* bone){
+	
+	// Use fixed pipeline
+	gl( UseProgram(0) );
+
+	gl( Disable(GL_DEPTH_TEST) );
+	
+	// Setup projection matrix
+	gl( MatrixMode(GL_PROJECTION) );
+	gl( LoadIdentity() );
+	gl( LoadMatrixf(glm::value_ptr(mFrustum.getProjMatrix())) );
+
+	glm::mat4 tmp;
+	glm::vec3 p;
+
+	
+	// Setup modelview matrix
+	glm::mat4 view;
+	glm::mat4 model;
+	actor->getTransform().getMatrix(model);
+	scene->getCamera().getMatrix(view);
+	gl( MatrixMode(GL_MODELVIEW) );
+	gl( LoadMatrixf(glm::value_ptr(view*model)) );
+
+
+	gl( LineWidth(mBoneWidth) );
+
+	if(bone->getParent() != NULL){
+		glBegin(GL_LINES);
+			glm::mat4 tmp = actor->getAnimationPlayer()->getGlobalBoneTransform(bone->getIndex());
+			math::extractTranslation(tmp, p);
+
+			glColor3f(1.0, 0.0, 0.0);
+			glVertex3f(p.x, p.y, p.z);
+
+			tmp = actor->getAnimationPlayer()->getGlobalBoneTransform(bone->getParent()->getIndex());
+			math::extractTranslation(tmp, p);
+			
+			glColor3f(1.0, 0.0, 0.0);
+			glVertex3f(p.x, p.y, p.z);
+		gl( End() );
+	}
+	
+	for(SkeletonBone::Iterator i=bone->getBeg(); i!=bone->getEnd(); i++){
+		render(scene, actor, *i);
+	}
+
+	gl( Enable(GL_DEPTH_TEST) );
+	
+}
+
+void Renderer::setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog){
+	/* TODO setting light/fog uniforms this way is highly inneficient
+		a mechanism of Renderer notification has to be devised
+		(dirty flag, event emiting etc..)
+	*/
+	prog.use();
+
+	// directional
+	prog.setUniformVal("uDirectionalLight.ambientItensity",
+		scene->getDirectionalLight().mAmbientIntesity);
+
+	prog.setUniformVal("uDirectionalLight.color",
+		scene->getDirectionalLight().mColor);
+
+	prog.setUniformVal("uDirectionalLight.diffuseItensity",
+		scene->getDirectionalLight().mDiffuseItensity);
+
+	prog.setUniformVal("uDirectionalLight.direction",
+		scene->getDirectionalLight().mDirection);
+
+	// point lights
+	#define setVal(fmt, idx, val) \
+		do{ \
+		*bfr=0; \
+		sprintf(bfr, fmt, idx); \
+		prog.setUniformVal(bfr, val); \
+		}while(0)
+
+
+	char bfr[100];
+	*bfr=0;
+
+	Uint32 numActiveLights=0;
+	for(Uint32 i=0; i<scene->getNumPointLights(); i++){
+		if(scene->getPointLight(i).mActive){
+			numActiveLights++;
+		}
+	}
+
+
+	prog.setUniformVal("uNumPointLights", (Int32)numActiveLights);
+	for(Uint32 i=0; i<scene->getNumPointLights(); i++){
+		if(!scene->getPointLight(i).mActive){
+			continue;
+		}
+		setVal("uPointLights[%d].color", i, scene->getPointLight(i).mColor);
+		setVal("uPointLights[%d].ambientItensity", i, scene->getPointLight(i).mAmbientIntesity);
+		setVal("uPointLights[%d].diffuseItensity", i, scene->getPointLight(i).mDiffuseItensity);
+		setVal("uPointLights[%d].position", i, scene->getPointLight(i).mPosition);
+
+		setVal("uPointLights[%d].attenuation.linear", i, scene->getPointLight(i).mAttenuation.linear);
+		setVal("uPointLights[%d].attenuation.constant", i, scene->getPointLight(i).mAttenuation.constant);
+		setVal("uPointLights[%d].attenuation.exponential", i, scene->getPointLight(i).mAttenuation.exponential);
+	}
+
+	numActiveLights=0;
+	for(Uint32 i=0; i<scene->getNumSpotLights(); i++){
+		if(scene->getSpotLight(i).mActive){
+			numActiveLights++;
+		}
+	}
+	prog.setUniformVal("uNumSpotLights", (Int32)numActiveLights);
+
+	for(Uint32 i=0; i<scene->getNumSpotLights(); i++){
+		if(!scene->getSpotLight(i).mActive){
+			continue;
+		}
+
+		setVal("uSpotLights[%d].base.color", i, scene->getSpotLight(i).mColor);
+		setVal("uSpotLights[%d].base.ambientItensity", i, scene->getSpotLight(i).mAmbientIntesity);
+		setVal("uSpotLights[%d].base.diffuseItensity", i, scene->getSpotLight(i).mDiffuseItensity);
+		setVal("uSpotLights[%d].base.position", i, scene->getSpotLight(i).mPosition);
+
+		setVal("uSpotLights[%d].base.attenuation.linear", i, scene->getSpotLight(i).mAttenuation.linear);
+		setVal("uSpotLights[%d].base.attenuation.constant", i, scene->getSpotLight(i).mAttenuation.constant);
+		setVal("uSpotLights[%d].base.attenuation.exponential", i, scene->getSpotLight(i).mAttenuation.exponential);
+
+		setVal("uSpotLights[%d].cutoff", i, cosf(glm::radians(scene->getSpotLight(i).cutoff)));
+		setVal("uSpotLights[%d].direction", i, scene->getSpotLight(i).direction);
+	}
+
+	prog.setUniformVal("uFogParams.density", scene->getFog().density);
+	prog.setUniformVal("uFogParams.color", scene->getFog().color);
+	prog.setUniformVal("uEyePos", scene->getCamera().getPosition());
+
+	#undef setVal
+}
+
+Renderer::Renderer() : mClearColor(0.5, 0, 0, 1.0f),
+	mGodrayPass1(0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(0, "", Texture2D::eRECT_TEXTURE),
+	mRenderBones(false), mBoneWidth(3.0f){
+}
+
+Renderer::RenderState& Renderer::getRenderState(){
+	return mRenderState;
+}
+
+void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color& clr){
+	gl( UseProgram(0) );
+
+	// projection
+	gl( MatrixMode(GL_PROJECTION) );
+	gl( LoadIdentity() );
+	gl( LoadMatrixf( glm::value_ptr( mFrustum.getProjMatrix() ) ) );
+
+	// moidelview
+	gl( MatrixMode(GL_MODELVIEW) );
+	gl( LoadIdentity() );
+	glm::mat4 mv;
+	camera->getMatrix(mv);
+	gl( LoadMatrixf( glm::value_ptr(mv) ) );
+
+	PxVec3 center = bounds.getCenter();
+	PxVec3 extents = bounds.getExtents();
+
+	gl( PolygonMode(GL_FRONT_AND_BACK, GL_LINE) );
+	gl( Color4f(clr.mRed, clr.mGreen, clr.mBlue, clr.mAlpha) );
+	gl( Begin(GL_QUADS) );
+		// bottom
+		glVertex3f( center.x - extents.x, center.y - extents.y, center.z - extents.z);
+		glVertex3f( center.x - extents.x, center.y - extents.y, center.z + extents.z);
+		glVertex3f( center.x + extents.x, center.y - extents.y, center.z + extents.z);
+		glVertex3f( center.x + extents.x, center.y - extents.y, center.z - extents.z);
+
+		// top
+		glVertex3f( center.x - extents.x, center.y + extents.y, center.z - extents.z);
+		glVertex3f( center.x - extents.x, center.y + extents.y, center.z + extents.z);
+		glVertex3f( center.x + extents.x, center.y + extents.y, center.z + extents.z);
+		glVertex3f( center.x + extents.x, center.y + extents.y, center.z - extents.z);
+	gl( End() );
+
+	gl( Begin(GL_LINES) );
+		glVertex3f( center.x - extents.x, center.y - extents.y, center.z - extents.z);
+		glVertex3f( center.x - extents.x, center.y + extents.y, center.z - extents.z);
+
+		glVertex3f( center.x + extents.x, center.y - extents.y, center.z + extents.z);
+		glVertex3f( center.x + extents.x, center.y + extents.y, center.z + extents.z);
+
+		glVertex3f( center.x + extents.x, center.y - extents.y, center.z - extents.z);
+		glVertex3f( center.x + extents.x, center.y + extents.y, center.z - extents.z);
+
+		glVertex3f( center.x - extents.x, center.y - extents.y, center.z + extents.z);
+		glVertex3f( center.x - extents.x, center.y + extents.y, center.z + extents.z);
+	gl( End() );
+	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
+}
+
+
+/** SkyBox rendering */
+void Renderer::render(Scene& scene, SkyBox* sky){
+	glm::mat4x4 modelMat;
+	sky->getTransform().getMatrix(modelMat);
+
+	glm::mat4x4 viewMat;
+	scene.getCamera().getMatrix(viewMat, true);
+
+	mSkyShader.use();
+	mSkyShader.setUniformVal("uModelViewProjection",
+		mFrustum.getProjMatrix()*(viewMat*modelMat) );
+
+	glActiveTexture(GL_TEXTURE0);
+	sky->bind();
+	mSkyShader.setUniformVal("uSkyboxTexture", 0);
+
+	sky->getBatch().render();
+}
+
+
+void Renderer::saveScreenshot(const String& path){
+	Image img;
+	img.fromFrameBuffer(Image::RGB);
+
+	DevilImageLoader::getSingleton().save(path, &img);
+}
+
+const math::Frustum& Renderer::getFrustum() const{
+	return mFrustum;
+}
+
+void Renderer::setClearColor(const Color& clr){
+	mClearColor = clr;
+
+	gl( ClearColor(clr.mRed, clr.mGreen, clr.mBlue,
+		clr.mAlpha) );
+}
+
+void Renderer::setViewPort(Uint32 width, Uint32 height){
+	gl( Viewport(0, 0, width, height) );
+
+	/*
+	You may have configured your zNear and zFar clipping planes in a way that severely limits your depth buffer precision.
+	Generally, this is caused by a zNear clipping plane value that's too close to 0.0.
+	As the zNear clipping plane is set increasingly closer to 0.0, the effective precision of the depth buffer decreases dramatically.
+	Moving the zFar clipping plane further away from the eye always has a negative impact on depth buffer precision, but it's not one as dramatic as moving the zNear clipping plane.
+	*/
+	mViewPort.x = (float)width;
+	mViewPort.y = (float)height;
+
+	{
+		if(mGodrayBatch.isGenerated()){
+			initGodray();
+		}
+	}
+
+
+	mFrustum.setPerspectiveProj((float)width, (float)height, 73.0f, 0.5f,
+		3500.0f);
+}
+
+void Renderer::setPolygoneMode(PolygonMode mode){
+	gl( PolygonMode(GL_FRONT_AND_BACK, mode) );
+	mRenderState.polygonMode = mode;
+}
+
+void Renderer::setFaceCulling(Culling mode){
+	gl( Enable(GL_CULL_FACE) );
+	gl( CullFace(mode) );
+}
+
+
+void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& clr){
+	gl( UseProgram(0) );
+
+	gl( Viewport(0, 0, viewport.x, viewport.y) );
+	// modelviewprojection
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, viewport.x, viewport.y, 0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	// bind texture
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, tex->getTexHandle());
+
+	// draw textured quad
+	glBegin(GL_QUADS);
+
+	glColor4f(clr.mRed, clr.mGreen, clr.mBlue, clr.mAlpha);
+
+	glVertex2f(x,	y);		glTexCoord2f(1.0, 0.0);
+	glVertex2f(x+w, y);		glTexCoord2f(1.0, 1.0);
+	glVertex2f(x+w, y+h);	glTexCoord2f(0.0, 1.0);
+	glVertex2f(x,	y+h);	glTexCoord2f(0.0, 0.0);
+
+	glEnd();
+}
+
+void Renderer::setShaderMaterialUniforms(Material* material, Gl::ShaderProgram& prog){
+#ifndef MATERIALS_DISABLED
+	prog.setUniformVal("uMaterial.ambientColor", material->getAmbient());
+	prog.setUniformVal("uMaterial.diffuseColor", material->getDiffuse());
+	prog.setUniformVal("uMaterial.specularColor", material->getSpecular());
+	prog.setUniformVal("uMaterial.shininess", material->getShininess());
+#else
+	prog.setUniformVal("uMaterial.ambientColor", Color::white());
+	prog.setUniformVal("uMaterial.diffuseColor", Color::white());
+	prog.setUniformVal("uMaterial.specularColor", Color::black());
+	prog.setUniformVal("uMaterial.shininess", 0.0f);
+#endif
+}
+
+/** SceneActor rendering */
+void Renderer::render(Scene* scene, SceneActor* actor, PassType pass){
+	if(!actor->getModel()){
+		return;
+	}
+
+	if(actor->getAnimationPlayer()){
+		mBasicShader.setUniformVal("uBones",
+			actor->getAnimationPlayer()->getBoneMatrices(),
+			actor->getAnimationPlayer()->getNumBones()
+		);
+	}
+	
+	glm::mat4 modelMat;
+	actor->getTransform().getMatrix(modelMat);
+	mBasicShader.setModelMatrix(modelMat);
+
+	actor->getModel()->getBatch().bind();
+
+	for(Model::GeometrySkin::MeshList::iterator i=actor->getSkin()->getMeshList().begin(); i!=actor->getSkin()->getMeshList().end(); i++){
+		// Use the material if the mesh has one
+		Texture2D* texture = i->texture;
+		Material* material = &i->material;
+
+		if(material == NULL){
+			material = &mDefaultMaterial;
+		}
+
+		mBasicShader.setUniformVal("uAlphaTest", material->isAlphaTested());
+
+#ifndef MATERIALS_DISABLED
+		setShaderMaterialUniforms(material, mBasicShader);
+#endif
+
+		if(texture != NULL){
+			texture->bind();
+		}
+		else{
+			mInvalidTex.bind();
+		}
+
+		//mBasicShader.setNormalMap( i->normalMap );
+
+		if(material->getBlend()){
+			gl( Enable(GL_BLEND) );
+			gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
+			//glDepthMask(1);
+		}
+		else{
+			gl( Disable(GL_BLEND) );
+			//glDepthMask(0);
+		}
+		
+		// basically no effect on FPS
+		i->geometry->render();
+	}
+}
+
+/** Terrain node rendering */
+void Renderer::render(Scene* scene, const float frustum[6][4], TerrainNode* node){
+	// frustum cull test
+	if(true){//inFrustum(frustum, node->getBounds())){
+		// have we reached a leaf?
+		if(!node->isLeaf()){
+			// render children
+			for(Uint32 i=0; i<4; i++){
+				render(scene, frustum, &node->getChildren()[i]);
+			}
+		}
+		else{
+			gl( Disable(GL_TEXTURE_2D) );
+			node->render();
+		}
+	}
+}
+
+/** Terrain rendering */
+void Renderer::render(Scene* scene, const float frustum[6][4], Terrain* terrain, PassType pass){
+	
+	// Render terrain
+	mTerrainShader.use();
+
+	Gl::ShaderUniform<int>(&mTerrainShader, "uPassType") = pass;
+
+	setShaderLightUniforms(scene, mTerrainShader);
+	setShaderMaterialUniforms(&mDefaultMaterial, mTerrainShader);
+
+	glm::mat4x4 view;
+	scene->getCamera().getMatrix(view);
+
+	mTerrainShader.setMVPMatrix(glm::mat4(1.0), view, mFrustum.getProjMatrix());
+	mTerrainShader.setTileTextures( terrain->getTerrainTexture() );
+	mTerrainShader.setColorMap( terrain->getMapTexture() );
+
+	render(scene, frustum, terrain->getRootNode() );
+}
+
+/** Scene rendering */
+void Renderer::draw(Scene& scene, PassType pass){
+	
+
+	// OpenGL state
+	mNumRenderedTerrainNodes = 0;
+	gl( PolygonMode(GL_FRONT_AND_BACK, mRenderState.polygonMode) );
+
+	gl( Enable(GL_DEPTH_TEST) );
+	//glDisable(GL_BLEND);
+
+	gl( Viewport(0, 0, mViewPort.x, mViewPort.y) );
+
+	// View matrix
+	glm::mat4x4 viewMat;
+	scene.getCamera().getMatrix(viewMat);
+
+	// Frustum planes
+	float frustum[6][4];
+	//extractFrustum(frustum, viewMat, mFrustum.getProjMatrix());
+
+	// Terrain
+	if(scene.getTerrain() != NULL){
+		render(&scene, frustum, scene.getTerrain(), pass);
+	}
+
+	// Actors
+	mBasicShader.use();
+	gl( ActiveTexture(GL_TEXTURE0) );
+	mBasicShader.setUniformVal("uPassType", pass);
+	setShaderLightUniforms(&scene, mBasicShader);
+
+#ifdef MATERIALS_DISABLED
+	setShaderMaterialUniforms(NULL, mBasicShader);
+#endif
+
+	mBasicShader.setMPMatrix(
+		viewMat, mFrustum.getProjMatrix());
+
+	gl( Disable(GL_BLEND) );
+	gl( Enable(GL_DEPTH_TEST) );
+	gl( Disable(GL_CULL_FACE) );
+
+	for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+		render(&scene, i->second, pass);
+	}
+
+	// Sky
+	if(pass == eNORMAL_PASS){
+		SkyBox* sky = scene.getSkyBox();
+		if(sky != NULL){
+			render(scene, sky);
+		}
+	}
+
+	if(mRenderBones){
+		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+			if(i->second->getModel() && i->second->getModel()->getSkeleton()){
+				render(&scene, i->second, i->second->getModel()->getSkeleton());
+			}
+		}
+	}
+}
+
+
+void Renderer::getGodRayParams(GodRayParams& dst){
+	dst = mGodRayParams;
+}
+
+void Renderer::setGodRayParams(const GodRayParams& src){
+	mGodRayParams = src;
+
+	mGodRayShader.use();
+
+#if 0
+	mGodRayShader.setUniformVal("uExposure", mGodRayParams.mExposure);
+	mGodRayShader.setUniformVal("uDecay", mGodRayParams.mDecay);
+	mGodRayShader.setUniformVal("uDensity", mGodRayParams.mDensity);
+	mGodRayShader.setUniformVal("uWeight", mGodRayParams.mWeight);
+	mGodRayShader.setUniformVal("uNumSamples", mGodRayParams.mNumSamples);
+	mGodraySunShader.setUniformVal("uSunSize", mGodRayParams.mSunSize);
+#endif
+}
+
+void Renderer::render(Scene& scene, RenderTarget* target){
+	setClearColor(mClearColor);
+
+	glm::mat4 modelview;
+	scene.getCamera().getMatrix(modelview, true);
+	
+	glm::vec4 viewport(0, 0, mViewPort.x, mViewPort.y);
+	glm::vec3 sunScreenPos = glm::project(mGodRayParams.mSunPos, modelview, mFrustum.getProjMatrix(), viewport);
+	bool sunVisible = sunScreenPos.x >= 0.0f && sunScreenPos.y >= 0.0f && sunScreenPos.x <= mViewPort.x && sunScreenPos.y <= mViewPort.y;
+
+	if(mGodRayParams.mIsEnabled){ 
+		// pass 1 (render scene without textures/lighting)
+		mGodrayFBO.bind(Gl::FrameBuffer::DRAW);
+
+		const GLenum pass1Buffers[] = {GL_COLOR_ATTACHMENT0};
+		gl( DrawBuffers(1, pass1Buffers) );
+
+		setClearColor(mGodRayParams.mRayColor);
+		gl( Clear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT) );
+
+		// draw sun
+		gl( Enable(GL_BLEND) );
+		gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
+		gl( Enable(GL_POINT_SPRITE) );
+		gl( Enable(GL_PROGRAM_POINT_SIZE) );
+
+		mGodraySunShader.use();
+		//glm::mat4 sunViewMat;
+		//scene.getCamera().getMatrix(sunViewMat, 1);
+		mGodraySunShader.setUniformVal("uModelMat", glm::translate(mGodRayParams.mSunPos));
+		mGodraySunShader.setUniformVal("uViewMat", modelview);
+		mGodraySunShader.setUniformVal("uProjMat", mFrustum.getProjMatrix());
+		mGodraySunShader.setUniformVal("uSunSize", mGodRayParams.mSunSize);
+		mGodraySunShader.setUniformVal("uPlanetTexture", 0);
+
+		gl( ActiveTexture(GL_TEXTURE0) );
+		mGodraySunTexture.bind();
+
+		gl( Color4f(mGodRayParams.mSunColor.mRed, 
+			mGodRayParams.mSunColor.mGreen,
+			mGodRayParams.mSunColor.mBlue,
+			mGodRayParams.mSunColor.mAlpha
+			) );
+
+		mSunBatch.render();
+
+		
+		//mSunBatch.render();
+
+		gl( Disable(GL_BLEND) );
+
+		// render the entire scene (without textures and lighting)
+		gl( Enable(GL_CULL_FACE) );
+		draw(scene, eGODRAY_PASS);
+	}
+
+	if(mGodRayParams.mIsEnabled){ 
+		// pass 2 (do the 2D post processing effect)
+
+		const GLenum pass2Buffers[] = {GL_COLOR_ATTACHMENT1};
+		gl( DrawBuffers(1, pass2Buffers) );
+
+		mGodRayShader.use();
+
+		// pass 1 result texture
+		gl( ActiveTexture(GL_TEXTURE0) );
+		mGodrayPass1.bind();
+
+		mGodRayShader.setUniformVal("uRectImage", 0);
+		mGodRayShader.setUniformVal("uLightPositionOnScreen", glm::vec2(sunScreenPos.x, sunScreenPos.y));
+
+
+		mGodRayShader.setUniformVal("uMVPMat", glm::ortho(
+			0.0f, mViewPort.x, 0.0f, mViewPort.y));
+
+		gl( Disable(GL_BLEND) );
+		gl( Disable(GL_DEPTH_TEST) );
+		gl( Disable(GL_CULL_FACE) );
+		mGodrayBatch.render();
+	}
+	
+
+	{ 
+		// pass 3
+		if(!target){
+			// Default framebuffer
+			Gl::FrameBuffer::unbind(Gl::FrameBuffer::DRAW);
+
+			 GLint doubleBuffered; 
+			gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
+
+			GLenum defaultBfrs[1];
+			defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
+
+			gl( DrawBuffers(1, defaultBfrs) );
+		}
+		else{
+			target->bind();
+		}
+
+		gl( Clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) );
+		//setClearColor(Color::red());
+		gl( Enable(GL_CULL_FACE) );
+		gl( Disable(GL_BLEND) );
+		draw(scene, eNORMAL_PASS);
+	}
+
+	if(mGodRayParams.mIsEnabled){
+		// pass 4 (apply post processing effect)
+
+		mRectShader.use();
+
+		gl( ActiveTexture(GL_TEXTURE0) );
+		mGodrayPass2.bind();
+
+		mRectShader.setUniformVal("uRectImage", 0);
+		mRectShader.setUniformVal("uMVPMat", glm::ortho(
+			0.0f, mViewPort.x, 0.0f, mViewPort.y));
+
+		gl( Enable(GL_BLEND) );
+		gl( BlendFunc(GL_ONE, GL_ONE) );
+		gl( Disable(GL_DEPTH_TEST) );
+		
+
+		mGodrayBatch.render();
+	}
+	/*glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	float s=100.0f;
+	float x = sunScreenPos.x - s/2;
+	float y = (mViewPort.y - sunScreenPos.y) - s/2;
+
+	render(TextureManager::getSingleton().getFromPath("$ROOT/brushes/circle_hard"), mViewPort,
+		x < 0 ? 0 : x+s > mViewPort.x ? mViewPort.x-s : x,
+		y < 0 ? 0 : y+s > mViewPort.y ? mViewPort.y-s : y,
+		s, s, Color::green());*/
+}
+
+}; // </wt

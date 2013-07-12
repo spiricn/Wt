@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Vec3View</class>
+ <widget class="QWidget" name="Vec3View">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>58</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QDoubleSpinBox" name="x">
+        <property name="minimum">
+         <double>-10000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>99999.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="y">
+        <property name="minimum">
+         <double>-10000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="z">
+        <property name="minimum">
+         <double>-10000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>x</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>Vec3View</receiver>
+   <slot>onValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>113</x>
+     <y>3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>y</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>Vec3View</receiver>
+   <slot>onValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>253</x>
+     <y>-3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>z</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>Vec3View</receiver>
+   <slot>onValueChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>322</x>
+     <y>36</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>362</x>
+     <y>54</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onValueChanged(double)</slot>
+ </slots>
+</ui>

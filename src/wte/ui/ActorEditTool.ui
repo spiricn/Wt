@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ActorEditTool</class>
+ <widget class="QDialog" name="ActorEditTool">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>660</width>
+    <height>239</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="5" column="2" colspan="2">
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="text">
+      <string>Select actor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>New actor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Animation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QPushButton" name="buttonBrushToggle">
+     <property name="text">
+      <string>Activate brush</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="3">
+    <widget class="QComboBox" name="comboBoxAnimation"/>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <widget class="TransformEdit" name="transform" native="true"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TransformEdit</class>
+   <extends>QWidget</extends>
+   <header>transformedit.h</header>
+   <container>1</container>
+   <slots>
+    <signal>rotationChanged()</signal>
+    <signal>scaleChanged()</signal>
+    <signal>translationChanged()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onNewActor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxAnimation</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onAnimationSelected(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>580</x>
+     <y>28</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>89</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBrushToggle</sender>
+   <signal>clicked()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onToggleBrush()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>190</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onSelectActor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>650</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>618</x>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>transform</sender>
+   <signal>rotationChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onRotationChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>201</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>141</x>
+     <y>3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>transform</sender>
+   <signal>scaleChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onScaleChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>362</x>
+     <y>105</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>258</x>
+     <y>-2</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>transform</sender>
+   <signal>translationChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onTranslationChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>445</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>548</x>
+     <y>-3</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onNewActor()</slot>
+  <slot>onAnimationSelected(QString)</slot>
+  <slot>onToggleBrush()</slot>
+  <slot>onAddDoodad()</slot>
+  <slot>onSave()</slot>
+  <slot>onSelectActor()</slot>
+  <slot>onScaleChanged()</slot>
+  <slot>onTranslationChanged()</slot>
+  <slot>onRotationChanged()</slot>
+ </slots>
+</ui>
