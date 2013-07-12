@@ -1,0 +1,14 @@
+#version 130
+
+in vec4 inPosition;
+
+uniform mat4 uModelMat;
+uniform mat4 uViewMat;
+uniform mat4 uProjMat;
+uniform vec3 uCamPos;
+
+void main(){
+	gl_PointSize = (60.0 * 1280/length(uCamPos.xyz-(uModelMat*inPosition).xyz))*0.000001 + 50.0f;
+
+	gl_Position = (uProjMat * (uViewMat*uModelMat)) * inPosition;
+}

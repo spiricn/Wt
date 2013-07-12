@@ -1,0 +1,15 @@
+#version 330
+
+in vec4 inPosition;
+in vec2 inTexCoord;
+
+out vec2 fsTexCoord;
+
+uniform mat4 uMVPMat;
+
+void main(){
+
+	fsTexCoord = inTexCoord;
+
+	gl_Position = uMVPMat*inPosition;
+}

@@ -1,0 +1,22 @@
+#version 330
+
+in vec4 inPosition;
+in vec2 inTexCoord;
+
+out vec2 fsTexCoords;
+out vec3 fsPosition;
+
+uniform mat4x4 uModelMat;
+uniform mat4x4 uViewMat;
+uniform mat4x4 uProjMat;
+
+void main(void) {
+	mat4x4 modelViewMat = uViewMat* uModelMat;
+	mat4x4 modelViewProjMat = uProjMat * modelViewMat;
+
+	fsTexCoords = inTexCoord.st;
+
+	fsPosition = (uModelMat* inPosition).xyz;
+	
+    gl_Position = modelViewProjMat * inPosition;
+}

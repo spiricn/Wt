@@ -1,0 +1,14 @@
+#version 130
+
+in vec4 inPosition;
+
+uniform mat4 uModelMat;
+uniform mat4 uViewMat;
+uniform mat4 uProjMat;
+uniform float uSunSize;
+
+void main(){
+	gl_PointSize = uSunSize + 20;
+
+	gl_Position = (uProjMat * (uViewMat*uModelMat)) * inPosition;
+}

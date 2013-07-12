@@ -1,0 +1,68 @@
+
+
+uniform vec3 uPosition;
+uniform vec3 uSize;
+
+#define FIELD_WIDTH ( uSize.x )
+#define FIELD_HEIGHT ( uSize.y )
+#define FIELD_DEPTH ( uSize.z )
+
+#define FIELD_POS_X ( uPosition.x )
+#define FIELD_POS_Y ( uPosition.y )
+#define FIELD_POS_Z ( uPosition.z )
+
+#pragma include shaders/noise3D.glsl
+
+void main(){
+
+	gl_PointSize = inPointSize * 1280/length(uCamPos.xyz-inPosition.xyz);
+
+	float life = inLife.x;
+	float maxLife = inLife.y;
+
+	life += uDt;
+	if(life >= maxLife){
+		outPosition.x = FIELD_POS_X - FIELD_WIDTH/2.0 + FIELD_WIDTH * ( (1 + snoise(vec3(inPosition)*rand()))/2.0);
+		outPosition.y = FIELD_POS_Y - FIELD_HEIGHT/2.0 + FIELD_HEIGHT * ( (1 + snoise(vec3(inPosition)*rand()))/2.0);
+		outPosition.z = FIELD_POS_Z - FIELD_DEPTH/2.0 + FIELD_DEPTH * ( (1 + snoise(vec3(inPosition)*rand()))/2.0);
+
+		outPointSize = 0.1 + rand();
+
+		outLife.x = 0.0;
+		outLife.y = 1.0 + rand()*5.0;
+
+		outVelocity.x = -2.0 + rand()*4;
+		outVelocity.y = rand()*3.0 * rand()>0.5?-1:1;
+		outVelocity.z = -2.0 + rand()*4;
+
+		outColor = vec3(rand(), rand(), rand());
+	}
+	else{
+		outPosition = inPosition.xyz + inVelocity*uDt;
+		outColor = inColor.rgb;
+		outVelocity = inVelocity;
+		outPointSize = inPointSize;
+
+		outLife = inLife;
+		outLife.x = life;
+	}
+//
+	float fadeTime = maxLife/4.0;
+
+	fsColor = hsv_to_rgb(life/maxLife, 1.0, 1.0, 1.0);
+
+	// fade in
+	if(life <= maxLife/4){
+		fsColor.a = life/fadeTime;
+	}
+	// fade out
+	else if(life >= maxLife*3/4){
+		fsColor.a = 1.0 - ((life-(maxLife*3/4))/fadeTime);
+	}
+	// normal
+	else{
+		fsColor.a = 1.0;
+	}
+
+	gl_Position = (uProjMat*uModelViewMat) * vec4(outPosition, 1.0);
+}

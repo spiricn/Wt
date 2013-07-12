@@ -1,0 +1,13 @@
+#version 130
+
+in vec4 inVertex;
+
+uniform mat4x4 uModelViewProjection;
+
+out vec3 fsTexCoord;
+
+void main(){
+	fsTexCoord = normalize(inVertex.xyz);
+
+	gl_Position = uModelViewProjection*inVertex;
+}

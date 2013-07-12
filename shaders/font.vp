@@ -1,0 +1,14 @@
+#version 130
+
+in vec4 aVertex;
+
+out vec2 fsTexCoord;
+
+uniform mat4x4 uMatProj;
+uniform mat4x4 uModelViewMat;
+
+void main(){
+	gl_Position = (uModelViewMat * uMatProj) * vec4(aVertex.xy, 0, 1); // 2 dimensional coordinates
+
+	fsTexCoord = vec2(aVertex[2], aVertex[3]); // other two components of aVertex are used as tex coords
+}
