@@ -78,7 +78,7 @@ public:
 		return tmp;
 	}
 
-	Uint32 getId() const{
+	uint32_t getId() const{
 		return mHandle.getHashCode();
 	}
 

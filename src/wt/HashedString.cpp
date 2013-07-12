@@ -6,9 +6,9 @@
 
 namespace wt{
 
-Uint32 HashedString::hash(const String& x, int M) {
+uint32_t HashedString::hash(const String& x, int M) {
 #if 0
-	Uint32 i, sum;
+	uint32_t i, sum;
 	for(sum=0, i=0; i < x.length(); i++)
 		sum += x[i];
 	return sum % M;
@@ -38,7 +38,7 @@ const String& HashedString::getString() const{
 	return mString;
 }
 
-const Uint32 HashedString::getHashCode() const{
+const uint32_t HashedString::getHashCode() const{
 	return mHash;
 }
 

@@ -33,10 +33,10 @@ void SkyDome::create(Geometry* domeMesh, Texture2D* skyTexture,
 	mPlanetShader.link();
 
 	float vertices[3] = {0.0, 0.0, 0.0};
-	Uint32 indices[1] = {0};
+	uint32_t indices[1] = {0};
 
 	mPlanetBatch.create(vertices, 1, 3*sizeof(float),
-		indices, 1, sizeof(Uint32), GL_POINTS);
+		indices, 1, sizeof(uint32_t), GL_POINTS);
 
 	mPlanetBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
 

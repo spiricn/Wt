@@ -38,7 +38,7 @@ void Buffer::bind() const{
 	glBindBuffer(mType, mHandle);
 }
 
-void Buffer::setSubData(Uint32 offset, const void* data, Uint32 size){
+void Buffer::setSubData(uint32_t offset, const void* data, uint32_t size){
 #ifdef WT_CHECKED
 	WT_ASSERT(offset+size <= mSize, "Buffer sub data size out of range (%d + %d > %d",
 		offset, size, mSize);
@@ -48,7 +48,7 @@ void Buffer::setSubData(Uint32 offset, const void* data, Uint32 size){
 	glBufferSubData(mType, offset, size, data);
 }
 
-void Buffer::getSubData(Uint32 offset, void* dst, Uint32 size) const{
+void Buffer::getSubData(uint32_t offset, void* dst, uint32_t size) const{
 #ifdef WT_CHECKED
 	WT_ASSERT(offset+size <= mSize, "Buffer sub data size out of range (%d + %d > %d",
 		offset, size, mSize);
@@ -63,7 +63,7 @@ void Buffer::unbind() const{
 	glBindBuffer(mType, 0);
 }
 
-Uint32 Buffer::getSize() const{
+uint32_t Buffer::getSize() const{
 	return mSize;
 }
 
@@ -80,7 +80,7 @@ void Buffer::create(){
 	}
 }
 
-void Buffer::setData(const void* data, Uint32 size, GLenum usage){
+void Buffer::setData(const void* data, uint32_t size, GLenum usage){
 	if(!mGenerated){
 		create();
 	}

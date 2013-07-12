@@ -29,10 +29,10 @@ private:
 	float mTime;
 	float mFps;
 	float mUpdateFrequency;
-	Uint32 mNumFrames;
+	uint32_t mNumFrames;
 	static const int kMAX_VALUES = 10;
 	float mFpsValues[kMAX_VALUES];
-	Uint32 mCurrentValue;
+	uint32_t mCurrentValue;
 	
 public:
 	FPSCalculator() : mTime(0.0f), mFps(0), mNumFrames(0), mUpdateFrequency(.3f), mCurrentValue(0){
@@ -52,7 +52,7 @@ public:
 		if(mTime >= mUpdateFrequency){
 			mFpsValues[mCurrentValue] = mNumFrames/mTime;
 			
-			Uint32 numValues=0;
+			uint32_t numValues=0;
 			float totalFps=0;
 			for(int i=0; i<kMAX_VALUES; i++){
 				if(mFpsValues[i] >= 0.0f){

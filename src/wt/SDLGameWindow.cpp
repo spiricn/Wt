@@ -88,7 +88,7 @@ bool SDLGameWindow::isFullscreen() const{
 	return mVideoMode.mFullscreenEnabled;
 }
 
-void SDLGameWindow::setScreenSize(Uint32 width, Uint32 height){
+void SDLGameWindow::setScreenSize(uint32_t width, uint32_t height){
 }
 	
 void SDLGameWindow::setFullscreenEnabled(bool state){

@@ -8,11 +8,11 @@ namespace wt{
 
 namespace Gl{
 
-Uint32 RenderBuffer::getWidth() const{
+uint32_t RenderBuffer::getWidth() const{
 	return mWidth;
 }
 
-Uint32 RenderBuffer::getHeight() const{
+uint32_t RenderBuffer::getHeight() const{
 	return mHeight;
 }
 
@@ -24,7 +24,7 @@ GLuint RenderBuffer::getHandle() const{
 	return mHandle;
 }
 
-void RenderBuffer::setStorage(GLenum format, Uint32 w, Uint32 h){
+void RenderBuffer::setStorage(GLenum format, uint32_t w, uint32_t h){
 	bind();
 	glRenderbufferStorage(GL_RENDERBUFFER,
 		format, w, h);

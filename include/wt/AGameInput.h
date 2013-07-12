@@ -69,10 +69,10 @@ protected:
 public:
 	static const EvtType TYPE;
 
-	Uint32 mX, mY;
-	Int32 mDx, mDy;
+	uint32_t mX, mY;
+	int32_t mDx, mDy;
 
-	MouseMotionEvent(Uint32 x, Uint32 y, Int32 dx, Int32 dy) : mX(x), mY(y),
+	MouseMotionEvent(uint32_t x, uint32_t y, int32_t dx, int32_t dy) : mX(x), mY(y),
 		mDx(dx), mDy(dy){
 	}
 
@@ -104,9 +104,9 @@ public:
 
 	Action mAction;
 	MouseButton mButton;
-	Uint32 mX, mY;
+	uint32_t mX, mY;
 
-	MousePressEvent(MouseButton btn, Uint32 x, Uint32 y, Action action) : mButton(btn), mX(x), mY(y), mAction(action){
+	MousePressEvent(MouseButton btn, uint32_t x, uint32_t y, Action action) : mButton(btn), mX(x), mY(y), mAction(action){
 	}
 
 	const EvtType& getType() const{
@@ -150,15 +150,15 @@ public:
 
 	virtual bool isKeyDown(VirtualKey code)=0;
 
-	virtual Int32 getMouseDeltaX()=0;
+	virtual int32_t getMouseDeltaX()=0;
 
-	virtual Int32 getMouseDeltaY()=0;
+	virtual int32_t getMouseDeltaY()=0;
 
-	virtual Int32 getMouseDeltaZ()=0;
+	virtual int32_t getMouseDeltaZ()=0;
 
-	virtual Uint32 getMousePosX()=0;
+	virtual uint32_t getMousePosX()=0;
 
-	virtual Uint32 getMousePosY()=0;
+	virtual uint32_t getMousePosY()=0;
 	
 	virtual void pollAndDispatch()=0;
 

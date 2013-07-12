@@ -9,7 +9,7 @@ namespace wt{
 template<class T>
 class Sp{
 private:
-	wt::Uint32* mRefCount;
+	uint32_t* mRefCount;
 	T* mRef;
 
 	void incRefCount(){
@@ -33,7 +33,7 @@ private:
 	}
 
 public:
-	Sp(T* ptr) : mRef(ptr), mRefCount(new wt::Uint32){
+	Sp(T* ptr) : mRef(ptr), mRefCount(new uint32_t){
 		*mRefCount = 1;
 	}
 
@@ -48,7 +48,7 @@ public:
 		decRefCount();
 	}
 
-	Uint32 getRefCount() const{
+	uint32_t getRefCount() const{
 		return mRefCount?*mRefCount:0;
 	}
 

@@ -45,10 +45,10 @@ friend class UIWindow;
 public:
 
 	struct GridLocation{
-		Uint32 row;
-		Uint32 column;
-		Uint32 rowSpan;
-		Uint32 columnSpan;
+		uint32_t row;
+		uint32_t column;
+		uint32_t rowSpan;
+		uint32_t columnSpan;
 
 		GridLocation() : row(0), column(0), rowSpan(0), columnSpan(0){
 		}
@@ -72,7 +72,7 @@ public:
 private:
 	glm::vec2 mPosition;
 	glm::vec2 mSize;
-	Uint32 mId;
+	uint32_t mId;
 	ViewBackground mBackground;
 	bool mIsVisible;
 	String mName;
@@ -87,7 +87,7 @@ private:
 
 protected:
 
-	void setId(Uint32 id){
+	void setId(uint32_t id){
 		mId = id;
 	}
 
@@ -131,7 +131,7 @@ public:
 		return mGridLocation;
 	}
 
-	void setGridLocation(Uint32 row, Uint32 column, Uint32 rowSpan=1, Uint32 columnSpan=1){
+	void setGridLocation(uint32_t row, uint32_t column, uint32_t rowSpan=1, uint32_t columnSpan=1){
 		mGridLocation.row = row;
 		mGridLocation.column = column;
 		mGridLocation.rowSpan = rowSpan;
@@ -220,7 +220,7 @@ public:
 		WT_UNUSED(key);
 	}
 
-	Uint32 getId() const{
+	uint32_t getId() const{
 		return mId;
 	}
 

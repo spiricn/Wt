@@ -13,9 +13,9 @@ namespace wt{
 class HashedString{
 private:
 	String mString;
-	Uint32 mHash;
+	uint32_t mHash;
 
-	Uint32 hash(const String& x, int M=200);
+	uint32_t hash(const String& x, int M=200);
 
 
 public:
@@ -27,7 +27,7 @@ public:
 
 	const String& getString() const;
 
-	const Uint32 getHashCode() const;
+	const uint32_t getHashCode() const;
 
 	HashedString& operator=(const std::string& str);
 

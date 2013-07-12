@@ -38,13 +38,13 @@ public:
 	*/
 	struct VideoMode{
 		// Screen geometry
-		Uint32 mScreenWidth, mScreenHeigth;
+		uint32_t mScreenWidth, mScreenHeigth;
 
 		// Screen position
-		Uint32 mPositionX, mPositionY;
+		uint32_t mPositionX, mPositionY;
 	
 		// Pixel depth
-		Uint32 mBPP;
+		uint32_t mBPP;
 
 		// Screen title
 		String mTitle;
@@ -53,8 +53,8 @@ public:
 
 		bool mFullscreenEnabled, mVerticalSyncEnabled;
 
-		VideoMode(Uint32 width=1024, Uint32 heigth=768, const String& title="Game Window",
-			bool vsync=true, bool fullscreen=false, Uint32 bpp=32, bool borderless=false) :
+		VideoMode(uint32_t width=1024, uint32_t heigth=768, const String& title="Game Window",
+			bool vsync=true, bool fullscreen=false, uint32_t bpp=32, bool borderless=false) :
 			mScreenWidth(width), mScreenHeigth(heigth), mTitle(title), 
 				mFullscreenEnabled(fullscreen), mVerticalSyncEnabled(vsync), mBorderless(borderless), mBPP(bpp){
 		}
@@ -76,11 +76,11 @@ public:
 	virtual ~AGameWindow(){
 	}
 
-	Uint32 getWidth() const{
+	uint32_t getWidth() const{
 		return mVideoMode.mScreenWidth;
 	}
 
-	Uint32 getHeight() const{
+	uint32_t getHeight() const{
 		return mVideoMode.mScreenHeigth;
 	}
 
@@ -94,7 +94,7 @@ public:
 
 	virtual bool isFullscreen() const=0;
 
-	virtual void setScreenSize(Uint32 width, Uint32 height)=0;
+	virtual void setScreenSize(uint32_t width, uint32_t height)=0;
 
 	virtual void setFullscreenEnabled(bool state)=0;
 

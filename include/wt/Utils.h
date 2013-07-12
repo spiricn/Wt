@@ -17,9 +17,9 @@ class Buffer;
 
 namespace Utils{
 	struct Indent{
-		Uint32 mDepth;
+		uint32_t mDepth;
 	
-		Indent(Uint32 depth) : mDepth(depth){
+		Indent(uint32_t depth) : mDepth(depth){
 		}
 	};
 
@@ -32,12 +32,12 @@ namespace Utils{
 	String getEnv(const String& name);
 
 	
-	void makeCheckboard(Buffer<unsigned char>& bfr, Uint32 w, Uint32 h,
-		Uint32 vf, Uint32 hf, const Color& clr1, const Color& clr2);
+	void makeCheckboard(Buffer<unsigned char>& bfr, uint32_t w, uint32_t h,
+		uint32_t vf, uint32_t hf, const Color& clr1, const Color& clr2);
 
 	String getCurrentTime(const String& format="%H-%M-%S-%d-%b-%Y");
 
-	void makeGrid(Gl::Batch& batch, float dx, float dz, Uint32 x, Uint32 z);
+	void makeGrid(Gl::Batch& batch, float dx, float dz, uint32_t x, uint32_t z);
 
 	void readFile(const String& path, String& dst);
 

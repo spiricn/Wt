@@ -25,9 +25,9 @@ public:
 private:
 	static const String TAG;
 	void* mData;
-	Uint32 mWidth, mHeigth, mNumComponents;
+	uint32_t mWidth, mHeigth, mNumComponents;
 	Format mFormat;
-	Uint32 mBufferSize;
+	uint32_t mBufferSize;
 
 public:
 
@@ -35,18 +35,18 @@ public:
 
 	~Image();
 
-	void setData(Uint32 width, Uint32 height, Format format, Uint32 numCopmonents,
+	void setData(uint32_t width, uint32_t height, Format format, uint32_t numCopmonents,
 		const void* data);
 
 	void destroy();
 	
 	void fromFrameBuffer(Format fmt);
 
-	Uint32 getWidth() const;
+	uint32_t getWidth() const;
 
-	Uint32 getHeigth() const;
+	uint32_t getHeigth() const;
 
-	Uint32 getNumComponents() const;
+	uint32_t getNumComponents() const;
 
 	Format	getFormat()	const;
 

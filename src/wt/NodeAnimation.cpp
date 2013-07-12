@@ -9,7 +9,7 @@
 
 namespace wt{
 	
-void NodeAnimation::calcTangent(Int32 k, glm::vec3& res) const{
+void NodeAnimation::calcTangent(int32_t k, glm::vec3& res) const{
 	const PositionKey& prev = mPosKeys[ (k-1)<0?mPosKeys.size()-1:k-1 ];
 	const PositionKey& next = mPosKeys[ (k+1)%mPosKeys.size() ];
 
@@ -29,7 +29,7 @@ int NodeAnimation::findPosKey(float time) const{
 		return -1;
 	}
 
-	for(Uint32 i=0; i<mPosKeys.size()-1; i++){
+	for(uint32_t i=0; i<mPosKeys.size()-1; i++){
 		if(time < mPosKeys[i+1].time){
 			return i;
 		}
@@ -43,7 +43,7 @@ int NodeAnimation::findRotKey(float time) const{
 		return -1;
 	}
 
-	for(Uint32 i=0; i<mRotKeys.size()-1; i++){
+	for(uint32_t i=0; i<mRotKeys.size()-1; i++){
 		if(time < mRotKeys[i+1].time){
 			return i;
 		}
@@ -57,7 +57,7 @@ int NodeAnimation::findScaleKey(float time) const{
 		return -1;
 	}
 
-	for(Uint32 i=0; i<mScaleKeys.size()-1; i++){
+	for(uint32_t i=0; i<mScaleKeys.size()-1; i++){
 		if(time < mScaleKeys[i+1].time){
 			return i;
 		}

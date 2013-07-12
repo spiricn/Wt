@@ -12,7 +12,7 @@ namespace wt{
 
 class TextureArray : public Texture{
 private:
-	Uint32 mNumTextures, mWidth, mHeight, mCurrTex;
+	uint32_t mNumTextures, mWidth, mHeight, mCurrTex;
 	GLenum mFormat;
 	bool mIsInitialized, mIsValid;
 
@@ -26,15 +26,15 @@ public:
 	}
 
 	/** initializes the texture array (must be called prior to adding textures manually */
-	void create(Uint32 width, Uint32 height, Uint32 num_textures, GLenum format);
+	void create(uint32_t width, uint32_t height, uint32_t num_textures, GLenum format);
 
 	/** adds a texture to the array (must be called after initializing the array with create */
 	void addTexture(const Image* image);
 
 	/** cretes & adds all the necessary textures to the arary (uses the first image for format/dimensions info) */
-	void create(Uint32 num, ...);
+	void create(uint32_t num, ...);
 
-	Uint32 getNumTextures() const;
+	uint32_t getNumTextures() const;
 
 }; // </TextureArray>
 

@@ -10,36 +10,36 @@
 namespace wt{
 
 
-float noise1(Int32 x, Int32 y){
-    Int32 n = x + y * 57;
+float noise1(int32_t x, int32_t y){
+    int32_t n = x + y * 57;
     n = (n<<13) ^ n;
     return ( 1.0 - ( (n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);    
 }
 
-float noise2(Int32 x, Int32 y){
-    Int32 n = x + y * 57;
+float noise2(int32_t x, int32_t y){
+    int32_t n = x + y * 57;
     n = (n<<13) ^ n;
     return ( 1.0 - ( (n * (n * n * 15737 + 789227) + 131007407) & 0x7fffffff) / 1073741824.0);    
 }
 
 
-float noise3(Int32 x, Int32 y){
-    Int32 n = x + y * 57;
+float noise3(int32_t x, int32_t y){
+    int32_t n = x + y * 57;
     n = (n<<13) ^ n;
     return ( 1.0 - ( (n * (n * n * 15739 + 789311) + 131005793) & 0x7fffffff) / 1073741824.0);    
 }
 
 
-float noise4(Int32 x, Int32 y){
-    Int32 n = x + y * 57;
+float noise4(int32_t x, int32_t y){
+    int32_t n = x + y * 57;
     n = (n<<13) ^ n;
     return ( 1.0 - ( (n * (n * n * 15749 + 789419) + 131007397) & 0x7fffffff) / 1073741824.0);    
 }
 
 
-typedef float(*NoiseFuncPtr)(Int32,Int32);
+typedef float(*NoiseFuncPtr)(int32_t,int32_t);
 
-float smoothNoise(Int32 x, Int32 y, NoiseFuncPtr noise){
+float smoothNoise(int32_t x, int32_t y, NoiseFuncPtr noise){
 
 	float corners = (noise(x-1, y-1) + noise(x+1, y-1) + noise(x+1, y+1) + noise(x-1, y+1)) / 16;
 	float sides = (noise(x-1, y) + noise(x+1, y) + noise(x, y-1) + noise(x, y+1)) / 8;
@@ -49,10 +49,10 @@ float smoothNoise(Int32 x, Int32 y, NoiseFuncPtr noise){
 }
 
 float interpolatedNoise(float x, float y, NoiseFuncPtr noise){
-	Int32 intX = (Int32)x; // ceo broj
+	int32_t intX = (int32_t)x; // ceo broj
 	float fracX = x - intX; // ostatak
 
-	Int32 intY = (Int32)y; // ceo broj
+	int32_t intY = (int32_t)y; // ceo broj
 	float fracY = y - intY; // ostatak
 
 
@@ -94,9 +94,9 @@ class DrawerPrototype{
 private:
 	Texture2D mTexture;
 
-	Uint32 mWidth, mHeight;
+	uint32_t mWidth, mHeight;
 public:
-	DrawerPrototype(Uint32 w, Uint32 h) : mWidth(w), mHeight(h){
+	DrawerPrototype(uint32_t w, uint32_t h) : mWidth(w), mHeight(h){
 	}
 
 	void create(){
@@ -108,8 +108,8 @@ public:
 	}
 
 	void process(){
-		for(Uint32 x=0; x<mWidth; x++){
-			for(Uint32 y=0; y<mHeight; y++){
+		for(uint32_t x=0; x<mWidth; x++){
+			for(uint32_t y=0; y<mHeight; y++){
 				// TODO
 			}
 		}

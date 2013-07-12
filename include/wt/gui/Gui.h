@@ -26,7 +26,7 @@ class UIWindow : public EventListener{
 private:
 	View* mFocus;
 	EventEmitter mEventEmitter;
-	typedef std::map<Uint32, View*> ViewMap;
+	typedef std::map<uint32_t, View*> ViewMap;
 	ViewMap mViews;
 	Canvas mCanvas;
 	EventManager* mEventManager;
@@ -35,7 +35,7 @@ private:
 	View* mClickView;
 	Font* mDefaultFont;
 	AGameInput* mInput;
-	Uint32 mNumGridRows, mNumGridColumns;
+	uint32_t mNumGridRows, mNumGridColumns;
 	View::ScalingMode mDefaultScaleMode;
 	bool mNeedsRescale;
 	float mVerticalCellSpacing, mHorizontalCellSpacing;
@@ -67,7 +67,7 @@ public:
 		mDefaultFont = font;
 	}
 
-	void setGridSize(Uint32 numRows, Uint32 numColumns){
+	void setGridSize(uint32_t numRows, uint32_t numColumns){
 		mNumGridRows = numRows;
 		mNumGridColumns = numColumns;
 
@@ -109,7 +109,7 @@ public:
 
 	template<class T>
 	T* createView(const String& name=""){
-		Uint32 id = mViews.size();
+		uint32_t id = mViews.size();
 		while(true){
 			if(mViews.find(id) == mViews.end()){
 				break;
@@ -249,7 +249,7 @@ public:
 		return NULL;
 	}
 
-	void create(Uint32 w, Uint32 h){
+	void create(uint32_t w, uint32_t h){
 		mCanvas.create(w, h);
 	}
 
@@ -271,11 +271,11 @@ public:
 
 #if 0
 		// Cell drawing for debugging purposes
-		for(Uint32 i=0; i<mNumGridColumns; i++){
+		for(uint32_t i=0; i<mNumGridColumns; i++){
 			mCanvas.drawLine( i*cellSize.x, 0, i*cellSize.x, mCanvas.getSize().y, Color::green(), 1);
 		}
 
-		for(Uint32 i=0; i<mNumGridRows; i++){
+		for(uint32_t i=0; i<mNumGridRows; i++){
 			mCanvas.drawLine(0, i*cellSize.y, mCanvas.getSize().x, i*cellSize.y, Color::green(), 1);
 		}
 #endif

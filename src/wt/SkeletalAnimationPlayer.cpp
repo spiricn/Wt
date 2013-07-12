@@ -10,7 +10,7 @@ namespace wt{
 SkeletalAnimationPlayer::SkeletalAnimationPlayer(Model* model) : mModel(model), mAnimationTime(0.0f),
 	mAnimationSpeed(1.0f), mIsLooping(false), mCurrentAnimation(NULL), mTimeAccumulator(1/30.0f) {
 
-	Uint32 numBones = model->getRootBone()->getNumChildren(true) /* number of roots children */ + 1 /* root itself */;
+	uint32_t numBones = model->getRootBone()->getNumChildren(true) /* number of roots children */ + 1 /* root itself */;
 
 	/// Initialize everything to identitiy matrices
 	mLocalBoneTransforms.create(numBones);
@@ -29,7 +29,7 @@ void SkeletalAnimationPlayer::initTransforms(SkeletonBone* bone){
 
 		mGlobalBoneTransforms[bone->getIndex()] = mGlobalTransforms[bone->getIndex()] * bone->getOffset();
 
-		for(Uint32 i=0; i<bone->getNumChildren(false); i++){
+		for(uint32_t i=0; i<bone->getNumChildren(false); i++){
 			initTransforms(bone->getChildAt(i));
 		}
 	}
@@ -38,10 +38,10 @@ SkeletalAnimationPlayer::~SkeletalAnimationPlayer(){
 }
 
 void SkeletalAnimationPlayer::evaluate(){
-	Uint32 numChannels = mCurrentAnimation->getNumBoneAnimations();
+	uint32_t numChannels = mCurrentAnimation->getNumBoneAnimations();
 
 	// For each node(bone) animation)
-	for(Uint32 i=0; i<numChannels; i++){
+	for(uint32_t i=0; i<numChannels; i++){
 		// Bone we're animating
 		SkeletonBone* bone = mCurrentAnimation->getBoneAnimations()[i].bone;
 
@@ -74,7 +74,7 @@ void SkeletalAnimationPlayer::calculateGlobalTransforms(SkeletonBone* bone){
 	mGlobalBoneTransforms[bone->getIndex()] = globalTransform * bone->getOffset();
 
 	// Do the same for all its children recursivley
-	for(Uint32 i=0; i<bone->getNumChildren(false); i++){
+	for(uint32_t i=0; i<bone->getNumChildren(false); i++){
 		calculateGlobalTransforms(bone->getChildAt(i));
 	}
 }
@@ -135,7 +135,7 @@ const glm::mat4* SkeletalAnimationPlayer::getBoneMatrices() const{
 	return mGlobalBoneTransforms.getData();
 }
 
-Uint32 SkeletalAnimationPlayer::getNumBones() const{
+uint32_t SkeletalAnimationPlayer::getNumBones() const{
 	return mGlobalBoneTransforms.getCapacity();
 }
 

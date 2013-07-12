@@ -94,8 +94,6 @@
 #include <IL/il.h>
 #include <IL/ilu.h>
 
-#include "wt/Types.h"
-
 namespace wt{
 	typedef std::string String;
 	typedef std::vector<String> StringList;

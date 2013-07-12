@@ -37,7 +37,7 @@ public:
 			return true;
 		}
 		else{
-			for(Uint32 i=0; i<root->mNumChildren; i++){
+			for(uint32_t i=0; i<root->mNumChildren; i++){
 				if(nodeTreeHasMesh(root->mChildren[i])){
 					return true;
 				}
@@ -52,7 +52,7 @@ public:
 			return node;
 		}
 		else{
-			for(Uint32 i=0; i<node->mNumChildren; i++){
+			for(uint32_t i=0; i<node->mNumChildren; i++){
 				if(!nodeTreeHasMesh(node->mChildren[i])){
 					return node->mChildren[i];
 				}
@@ -63,15 +63,15 @@ public:
 		return NULL;
 	}
 
-	static void buildSkeleton(SkeletonBone* bone, aiNode* aiBone, Uint32& idx){
-		for(Uint32 i=0; i<aiBone->mNumChildren; i++){
+	static void buildSkeleton(SkeletonBone* bone, aiNode* aiBone, uint32_t& idx){
+		for(uint32_t i=0; i<aiBone->mNumChildren; i++){
 			bone->addChild(
 				aiBone->mChildren[i]->mName.data, idx++);
 		}
 
 		aiConvert(aiBone->mTransformation, bone->getTransform());
 
-		for(Uint32 i=0; i<aiBone->mNumChildren; i++){
+		for(uint32_t i=0; i<aiBone->mNumChildren; i++){
 			buildSkeleton(bone->getChildAt(i), aiBone->mChildren[i], idx);
 		}
 	}
@@ -83,7 +83,7 @@ public:
 		}
 
 		SkeletonBone* root = model.createRootBone(aiRoot->mName.data);
-		Uint32 idx=1;
+		uint32_t idx=1;
 		buildSkeleton(root, aiRoot, idx);
 	}
 
@@ -105,17 +105,17 @@ public:
 				filePath.c_str(), importer.GetErrorString());
 		}
 
-		for(Uint32 i=0; i<scene->mNumMaterials; i++){
+		for(uint32_t i=0; i<scene->mNumMaterials; i++){
 			Material mat;
 			aiConvert(*scene->mMaterials[i], mat);
 		}
 
 		buildSkeleton(model, findSkeletonRoot(scene->mRootNode));
 
-		Uint32 numIndices=0;
-		Uint32 numVertices=0;
+		uint32_t numIndices=0;
+		uint32_t numVertices=0;
 
-		for(Uint32 i=0; i<scene->mNumMeshes; i++){
+		for(uint32_t i=0; i<scene->mNumMeshes; i++){
 			numVertices += scene->mMeshes[i]->mNumVertices;
 			numIndices += scene->mMeshes[i]->mNumVertices*3;
 		}
@@ -123,7 +123,7 @@ public:
 
 		model.setSize(numVertices, numIndices);
 
-		for(Uint32 i=0; i<scene->mNumMeshes; i++){
+		for(uint32_t i=0; i<scene->mNumMeshes; i++){
 			const aiMesh* mesh = scene->mMeshes[i];
 			
 			if(!mesh->HasNormals()){
@@ -143,13 +143,13 @@ public:
 			Buffer<GLuint> indices(mesh->mNumFaces*3);
 
 			// Copy indices
-			for(Uint32 j=0; j<mesh->mNumFaces; j++){
+			for(uint32_t j=0; j<mesh->mNumFaces; j++){
 				indices[j*3] = mesh->mFaces[j].mIndices[0];
 				indices[j*3+1] =  mesh->mFaces[j].mIndices[1];
 				indices[j*3+2] =  mesh->mFaces[j].mIndices[2];
 			}
 
-			for(Uint32 j=0; j<mesh->mNumVertices; j++){
+			for(uint32_t j=0; j<mesh->mNumVertices; j++){
 				vertices[j].x = mesh->mVertices[j].x;
 				vertices[j].y = invertAxis?mesh->mVertices[j].z:mesh->mVertices[j].y;
 				vertices[j].z = invertAxis?mesh->mVertices[j].y:mesh->mVertices[j].z;
@@ -180,7 +180,7 @@ public:
 
 
 			// Mesh bones
-			for(Uint32 j=0; j<mesh->mNumBones; j++){
+			for(uint32_t j=0; j<mesh->mNumBones; j++){
 				const aiBone* aBone = mesh->mBones[j];
 				SkeletonBone* bone = model.getRootBone()->findChildByName(aBone->mName.data);
 
@@ -191,7 +191,7 @@ public:
 				aiConvert(aBone->mOffsetMatrix, bone->getOffset());
 
 				// Set vertex weight & bone id attributes
-				for(Uint32 k=0; k<aBone->mNumWeights; k++){
+				for(uint32_t k=0; k<aBone->mNumWeights; k++){
 					const aiVertexWeight& aWeight = aBone->mWeights[k];
 					vertices[aWeight.mVertexId].addBone(bone->getIndex(), aWeight.mWeight);
 				}
@@ -237,7 +237,7 @@ private:
 	static void convertNodeAnim(const aiAnimation* aAnim, const aiNodeAnim* aNodeAnim, NodeAnimation& nodeAnim){
 
 		// Position keys
-		for(Uint32 i=0; i<aNodeAnim->mNumPositionKeys; i++){
+		for(uint32_t i=0; i<aNodeAnim->mNumPositionKeys; i++){
 			const aiVectorKey& aPosKey = aNodeAnim->mPositionKeys[i];
 			nodeAnim.getPositionKeys().push_back( NodeAnimation::PositionKey(aPosKey.mValue.x,
 				aPosKey.mValue.y,
@@ -247,7 +247,7 @@ private:
 		}
 
 		// Rotation keys
-		for(Uint32 i=0; i<aNodeAnim->mNumRotationKeys; i++){
+		for(uint32_t i=0; i<aNodeAnim->mNumRotationKeys; i++){
 			const aiQuatKey& aRotKey = aNodeAnim->mRotationKeys[i];
 			nodeAnim.getRotationKeys().push_back( NodeAnimation::RotationKey(aRotKey.mValue.x,
 				aRotKey.mValue.y,
@@ -258,7 +258,7 @@ private:
 		}
 
 		// Scaling keys
-		for(Uint32 i=0; i<aNodeAnim->mNumScalingKeys; i++){
+		for(uint32_t i=0; i<aNodeAnim->mNumScalingKeys; i++){
 			const aiVectorKey& aScaleKey = aNodeAnim->mScalingKeys[i];
 			
 			nodeAnim.getScaleKeys().push_back( NodeAnimation::ScaleKey(aScaleKey.mValue.x,

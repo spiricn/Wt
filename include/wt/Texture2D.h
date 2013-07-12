@@ -28,7 +28,7 @@ public:
 	};
 
 protected:
-	Uint32 mWidth, mHeight, mInternalFormat;
+	uint32_t mWidth, mHeight, mInternalFormat;
 	GLenum mFormat;
 	ImageLink mImage;
 	ImageManager* mImageManager;
@@ -59,8 +59,8 @@ public:
 		dst->create();
 
 		Buffer<Uint8> p;
-		Uint32 w=src->getWidth();
-		Uint32 h=src->getHeigth();
+		uint32_t w=src->getWidth();
+		uint32_t h=src->getHeigth();
 		p.create(w*h*3);
 
 		src->bind();
@@ -71,7 +71,7 @@ public:
 	}
 
 
-	void setSubData(Uint32 xOffset, Uint32 yOffset, Uint32 width, Uint32 height,
+	void setSubData(uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height,
 		void* data){
 
 		if(xOffset+width > mWidth || yOffset+height > mHeight){

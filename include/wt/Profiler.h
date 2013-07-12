@@ -33,7 +33,7 @@ public:
 		LOGI("Profiler", "--------------------------------");
 		for(TimeMap::iterator i=mTimeMap.begin(); i!=mTimeMap.end(); i++){
 			LOGI("Profiler", "\"%s\" t=%dms p=%.2f%%",
-				i->first.c_str(), (Uint32)(i->second*1000.0f), (i->second/totalTime)*100.0f);
+				i->first.c_str(), (uint32_t)(i->second*1000.0f), (i->second/totalTime)*100.0f);
 		}
 		LOGI("Profiler", "--------------------------------");
 	}

@@ -15,8 +15,8 @@ namespace Lua{
 using namespace LuaPlus;
 
 
-// Uint32
-bool luaConv(const LuaObject& src, Uint32& dst){
+// uint32_t
+bool luaConv(const LuaObject& src, uint32_t& dst){
 	if(src.IsInteger()){
 		dst = src.GetInteger();
 		return true;
@@ -216,7 +216,7 @@ std::ostream& serialize(LuaObject& obj, std::ostream& stream){
 	return stream << obj;
 }
 
-void serializeTable(LuaObject& table, std::ostream& stream, Uint32 depth){
+void serializeTable(LuaObject& table, std::ostream& stream, uint32_t depth){
 	WT_UNUSED(depth);
 	serialize(table, stream);
 }

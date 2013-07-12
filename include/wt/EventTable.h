@@ -39,14 +39,14 @@ protected:
 
 		CallbackType type;
 
-		Uint32 filter;
+		uint32_t filter;
 		bool isFiltered;
 
-		FilteredCallback(EventCallback callback, bool isFiltered=false, Uint32 filter=0) : callback(callback),
+		FilteredCallback(EventCallback callback, bool isFiltered=false, uint32_t filter=0) : callback(callback),
 			isFiltered(isFiltered), filter(filter), type(eEVENT_CALLBACK){
 		}
 
-		FilteredCallback(Callback callback, bool isFiltered=false, Uint32 filter=0) : callback(callback),
+		FilteredCallback(Callback callback, bool isFiltered=false, uint32_t filter=0) : callback(callback),
 			isFiltered(isFiltered), filter(filter), type(eCALLBACK){
 		}
 	}; // </FilteredCallback>
@@ -62,11 +62,11 @@ protected:
 		registerCallback(type, FilteredCallback(callback, false) );
 	}
 
-	void registerCallback(const EvtType& type, EventCallback callback, Uint32 filter){
+	void registerCallback(const EvtType& type, EventCallback callback, uint32_t filter){
 		registerCallback(type, FilteredCallback(callback, true, filter) );
 	}
 
-	void registerCallback(const EvtType& type, Callback callback, Uint32 filter){
+	void registerCallback(const EvtType& type, Callback callback, uint32_t filter){
 		registerCallback(type, FilteredCallback(callback, true, filter) );
 	}
 

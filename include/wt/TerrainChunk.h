@@ -14,7 +14,7 @@ namespace wt{
 
 class TerrainChunk{
 public:
-	typedef Buffer<Int16> HeightMap;
+	typedef Buffer<int16_t> HeightMap;
 
 	#pragma pack(push, 1) 
 	typedef struct{
@@ -27,7 +27,7 @@ public:
 
 private:
 	Gl::Batch				mBatch;
-	Uint32					mNumTriangles, mNumVertices, mNumXVertices, mNumZVertices;
+	uint32_t					mNumTriangles, mNumVertices, mNumXVertices, mNumZVertices;
 	float					mDepth, mWidth, mMinHeight, mMaxHeight; // bounding box
 	HeightMap				mHeightMap;
 	TextureArray*			mTextureArray;
@@ -41,7 +41,7 @@ public:
 		return mHeightScale;
 	}
 
-	glm::vec3 getPosAt(Uint32 row, Uint32 col){
+	glm::vec3 getPosAt(uint32_t row, uint32_t col){
 		return glm::vec3(
 			row*mRowScale,
 			mHeightMap[row*mNumZVertices + col]*mHeightScale,
@@ -74,8 +74,8 @@ public:
 		return mHeightMap;
 	}
 
-	void loadHeightmap(std::ifstream& inFile, Uint32 stride, Uint32 numRows,
-		Uint32 numColumns, float rowScale, float columnScale, float heightScale=1.0f);
+	void loadHeightmap(std::ifstream& inFile, uint32_t stride, uint32_t numRows,
+		uint32_t numColumns, float rowScale, float columnScale, float heightScale=1.0f);
 
 	void setTexArrays(TextureArray* textureArray, Texture2D* mapArray);
 

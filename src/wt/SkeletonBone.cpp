@@ -16,7 +16,7 @@ void SkeletonBone::setName(const String& name){
 }
 
 SkeletonBone::SkeletonBone(SkeletonBone* parent, const String& name,
-	Uint32 index) : ANode(parent, name), mIndex(index){
+	uint32_t index) : ANode(parent, name), mIndex(index){
 }
 
 void SkeletonBone::setTransform(const glm::mat4& transform){
@@ -31,7 +31,7 @@ glm::mat4& SkeletonBone::getTransform(){
 	return mTransform;
 }
 
-Uint32 SkeletonBone::getIndex() const{
+uint32_t SkeletonBone::getIndex() const{
 	return mIndex;
 }
 
@@ -63,7 +63,7 @@ void SkeletonBone::getGlobalTransform(glm::mat4& dst){
 	}while(node != NULL);
 }
 
-SkeletonBone* SkeletonBone::addChild(const String& name, Uint32 index){
+SkeletonBone* SkeletonBone::addChild(const String& name, uint32_t index){
 	return ANode::addChild(name, new SkeletonBone(this, name, index));
 }
 

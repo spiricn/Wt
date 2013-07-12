@@ -45,7 +45,7 @@ protected:
 	Uint8 mCurrBatch;
 	Gl::Batch mBatches[2];
 	Texture2D* mParticleTexture;
-	Uint32 mNumParticles;
+	uint32_t mNumParticles;
 	ParticleShader mShader;
 	bool mEnabled;
 
@@ -81,7 +81,7 @@ private:
 public:
 	ParticleEmitter();
 
-	ParticleEffect* create(Uint32 numParticles, Texture2D* particleTexture, const String& userProg);
+	ParticleEffect* create(uint32_t numParticles, Texture2D* particleTexture, const String& userProg);
 	
 	void update(float dt);
 

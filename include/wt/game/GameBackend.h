@@ -348,7 +348,7 @@ public:
 		float tpf=0.0f;
 		float fps = 60.0f;
 		float dur = 30.0f;
-		Uint32 numFrames = (Uint32)(dur*fps);
+		uint32_t numFrames = (uint32_t)(dur*fps);
 
 		mVideoEnc.setFrameRate(60.0f);
 		mVideoEnc.setSize(mWindow->getWidth(), mWindow->getHeight());
@@ -361,7 +361,7 @@ public:
 
 		float elapsed=0.0f;
 		time.reset();
-		for(Uint32 i=0; i<numFrames; i++){
+		for(uint32_t i=0; i<numFrames; i++){
 			
 			mInput->pollAndDispatch();
 			mEventManager->tick();
@@ -466,7 +466,7 @@ public:
 	}
 
 	/** virtual callback */
-	virtual void onWindowSizeChanged(Uint32 w, Uint32 h){
+	virtual void onWindowSizeChanged(uint32_t w, uint32_t h){
 		mRenderer.setViewPort(w, h);
 	}
 

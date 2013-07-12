@@ -82,7 +82,7 @@ bool MatrixStack::isEmpty() const{
 	return mStackPtr==0;
 }
 
-Uint32 MatrixStack::getSize() const{
+uint32_t MatrixStack::getSize() const{
 	return mStackPtr;
 }
 

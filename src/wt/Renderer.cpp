@@ -49,11 +49,11 @@ void Renderer::initGodray(){
 			{0, 0, 0, 0}, {portW, 0, portW, 0}, {portW, portH, portW, portH}, {0, portH, 0, portH}
 		};
 
-		Uint32 indices[4] = {0, 1, 2, 3};
+		uint32_t indices[4] = {0, 1, 2, 3};
 
 		mGodrayBatch.destroy();
 		mGodrayBatch.create(vertices, 4, sizeof(vertex),
-			indices, 4, sizeof(Uint32), GL_QUADS);
+			indices, 4, sizeof(uint32_t), GL_QUADS);
 
 		// inPosition
 		mGodrayBatch.setVertexAttribute(0, 2, GL_FLOAT, offsetof(vertex, x));
@@ -62,7 +62,7 @@ void Renderer::initGodray(){
 	}
 }
 
-void Renderer::init(Uint32 portW, Uint32 portH ){
+void Renderer::init(uint32_t portW, uint32_t portH ){
 	LOGV("Initializing...");
 
 	LOGV("GL_VERSION = %s", glGetString(GL_VERSION));
@@ -133,9 +133,9 @@ void Renderer::init(Uint32 portW, Uint32 portH ){
 	{
 		// godray sun
 		float vertices[] = {0,0,0};
-		Uint32 indices[] = {0};
+		uint32_t indices[] = {0};
 		mSunBatch.create(vertices, 1, sizeof(float)*3,
-			indices, 1, sizeof(Uint32), GL_POINTS);
+			indices, 1, sizeof(uint32_t), GL_POINTS);
 		mSunBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
 	}
 	setClearColor(Color(0.3, 0.3, 0.3));
@@ -269,14 +269,14 @@ bool inFrustum(const float frustum[6][4], const physx::PxBounds3& bounds){
 void saveDepthTexture(Texture2D* texture, const String& path){
 	texture->bind();
 	Buffer<float> p;
-	Uint32 w=texture->getWidth();
-	Uint32 h=texture->getHeigth();
+	uint32_t w=texture->getWidth();
+	uint32_t h=texture->getHeigth();
 	p.create(w*h);
 	gl( GetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)p.getData()) );
 
 	Buffer<unsigned char> rgb;
 	rgb.create(w*h*3);
-	for(Uint32 i=0; i<w*h; i++){
+	for(uint32_t i=0; i<w*h; i++){
 		Uint8 depth = (Uint8)((1.0 - (1.0 - p[i]) * 25.0)*255.0);
 
 		rgb[i*3 + 0] = depth;
@@ -376,16 +376,16 @@ void Renderer::setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog){
 	char bfr[100];
 	*bfr=0;
 
-	Uint32 numActiveLights=0;
-	for(Uint32 i=0; i<scene->getNumPointLights(); i++){
+	uint32_t numActiveLights=0;
+	for(uint32_t i=0; i<scene->getNumPointLights(); i++){
 		if(scene->getPointLight(i).mActive){
 			numActiveLights++;
 		}
 	}
 
 
-	prog.setUniformVal("uNumPointLights", (Int32)numActiveLights);
-	for(Uint32 i=0; i<scene->getNumPointLights(); i++){
+	prog.setUniformVal("uNumPointLights", (int32_t)numActiveLights);
+	for(uint32_t i=0; i<scene->getNumPointLights(); i++){
 		if(!scene->getPointLight(i).mActive){
 			continue;
 		}
@@ -400,14 +400,14 @@ void Renderer::setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog){
 	}
 
 	numActiveLights=0;
-	for(Uint32 i=0; i<scene->getNumSpotLights(); i++){
+	for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
 		if(scene->getSpotLight(i).mActive){
 			numActiveLights++;
 		}
 	}
-	prog.setUniformVal("uNumSpotLights", (Int32)numActiveLights);
+	prog.setUniformVal("uNumSpotLights", (int32_t)numActiveLights);
 
-	for(Uint32 i=0; i<scene->getNumSpotLights(); i++){
+	for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
 		if(!scene->getSpotLight(i).mActive){
 			continue;
 		}
@@ -530,7 +530,7 @@ void Renderer::setClearColor(const Color& clr){
 		clr.mAlpha) );
 }
 
-void Renderer::setViewPort(Uint32 width, Uint32 height){
+void Renderer::setViewPort(uint32_t width, uint32_t height){
 	gl( Viewport(0, 0, width, height) );
 
 	/*
@@ -672,7 +672,7 @@ void Renderer::render(Scene* scene, const float frustum[6][4], TerrainNode* node
 		// have we reached a leaf?
 		if(!node->isLeaf()){
 			// render children
-			for(Uint32 i=0; i<4; i++){
+			for(uint32_t i=0; i<4; i++){
 				render(scene, frustum, &node->getChildren()[i]);
 			}
 		}

@@ -39,7 +39,7 @@ public:
 
 	Animation* getAnimation();
 
-	Uint32 getNumBoneAnimations() const;
+	uint32_t getNumBoneAnimations() const;
 
 	float getDuration() const;
 

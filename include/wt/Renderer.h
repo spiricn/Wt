@@ -249,7 +249,7 @@ private:
 
 	void setShaderMaterialUniforms(Material* material, Gl::ShaderProgram& prog);
 
-	Uint32 mNumRenderedTerrainNodes;
+	uint32_t mNumRenderedTerrainNodes;
 
 	enum PassType{
 		eNORMAL_PASS,
@@ -274,7 +274,7 @@ public:
 
 	void render(const PxBounds3& bounds, math::Camera* camera, const Color& clr);
 
-	void init(Uint32 portW, Uint32 portH );
+	void init(uint32_t portW, uint32_t portH );
 
 	void saveScreenshot(const String& path);
 
@@ -288,7 +288,7 @@ public:
 
 	void setClearColor(const Color& clr);
 
-	void setViewPort(Uint32 width, Uint32 height);
+	void setViewPort(uint32_t width, uint32_t height);
 
 	void setPolygoneMode(PolygonMode mode);
 

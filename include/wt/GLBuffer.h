@@ -22,7 +22,7 @@ private:
 	GLenum mType;
 	bool mGenerated;
 	bool mIsBufferMapped;
-	Uint32 mSize;
+	uint32_t mSize;
 
 public:
 	Buffer(GLenum buffer_type);
@@ -39,7 +39,7 @@ public:
 
 	void unbind() const;
 
-	Uint32 getSize() const;
+	uint32_t getSize() const;
 
 	void create();
 
@@ -47,9 +47,9 @@ public:
 
 	void setData(const void* p_data, size_t size, GLenum usage=GL_STATIC_DRAW);
 
-	void setSubData(Uint32 offset, const void* data, Uint32 size);
+	void setSubData(uint32_t offset, const void* data, uint32_t size);
 
-	void getSubData(Uint32 offset, void* dst, Uint32 size) const;
+	void getSubData(uint32_t offset, void* dst, uint32_t size) const;
 
 }; // </GLBuffer>
 

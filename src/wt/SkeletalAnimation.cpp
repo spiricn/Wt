@@ -30,7 +30,7 @@ Animation* SkeletalAnimation::getAnimation(){
 	return mAnimation;
 }
 
-Uint32 SkeletalAnimation::getNumBoneAnimations() const{
+uint32_t SkeletalAnimation::getNumBoneAnimations() const{
 	return mBoneAnimations.getCapacity();
 }
 
@@ -42,7 +42,7 @@ void SkeletalAnimation::create(){
 	mBoneAnimations.create( mAnimation->mNodeAnimations.size() );
 
 	// pair up animation nodes to our bone animations
-	for(Uint32 i=0; i<mAnimation->mNodeAnimations.size(); i++){
+	for(uint32_t i=0; i<mAnimation->mNodeAnimations.size(); i++){
 		NodeAnimation* animationNode = mAnimation->mNodeAnimations[i];
 		SkeletonBone* animatedBone = mSkeleton->findChildByName(animationNode->getTargetNode(), true);
 

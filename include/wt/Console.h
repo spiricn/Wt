@@ -24,7 +24,7 @@ public:
 
 	static void setColor(ConsoleColor text=eWHITE, ConsoleColor background=eBLACK);
 
-	static void setPosition(Int32 x, Int32 y, Int32 w, Int32 h);
+	static void setPosition(int32_t x, int32_t y, int32_t w, int32_t h);
 
 	static void cpritnf(ConsoleColor textColor, ConsoleColor backgroundColor, const char* fmt, ...);
 

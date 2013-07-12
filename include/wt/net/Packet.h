@@ -11,7 +11,7 @@ namespace net{
 
 class Packet{
 private:
-	Int32 mId;
+	int32_t mId;
 
 	typedef Buffer<unsigned char> ByteBuffer;
 
@@ -22,7 +22,7 @@ public:
 	Packet() : mId(-1){
 	}
 
-	Packet(Int32 id, const String& data) : mId(id){
+	Packet(int32_t id, const String& data) : mId(id){
 		mData.create(data.size() + 1);
 		mData.put((Uint8*)data.c_str(), data.size()+1);
 	}
@@ -31,7 +31,7 @@ public:
 		*this = other;
 	}
 
-	Packet(Int32 id, const char* data, Uint32 size) : mId(id){
+	Packet(int32_t id, const char* data, uint32_t size) : mId(id){
 		mData.create(size);
 
 		if(data){
@@ -48,11 +48,11 @@ public:
 		return (void*)(mData.getData());
 	}
 
-	Uint32 getPayloadSize() const{
+	uint32_t getPayloadSize() const{
 		return mData.getSize();
 	}
 
-	Int32 getId() const{
+	int32_t getId() const{
 		return mId;
 	}
 

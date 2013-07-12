@@ -135,7 +135,7 @@ public:
 		}
 	}
 
-	Uint32 getNumResources() const{
+	uint32_t getNumResources() const{
 		return mResources.size();
 	}
 

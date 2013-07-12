@@ -5,7 +5,7 @@
 
 namespace wt{
 
-void TextureArray::create(Uint32 width, Uint32 height, Uint32 num_textures, GLenum format){
+void TextureArray::create(uint32_t width, uint32_t height, uint32_t num_textures, GLenum format){
 	mWidth=width; mHeight=height;
 	mFormat=format; mNumTextures=num_textures;
 
@@ -17,15 +17,15 @@ void TextureArray::create(Uint32 width, Uint32 height, Uint32 num_textures, GLen
 	mIsInitialized=true;
 }
 
-Uint32 TextureArray::getNumTextures() const{
+uint32_t TextureArray::getNumTextures() const{
 	return mNumTextures;
 }
 
-void TextureArray::create(Uint32 num, ...){
+void TextureArray::create(uint32_t num, ...){
 	va_list args;
 	va_start(args, num);
 
-	for(Uint32 i=0; i<num; i++){
+	for(uint32_t i=0; i<num; i++){
 		const Image* img = va_arg(args,const Image*);
 
 		if(i==0 && !mIsInitialized){
@@ -40,7 +40,7 @@ void TextureArray::create(Uint32 num, ...){
 
 void TextureArray::addTexture(const Image* image){
 	// check image dimensions
-	if((Uint32)image->getWidth()!=mWidth && (Uint32)image->getHeigth()!=mHeight){
+	if((uint32_t)image->getWidth()!=mWidth && (uint32_t)image->getHeigth()!=mHeight){
 		WT_THROW(
 				"Image size doesn't match texture array size (texture array: %x,%d, image: %dx%d)",
 				mWidth, mHeight, image->getWidth(), image->getHeigth()

@@ -61,7 +61,6 @@
 #include <fstream>
 #include <map>
 #include <sstream>
-#
 #include <vector>
 #include <stack>
 #include <algorithm>
@@ -71,6 +70,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string>
+#include <stdint.h>
 
 // GLM
 #include <glm/glm.hpp>
@@ -95,7 +95,6 @@
 #include <IL/ilu.h>
 
 // wt
-#include "wt/Types.h"
 
 namespace wt{
 	typedef std::string String;

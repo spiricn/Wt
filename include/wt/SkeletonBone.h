@@ -17,7 +17,7 @@ public:
 private:
 	glm::mat4 mOffset;
 	glm::mat4 mTransform;
-	Uint32 mIndex;
+	uint32_t mIndex;
 
 public:
 	glm::mat4& getOffset();
@@ -29,17 +29,17 @@ public:
 	void setName(const String& name);
 
 	SkeletonBone(SkeletonBone* parent, const String& name,
-		Uint32 index);
+		uint32_t index);
 
 	void setTransform(const glm::mat4& transform);
 
-	Uint32 getIndex() const;
+	uint32_t getIndex() const;
 
 	void duplicate(SkeletonBone* dst);
 
 	void getGlobalTransform(glm::mat4& dst);
 
-	SkeletonBone* addChild(const String& name, Uint32 index);
+	SkeletonBone* addChild(const String& name, uint32_t index);
 
 	void calculateBoneMatrx(Buffer<glm::mat4x4>& matrices);
 

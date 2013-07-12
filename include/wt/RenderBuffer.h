@@ -9,20 +9,20 @@ class RenderBuffer{
 private:
 	GLuint mHandle;
 	GLenum mFormat;
-	Uint32 mWidth, mHeight;
+	uint32_t mWidth, mHeight;
 
 public:
 	RenderBuffer();
 
-	Uint32 getWidth() const;
+	uint32_t getWidth() const;
 
-	Uint32 getHeight() const;
+	uint32_t getHeight() const;
 
 	void create();
 
 	GLuint getHandle() const;
 
-	void setStorage(GLenum format, Uint32 w, Uint32 h);
+	void setStorage(GLenum format, uint32_t w, uint32_t h);
 
 	void bind();
 

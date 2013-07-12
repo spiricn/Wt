@@ -19,8 +19,8 @@ private:
 	WT_DISALLOW_COPY(MatrixStack)
 
 	float* mData;
-	Uint32 mStackPtr;
-	Uint32 mDepth;
+	uint32_t mStackPtr;
+	uint32_t mDepth;
 
 public:
 	MatrixStack();
@@ -29,7 +29,7 @@ public:
 
 	bool isEmpty() const;
 
-	Uint32 getSize() const;
+	uint32_t getSize() const;
 
 	glm::mat4x4& top();
 

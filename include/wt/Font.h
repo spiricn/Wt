@@ -64,10 +64,10 @@ public:
 		FT_GlyphSlot slot = mFace->glyph;
 
 		// determine the width/height required to store all the glyphs
-		Int32 width = 0;
-		Int32 height = 0;
+		int32_t width = 0;
+		int32_t height = 0;
 
-		for(Int32 i=0; i<127; i++){
+		for(int32_t i=0; i<127; i++){
 			WT_ASSERT(
 			 !FT_Load_Char(mFace, i, FT_LOAD_RENDER), "Error loading glyph");
 
@@ -82,8 +82,8 @@ public:
 		mTexture.setData(
 			width, height, GL_ALPHA, GL_ALPHA, 0, GL_UNSIGNED_BYTE);
 
-		Int32 x=0;
-		for(Int32 i=0; i<127; i++){
+		int32_t x=0;
+		for(int32_t i=0; i<127; i++){
 			WT_ASSERT(
 			 !FT_Load_Char(mFace, i, FT_LOAD_RENDER), "Error loading glyph");
 
@@ -150,15 +150,15 @@ public:
 		return &mTexture;
 	}
 
-	Uint32 getBmpWidth(){
+	uint32_t getBmpWidth(){
 		return mFace->glyph->bitmap.width;
 	}
 
-	Uint32 getBmpHeight(){
+	uint32_t getBmpHeight(){
 		return mFace->glyph->bitmap.rows;
 	}
 
-	void load(const String& path, Uint32 size){
+	void load(const String& path, uint32_t size){
 		if(FT_New_Face(*mLib, path.c_str(), 0, &mFace)){
 			WT_THROW("Error loading font \"%s\"", path.c_str());
 		}
@@ -194,7 +194,7 @@ public:
 		return mFace->glyph->metrics;
 	}
 
-	void setSize(Uint32 size){
+	void setSize(uint32_t size){
 		FT_Set_Pixel_Sizes(mFace, 0, size);
 	}
 

@@ -13,9 +13,9 @@ class VertexArray;
 
 class SubBatch{
 public:
-	Uint32 mMinIndex, mMaxIndex, mStartIndex, mNumIndices;
+	uint32_t mMinIndex, mMaxIndex, mStartIndex, mNumIndices;
 
-	SubBatch(Uint32 minIndex, Uint32 maxIndex, Uint32 start, Uint32 num) : mMinIndex(minIndex),
+	SubBatch(uint32_t minIndex, uint32_t maxIndex, uint32_t start, uint32_t num) : mMinIndex(minIndex),
 		mMaxIndex(maxIndex), mStartIndex(start), mNumIndices(num){
 	}
 
@@ -44,13 +44,13 @@ public:
 
 	GLuint getIndexSize();
 	
-	Uint32 getIndexAt(Uint32 index) const;
+	uint32_t getIndexAt(uint32_t index) const;
 
-	void getVertexAt(Uint32 index, void* vertex) const;
+	void getVertexAt(uint32_t index, void* vertex) const;
 
-	void setIndexAt(Uint32 index, Uint32 value);
+	void setIndexAt(uint32_t index, uint32_t value);
 
-	void setVertexAt(Uint32 index, const void* vertex);
+	void setVertexAt(uint32_t index, const void* vertex);
 
 	GLuint getNumVertices() const;
 
@@ -72,9 +72,9 @@ public:
 
 	void setVertexAttribute(GLuint attrib_index, GLint component_number, GLenum component_type, GLuint component_offset);
 
-	void render(Buffer* feedBackBuffer=NULL, const GLvoid* indices=NULL, Uint32 numIndices=0);
+	void render(Buffer* feedBackBuffer=NULL, const GLvoid* indices=NULL, uint32_t numIndices=0);
 
-	void renderRange(Uint32 startIndex, Uint32 endIndex, Uint32 numPrimitives);
+	void renderRange(uint32_t startIndex, uint32_t endIndex, uint32_t numPrimitives);
 
 	void render(const SubBatch& batch);
 };

@@ -223,7 +223,7 @@ public:
 			if(mInput->isMouseGrabbed()){
 				Sp<Buffer<PhysicsActor*>> res = mPhysics->getActorsInRegion(mCharacter->getActor()->getTransform().getPosition(), 5);
 				if(res){
-					for(wt::Uint32 i=0; i<res->getCapacity(); i++){
+					for(uint32_t i=0; i<res->getCapacity(); i++){
 						void* data;
 						if(data = res->operator[](i)->getSceneActor()->getUserData()){
 							AGameActor* e = (AGameActor*)data;
@@ -358,7 +358,7 @@ public:
 		mTimeMod = mod;
 	}
 
-	wt::Uint32 lua_getEntityHandle(LuaObject name){
+	uint32_t lua_getEntityHandle(LuaObject name){
 		AGameActor* e = mLevel.mEntityManager->findByName(name.ToString());
 		if(e==NULL){
 			LOGE("No entity named \"%s\"", name.ToString());

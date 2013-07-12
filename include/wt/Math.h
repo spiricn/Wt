@@ -20,7 +20,7 @@ static const float PI = 3.14159265358979323846f;
 */
 void quatToAxisAngle(const glm::quat& quat, glm::vec4& res);
 
-inline bool isPowerOfTwo(Uint32 number){
+inline bool isPowerOfTwo(uint32_t number){
     while (number != 0){
         if (number == 1){
             return true;
@@ -85,10 +85,10 @@ inline float random(float start, float end){
 	return start + (end-start)*random();
 }
 
-inline String randomString(Uint32 size){
+inline String randomString(uint32_t size){
 	std::stringstream ss;
 
-	for(Uint32 i=0; i<size; i++){
+	for(uint32_t i=0; i<size; i++){
 		ss << (char)( random()>0.5f?random('a', 'z'):random('A', 'Z'));
 	}
 

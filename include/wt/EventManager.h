@@ -124,20 +124,20 @@ private:
 
 	struct RegisteredCallback{
 		CallbackPtr callback;
-		Uint32 filterData;
+		uint32_t filterData;
 		bool isFiltered;
 
-		RegisteredCallback(CallbackPtr callback, Uint32 filterData, bool isFiltered) : callback(callback), filterData(filterData), isFiltered(isFiltered){
+		RegisteredCallback(CallbackPtr callback, uint32_t filterData, bool isFiltered) : callback(callback), filterData(filterData), isFiltered(isFiltered){
 		}
 	}; // </RegisteredCallback>;
 
 	typedef Sp<ACallback> CallbackPtr;
 
 	typedef std::list<RegisteredCallback> CallbackList;
-	typedef std::map<Uint32, CallbackList> EvtCallbackTable;
+	typedef std::map<uint32_t, CallbackList> EvtCallbackTable;
 
 	typedef std::list<EventListener*> ListenerList;
-	typedef std::map<Uint32, ListenerList> EvtListenerTable;
+	typedef std::map<uint32_t, ListenerList> EvtListenerTable;
 	typedef std::list<EvtPtr> EventList;
 	typedef std::multimap<EvtType, Sp<ScriptEventListener>> ScriptListenerMap;
 	typedef std::multimap<EvtType, ARegisteredEvtPtr> RegisteredEvtMap;
@@ -192,7 +192,7 @@ public:
 
 	void registerListener(EventListener* listener, const EvtType& eventType);
 
-	void registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered=false, Uint32 filterData=0);
+	void registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered=false, uint32_t filterData=0);
 
 	void unregisterListener(EventListener* listener);
 

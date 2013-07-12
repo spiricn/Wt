@@ -10,18 +10,18 @@
 namespace wt{
 
 
-Terrain::Terrain(Uint32 actorId) : mTerrainTextures(NULL), SceneActor(actorId){
+Terrain::Terrain(uint32_t actorId) : mTerrainTextures(NULL), SceneActor(actorId){
 }
 
 const TerrainDesc& Terrain::getDesc() const{
 	return mDesc;
 }
 
-Uint32 Terrain::getNumRows() const{
+uint32_t Terrain::getNumRows() const{
 	return mNumXVertices;
 }
 
-Uint32 Terrain::getNumCols() const{
+uint32_t Terrain::getNumCols() const{
 	return mNumZVertices;
 }
 
@@ -53,11 +53,11 @@ Gl::Batch& Terrain::getBatch(){
 	return mBatch;
 }
 
-void Terrain::calculateNormals(TerrainChunk::Vertex* vertices, Uint32 startRow, Uint32 startCol, Uint32 numRows, Uint32 numCols){
+void Terrain::calculateNormals(TerrainChunk::Vertex* vertices, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols){
 	#define v(x, y) vertices[(x<0 ? 0 : x>=mNumXVertices ? mNumXVertices-1 : x)*mNumZVertices + (y<0 ? 0 : y>=mNumZVertices ? mNumZVertices-1 : y)]
 
-	for(Uint32 row=startRow; row<startRow+numRows; row++){
-		for(Uint32 col=startCol=0; col<startCol+numCols; col++){
+	for(uint32_t row=startRow; row<startRow+numRows; row++){
+		for(uint32_t col=startCol=0; col<startCol+numCols; col++){
 			float dr = v(row-1, col).y - v(row+1, col).y;
 			float dc = v(row, col-1).y - v(row, col+1).y;
 
@@ -87,8 +87,8 @@ void Terrain::create(const TerrainDesc& desc){
 
 	mTextureMap = desc.textureMap;
 
-	Uint32 numRows = desc.numRows;
-	Uint32 numCols = desc.numColumns; 
+	uint32_t numRows = desc.numRows;
+	uint32_t numCols = desc.numColumns; 
 	WT_ASSERT( math::isPowerOfTwo(numRows-1) && math::isPowerOfTwo(numCols-1),
 		"Number of rows/columns must be power of two + 1 number");
 
@@ -116,17 +116,17 @@ void Terrain::create(const TerrainDesc& desc){
 
 	mHeightMap.create(numRows * numCols);
 
-	for(Uint32 row=0; row<numRows; row++){
-		for(Uint32 col=0; col<numCols; col++){
-			Int16 sample;
+	for(uint32_t row=0; row<numRows; row++){
+		for(uint32_t col=0; col<numCols; col++){
+			int16_t sample;
 			inFile.read((char*)&sample, 2);
 
 			mHeightMap[row*numCols + col] = sample;
 		}
 	}
 
-	for(Uint32 row=0; row<numRows; row++){
-		for(Uint32 col=0; col<numCols; col++){
+	for(uint32_t row=0; row<numRows; row++){
+		for(uint32_t col=0; col<numCols; col++){
 				
 
 			vertex = &vertices[row*numCols + col];
@@ -170,35 +170,35 @@ void Terrain::create(const TerrainDesc& desc){
 	mBatch.setVertexAttribute(3, 3, GL_FLOAT, offsetof(TerrainChunk::Vertex, nx));
 
 	// Build chunks (fixed size: 3 indices per 2 triangles)
-	const Uint32 indicesPerQuad = 6;
+	const uint32_t indicesPerQuad = 6;
 
 	// Number of quads per chunk row/column
-	Uint32 rowChunkSize = 32;
-	Uint32 colChunkSize = 32;
+	uint32_t rowChunkSize = 32;
+	uint32_t colChunkSize = 32;
 		
 	// Number of chunks per row/column
-	Uint32 numChunksRow = (mNumXVertices-1)/rowChunkSize;
-	Uint32 numChunksCol = (mNumZVertices-1)/colChunkSize;
+	uint32_t numChunksRow = (mNumXVertices-1)/rowChunkSize;
+	uint32_t numChunksCol = (mNumZVertices-1)/colChunkSize;
 
-	Uint32 quadsPerChunk = rowChunkSize*colChunkSize;
+	uint32_t quadsPerChunk = rowChunkSize*colChunkSize;
 
 	// allocate chunks
-	for(Uint32 i=0; i<numChunksRow * numChunksCol; i++){
+	for(uint32_t i=0; i<numChunksRow * numChunksCol; i++){
 		mChunks.push_back( new TerrainNode::Chunk() );
 	}
 
-	for(Uint32 chunkRow=0; chunkRow<numChunksRow; chunkRow++){
-		for(Uint32 chunkCol=0; chunkCol<numChunksCol; chunkCol++){
+	for(uint32_t chunkRow=0; chunkRow<numChunksRow; chunkRow++){
+		for(uint32_t chunkCol=0; chunkCol<numChunksCol; chunkCol++){
 			// current chunk
 			TerrainNode::Chunk& chunk = *mChunks[chunkRow*numChunksCol + chunkCol];
 
 			chunk.mIndices.create( quadsPerChunk*indicesPerQuad );
 
 
-			for(Uint32 row=0; row<rowChunkSize; row++){
-				for(Uint32 col=0; col<colChunkSize; col++){
-					Uint32 quadRowOffset = (chunkRow*rowChunkSize) /* chunk base row offset */ + row /* offset within the chunk*/;
-					Uint32 quadColOffset = (chunkCol*colChunkSize) + col;
+			for(uint32_t row=0; row<rowChunkSize; row++){
+				for(uint32_t col=0; col<colChunkSize; col++){
+					uint32_t quadRowOffset = (chunkRow*rowChunkSize) /* chunk base row offset */ + row /* offset within the chunk*/;
+					uint32_t quadColOffset = (chunkCol*colChunkSize) + col;
 
 					/* triangle 1
 						1-2
@@ -243,8 +243,8 @@ void Terrain::create(const TerrainDesc& desc){
 			float minY=0;
 			float maxY=0;
 
-			for(Uint32 i=0; i<chunk.mIndices.getCapacity(); i++){
-				Uint32 idx =  chunk.mIndices.getData()[i];
+			for(uint32_t i=0; i<chunk.mIndices.getCapacity(); i++){
+				uint32_t idx =  chunk.mIndices.getData()[i];
 			
 				TerrainChunk::Vertex& v = vertices[ idx ];
 				if(v.y > maxY){
@@ -264,7 +264,7 @@ void Terrain::create(const TerrainDesc& desc){
 	}
 
 	mRootNode.mSize = numChunksRow;
-	for(Uint32 i=0; i<mChunks.size(); i++){
+	for(uint32_t i=0; i<mChunks.size(); i++){
 		mRootNode.mChunks.push_back(mChunks[i]);
 	}
 
@@ -276,9 +276,9 @@ void Terrain::create(const TerrainDesc& desc){
 	delete[] vertices;
 }
 
-Uint32 Terrain::getTriangleIndex(Uint32 triangle){
-	Uint32 trianglesPerRow = (mNumZVertices-1)*2;
-	Uint32 base,offset;
+uint32_t Terrain::getTriangleIndex(uint32_t triangle){
+	uint32_t trianglesPerRow = (mNumZVertices-1)*2;
+	uint32_t base,offset;
 
 	if(triangle % 2 == 0){
 		base = (triangle / trianglesPerRow) * mNumZVertices;
@@ -293,7 +293,7 @@ Uint32 Terrain::getTriangleIndex(Uint32 triangle){
 	return base + offset;
 }
 
-void Terrain::editChunk(Buffer<Int16>& samples, Uint32 startRow, Uint32 startCol, Uint32 numRows, Uint32 numCols){
+void Terrain::editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols){
 	// TODO safety checks
 
 	physx::PxHeightFieldSample* pxSamples = new physx::PxHeightFieldSample[ numRows*numCols ];
@@ -309,9 +309,9 @@ void Terrain::editChunk(Buffer<Int16>& samples, Uint32 startRow, Uint32 startCol
 
 	TerrainChunk::Vertex* vertices = (TerrainChunk::Vertex*)mBatch.getVertexBuffer().map(Gl::Buffer::eREAD_WRITE);
 
-	for(Uint32 row=0; row<numRows; row++){
-		for(Uint32 col=0; col<numCols; col++){
-			Int16 sample = samples[row*numCols + col];
+	for(uint32_t row=0; row<numRows; row++){
+		for(uint32_t col=0; col<numCols; col++){
+			int16_t sample = samples[row*numCols + col];
 
 			// PhysX actor
 			pxSamples[row*numCols + col].height = sample;
@@ -355,7 +355,7 @@ TerrainNode* Terrain::getRootNode(){
 }
 
 Terrain::~Terrain(){
-	for(Uint32 i=0; i<mChunks.size(); i++){
+	for(uint32_t i=0; i<mChunks.size(); i++){
 		delete mChunks[i];
 	}
 }

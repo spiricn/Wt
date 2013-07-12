@@ -43,10 +43,10 @@ public:
 	static const EvtType TYPE;
 	PhysicsActor* mPickedActor;
 	float mDistance;
-	Uint32 mTriangleIndex;
+	uint32_t mTriangleIndex;
 	glm::vec3 mImpact;
 
-	RaycastHitEvent(PhysicsActor* pickedActor=NULL, float distance=0, Uint32 faceIndex=0, 
+	RaycastHitEvent(PhysicsActor* pickedActor=NULL, float distance=0, uint32_t faceIndex=0, 
 		const glm::vec3& impact=glm::vec3(0,0,0)) : mPickedActor(pickedActor), mDistance(distance),
 		mTriangleIndex(faceIndex), mImpact(impact){
 	}
@@ -86,13 +86,13 @@ public:
 		eACTOR_ENTERED_REGION
 	};
 
-	Uint32 regionId;
+	uint32_t regionId;
 	PhysicsActor* actor;
 	Type type;
 
 	static const EvtType TYPE;
 
-	RegionEvent(PhysicsActor* actor, Uint32 regionId, Type type) : actor(actor), regionId(regionId), type(type){
+	RegionEvent(PhysicsActor* actor, uint32_t regionId, Type type) : actor(actor), regionId(regionId), type(type){
 	}
 
 	const EvtType& getType() const{
@@ -128,7 +128,7 @@ private:
 
 	PxController* createController(const PhysicsActor::Desc& desc);
 
-	typedef std::map<Uint32, Sp<PhysicsActor>> ActorMap;
+	typedef std::map<uint32_t, Sp<PhysicsActor>> ActorMap;
 
 	ActorMap mActors;
 
@@ -146,13 +146,13 @@ public:
 
     Physics(EventManager* eventManager);
 
-	Uint32 createRegion(const String& name, const glm::vec3& position, float radius);
+	uint32_t createRegion(const String& name, const glm::vec3& position, float radius);
 
 	void setTimeStep(float step){
 		mTimeAccumulator.setStep(step);
 	}
 
-	Sp<Buffer<PhysicsActor*>> getActorsInRegion(const glm::vec3& pos, float radius, Uint32 groups=0x00){
+	Sp<Buffer<PhysicsActor*>> getActorsInRegion(const glm::vec3& pos, float radius, uint32_t groups=0x00){
 		PxSphereGeometry sphere(radius);
 		PxTransform pose = PxTransform::createIdentity();
 		pxConvert(pos, pose.p);
@@ -174,7 +174,7 @@ public:
 		else{
 			Buffer<PhysicsActor*>* bfr = new Buffer<PhysicsActor*>();
 			bfr->create(hitNum);
-			for(Int32 i=0; i<hitNum; i++){
+			for(int32_t i=0; i<hitNum; i++){
 				if(hitBuffer[i]->getActor().userData){
 					bfr->put(
 						static_cast<PhysicsActor*>(hitBuffer[i]->getActor().userData)
@@ -189,8 +189,8 @@ public:
 		}
 	}
 
-	Uint32 generateActorId(){
-		Uint32 id=mActors.size();
+	uint32_t generateActorId(){
+		uint32_t id=mActors.size();
 		while(true){
 			if(getActorById(id) != NULL){
 				++id;
@@ -202,7 +202,7 @@ public:
 		return id;
 	}
 
-	PhysicsActor* getActorById(Uint32 id){
+	PhysicsActor* getActorById(uint32_t id){
 		ActorMap::iterator i = mActors.find(id);
 		return i == mActors.end() ? NULL : i->second;
 	}
@@ -213,7 +213,7 @@ public:
 
 	PxMaterial& getDefaultMaterial();
 
-	void connectToVisualDebugger(const String& addr, Int32 port, Int32 timeout=100);
+	void connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout=100);
 
 	PxPhysics* getSdk();
 
@@ -224,9 +224,9 @@ public:
 	void removeActor(PhysicsActor* actor);
 
 	//PxDistanceJoint* 
-	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, Uint32 groups=0x00);
+	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0x00);
 
-	bool pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, Uint32 groups=0x00);
+	bool pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0x00);
 
 	/**********************/
 	/**** Lua bindings ****/
@@ -244,8 +244,8 @@ public:
 
 		Sp<Buffer<PhysicsActor*>> actors = getActorsInRegion(pos, radius, groupFilter.IsNil() ? 0x00 : groupFilter.ToInteger() );
 
-		Uint32 actorIdx=0;
-		for(Uint32 i=0; i<actors->getCapacity(); i++){
+		uint32_t actorIdx=0;
+		for(uint32_t i=0; i<actors->getCapacity(); i++){
 			SceneActor* actor =  actors->operator[](i)->getSceneActor();
 			if(actor){
 				res.Set(++actorIdx, actor->getId());
@@ -255,7 +255,7 @@ public:
 		return res;
 	}
 
-	Int32 lua_createRegion(LuaObject luaPos, LuaObject luaRadius){
+	int32_t lua_createRegion(LuaObject luaPos, LuaObject luaRadius){
 		glm::vec3 pos;
 		float radius;
 

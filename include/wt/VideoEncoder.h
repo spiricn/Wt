@@ -48,7 +48,7 @@ public:
 		mParams.frameRate = fps;
 	}
 
-	void encodeFrame(const char* bfr, Uint32 width, Uint32 height, bool flip=true){
+	void encodeFrame(const char* bfr, uint32_t width, uint32_t height, bool flip=true){
 		Revel_VideoFrame frame;
 		frame.width = width;
 		frame.height = height;
@@ -64,11 +64,11 @@ public:
 			char* tmp = new char[width*height*3];
 			memcpy(tmp, bfr, width*height*3);
 
-			for(Uint32 row=0; row<height; row++){
-				for(Uint32 col=0; col<width; col++){
+			for(uint32_t row=0; row<height; row++){
+				for(uint32_t col=0; col<width; col++){
 				
-					Uint32 src = (row*width + col)*3;
-					Uint32 dst = (((height-1)-row)*width + col)*3; 
+					uint32_t src = (row*width + col)*3;
+					uint32_t dst = (((height-1)-row)*width + col)*3; 
 				
 					memcpy((void*)&tmp[src], (void*)&bfr[dst], 3);
 				}
@@ -94,7 +94,7 @@ public:
 		}
 	}
 
-	void setSize(Uint32 width, Uint32 height){
+	void setSize(uint32_t width, uint32_t height){
 		mParams.width = width;
 		mParams.height = height;
 	}

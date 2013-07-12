@@ -39,8 +39,8 @@ public:
 		ActorType type;
 		GeometryType geometryType;
 		math::Transform pose;
-		Uint32 group;
-		Uint32 collisionMask;
+		uint32_t group;
+		uint32_t collisionMask;
 
 		ControlMode controlMode;
 
@@ -68,9 +68,9 @@ public:
 			} sphereGeometry;
 
 			struct HeightfieldGeometry{
-				const Buffer<Int16>* heightmap;
-				Uint32 numRows;
-				Uint32 numCols;
+				const Buffer<int16_t>* heightmap;
+				uint32_t numRows;
+				uint32_t numCols;
 				float heightScale;
 				float rowScale;
 				float colScale;
@@ -108,7 +108,7 @@ private:
 	SceneActor* mSceneActor;
 	String mName;
 	void* mUserData;
-	Uint32 mId;
+	uint32_t mId;
 
 protected:
 	void setController(PxController* ctrl){
@@ -145,11 +145,11 @@ public:
 		return mSceneActor;
 	}
 
-	Uint32 getId() const{
+	uint32_t getId() const{
 		return mId;
 	}
 
-	PhysicsActor(Uint32 id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
+	PhysicsActor(uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
 		PxController* controller, SceneActor* sceneActor) : mActorType(type), mControlMode(mode),
 		mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id){
 	}

@@ -15,7 +15,7 @@ class AProcess{
 friend class ProcessManager;
 
 public:
-	typedef Uint32 Pid;
+	typedef uint32_t Pid;
 
 private:
 	Pid mPid;

@@ -61,15 +61,15 @@ Gl::Batch& Model::getBatch(){
 	return mBatch;
 }
 
-Uint32 Model::getNumVertices() const{
+uint32_t Model::getNumVertices() const{
 	return mNumVertices;
 }
 
-Uint32 Model::getNumIndices() const{
+uint32_t Model::getNumIndices() const{
 	return mNumVertices;
 }
 
-void Model::setSize(Uint32 numVertices, Uint32 numIndices){
+void Model::setSize(uint32_t numVertices, uint32_t numIndices){
 	mNumVertices = numVertices;
 	mNumIndices = numIndices;
 }
@@ -105,8 +105,8 @@ Geometry* Model::addGeometry(const String& name, const Geometry::VertexBuffer& v
 		geoName = generateMeshName();
 	}
 
-	Uint32 minIndex=0, maxIndex=0;
-	for(Uint32 i=0; i<indices.getCapacity(); i++){
+	uint32_t minIndex=0, maxIndex=0;
+	for(uint32_t i=0; i<indices.getCapacity(); i++){
 		minIndex = glm::min(minIndex, indices[i]);
 		maxIndex = glm::max(maxIndex, indices[i]);
 	}
@@ -216,8 +216,8 @@ void Model::createHwBuffers(GLuint positionStreamIdx,
 
 	
 
-	Uint32 vertexOffset=0;
-	Uint32 indexOffset=0;
+	uint32_t vertexOffset=0;
+	uint32_t indexOffset=0;
 
 	/* copy every individual mesh data to hardware buffer */
 	for(GeoList::iterator i=mGeometry.begin(); i!=mGeometry.end(); i++){
@@ -225,14 +225,14 @@ void Model::createHwBuffers(GLuint positionStreamIdx,
 		const Geometry::VertexBuffer& vertices = (*i)->getVertices();
 		Geometry::IndexBuffer& indices = (*i)->getIndices();
 
-		for(Uint32 j=0; j<indices.getCapacity(); j++){
+		for(uint32_t j=0; j<indices.getCapacity(); j++){
 			indices[j] += indexOffset;
 		}
 
 		mBatch.getVertexBuffer().setSubData(vertexOffset*sizeof(Geometry::Vertex),
 			vertices.getData(), vertices.getSize());
 
-		mBatch.getIndexBuffer().setSubData(indexOffset*sizeof(Uint32),
+		mBatch.getIndexBuffer().setSubData(indexOffset*sizeof(uint32_t),
 			indices.getData(), indices.getSize());
 
 		vertexOffset += vertices.getCapacity();

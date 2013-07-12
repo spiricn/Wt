@@ -30,15 +30,15 @@ void Image::fromFrameBuffer(Image::Format fmt){
 	delete[] data;
 }
 
-Uint32 Image::getWidth() const{
+uint32_t Image::getWidth() const{
 	return mWidth;
 }
 
-Uint32 Image::getHeigth() const{
+uint32_t Image::getHeigth() const{
 	return mHeigth;
 }
 
-Uint32 Image::getNumComponents() const{
+uint32_t Image::getNumComponents() const{
 	return mNumComponents;
 }
 
@@ -65,7 +65,7 @@ void Image::destroy(){
 	mFormat=INVALID;
 }
 
-void Image::setData(Uint32 width, Uint32 height, Format format, Uint32 numCopmonents,
+void Image::setData(uint32_t width, uint32_t height, Format format, uint32_t numCopmonents,
 		const void* data){
 	
 	destroy();

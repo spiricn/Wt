@@ -19,7 +19,7 @@ friend class Terrain;
 public:
 	struct Chunk{
 			physx::PxBounds3 mBounds;
-			Buffer<Uint32> mIndices;
+			Buffer<uint32_t> mIndices;
 	};
 
 	typedef std::vector<TerrainNode::Chunk*> ChunkList;
@@ -27,27 +27,27 @@ public:
 protected:
 	TerrainNode* mParent;
 	TerrainNode* mChildren;
-	Uint32 mIndex;
+	uint32_t mIndex;
 	ChunkList mChunks;
-	Uint32 mSize;
+	uint32_t mSize;
 	physx::PxBounds3 mBounds;
 	Gl::Batch* mBatch;
 
 	void calcBounds(){
 		mBounds.setEmpty();
-		for(Uint32 i=0; i<mChunks.size(); i++){
+		for(uint32_t i=0; i<mChunks.size(); i++){
 			mBounds.include( mChunks[i]->mBounds );
 		}
 	}
 
-	TerrainNode(TerrainNode* parent=NULL, Uint32 idx=0, Gl::Batch* geoBatch=NULL) : mParent(parent),
+	TerrainNode(TerrainNode* parent=NULL, uint32_t idx=0, Gl::Batch* geoBatch=NULL) : mParent(parent),
 		mChildren(NULL), mIndex(idx), mSize(0), mBatch(geoBatch){
 
 		if(parent != NULL){
 			mSize = parent->mSize/2;
 
-			for(Uint32 i=0; i<mSize; i++){
-				for(Uint32 j=0; j<mSize; j++){
+			for(uint32_t i=0; i<mSize; i++){
+				for(uint32_t j=0; j<mSize; j++){
 
 					// top left
 					if(idx==0){
@@ -79,7 +79,7 @@ protected:
 
 	void destroy(){
 		if(!mChildren != NULL){
-			for(Uint32 i=0; i<4; i++){
+			for(uint32_t i=0; i<4; i++){
 				mChildren[i].destroy();
 			}
 
@@ -94,14 +94,14 @@ protected:
 			//LOG("SPLIT");
 			mChildren = new TerrainNode[4];
 
-			for(Uint32 i=0; i<4; i++){
+			for(uint32_t i=0; i<4; i++){
  				mChildren[i] = TerrainNode(this, i);
 				mChildren[i].mBatch = mBatch;
 			}
 
 			mChunks.clear();
 
-			for(Uint32 i=0; i<4; i++){
+			for(uint32_t i=0; i<4; i++){
 				mChildren[i].split();
 			}
 		}
@@ -131,8 +131,8 @@ public:
 
 
 struct TerrainDesc{
-	Uint32 numRows;
-	Uint32 numColumns;
+	uint32_t numRows;
+	uint32_t numColumns;
 	float rowScale;
 	float columnScale;
 	float heightScale;
@@ -141,7 +141,7 @@ struct TerrainDesc{
 	Image* texture3;
 	Texture2D* textureMap;
 	String heightmapPath;
-	Uint32 collisionGroup;
+	uint32_t collisionGroup;
 
 	TerrainDesc() : collisionGroup(0x800000){
 	}
@@ -155,7 +155,7 @@ private:
 	TerrainNode::ChunkList mChunks;
 	TextureArray* mTerrainTextures;
 	Gl::Batch mBatch;
-	Uint32 mNumTriangles, mNumVertices, mNumXVertices, mNumZVertices;
+	uint32_t mNumTriangles, mNumVertices, mNumXVertices, mNumZVertices;
 	float mDepth, mWidth, mMinHeight, mMaxHeight; // bounding box
 	float mHeightScale, mColumnScale, mRowScale;
 	TerrainChunk::HeightMap	mHeightMap;
@@ -164,15 +164,15 @@ private:
 	TerrainDesc mDesc;
 
 public:
-	Terrain(Uint32 actorId);
+	Terrain(uint32_t actorId);
 
 	~Terrain();
 
 	const TerrainDesc& getDesc() const;
 
-	Uint32 getNumRows() const;
+	uint32_t getNumRows() const;
 
-	Uint32 getNumCols() const;
+	uint32_t getNumCols() const;
 
 	float getHeightScale() const;
 
@@ -186,8 +186,8 @@ public:
 
 	
 	float getHeightAt(const glm::vec2& coords) const{
-		Uint32 row = (Uint32)(coords.x/mRowScale);
-		Uint32 col = (Uint32)(coords.y/mColumnScale);
+		uint32_t row = (uint32_t)(coords.x/mRowScale);
+		uint32_t col = (uint32_t)(coords.y/mColumnScale);
 
 		return mHeightMap[row*mNumZVertices + col] * mHeightScale;
 	}
@@ -205,13 +205,13 @@ public:
 
 	Gl::Batch& getBatch();
 
-	void calculateNormals(TerrainChunk::Vertex* vertices, Uint32 startRow, Uint32 startCol, Uint32 numRows, Uint32 numCols);
+	void calculateNormals(TerrainChunk::Vertex* vertices, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols);
 
 	void create(const TerrainDesc& desc);
 
-	Uint32 getTriangleIndex(Uint32 triangle);
+	uint32_t getTriangleIndex(uint32_t triangle);
 
-	void editChunk(Buffer<Int16>& samples, Uint32 startRow, Uint32 startCol, Uint32 numRows, Uint32 numCols);
+	void editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols);
 
 	Texture2D* getMapTexture();
 

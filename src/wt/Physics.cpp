@@ -113,7 +113,7 @@ PxFilterFlags Physics::filterShader(PxFilterObjectAttributes attributes0, PxFilt
 }
 
 
-Uint32 Physics::createRegion(const String& name, const glm::vec3& position, float radius){
+uint32_t Physics::createRegion(const String& name, const glm::vec3& position, float radius){
 	PhysicsActor::Desc desc;
 
 	desc.type = PhysicsActor::eREGION;
@@ -270,7 +270,7 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f) {
     LOGV("Physx successfuly initialized");
 }
 
-void Physics::connectToVisualDebugger(const String& addr, Int32 port, Int32 timeout){
+void Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout){
 	#ifdef PX_SUPPORT_VISUAL_DEBUGGER
 	// Physx Visual Debugger
 	if(mSdk->getPvdConnectionManager() == NULL){
@@ -468,7 +468,7 @@ void Physics::removeActor(PhysicsActor* actor){
 	mActors.erase(actor->getId());
 }
 
-bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& result, Uint32 groups){
+bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& result, uint32_t groups){
 	PxRaycastHit hit;
 	PxSceneQueryFilterData f;
 	f.data.setToDefault();
@@ -499,7 +499,7 @@ bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastH
 }
 
 bool Physics::pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos,
-	const glm::vec2& screenSize, RaycastHitEvent& res,  Uint32 groups){
+	const glm::vec2& screenSize, RaycastHitEvent& res,  uint32_t groups){
 
 	glm::mat4x4 modelView;
 	camera.getMatrix(modelView);
@@ -539,14 +539,14 @@ Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 			 //Copy heightmap data
 			const PhysicsActor::Desc::GeometryDesc::HeightfieldGeometry& hfDesc = desc.geometryDesc.heightfieldGeometry;
 
-			Uint32 numRows = hfDesc.numRows;
-			Uint32 numCols = hfDesc.numCols;
+			uint32_t numRows = hfDesc.numRows;
+			uint32_t numCols = hfDesc.numCols;
 
 			Buffer<PxHeightFieldSample> samples(numRows*numCols);
 			samples.clearMem();
 
-			for(Uint32 row=0; row<numRows; row++){
-				for(Uint32 col=0; col<numCols; col++){
+			for(uint32_t row=0; row<numRows; row++){
+				for(uint32_t col=0; col<numCols; col++){
 					samples[row*numCols + col].height = (*hfDesc.heightmap)[row*numCols + col];
 				}
 			}
@@ -622,7 +622,7 @@ PhysicsActor* Physics::createActor(SceneActor* sceneActor, PhysicsActor::Desc& d
 
 	PhysicsActor* createdActor = NULL;
 
-	Uint32 actorId = generateActorId();
+	uint32_t actorId = generateActorId();
 
 	PxFilterData filterData;
 	filterData.setToDefault();

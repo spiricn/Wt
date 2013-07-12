@@ -17,7 +17,7 @@ void Scene::addSpotLight(const SpotLight& light){
 }
 
 
-SpotLight& Scene::getSpotLight(Uint32 index){
+SpotLight& Scene::getSpotLight(uint32_t index){
 	return mSpotLights[index];
 }
 
@@ -49,7 +49,7 @@ void Scene::addPointLight(const PointLight& light){
 	mPointLights[mNumPointLights++] = light;
 }
 
-PointLight& Scene::getPointLight(Uint32 index){
+PointLight& Scene::getPointLight(uint32_t index){
 	return mPointLights[index];
 }
 
@@ -57,7 +57,7 @@ DirectionalLight& Scene::getDirectionalLight(){
 	return mDirectionalLight;
 }
 
-Uint32 Scene::getNumPointLights() const{
+uint32_t Scene::getNumPointLights() const{
 	return mNumPointLights;
 }
 
@@ -137,8 +137,8 @@ void Scene::destroyTerrain(){
 }
 
 
-Uint32 Scene::generateActorId(){
-	Uint32 id=mActors.size();
+uint32_t Scene::generateActorId(){
+	uint32_t id=mActors.size();
 	while(true){
 		if(getActorById(id) != NULL){
 			++id;
@@ -151,7 +151,7 @@ Uint32 Scene::generateActorId(){
 }
 
 
-SceneActor* Scene::getActorById(Uint32 id){
+SceneActor* Scene::getActorById(uint32_t id){
 	ActorMap::iterator i = mActors.find(id);
 	return i == mActors.end() ? NULL : i->second;
 }
@@ -226,11 +226,11 @@ void Scene::lua_setLightDir(LuaObject obj){
 	}
 }
 
-Uint32 Scene::lua_createActor(){
+uint32_t Scene::lua_createActor(){
 	return createActor()->getId();
 }
 
-void Scene::lua_removeActor(Uint32 actorId){
+void Scene::lua_removeActor(uint32_t actorId){
 	SceneActor* actor = getActorById(actorId);
 	if(actor == NULL){
 		LUA_ERROR("Invalid actor ID %d", actorId);
@@ -240,7 +240,7 @@ void Scene::lua_removeActor(Uint32 actorId){
 	deleteActor(actor);
 }
 
-void Scene::lua_setActorModel(Uint32 actorId, const char* modelPath, const char* skinName){
+void Scene::lua_setActorModel(uint32_t actorId, const char* modelPath, const char* skinName){
 	SceneActor* actor = getActorById(actorId);
 	if(actor == NULL){
 		LUA_ERROR("Invalid actor ID %d", actorId);
@@ -250,7 +250,7 @@ void Scene::lua_setActorModel(Uint32 actorId, const char* modelPath, const char*
 	actor->setModel(mAssets->getModelManager()->getFromPath(modelPath), skinName);
 }
 
-void Scene::lua_playActorAnimation(Uint32 actorId, const char* animationName, bool loop){
+void Scene::lua_playActorAnimation(uint32_t actorId, const char* animationName, bool loop){
 	SceneActor* actor = getActorById(actorId);
 	if(actor == NULL){
 		LUA_ERROR("Invalid actor ID %d", actorId);
@@ -260,7 +260,7 @@ void Scene::lua_playActorAnimation(Uint32 actorId, const char* animationName, bo
 	actor->getAnimationPlayer()->play(animationName, loop);
 }
 
-void Scene::lua_setActorPosition(Uint32 actorId, LuaObject luaPos){
+void Scene::lua_setActorPosition(uint32_t actorId, LuaObject luaPos){
 	SceneActor* actor = getActorById(actorId);
 	if(actor == NULL){
 		LUA_ERROR("Invalid actor ID %d", actorId);
@@ -283,7 +283,7 @@ void Scene::lua_setActorPosition(Uint32 actorId, LuaObject luaPos){
 	}
 }
 
-void Scene::lua_attachActor(Uint32 id1, Uint32 id2, const char* boneName){
+void Scene::lua_attachActor(uint32_t id1, uint32_t id2, const char* boneName){
 	SceneActor* actor1 = getActorById(id1);
 	if(actor1 == NULL){
 		LUA_ERROR("Invalid actor ID %d", id1);
@@ -311,7 +311,7 @@ void Scene::lua_cameraLookAt(LuaObject luaPos){
 
 }
 
-void Scene::lua_setActorFacing(Uint32 actorId, LuaObject luaFacing){
+void Scene::lua_setActorFacing(uint32_t actorId, LuaObject luaFacing){
 	glm::vec3 facing;
 	Lua::luaConv(luaFacing, facing);
 
@@ -324,7 +324,7 @@ void Scene::lua_setActorFacing(Uint32 actorId, LuaObject luaFacing){
 	actor->getTransform().setFacing(facing, glm::vec3(0, 1, 0));
 }
 
-void Scene::lua_createActorController(Uint32 actorId, LuaObject physicsGroup, LuaObject ctrlDesc){
+void Scene::lua_createActorController(uint32_t actorId, LuaObject physicsGroup, LuaObject ctrlDesc){
 	SceneActor* actor = getActorById(actorId);
 	if(actor == NULL){
 		LUA_ERROR("Invalid actor ID %d", actorId);
@@ -384,7 +384,7 @@ public:
 	}
 };
 
-void Scene::lua_moveActor(Uint32 actorId, LuaObject luaDisp, float dt){
+void Scene::lua_moveActor(uint32_t actorId, LuaObject luaDisp, float dt){
 	SceneActor* actor = getActorById(actorId);
 	if(actor == NULL){
 		LUA_ERROR("Invalid actor ID %d", actorId);
@@ -431,7 +431,7 @@ void Scene::lua_moveActor(Uint32 actorId, LuaObject luaDisp, float dt){
 }
 
 
-LuaObject Scene::lua_getActorFacing(Uint32 actorId){
+LuaObject Scene::lua_getActorFacing(uint32_t actorId){
 	LuaObject luaFacing, luaForward, luaUp;
 	LUA_NEW_TABLE(luaFacing);
 	LUA_NEW_TABLE(luaForward);
@@ -456,7 +456,7 @@ LuaObject Scene::lua_getActorFacing(Uint32 actorId){
 	return luaFacing;
 }
 
-LuaObject Scene::lua_getActorTransform(Uint32 actorId){
+LuaObject Scene::lua_getActorTransform(uint32_t actorId){
 	LuaObject luaTransform;
 	LUA_NEW_TABLE(luaTransform);
 
@@ -476,7 +476,7 @@ LuaObject Scene::lua_getActorTransform(Uint32 actorId){
 	return luaTransform;
 }
 
-void Scene::lua_setActorUserData(Uint32 actorId, Uint32 data){
+void Scene::lua_setActorUserData(uint32_t actorId, uint32_t data){
 	SceneActor* actor = getActorById(actorId);
 
 	if(actor == NULL){
@@ -487,7 +487,7 @@ void Scene::lua_setActorUserData(Uint32 actorId, Uint32 data){
 	actor->setUserData((void*)data);
 }
 
-Uint32 Scene::lua_getActorUserData(Uint32 actorId){
+uint32_t Scene::lua_getActorUserData(uint32_t actorId){
 	SceneActor* actor = getActorById(actorId);
 
 	if(actor == NULL){
@@ -495,10 +495,10 @@ Uint32 Scene::lua_getActorUserData(Uint32 actorId){
 		return 0;
 	}
 
-	return (Uint32)actor->getUserData();
+	return (uint32_t)actor->getUserData();
 }
 
-bool Scene::lua_actorHasUserData(Uint32 actorId){
+bool Scene::lua_actorHasUserData(uint32_t actorId){
 	SceneActor* actor = getActorById(actorId);
 
 	if(actor == NULL){
@@ -509,7 +509,7 @@ bool Scene::lua_actorHasUserData(Uint32 actorId){
 	return actor->hasUserData();
 }
 
-bool Scene::lua_isActorAnimationPlaying(Uint32 actorId){
+bool Scene::lua_isActorAnimationPlaying(uint32_t actorId){
 	SceneActor* actor = getActorById(actorId);
 
 	if(actor == NULL){
@@ -525,7 +525,7 @@ bool Scene::lua_isActorAnimationPlaying(Uint32 actorId){
 	}
 }
 
-void Scene::lua_destroyController(Uint32 actorId){
+void Scene::lua_destroyController(uint32_t actorId){
 	SceneActor* actor = getActorById(actorId);
 
 	if(actor == NULL){
@@ -538,7 +538,7 @@ void Scene::lua_destroyController(Uint32 actorId){
 	}
 }
 
-void Scene::lua_rotateActor(Uint32 actorId, float x, float y, float z, float angle){
+void Scene::lua_rotateActor(uint32_t actorId, float x, float y, float z, float angle){
 	SceneActor* actor = getActorById(actorId);
 
 	if(actor == NULL){

@@ -84,13 +84,13 @@ void ShaderProgram::attach(Shader& shader){
 	glAttachShader(mProgHandle, shader.getHandle());
 }
 
-void ShaderProgram::setTransformFeedbackVaryings(Uint32 count, ...){
+void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
 	va_list argList;
 	va_start(argList, count);
 
 	const char** names = new const char*[count];
 
-	for(Uint32 i=0; i<count; i++){
+	for(uint32_t i=0; i<count; i++){
 		names[i] = va_arg(argList, const char*);
 	}
 
@@ -219,11 +219,11 @@ void ShaderProgram::setUniformVal(const String& name, bool val){
 }
 
 /** glm::mat4x4 */
-void ShaderProgram::setUniformVal(const String& name, const glm::mat4x4* matrices, Uint32 count){
+void ShaderProgram::setUniformVal(const String& name, const glm::mat4x4* matrices, uint32_t count){
 	setUniformVal( getUniformLocation(name), matrices, count);
 }
 
-void ShaderProgram::setUniformVal(GLint location, const glm::mat4x4* matrices, Uint32 count){
+void ShaderProgram::setUniformVal(GLint location, const glm::mat4x4* matrices, uint32_t count){
 	glUniformMatrix4fv(location, count, false, glm::value_ptr(matrices[0]));
 }
 

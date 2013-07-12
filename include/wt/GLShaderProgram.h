@@ -39,7 +39,7 @@ public:
 		destroy();
 	}
 
-	void setTransformFeedbackVaryings(Uint32 count, ...);
+	void setTransformFeedbackVaryings(uint32_t count, ...);
 
 	void createFromSources(const String& vertex_source, const String& fragment_source, const String& geometrySource="");
 
@@ -83,9 +83,9 @@ public:
 	void setUniformVal(GLint location, const glm::vec2& vec);
 
 	// glm::mat4x4 array
-	void setUniformVal(const String& name, const glm::mat4x4* matrices, Uint32 count);
+	void setUniformVal(const String& name, const glm::mat4x4* matrices, uint32_t count);
 
-	void setUniformVal(GLint location, const glm::mat4x4* matrices, Uint32 count);
+	void setUniformVal(GLint location, const glm::mat4x4* matrices, uint32_t count);
 
 	// bool
 	void setUniformVal(const String& name, bool val);

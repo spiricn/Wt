@@ -21,8 +21,8 @@ bool luaConv(const LuaObject& src, bool& dst);
 // float
 bool luaConv(const LuaObject& src, float& dst);
 
-// Uint32
-bool luaConv(const LuaObject& src, Uint32& dst);
+// uint32_t
+bool luaConv(const LuaObject& src, uint32_t& dst);
 
 // integer
 bool luaConv(const LuaObject& src, int& dst);
@@ -52,7 +52,7 @@ bool luaConv(const Color& src, LuaObject& dst);
 
 bool luaConv(const LuaObject& src, Color& dst);
 
-void serializeTable(LuaObject& table, std::ostream& stream, Uint32 depth=0);
+void serializeTable(LuaObject& table, std::ostream& stream, uint32_t depth=0);
 
 }; // </Lua
 

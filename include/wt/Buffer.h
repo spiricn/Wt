@@ -12,13 +12,13 @@ template<class T>
 class Buffer{
 private:
 	T* mData;
-	Uint32 mCapacity, mPosPut, mPosGet;
+	uint32_t mCapacity, mPosPut, mPosGet;
 
 public:
 	Buffer() : mData(NULL), mCapacity(0), mPosPut(0), mPosGet(0){
 	}
 
-	Buffer(Uint32 capacity){
+	Buffer(uint32_t capacity){
 		mData=NULL;
 		mCapacity=0;
 		mPosPut=0;
@@ -32,7 +32,7 @@ public:
 		dst.seekp(0);
 	}
 
-	void create(Uint32 capacity){
+	void create(uint32_t capacity){
 		destroy();
 
 		mCapacity = capacity;
@@ -45,7 +45,7 @@ public:
 		memset(mData, val, getSize());
 	}
 
-	void resize(Uint32 newCapacity){
+	void resize(uint32_t newCapacity){
 		T* newData = new T[newCapacity];
 
 		memcpy(newData, mData, min(mCapacity, newCapacity)*sizeof(T));
@@ -68,24 +68,24 @@ public:
 	}
 
 	/** returns the maximum number of elements of type T this buffer is able to contain */
-	Uint32 getCapacity() const{
+	uint32_t getCapacity() const{
 		return mCapacity;
 	}
 
 	/** returns the total buffer size in BYTES */
-	Uint32 getSize() const{
+	uint32_t getSize() const{
 		return mCapacity*sizeof(T);
 	}
 
-	Uint32 tellg() const{
+	uint32_t tellg() const{
 		return mPosGet;
 	}
 
-	Uint32 tellp() const{
+	uint32_t tellp() const{
 		return mPosPut;
 	}
 
-	void seekp(Uint32 pos){
+	void seekp(uint32_t pos){
 		#ifdef WT_CHECKED
 		if(pos >= mCapacity){
 			WT_THROW("Seek position out of bounds (bounds=%d, pos=%d)",
@@ -96,7 +96,7 @@ public:
 		mPosPut = pos;
 	}
 
-	void seekg(Uint32 pos){
+	void seekg(uint32_t pos){
 		#ifdef WT_CHECKED
 		if(pos >= mCapacity){
 			WT_THROW("Seek position out of bounds (bounds=%d, pos=%d)",
@@ -126,7 +126,7 @@ public:
 		return mData;
 	}
 
-	void put(const T* t, Uint32 count){
+	void put(const T* t, uint32_t count){
 		#ifdef WT_CHECKED
 		if(mPosPut+count > mCapacity){
 			WT_THROW("Put failed, buffer full (size %d pos %d count %d)", mCapacity, mPosPut, count);
@@ -162,7 +162,7 @@ public:
 		mData[mPosPut++] = T(t);
 	}
 
-	T& operator[](Uint32 index){
+	T& operator[](uint32_t index){
 		#ifdef WT_CHECKED
 		if(index >= mCapacity){
 			WT_THROW("Attempted to index buffer (size %d) index %d", mCapacity, index);
@@ -172,7 +172,7 @@ public:
 		return mData[index];
 	}
 
-	const T& operator[](Uint32 index) const{
+	const T& operator[](uint32_t index) const{
 		#ifdef WT_CHECKED
 		if(index >= mCapacity){
 			WT_THROW("Attempted to index buffer (size %d) index %d",

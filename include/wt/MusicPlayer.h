@@ -11,7 +11,7 @@ namespace wt{
 class Playlist{
 private:
 	StringList mTracks;
-	Uint32 mCurrentTrack;
+	uint32_t mCurrentTrack;
 
 public:
 	Playlist() : mCurrentTrack(0){
@@ -25,7 +25,7 @@ public:
 	}
 
 	void serialize(LuaObject& dst){
-		for(Uint32 i=0; i<mTracks.size(); i++){
+		for(uint32_t i=0; i<mTracks.size(); i++){
 			dst.Set(i+1, mTracks[i].c_str());
 		}
 	}

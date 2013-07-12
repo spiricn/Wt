@@ -23,11 +23,11 @@ void ModelLoader::writeNode(std::ofstream& file, SkeletonBone* bone){
 	file.write((const char*)glm::value_ptr(bone->getOffset()), 16*sizeof(float));
 
 	// index
-	Uint32 idx=bone->getIndex();
-	file.write((const char*)&idx, sizeof(Uint32));
+	uint32_t idx=bone->getIndex();
+	file.write((const char*)&idx, sizeof(uint32_t));
 
 	// num_children
-	Uint32 num_children = bone->getNumChildren(false);
+	uint32_t num_children = bone->getNumChildren(false);
 	file.write((const char*)&num_children, 4);
 
 	// children
@@ -56,8 +56,8 @@ void ModelLoader::readNode(std::ifstream& file, Model* model, SkeletonBone* pare
 #endif
 
 	// index
-	Uint32 idx;
-	file.read((char*)&idx, sizeof(Uint32));
+	uint32_t idx;
+	file.read((char*)&idx, sizeof(uint32_t));
 
 	// create node
 	SkeletonBone* self;
@@ -72,12 +72,12 @@ void ModelLoader::readNode(std::ifstream& file, Model* model, SkeletonBone* pare
 	self->getOffset() = offset;
 
 	// num_children
-	Uint32 numChildren;
+	uint32_t numChildren;
 	file.read((char*)&numChildren, 4);
 	//LOGV("Num children: %d", numChildren);
 
 	// read children
-	for(Uint32 i=0; i<numChildren; i++){
+	for(uint32_t i=0; i<numChildren; i++){
 		readNode(file, model, self);
 	}
 }
@@ -99,35 +99,35 @@ void ModelLoader::load(const String& path, Model* model){
 	}
 
 	// num_geometry
-	Uint32 numGeometry;
+	uint32_t numGeometry;
 	file.read((char*)&numGeometry, 4);
 
 	/* start of geometry data */
-	Uint32 geoOffset = file.tellg();
+	uint32_t geoOffset = file.tellg();
 
 
-	Uint32 numVertices=0;
-	Uint32 numIndices=0;
+	uint32_t numVertices=0;
+	uint32_t numIndices=0;
 	/* calculate the total number of vertices/indices */
-	for(Uint32 i=0; i<numGeometry; i++){
+	for(uint32_t i=0; i<numGeometry; i++){
 		// name_id
 		std::string name;
 		std::getline(file, name, '\0');
 
 		// NoV
-		Uint32 nov;
+		uint32_t nov;
 		file.read((char*)&nov, 4);
 		numVertices += nov;
 
 		// NoI
-		Uint32 noi;
+		uint32_t noi;
 		file.read((char*)&noi, 4);
 		numIndices += noi;
 
 		if(i < numGeometry-1){
 			/* skip the vertex/index data since we're only interested in the number
 			of vertices/indices*/
-			file.seekg(nov*sizeof(Geometry::Vertex) + noi*sizeof(Uint32), std::ios::cur);
+			file.seekg(nov*sizeof(Geometry::Vertex) + noi*sizeof(uint32_t), std::ios::cur);
 		}
 
 	}
@@ -138,7 +138,7 @@ void ModelLoader::load(const String& path, Model* model){
 	file.seekg(geoOffset);
 
 	// geometry
-	for(Uint32 i=0; i<numGeometry; i++){
+	for(uint32_t i=0; i<numGeometry; i++){
 		// name_id
 		std::string name;
 		std::getline(file, name, '\0');
@@ -148,11 +148,11 @@ void ModelLoader::load(const String& path, Model* model){
 		//Geometry* geo = model->createGeometry(name);
 
 		// NoV
-		Uint32 nov;
+		uint32_t nov;
 		file.read((char*)&nov, 4);
 
 		// NoI
-		Uint32 noi;
+		uint32_t noi;
 		file.read((char*)&noi, 4);
 		//LOGV("noi: %d", noi);
 
@@ -165,7 +165,7 @@ void ModelLoader::load(const String& path, Model* model){
 		// NOTE this part works fine
 		glm::mat4 rot = glm::mat4_cast(glm::angleAxis(90.0f, glm::vec3(0, 1, 0)));
 
-		for(Uint32 j=0; j<vertices.getCapacity(); j++){
+		for(uint32_t j=0; j<vertices.getCapacity(); j++){
 			glm::vec4 pos(vertices[j].x, vertices[j].y, vertices[j].z, 0.0f);
 			glm::vec4 normal(vertices[j].nx, vertices[j].ny, vertices[j].nz, 0.0f);
 
@@ -183,7 +183,7 @@ void ModelLoader::load(const String& path, Model* model){
 #endif
 		// index_data
 		Buffer<GLuint> indices(noi);
-		file.read((char*)indices.getData(), noi*sizeof(Uint32));
+		file.read((char*)indices.getData(), noi*sizeof(uint32_t));
 
 		model->addGeometry(name, vertices, indices);
 		// setup structure
@@ -203,7 +203,7 @@ void ModelLoader::load(const String& path, Model* model){
 void ModelLoader::postProcess(SkeletonBone* bone, const glm::mat4& transform){
 	// TODO bones have to be processed as well, their offset matrices and local matrices
 #if 0
-	for(Uint32 i=0; i<bone->getNumChildren(false); i++){
+	for(uint32_t i=0; i<bone->getNumChildren(false); i++){
  		postProcess(bone->getChildAt(i), transform);
 	}
 #endif
@@ -214,7 +214,7 @@ void ModelLoader::postProcess(Model* model, const glm::mat4& transform){
 
 		Geometry::VertexBuffer& vertices = (*i)->getVertices();
 
-		for(Uint32 j=0; j<vertices.getCapacity(); j++){
+		for(uint32_t j=0; j<vertices.getCapacity(); j++){
 			Geometry::Vertex& vertex = vertices[j];
 
 			glm::vec4 position = transform * glm::vec4(vertex.x, vertex.y, vertex.z, 0.0f);
@@ -248,7 +248,7 @@ void ModelLoader::save(const String& path, Model* model){
 	file.write(FORMAT_ID, strlen(FORMAT_ID));
 
 	// num_geometry
-	Uint32 numGeometry = model->getGeometry().size();
+	uint32_t numGeometry = model->getGeometry().size();
 	file.write((const char*)&numGeometry, 4);
 
 	// geometry
@@ -259,11 +259,11 @@ void ModelLoader::save(const String& path, Model* model){
 		file.write(geo->getName().c_str(), geo->getName().size()+1);
 
 		// NoV
-		Uint32 nov = geo->getVertices().getCapacity();
+		uint32_t nov = geo->getVertices().getCapacity();
 		file.write((const char*)&nov, 4); 
 
 		// NoI
-		Uint32 noi = geo->getIndices().getCapacity();
+		uint32_t noi = geo->getIndices().getCapacity();
 		file.write((const char*)&noi, 4);
 
 		// vertex_data

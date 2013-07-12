@@ -10,7 +10,7 @@ namespace wt{
 class RenderTarget{
 private:
 	GLenum mBuffers[GL_MAX_DRAW_BUFFERS];
-	Uint32 mNumBuffers;
+	uint32_t mNumBuffers;
 	Gl::FrameBuffer mFrameBuffer;
 
 public:

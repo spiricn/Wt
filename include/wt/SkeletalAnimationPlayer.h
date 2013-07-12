@@ -29,7 +29,7 @@ private:
 
 public:
 
-	const glm::mat4& getGlobalBoneTransform(Uint32 index) const{
+	const glm::mat4& getGlobalBoneTransform(uint32_t index) const{
 		return mGlobalTransforms[index];
 	}
 
@@ -55,7 +55,7 @@ public:
 
 	const glm::mat4* getBoneMatrices() const;
 
-	Uint32 getNumBones() const;
+	uint32_t getNumBones() const;
 }; // </SkeletalAnimationPlayer>
 
 }; // </wt>

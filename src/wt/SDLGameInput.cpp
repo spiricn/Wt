@@ -16,12 +16,12 @@ VirtualKey SDLGameInput::fromSDLKey(SDLKey code) const{
 	return (VirtualKey)code;
 }
 
-Uint32 SDLGameInput::getMousePosX(){
+uint32_t SDLGameInput::getMousePosX(){
 	// TODO
 	return 0;
 }
 
-Uint32 SDLGameInput::getMousePosY(){
+uint32_t SDLGameInput::getMousePosY(){
 	// TODO
 	return 0;
 }

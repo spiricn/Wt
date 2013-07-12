@@ -66,19 +66,19 @@ Batch::~Batch(){
 	destroy();
 }
 	
-Uint32 Batch::getIndexAt(Uint32 index) const{
+uint32_t Batch::getIndexAt(uint32_t index) const{
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumIndices){
 		WT_THROW("Index buffer index out of range (index=%d size=%d)", index, mNumIndices);
 	}
 
-	Uint32 res;
+	uint32_t res;
 	mIndexBuffer->getSubData(index*mIndexSize, &res, mIndexSize);
 	return res;
 }
 
-void Batch::getVertexAt(Uint32 index, void* vertex) const{
+void Batch::getVertexAt(uint32_t index, void* vertex) const{
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumVertices){
@@ -88,7 +88,7 @@ void Batch::getVertexAt(Uint32 index, void* vertex) const{
 	mVertexBuffer->getSubData(index*mVertexSize, vertex, mVertexSize);
 }
 
-void Batch::setIndexAt(Uint32 index, Uint32 value){
+void Batch::setIndexAt(uint32_t index, uint32_t value){
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumIndices){
@@ -98,7 +98,7 @@ void Batch::setIndexAt(Uint32 index, Uint32 value){
 	mIndexBuffer->setSubData(index*mIndexSize, &value, mIndexSize);
 }
 
-void Batch::setVertexAt(Uint32 index, const void* vertex){
+void Batch::setVertexAt(uint32_t index, const void* vertex){
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumVertices){
@@ -190,10 +190,10 @@ void Batch::setVertexAttribute(GLuint attrib_index, GLint component_number, GLen
 	mVertexArray->unbind();
 }
 
-void Batch::render(Buffer* feedBackBuffer, const GLvoid* indices, Uint32 numIndices){
+void Batch::render(Buffer* feedBackBuffer, const GLvoid* indices, uint32_t numIndices){
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
-	Uint32 idcs;
+	uint32_t idcs;
 	mVertexArray->bind();
 	if(indices){
 		idcs=numIndices;

@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	void hook(EventManager* manager, Uint32 numEvents, ...){
+	void hook(EventManager* manager, uint32_t numEvents, ...){
 		if(mHooked){
 			return;
 		}
@@ -31,7 +31,7 @@ public:
 		va_list vlist;
 		va_start(vlist, numEvents);
 
-		for(Uint32 i=0; i<numEvents; i++){
+		for(uint32_t i=0; i<numEvents; i++){
 			EvtType type = va_arg(vlist, EvtType);
 			mEvents.push_back(type);
 

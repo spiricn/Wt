@@ -29,11 +29,11 @@ protected:
 	float mAttachDistance;
 	bool mIsRayCaster;
 	void* mUserData;
-	Uint32 mId;
+	uint32_t mId;
 	bool mUserDataSet;
 
 public:
-	SceneActor(Uint32 id, const String& name="") : mName(name), mId(id),
+	SceneActor(uint32_t id, const String& name="") : mName(name), mId(id),
 		mModel(NULL), mPhysicsActor(NULL), mAttachBone(NULL), mUserData(NULL),
 		mAttachActor(NULL), mAttachDistance(0.0f), mIsRayCaster(true), mAnimationPlayer(NULL), mUserDataSet(false){
 	}
@@ -54,7 +54,7 @@ public:
 	virtual ~SceneActor(){
 	}
 
-	Uint32 getId() const{
+	uint32_t getId() const{
 		return mId;
 	}
 

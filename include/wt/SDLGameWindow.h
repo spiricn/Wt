@@ -42,7 +42,7 @@ public:
 
 	bool isFullscreen() const;
 
-	void setScreenSize(Uint32 width, Uint32 height);
+	void setScreenSize(uint32_t width, uint32_t height);
 	
 	void setFullscreenEnabled(bool state);
 

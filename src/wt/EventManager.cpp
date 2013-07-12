@@ -7,7 +7,7 @@
 namespace wt{
 
 
-void EventManager::registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered, Uint32 filterData){
+void EventManager::registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered, uint32_t filterData){
 	if(!isRegistered(eventType)){
 		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
 			eventType.c_str()
@@ -186,7 +186,7 @@ void EventManager::tick(){
 	mMutex.lock();
 
 	/* Using a counter to prevent recursive event adition (i.e. notification of one event causes another to be queued) */
-	Uint32 maxEvents = mEventList.size();
+	uint32_t maxEvents = mEventList.size();
 
 	while(!mEventList.empty() && maxEvents > 0){
 		EvtPtr evt = mEventList.front();

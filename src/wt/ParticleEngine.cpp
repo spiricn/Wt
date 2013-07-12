@@ -46,7 +46,7 @@ void ParticleShader::setModelViewProj(const glm::mat4& modelView, const glm::mat
 ParticleEmitter::ParticleEmitter(){
 }
 
-ParticleEffect* ParticleEmitter::create(Uint32 numParticles, Texture2D* particleTexture, const String& userProg){
+ParticleEffect* ParticleEmitter::create(uint32_t numParticles, Texture2D* particleTexture, const String& userProg){
 	glEnable(GL_POINT_SPRITE);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 
@@ -59,9 +59,9 @@ ParticleEffect* ParticleEmitter::create(Uint32 numParticles, Texture2D* particle
 
 	Particle* particles = new Particle[numParticles];
 	memset(particles, 0x00, sizeof(Particle)*numParticles);
-	Uint32* indices = new Uint32[numParticles];
+	uint32_t* indices = new uint32_t[numParticles];
 
-	for(Uint32 i=0; i<numParticles; i++){
+	for(uint32_t i=0; i<numParticles; i++){
 		indices[i] = i;
 		Particle& p = particles[i];
 		p.life = 1.0f;
@@ -83,9 +83,9 @@ ParticleEffect* ParticleEmitter::create(Uint32 numParticles, Texture2D* particle
 
 	}
 
-	for(Uint32 i=0; i<2; i++){
+	for(uint32_t i=0; i<2; i++){
 		effect->mBatches[i].create(i==0?particles:0, numParticles, sizeof(Particle),
-			indices, numParticles, sizeof(Uint32),
+			indices, numParticles, sizeof(uint32_t),
 			GL_POINTS);
 
 		// position
@@ -118,7 +118,7 @@ float rainbowFactor=0.0f;
 void ParticleEmitter::update(float dt){
 	rainbowFactor = fmod(rainbowFactor+1/60.0f, 5.0f);
 
-	for(Uint32 i=0; i<mEffects.size(); i++){
+	for(uint32_t i=0; i<mEffects.size(); i++){
 		mEffects[i]->mShader.use();
 		mEffects[i]->mShader.setUniformVal("uDt", dt);
 		mEffects[i]->mShader.setUniformVal("uRainbowFactor", rainbowFactor/5.0f);
@@ -133,7 +133,7 @@ void ParticleEmitter::render(math::Camera* camera, const math::Frustum* frustum)
 	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
 	gl( DepthMask(false) );
 
-	for(Uint32 i=0; i<mEffects.size(); i++){
+	for(uint32_t i=0; i<mEffects.size(); i++){
 		if(!mEffects[i]->isEnabled()){
 			continue;
 		}

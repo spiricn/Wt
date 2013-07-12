@@ -22,7 +22,7 @@ bool endsWith(const String& fullString, const String& ending){
 void replacePathSplitters(String& src, char splitter){
 	char original = splitter=='/' ? '\\' : '/';
 
-	for(Uint32 i=0; i<src.size(); i++){
+	for(uint32_t i=0; i<src.size(); i++){
 		if(src[i] == original){
 			src[i] = splitter;
 		}
@@ -30,7 +30,7 @@ void replacePathSplitters(String& src, char splitter){
 }
 
 std::ostream& operator<<(std::ostream& dst, const Indent& indent){
-	for(Uint32 i=0; i<indent.mDepth; i++){
+	for(uint32_t i=0; i<indent.mDepth; i++){
 		dst << '\t';
 	}
 	return dst;
@@ -41,26 +41,26 @@ String getEnv(const String& name){
 }
 
 String formatSeconds(float seconds, const String& fmt){
-	Uint32 sec = (Uint32)seconds;
+	uint32_t sec = (uint32_t)seconds;
 
 	struct tm t;
 	t.tm_sec = sec % 60;
-	t.tm_min = ((Uint32)(sec/60.0f)) % 60;
-	t.tm_hour = (Uint32)(seconds/3600.0);
+	t.tm_min = ((uint32_t)(sec/60.0f)) % 60;
+	t.tm_hour = (uint32_t)(seconds/3600.0);
 
 	char bfr[1024];
 	strftime(bfr, 1024, fmt.c_str(), &t);
 
 	return bfr;
 }
-void makeCheckboard(Buffer<unsigned char>& bfr, Uint32 w, Uint32 h,
-	Uint32 vf, Uint32 hf, const Color& clr1, const Color& clr2){
+void makeCheckboard(Buffer<unsigned char>& bfr, uint32_t w, uint32_t h,
+	uint32_t vf, uint32_t hf, const Color& clr1, const Color& clr2){
 
 	bfr.create(w*h*3);
 
 	bool clr=false;
-	for(Uint32 i=0; i<h; i++){
-		for(Uint32 j=0; j<w; j++){
+	for(uint32_t i=0; i<h; i++){
+		for(uint32_t j=0; j<w; j++){
 			int base = i*w*3 + j*3;
 			if(j%hf==0){
 				clr=!clr;
@@ -90,13 +90,13 @@ String getCurrentTime(const String& format){
 	return bfr;
 }
 
-void makeGrid(Gl::Batch& batch, float dx, float dz, Uint32 x, Uint32 z){
+void makeGrid(Gl::Batch& batch, float dx, float dz, uint32_t x, uint32_t z){
 	float mWidth =(x-1)+(x-1)*dx;
 	float mDepth =(z-1)+(z-1)*dz;
 
 	//////////////////////////////////////////////////////////////////////
-	Uint32 mNumVertices = x*z;
-	Uint32 numQuads = (x-1)*(z-1);
+	uint32_t mNumVertices = x*z;
+	uint32_t numQuads = (x-1)*(z-1);
 	//////////////////////////////////////////////////////////////////////
 	// Vertices
 	float* vertices = new float[mNumVertices*3];

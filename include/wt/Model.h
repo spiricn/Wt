@@ -115,8 +115,8 @@ private:
 	GeoList mGeometry;
 	SkeletonBone* mRootBone;
 	Gl::Batch mBatch;
-	Uint32 mVertexOffset, mIndexOffset;
-	Uint32 mNumVertices, mNumIndices;
+	uint32_t mVertexOffset, mIndexOffset;
+	uint32_t mNumVertices, mNumIndices;
 	String generateMeshName();
 	SkinMap mSkins;
 	AnimationMap mAnimations;
@@ -167,9 +167,9 @@ public:
 
 	Gl::Batch& getBatch();
 
-	Uint32 getNumVertices() const;
+	uint32_t getNumVertices() const;
 
-	Uint32 getNumIndices() const;
+	uint32_t getNumIndices() const;
 
 	GeoList& getGeometry();
 
@@ -181,10 +181,10 @@ public:
 
 	Geometry* findGeometryByName(const String& name);
 	
-	void setSize(Uint32 numVertices, Uint32 numIndices);
+	void setSize(uint32_t numVertices, uint32_t numIndices);
 
 	Geometry* addGeometry(const String& name, const Buffer<Geometry::Vertex>& vertices, 
-		const Buffer<Uint32>& indices);
+		const Buffer<uint32_t>& indices);
 
 	void removeGeometry(const String& name);
 

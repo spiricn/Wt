@@ -17,7 +17,7 @@ class Event{
 private:
 	LuaObject mLuaData;
 	bool mLuaDataBuilt;
-	Uint32 mEmitterData;
+	uint32_t mEmitterData;
 
 protected:
 
@@ -32,11 +32,11 @@ public:
 	Event(LuaObject& data) : mLuaDataBuilt(true), mLuaData(data){
 	}
 
-	Uint32 getEmitterData() const{
+	uint32_t getEmitterData() const{
 		return mEmitterData;
 	}
 
-	void setEmitterData(Uint32 data){
+	void setEmitterData(uint32_t data){
 		mEmitterData = data;
 	}
 

@@ -25,18 +25,18 @@ TerrainChunk::TerrainChunk():mNumTriangles(0), mNumVertices(0), mDepth(0), mWidt
 TerrainChunk::~TerrainChunk(){
 }
 
-void TerrainChunk::loadHeightmap(std::ifstream& inFile, Uint32 stride, Uint32 numRows, Uint32 numCols, float dx, float dz, float heightOffset){
+void TerrainChunk::loadHeightmap(std::ifstream& inFile, uint32_t stride, uint32_t numRows, uint32_t numCols, float dx, float dz, float heightOffset){
 	mRowScale = dx;
 	mColumnScale = dz;
 	mHeightScale = heightOffset;
 
 	mHeightMap.create( numRows*numCols );
 
-	for(Uint32 row=0; row<numRows; row++){
-		for(Uint32 col=0; col<numCols; col++){
+	for(uint32_t row=0; row<numRows; row++){
+		for(uint32_t col=0; col<numCols; col++){
 			WT_ASSERT(inFile.good(), "In file not good, @ %d", inFile.tellg() );
 			
-			Int16 sample;
+			int16_t sample;
 			inFile.read((char*)&sample, 2);
 			mHeightMap[row*numCols + col] = sample;
 		}
@@ -63,8 +63,8 @@ void TerrainChunk::loadHeightmap(std::ifstream& inFile, Uint32 stride, Uint32 nu
 
 	float scaleFactor =1.0f;// 50.0f/maxHeight;
 
-	for(Uint32 row=0; row<numRows; row++){
-		for(Uint32 col=0; col<numCols; col++){
+	for(uint32_t row=0; row<numRows; row++){
+		for(uint32_t col=0; col<numCols; col++){
 			vertex = &vertices[row*numCols + col];
 
 			vertex->x = row*dx;

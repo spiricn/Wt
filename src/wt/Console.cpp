@@ -18,7 +18,7 @@ void Console::setColor(ConsoleColor text, ConsoleColor background){
 }
 
 
-void Console::setPosition(Int32 x, Int32 y, Int32 w, Int32 h){
+void Console::setPosition(int32_t x, int32_t y, int32_t w, int32_t h){
 #if defined(WIN32)
 	HWND wnd = GetConsoleWindow();
 	MoveWindow(wnd, x, y, w, h, 1);

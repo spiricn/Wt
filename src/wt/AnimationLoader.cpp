@@ -30,12 +30,12 @@ void AnimationLoader::load(const String& path, Animation* ani){
 	//LOGV("Duration: %f", dur);
 
 	// num_node_anims
-	Uint32 numNodes;
+	uint32_t numNodes;
 	file.read((char*)&numNodes, 4);
 	//LOGV("Num nodes: %d", numNodes);
 
 	// nodes
-	for(Uint32 i=0; i<numNodes; i++){
+	for(uint32_t i=0; i<numNodes; i++){
 		NodeAnimation* node = ani->addNodeAnimation();
 
 		// node_name_id
@@ -44,11 +44,11 @@ void AnimationLoader::load(const String& path, Animation* ani){
 		node->setTargetNode(name);
 
 		// num_pos_keys
-		Uint32 numPosKeys;
+		uint32_t numPosKeys;
 		file.read((char*)&numPosKeys, 4);
 
 		// pos_keys
-		for(Uint32 j=0; j<numPosKeys; j++){
+		for(uint32_t j=0; j<numPosKeys; j++){
 			NodeAnimation::PositionKey key;
 
 			file.read((char*)&key, sizeof(NodeAnimation::PositionKey));
@@ -57,11 +57,11 @@ void AnimationLoader::load(const String& path, Animation* ani){
 		}
 
 		// num_rot_keys
-		Uint32 numRotKeys;
+		uint32_t numRotKeys;
 		file.read((char*)&numRotKeys, 4);
 
 		// rot_keys
-		for(Uint32 j=0; j<numRotKeys; j++){
+		for(uint32_t j=0; j<numRotKeys; j++){
 			NodeAnimation::RotationKey key;
 
 			// rotation
@@ -79,12 +79,12 @@ void AnimationLoader::load(const String& path, Animation* ani){
 		}
 
 		// num_scale_keys
-		Uint32 numScaleKeys;
+		uint32_t numScaleKeys;
 		file.read((char*)&numScaleKeys, 4);
 		//LOGV("Num scale keys: %d", numScaleKeys);
 
 		// pos_keys
-		for(Uint32 j=0; j<numScaleKeys; j++){
+		for(uint32_t j=0; j<numScaleKeys; j++){
 			NodeAnimation::ScaleKey key;
 
 			// position
@@ -112,15 +112,15 @@ void AnimationLoader::postProcess(Animation* ani, const glm::mat4& transform){
 	glm::vec3 trans, scale;
 	math::decomposeMatrix(transform, rot, trans, scale);
 	
-	for(Uint32 i=0; i<ani->mNodeAnimations.size(); i++){
+	for(uint32_t i=0; i<ani->mNodeAnimations.size(); i++){
 		NodeAnimation* node = ani->mNodeAnimations[i];
 
-		for(Uint32 j=0; j<node->getPositionKeys().size(); j++){
+		for(uint32_t j=0; j<node->getPositionKeys().size(); j++){
 			NodeAnimation::PositionKey& key = node->getPositionKeys()[j];
 			key.position += trans;
 		}
 
-		for(Uint32 j=0; j<node->getRotationKeys().size(); j++){
+		for(uint32_t j=0; j<node->getRotationKeys().size(); j++){
 			NodeAnimation::RotationKey& key = node->getRotationKeys()[j];
 			key.rotation = rot * key.rotation;
 		}
@@ -143,7 +143,7 @@ void AnimationLoader::save(const String& path, Animation* ani){
 	file.write((char*)&dur, 4);
 
 	// num_node_anims
-	Uint32 numNodes = ani->mNodeAnimations.size();
+	uint32_t numNodes = ani->mNodeAnimations.size();
 	file.write((char*)&numNodes, 4);
 
 	// node_anims
@@ -154,11 +154,11 @@ void AnimationLoader::save(const String& path, Animation* ani){
 		file.write(node->getTargetNode().c_str(), node->getTargetNode().size()+1);
 
 		// num_pos_keys
-		Uint32 numPosKeys = node->getPositionKeys().size();
+		uint32_t numPosKeys = node->getPositionKeys().size();
 		file.write((char*)&numPosKeys, 4);
 
 		// pos_keys
-		for(Uint32 j=0; j<numPosKeys; j++){
+		for(uint32_t j=0; j<numPosKeys; j++){
 			// position
 			file.write((char*)glm::value_ptr(node->getPositionKeys()[j].position), 3*sizeof(float));
 
@@ -167,7 +167,7 @@ void AnimationLoader::save(const String& path, Animation* ani){
 		}
 
 		// num_rot_keys
-		Uint32 numRotKeys = node->getRotationKeys().size();
+		uint32_t numRotKeys = node->getRotationKeys().size();
 		file.write((char*)&numRotKeys, 4);
 
 		// rot_keys
@@ -185,7 +185,7 @@ void AnimationLoader::save(const String& path, Animation* ani){
 		}
 
 		// num_scale_keys
-		Uint32 numScaleKeys = node->getScaleKeys().size();
+		uint32_t numScaleKeys = node->getScaleKeys().size();
 		file.write((char*)&numScaleKeys, 4);
 
 		// scale_keys

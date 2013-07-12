@@ -157,22 +157,22 @@ public:
 		}
 	}
 
-	const MineCell& getCell(Int32 x, Int32 y) const{
+	const MineCell& getCell(int32_t x, int32_t y) const{
 		return getCell(x, y);
 	}
 
-	MineCell& getCell(Int32 x, Int32 y){
+	MineCell& getCell(int32_t x, int32_t y){
 		WT_ASSERT(inBounds(x, y), "Coord out of bounds (%d, %d)", x, y);
 
-		Int32 idx =y*mNumColumns + x;
-		WT_ASSERT(idx >= 0 && idx < (Int32)(mNumRows*mNumColumns), "Invalid idx");
+		int32_t idx =y*mNumColumns + x;
+		WT_ASSERT(idx >= 0 && idx < (int32_t)(mNumRows*mNumColumns), "Invalid idx");
 
 		return mField[idx];
 	}
 
-	bool inBounds(Int32 x, Int32 y) const{
+	bool inBounds(int32_t x, int32_t y) const{
 		return x >= 0 && y >= 0 &&
-			x < (Int32)mNumColumns && y < (Int32)mNumRows;
+			x < (int32_t)mNumColumns && y < (int32_t)mNumRows;
 	}
 
 	

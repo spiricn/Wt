@@ -36,7 +36,7 @@ public:
 class Canvas{
 private:
 	FrameBuffer mFrameBfr;
-	Uint32 mWidth, mHeight;
+	uint32_t mWidth, mHeight;
 	glm::mat4x4 mModelView;
 	glm::mat4x4 mProjMat;
 	Texture2D* mTargetTex;
@@ -87,12 +87,12 @@ public:
 		mFrameBfr.addAttachment(GL_COLOR_ATTACHMENT0, output==NULL ? mTargetTex : output);
 	}
 
-	Uint32 getLineWidth(Font* font, const String& str, float maxWidth){
+	uint32_t getLineWidth(Font* font, const String& str, float maxWidth){
 
 		String bfr;
 		char t[2] = {0, 0};
 		float w=0;
-		for(Uint32 i=0; i<str.size(); i++){
+		for(uint32_t i=0; i<str.size(); i++){
 			if(str[i] == '\n'){
 				return i==0 ? 0 : i;
 			}
@@ -116,8 +116,8 @@ public:
 		String bfr = text;
 
 		
-		Uint32 lineHeight = ((font->getFace()->bbox.yMax-font->getFace()->bbox.yMin)>>6)/2; //(font->getFace()->height>>6);
-		Uint32 y = 0;
+		uint32_t lineHeight = ((font->getFace()->bbox.yMax-font->getFace()->bbox.yMin)>>6)/2; //(font->getFace()->height>>6);
+		uint32_t y = 0;
 
 
 		if(lineHeight > size.y){
@@ -133,7 +133,7 @@ public:
 				continue;
 			}
 
-			Uint32 lineEnd = getLineWidth(font, bfr, size.x);
+			uint32_t lineEnd = getLineWidth(font, bfr, size.x);
 			if(lineEnd == 0){
 				break;
 			}
@@ -164,20 +164,20 @@ public:
 
 
 		// Vertices & indices
-		Uint32 numPoints = 6*text.size();
+		uint32_t numPoints = 6*text.size();
 		Point* points = new Point[numPoints];
-		Uint32* indices = new Uint32[numPoints];
+		uint32_t* indices = new uint32_t[numPoints];
 
-		for(Uint32 i=0; i<numPoints; i++){
+		for(uint32_t i=0; i<numPoints; i++){
 			indices[i] = i;
 		}
 
-		Uint32 p=0;
+		uint32_t p=0;
 
 		float texWidth = font->mAtlas.getTexture()->getWidth();
 		float texHeight = font->mAtlas.getTexture()->getHeigth();
 
-		for(Uint32 i=0; i<text.size(); i++){
+		for(uint32_t i=0; i<text.size(); i++){
 			const FontAtlas::CharInfo& info = font->mAtlas.getCharInfo( text[i] );
 			float x2 = x + info.mBl;
 			float y2 = (y - info.mBt)+offset;
@@ -212,7 +212,7 @@ public:
 
 		mFontBatch.create(
 			points, numPoints, sizeof(Point),
-			indices, numPoints, sizeof(Uint32),
+			indices, numPoints, sizeof(uint32_t),
 			GL_TRIANGLES, GL_UNSIGNED_INT
 			);
 
@@ -237,7 +237,7 @@ public:
 		delete[] indices;
 	}
 
-	void resize(Uint32 w, Uint32 h){
+	void resize(uint32_t w, uint32_t h){
 		mWidth = w;
 		mHeight = h;
 
@@ -249,7 +249,7 @@ public:
 		mTargetTex->setData(mWidth, mHeight, GL_RGBA, GL_RGBA8, NULL, GL_FLOAT);
 	}
 
-	void create(Uint32 w, Uint32 h){
+	void create(uint32_t w, uint32_t h){
 		mWidth = w;
 		mHeight = h;
 		mTargetTex = new Texture2D();

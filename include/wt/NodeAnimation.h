@@ -61,7 +61,7 @@ private:
 
 	int findScaleKey(float time) const;
 
-	void calcTangent(Int32 k, glm::vec3& res) const;
+	void calcTangent(int32_t k, glm::vec3& res) const;
 public:
 
 	NodeAnimation();

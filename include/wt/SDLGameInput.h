@@ -21,9 +21,9 @@ private:
 	VirtualKey fromSDLKey(SDLKey code) const;
 
 public:
-	Uint32 getMousePosX();
+	uint32_t getMousePosX();
 
-	Uint32 getMousePosY();
+	uint32_t getMousePosY();
 
 	SDLGameInput();
 

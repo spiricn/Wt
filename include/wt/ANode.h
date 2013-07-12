@@ -72,7 +72,7 @@ public:
 		return (const T*)mParent;
 	}
 
-	T* getChildAt(Int32 idx){
+	T* getChildAt(int32_t idx){
 #if WT_CHECKED
 		WT_ASSERT(idx < mChildren.size()
 			&& idx >= 0, "Invalid node child index %d (must be in range [0, %d)",
@@ -81,9 +81,9 @@ public:
 		return mChildren[idx];
 	}
 
-	wt::Uint32 getNumChildren(bool recursive) const{
+	uint32_t getNumChildren(bool recursive) const{
 		if(recursive){
-			Uint32 count=0;
+			uint32_t count=0;
 
 		
 			for(ConstIterator i=getBeg(); i!=getEnd(); i++){

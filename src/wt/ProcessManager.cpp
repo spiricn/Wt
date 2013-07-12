@@ -49,7 +49,7 @@ void ProcessManager::upate(float dt){
 #if 0
 	for(std::map<AProcess::Pid, float>::iterator i=procTimes.begin(); i!=procTimes.end(); i++){
 		float p = i->second/totalTime;
-		LOGI("ProcessManager", "PID: %d CPU: %.2f%% MS: %d", i->first, p*100.0f, (Uint32)(i->second*1000.0));
+		LOGI("ProcessManager", "PID: %d CPU: %.2f%% MS: %d", i->first, p*100.0f, (uint32_t)(i->second*1000.0));
 	}
 #endif
 }
