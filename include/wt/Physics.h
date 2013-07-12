@@ -5,7 +5,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/EventManager.h"
-#include "wt/SceneActor.h"
+#include "wt/ASceneActor.h"
 #include "wt/ASerializable.h"
 #include "wt/PhysicsActor.h"
 #include "wt/TimeAccumulator.h"
@@ -207,7 +207,7 @@ public:
 		return i == mActors.end() ? NULL : i->second;
 	}
 
-	PhysicsActor* createActor(SceneActor* sceneActor, PhysicsActor::Desc& desc);
+	PhysicsActor* createActor(ASceneActor* sceneActor, PhysicsActor::Desc& desc);
 
     void update(float dt);
 
@@ -246,7 +246,7 @@ public:
 
 		uint32_t actorIdx=0;
 		for(uint32_t i=0; i<actors->getCapacity(); i++){
-			SceneActor* actor =  actors->operator[](i)->getSceneActor();
+			ASceneActor* actor =  actors->operator[](i)->getSceneActor();
 			if(actor){
 				res.Set(++actorIdx, actor->getId());
 			}

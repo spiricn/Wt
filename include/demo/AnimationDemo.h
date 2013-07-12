@@ -15,7 +15,7 @@ namespace wt{
 
 class AnimationDemo : public ADemo{
 private:
-	SceneActor* mActor;
+	ModelledActor* mActor;
 	CameraAnimation mCameraAnimation;
 	EventTable<AnimationDemo> mEventTable;
 	Gui::ProgressView* mAniProgress;
@@ -73,7 +73,7 @@ public:
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
 		// Create scene actor
-		mActor = getScene()->createActor();
+		mActor = getScene()->createModelledActor();
 		mActor->setModel(getAssets()->getModelManager()->find("character"), "default");
 
 		mActor->getAnimationPlayer()->play("stand", true);

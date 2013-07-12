@@ -8,7 +8,7 @@
 #include "wt/GLBatch.h"
 #include "wt/Texture.h"
 #include "wt/TextureArray.h"
-#include "wt/SceneActor.h"
+#include "wt/ASceneActor.h"
 
 namespace wt{
 

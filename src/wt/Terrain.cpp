@@ -2,7 +2,7 @@
 
 #include "wt/Terrain.h"
 #include "wt/TerrainChunk.h"
-#include "wt/SceneActor.h"
+#include "wt/ASceneActor.h"
 #include "wt/Physics.h"
 
 #define TD_TRACE_TAG "Terrain"
@@ -10,7 +10,7 @@
 namespace wt{
 
 
-Terrain::Terrain(uint32_t actorId) : mTerrainTextures(NULL), SceneActor(actorId){
+Terrain::Terrain(Scene* parent, uint32_t actorId, const String& name) : mTerrainTextures(NULL), ASceneActor(parent, ASceneActor::eTYPE_TERRAIN, actorId, name){
 }
 
 const TerrainDesc& Terrain::getDesc() const{
@@ -342,15 +342,15 @@ void Terrain::editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t st
 	mBatch.getVertexBuffer().unmap();
 }
 
-Texture2D* Terrain::getMapTexture(){
+Texture2D* Terrain::getMapTexture() const{
 	return mTextureMap;
 } 
 
-TextureArray* Terrain::getTerrainTexture(){
+TextureArray* Terrain::getTerrainTexture() const{
 	return mTerrainTextures;
 }
 
-TerrainNode* Terrain::getRootNode(){
+const TerrainNode* Terrain::getRootNode() const{
 	return &mRootNode;
 }
 

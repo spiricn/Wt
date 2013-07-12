@@ -4,6 +4,7 @@
 
 #define TD_TRACE_TAG "Exception"
 
+#pragma message "what the fuck"
 namespace wt{
 
 Exception::Exception(const char* functionName, const char* fileName, long lineNumber, const char* descFmt, ...) 
@@ -18,8 +19,9 @@ Exception::Exception(const char* functionName, const char* fileName, long lineNu
 	va_end(argList);
 
 	mDesc = bfr;
+	LOGE("uncaught: %d", std::uncaught_exception());
+	LOGE("%s", getFullDescription().c_str());
 
-	LOGE(getFullDescription().c_str());
 }
 
 const String& Exception::getDescription() const{
@@ -28,7 +30,11 @@ const String& Exception::getDescription() const{
 
 const String Exception::getFullDescription() const{
 	std::stringstream s;
-		s << mDesc << "\n" << mFunctionName << " at " << mFile << " ( line " << mLineNumber << " )";
+	s	<< "----------------------------\n"
+		<< ">> " << mDesc << " <<\n"
+		<< mFunctionName << " @ " << mLineNumber << "\n"
+		<< mFile << "\n"
+		<< "----------------------------\n";
 
 	return s.str();
 }

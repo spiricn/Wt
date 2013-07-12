@@ -71,7 +71,7 @@ void Scene::load(const String& path){
 void Scene::createTerrain(const TerrainDesc& tDesc){
 	WT_ASSERT(mTerrain == NULL, "Terrain already created");
 
-	mTerrain = new Terrain(generateActorId());
+	mTerrain = new Terrain(this, generateActorId());
 
 	mTerrain->create(tDesc);
 
@@ -95,6 +95,8 @@ void Scene::createTerrain(const TerrainDesc& tDesc){
 	mPhysics->createActor(mTerrain, desc);
 
 	mActors.insert(std::make_pair(mTerrain->getId(), mTerrain));
+
+	mTerrainSet.insert(mTerrain);
 }
 
 
@@ -131,6 +133,8 @@ void Scene::destroyTerrain(){
 
 		mActors.erase( mTerrain->getId() );
 
+		mTerrainSet.erase(mTerrain);
+
 		delete mTerrain;
 		mTerrain = NULL;
 	}
@@ -150,18 +154,25 @@ uint32_t Scene::generateActorId(){
 	return id;
 }
 
-
-SceneActor* Scene::getActorById(uint32_t id){
-	ActorMap::iterator i = mActors.find(id);
-	return i == mActors.end() ? NULL : i->second;
+void Scene::deleteActor(ASceneActor* aActor){
+	eraseActor( mActors.find(aActor->getId()) );
 }
 
-SceneActor* Scene::createActor(const String& name){
-	SceneActor* actor = new SceneActor(generateActorId(), name);
+Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
+	if(iter->second->getPhysicsActor()){
+		mPhysics->removeActor( iter->second->getPhysicsActor() );
+	}
+	
+	if(iter->second->getActorType() == ASceneActor::eTYPE_MODELLED){
+		mModelledActors.erase( static_cast<ModelledActor*>(iter->second) );
+	}
+	else if(iter->second->getActorType() == ASceneActor::eTYPE_TERRAIN){
+		mTerrainSet.erase( static_cast<Terrain*>(iter->second) );
+	}
 
-	mActors.insert( std::make_pair(actor->getId(), actor) );
+	delete iter->second;
 
-	return actor;
+	return mActors.erase(iter);
 }
 
 void Scene::clear(){
@@ -170,20 +181,31 @@ void Scene::clear(){
 	destroyTerrain();
 
 	for(ActorMap::iterator i=mActors.begin(); i!=mActors.end(); i++){
-		if(i->second->getPhysicsActor() != NULL){
-			mPhysics->removeActor( i->second->getPhysicsActor() );
+		i = eraseActor(i);
+		if(i == mActors.end()){
+			break;
 		}
-
-		delete i->second;
 	}
-
-	mActors.clear();
-
+	
 	mDefaultCamera = math::Camera();
 }
-	
 
-SceneActor* Scene::findActorByName(const String& name) const{
+ASceneActor* Scene::getActorById(uint32_t id){
+	ActorMap::iterator i = mActors.find(id);
+	return i == mActors.end() ? NULL : i->second;
+}
+
+ModelledActor* Scene::createModelledActor(const String& name){
+	ModelledActor* actor = new ModelledActor(this, generateActorId(), name);
+
+	mActors.insert( std::make_pair(actor->getId(), actor) );
+
+	mModelledActors.insert(actor);
+
+	return actor;
+}
+
+ASceneActor* Scene::findActorByName(const String& name) const{
 	for(ActorMap::const_iterator i=mActors.cbegin(); i!=mActors.cend(); i++){
 		if(i->second->getName().compare(name) == 0){
 			return i->second;
@@ -215,6 +237,9 @@ SkyBox* Scene::getSkyBox(){
 	return mSkyBox;
 }
 
+/*********************************************************************
+ ************** Lua bindings *****************************************
+ *********************************************************************/
 
 #define LUA_ERROR(fmt, ...) do{ LOGE("%s " fmt, __FUNCTION__, __VA_ARGS__); }while(0)
 
@@ -226,6 +251,7 @@ void Scene::lua_setLightDir(LuaObject obj){
 	}
 }
 
+#if 0
 uint32_t Scene::lua_createActor(){
 	return createActor()->getId();
 }
@@ -548,8 +574,10 @@ void Scene::lua_rotateActor(uint32_t actorId, float x, float y, float z, float a
 	actor->getTransform().rotate(x, y, z, angle);
 }
 
+#endif
 void Scene::expose(LuaObject& meta){
 
+#if 0
 #define EXPOSE(funcName) do{ meta.RegisterObjectDirect(#funcName, (Scene*)0, &Scene::lua_ ## funcName); }while(0)
 
 	EXPOSE(setLightDir);
@@ -573,6 +601,7 @@ void Scene::expose(LuaObject& meta){
 	EXPOSE(destroyController);
 	EXPOSE(getActorFacing);
 	EXPOSE(rotateActor);
+#endif
 }
 
 

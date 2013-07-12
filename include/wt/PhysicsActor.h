@@ -105,7 +105,7 @@ private:
 	ControlMode mControlMode;
 	PxActor* mPxActor;
 	PxController* mPxController;
-	SceneActor* mSceneActor;
+	ASceneActor* mSceneActor;
 	String mName;
 	void* mUserData;
 	uint32_t mId;
@@ -141,7 +141,7 @@ public:
 		return mActorType;
 	}
 
-	SceneActor* getSceneActor() const{
+	ASceneActor* getSceneActor() const{
 		return mSceneActor;
 	}
 
@@ -150,7 +150,7 @@ public:
 	}
 
 	PhysicsActor(uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
-		PxController* controller, SceneActor* sceneActor) : mActorType(type), mControlMode(mode),
+		PxController* controller, ASceneActor* sceneActor) : mActorType(type), mControlMode(mode),
 		mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id){
 	}
 

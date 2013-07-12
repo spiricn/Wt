@@ -80,7 +80,7 @@ public:
 
 			getPhysics()->createRegion("test", regPos, regSize);
 
-			SceneActor* actor = getScene()->createActor();
+			ModelledActor* actor = getScene()->createModelledActor();
 			actor->getTransform().setPosition(regPos);
 			actor->getTransform().setScale(regSize, regSize, regSize);
 
@@ -111,9 +111,9 @@ public:
 		}
 	}
 
-	SceneActor* spawnBox(const glm::vec3& position, const glm::vec3& velocity=glm::vec3(0.0f), Uint32 collisionMask=0xFFFFFFFF /* Collide with everything by default */){
+	ModelledActor* spawnBox(const glm::vec3& position, const glm::vec3& velocity=glm::vec3(0.0f), Uint32 collisionMask=0xFFFFFFFF /* Collide with everything by default */){
 		// Create scene actor
-		SceneActor* sceneActor = getScene()->createActor();
+		ModelledActor* sceneActor = getScene()->createModelledActor();
 
 		//sceneActor->getModel()->get
 		sceneActor->getTransform().setPosition(position);
@@ -143,9 +143,9 @@ public:
 		return sceneActor;
 	}
 
-	SceneActor* spawnBall(const glm::vec3& position, const glm::vec3& velocity=glm::vec3(0.0f), Uint32 collisionMask=0xFFFFFFFF /* Collide with everything by default */){
+	ModelledActor* spawnBall(const glm::vec3& position, const glm::vec3& velocity=glm::vec3(0.0f), Uint32 collisionMask=0xFFFFFFFF /* Collide with everything by default */){
 		// Create scene actor
-		SceneActor* sceneActor = getScene()->createActor();
+		ModelledActor* sceneActor = getScene()->createModelledActor();
 
 		sceneActor->getTransform().setPosition(position);
 

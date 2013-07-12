@@ -17,6 +17,7 @@
 #include "demo/MinesDemo.h"
 #include "demo/GoldDiggersDemo.h"
 #include "demo/PathFindingDemo.h"
+#include "demo/TestDemo.h"
 
 using namespace wt;
 
@@ -24,7 +25,6 @@ using namespace wt;
 	#pragma comment(linker, "/SUBSYSTEM:windows")
 #endif
 
-#if 1
 #ifndef WT_DEMO_NO_CONSOLE
 int main(){
 #else
@@ -69,46 +69,9 @@ int main(){
 
 	WT_REGISTER_DEMO(PathFindingDemo);
 
+	WT_REGISTER_DEMO(TestDemo);
 
 	DemoManager::getSingleton().start();
 
 	return 0;
 }
-#else
-
-
-
-int main(){
-/*
-	
-	Path path;
-	PathNode *a, *b;
-	path.insertNode(a = new PathNode(glm::vec3(0, 0, 0)));
-
-	path.insertNode(b = new PathNode(glm::vec3(10, 0, 10)));
-	b->connect(a);
-	a=b;
-
-	path.insertNode(b = new PathNode(glm::vec3(20, 0, 20)));
-	b->connect(a);
-	a=b;
-
-
-	path.insertNode(b = new PathNode(glm::vec3(30, 0, 30)));
-	b->connect(a);
-	a=b;
-
-	NodeList res;
-	if(path.findPath(glm::vec3(1, 0, 1), glm::vec3(29, 0, 29), res)){
-		LOGI(":D", "Path found!");
-
-		for(NodeList::iterator i=res.begin(); i!=res.end(); i++){
-			LOG("Path node %f %f %f", (*i)->getPosition().x, (*i)->getPosition().y, (*i)->getPosition().z);
-		}
-	}
-	else{
-		LOGE(":/", "Path not found");
-	}*/
-}
-
-#endif

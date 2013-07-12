@@ -16,7 +16,7 @@ namespace wt{
 class MineActor{
 public:
 	const MineCell* cell;
-	SceneActor* sceneActor;
+	ModelledActor* sceneActor;
 
 	void update(float dt){
 	}
@@ -67,7 +67,7 @@ public:
 			for(std::set<const MineCell*>::iterator i=e->cells.begin(); i!=e->cells.end(); i++){
 				const MineCell* cell = *i;
 
-				SceneActor* actor = (SceneActor*)cell->userData;
+				ModelledActor* actor = (ModelledActor*)cell->userData;
 
 				mBaseHeight = actor->getTransform().getPosition().y;
 
@@ -111,7 +111,7 @@ public:
 
 				const MineCell* cell = i->cell;
 
-				SceneActor* actor = (SceneActor*)cell->userData;
+				ModelledActor* actor = (ModelledActor*)cell->userData;
 
 				if(i->cell->numNeighborMines == 0){
 					if(i->waitTime <= 0.0f){
@@ -198,7 +198,7 @@ public:
 		else if(e->getType() == CellMarkedEvent::TYPE){
 			CellMarkedEvent* evt = (CellMarkedEvent*)e.get();
 
-			SceneActor* actor = (SceneActor*)evt->cell->userData;
+			ModelledActor* actor = (ModelledActor*)evt->cell->userData;
 
 			actor->setSkin(
 				evt->cell->marked ? "marked" : "hidden");
@@ -218,7 +218,7 @@ public:
 			LOG("Game lost!");
 			for(Uint32 i=0; i<mGameState.getField().getNumColumn(); i++){
 				for(Uint32 j=0; j<mGameState.getField().getNumRows(); j++){
-					SceneActor* a = (SceneActor*)mGameState.getCell(i, j).userData;
+					ModelledActor* a = (ModelledActor*)mGameState.getCell(i, j).userData;
 
 					PxVec3 force;
 					pxConvert(glm::vec3(-5 + math::random()*10, math::random()*20, -5 + math::random()*10), force);
@@ -248,7 +248,7 @@ public:
 			getPhysics()->getScene()->setGravity(PxVec3(0, 3.81f, 0));
 			for(Uint32 i=0; i<mGameState.getField().getNumColumn(); i++){
 				for(Uint32 j=0; j<mGameState.getField().getNumRows(); j++){
-					SceneActor* a = (SceneActor*)mGameState.getCell(i, j).userData;
+					ModelledActor* a = (ModelledActor*)mGameState.getCell(i, j).userData;
 
 					PxVec3 force;
 					pxConvert(glm::vec3(-5 + math::random()*10, math::random()*20, -5 + math::random()*10), force);
@@ -348,7 +348,7 @@ public:
 		for(Uint32 x=0; x<mGameState.getField().getNumColumn(); x++){
 			for(Uint32 y=0; y<mGameState.getField().getNumRows(); y++){
 				// Create scene actor
-				SceneActor* actor = getScene()->createActor();
+				ModelledActor* actor = getScene()->createModelledActor();
 				actor->setModel(
 					getAssets()->getModelManager()->find("cube"), "hidden");
 

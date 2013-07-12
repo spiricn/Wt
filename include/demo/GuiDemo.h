@@ -210,7 +210,6 @@ public:
 		setColor(Color::random());
 	}
 
-
 	String getConfigFile() const{
 		return "";
 	}

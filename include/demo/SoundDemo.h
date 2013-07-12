@@ -79,7 +79,7 @@ public:
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
 		// Create scene actor
-		SceneActor* actor = getScene()->createActor();
+		ModelledActor* actor = getScene()->createModelledActor();
 
 		actor->getTransform().setPosition(glm::vec3(195.235229, -3.291626, 216.325455));
 

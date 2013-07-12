@@ -11,13 +11,13 @@ namespace wt{
 struct LightOrb{
 private:
 	GenericAnimator mAnimator;
-	SceneActor* mActor;
+	ModelledActor* mActor;
 	float mColorFactor;
 	float mCycleTime;
 
 public:
 
-	LightOrb(SceneActor* actor, Animation* anim, float clrCycleTime) : mActor(actor), mColorFactor(0), mAnimator(GenericAnimator(anim)), mCycleTime(clrCycleTime){
+	LightOrb(ModelledActor* actor, Animation* anim, float clrCycleTime) : mActor(actor), mColorFactor(0), mAnimator(GenericAnimator(anim)), mCycleTime(clrCycleTime){
 	}
 
 	void update(float dt){
@@ -155,7 +155,7 @@ public:
 		for(int i=0; i<3; i++){
 
 			// Create actor
-			SceneActor* actor = getScene()->createActor();
+			ModelledActor* actor = getScene()->createModelledActor();
 			actor->setModel( getAssets()->getModelManager()->find("sphere"), "default" );
 
 			// Load animation

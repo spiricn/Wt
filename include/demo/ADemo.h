@@ -38,8 +38,6 @@
 #include "wt/GUI/TextView.h"
 #include "wt/ProcessManager.h"
 
-#include "wt/game/GameLevel.h"
-
 namespace wt{
 
 class DemoManager;
@@ -79,8 +77,6 @@ private:
 	Scene* mScene;
 	AGameInput* mInput;
 	AGameWindow* mWindow;
-	EntityManager* mEntityManager;
-	GameLevel* mGameLevel;
 	CameraControlMode mCameraCtrlMode;
 	bool mRunning;
 	bool mShowGrid;
@@ -101,8 +97,6 @@ public:
 	EventManager* getEventManager() const{
 		return mEventManager;
 	}
-
-	GameLevel* getGameLevel() const;
 
 	void update(float dt);
 

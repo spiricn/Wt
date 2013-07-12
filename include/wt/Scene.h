@@ -13,23 +13,52 @@
 #include "wt/Light.h"
 #include "wt/Assets.h"
 #include "wt/Fog.h"
+#include "wt/ASceneActor.h"
+#include "wt/ModelledActor.h"
 
 namespace wt{
 
 #define MAX_POINT_LIGHTS 3
 #define MAX_SPOT_LIGHTS 3
 
-class Scene : public ALuaObject{
-public:
-	typedef std::map<uint32_t, SceneActor*> ActorMap;
 
+class Renderer;
+
+
+
+class Scene : public ALuaObject{
+friend class Renderer;
+
+public:
+	typedef std::map<uint32_t, ASceneActor*> ActorMap;
+
+	typedef std::set<ModelledActor*> ModelledActorSet;
+
+	typedef std::set<Terrain*> TerrainSet;
+
+protected:
+	const ModelledActorSet& getModelledActors() const{
+		return mModelledActors;
+	}
+
+	const TerrainSet& getTerrainSet() const{
+		return mTerrainSet;
+	}
 
 private:
-	static const char* TAG;
+	/** Master actor list */
+	ActorMap mActors;
+
+	/** A list of modelled actors (also contained in 'mActors') */
+	ModelledActorSet mModelledActors;
+
+	/** A list of terrain entities (also contained in 'mActors') */
+	TerrainSet mTerrainSet;
 
 	math::Camera* mCamera;
+
 	math::Camera mDefaultCamera;
-	ActorMap mActors;
+	
 	SkyBox* mSkyBox;
 	Fog mFog;
 	
@@ -62,14 +91,7 @@ public:
 
 	Physics* getPhysics() const;
 
-	void deleteActor(SceneActor* actor){
-		mActors.erase( actor->getId() );
-		if(actor->getPhysicsActor()){
-			mPhysics->removeActor( actor->getPhysicsActor() );
-		}
-
-		delete actor;
-	}
+	void deleteActor(ASceneActor* actor);
 
 	Fog& getFog();
 
@@ -97,11 +119,11 @@ public:
 
 	uint32_t getNumPointLights() const;
 	
-	SceneActor* createActor(const String& name="");
+	ModelledActor* createModelledActor(const String& name="");
 
-	SceneActor* findActorByName(const String& name) const;
+	ASceneActor* findActorByName(const String& name) const;
 
-	SceneActor* getActorById(uint32_t id);
+	ASceneActor* getActorById(uint32_t id);
 
 	void destroy();
 
@@ -158,6 +180,9 @@ public:
 	void lua_setActorModel(uint32_t actorId, const char* modelPath, const char* skinName);
 
 	void expose(LuaObject& meta);
+
+private:
+	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
 
 }; // </Scene>
 

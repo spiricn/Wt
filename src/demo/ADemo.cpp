@@ -79,10 +79,6 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	// Setup rendering scene
 	mScene = new Scene(mPhysics, mAssets);
 
-	mEntityManager = new EntityManager;
-
-	mGameLevel = new GameLevel(mAssets, mScene, mEntityManager);
-
 	String cameraMode;
 	if(!Lua::luaConv(mConfig->GetGlobal("cameraMode"), cameraMode)){
 		// default value
@@ -122,12 +118,110 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 	mShowGrid = mConfig->GetGlobal("showGrid").ToInteger() ? true : false;
 
+	// Load level
 	if(!getLevelFile().empty()){
 		Lua::LuaStateOwner state;
-		state->DoFile(getLevelFile().c_str());
+		try{
+			state->DoFile(getLevelFile().c_str());
+		}catch(LuaPlus::LuaException& e){
+			WT_THROW("Error loading level file \"%s\" - \"%s\"", getLevelFile().c_str(), e.GetErrorMessage());
+		}
 
-		mGameLevel->init( state->GetGlobal("WORLD") );
+		const LuaObject& table = state->GetGlobal("WORLD");
+		WT_ASSERT(table.IsTable(), "Error loading level - invalid level table");
+
+		const LuaObject& assetsTable = table.Get("ASSETS") ;
+
+		if(!assetsTable.IsTable()){
+			WT_THROW("Error loading level - missing assets table");
+		}
+
+		mAssets->load(assetsTable);
+
+		// lights
+		LuaObject dirLight = table.Get("directionalLight");
+		if(dirLight.IsTable()){
+			mScene->getDirectionalLight().deserialize( dirLight );
+		}
+
+		LuaObject pointLights = table.Get("pointLights");
+		if(pointLights.IsTable()){
+			for(LuaPlus::LuaTableIterator iter(pointLights); iter; iter.Next()){
+				PointLight pointLight;
+				pointLight.deserialize(iter.GetValue());
+				mScene->addPointLight(pointLight);
+			}
+		}
+
+
+		// Skybox
+		if(table.Get("skybox").IsString()){
+			mScene->setSkyBox( mAssets->getSkyBoxManager()->getFromPath(table.Get("skybox").ToString()) );
+		}
+
+
+		// Terrain
+		if(table.Get("terrain").IsTable()){
+			mScene->createTerrain( table.Get("terrain") );
+		}
+
+		// Actors
+		for(LuaTableIterator i(table.Get("ACTORS")); i; i.Next()){
+			const char* name = i.GetKey().ToString();
+			LuaObject table = i.GetValue();
+			const char* type = table.Get("type").ToString();
+
+			if(strcmp(type, "DOODAD")==0){
+				ModelledActor* sceneActor = mScene->createModelledActor(name);
+
+				{
+					// Deserialize doodad
+					glm::quat rot;
+					Lua::luaConv(table.Get("rot"), rot);
+					sceneActor->getTransform().setRotation(rot);
+
+					glm::vec3 pos;
+					Lua::luaConv(table.Get("pos"), pos);
+					sceneActor->getTransform().setPosition(pos);
+
+					glm::vec3 scale;
+					if(!Lua::luaConv(table.Get("scale"), scale)){
+						// default
+						scale = glm::vec3(1.0f, 1.0f, 1.0f);
+					}
+					sceneActor->getTransform().setScale(scale);
+
+					const char* model = table.Get("model").ToString();
+
+					const char* skin = table.Get("skin").ToString();
+
+					sceneActor->setModel(
+						getAssets()->getModelManager()->getFromPath(model), skin);
+				}
+
+				// Create physics actor
+				{
+					PhysicsActor::Desc desc;
+
+					desc.pose = sceneActor->getTransform();
+
+					desc.type = PhysicsActor::eSTATIC_ACTOR;
+
+					desc.controlMode = PhysicsActor::ePHYSICS_MODE;
+
+					desc.geometryType = PhysicsActor::eMESH_GEOMETRY;
+					desc.geometryDesc.meshGeometry.model = sceneActor->getModel();
+
+					mScene->getPhysics()->createActor(sceneActor, desc);
+				}
+			}
+		}
+
 	}
+}
+
+String ADemo::getLevelFile() const{
+	return "";
 }
 
 void ADemo::printHelp(){
@@ -148,18 +242,11 @@ void ADemo::destroyDemo(){
 	delete mAssets;
 	delete mPhysics;
 	delete mRenderer;
-	delete mEntityManager;
-	delete mGameLevel;
-
 	mInput->setMouseGrabbed(false);
 }
 
 void ADemo::setCameraControlMode(CameraControlMode mode){
 	mCameraCtrlMode = mode;
-}
-
-GameLevel* ADemo::getGameLevel() const{
-	return mGameLevel;
 }
 
 void ADemo::update(float dt){
@@ -467,8 +554,5 @@ String ADemo::getConfigFile() const{
 	return "";
 }
 
-String ADemo::getLevelFile() const{
-	return "";
-}
 
 }; // </wt>

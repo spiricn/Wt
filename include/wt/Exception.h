@@ -14,7 +14,7 @@ private:
 
 public:
 	Exception(const char* functionName, const char* fileName, long lineNumber, const char* descFmt, ...);
-
+	
 	const String& getDescription() const;
 
 	const String getFullDescription() const;

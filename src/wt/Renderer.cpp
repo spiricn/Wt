@@ -293,7 +293,7 @@ math::Camera lightCamera;
 
 const char* Renderer::TAG = "Renderer";
 
-void Renderer::render(Scene* scene, SceneActor* actor, SkeletonBone* bone){
+void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bone){
 	
 	// Use fixed pipeline
 	gl( UseProgram(0) );
@@ -491,8 +491,6 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 }
 
-
-/** SkyBox rendering */
 void Renderer::render(Scene& scene, SkyBox* sky){
 	glm::mat4x4 modelMat;
 	sky->getTransform().getMatrix(modelMat);
@@ -607,8 +605,7 @@ void Renderer::setShaderMaterialUniforms(Material* material, Gl::ShaderProgram& 
 #endif
 }
 
-/** SceneActor rendering */
-void Renderer::render(Scene* scene, SceneActor* actor, PassType pass){
+void Renderer::render(Scene& scene, const ModelledActor* actor, PassType pass){
 	if(!actor->getModel()){
 		return;
 	}
@@ -666,14 +663,14 @@ void Renderer::render(Scene* scene, SceneActor* actor, PassType pass){
 }
 
 /** Terrain node rendering */
-void Renderer::render(Scene* scene, const float frustum[6][4], TerrainNode* node){
+void Renderer::render(Scene& scene, const TerrainNode* node){
 	// frustum cull test
-	if(true){//inFrustum(frustum, node->getBounds())){
+	if(true /* inFrustum(frustum, node->getBounds() */){
 		// have we reached a leaf?
 		if(!node->isLeaf()){
 			// render children
 			for(uint32_t i=0; i<4; i++){
-				render(scene, frustum, &node->getChildren()[i]);
+				render(scene, &node->getChildren()[i]);
 			}
 		}
 		else{
@@ -684,89 +681,27 @@ void Renderer::render(Scene* scene, const float frustum[6][4], TerrainNode* node
 }
 
 /** Terrain rendering */
-void Renderer::render(Scene* scene, const float frustum[6][4], Terrain* terrain, PassType pass){
+void Renderer::render(Scene& scene, const Terrain* terrain, PassType pass){
 	
 	// Render terrain
 	mTerrainShader.use();
 
 	Gl::ShaderUniform<int>(&mTerrainShader, "uPassType") = pass;
 
-	setShaderLightUniforms(scene, mTerrainShader);
+	setShaderLightUniforms(&scene, mTerrainShader);
 	setShaderMaterialUniforms(&mDefaultMaterial, mTerrainShader);
 
 	glm::mat4x4 view;
-	scene->getCamera().getMatrix(view);
+	scene.getCamera().getMatrix(view);
 
 	mTerrainShader.setMVPMatrix(glm::mat4(1.0), view, mFrustum.getProjMatrix());
 	mTerrainShader.setTileTextures( terrain->getTerrainTexture() );
 	mTerrainShader.setColorMap( terrain->getMapTexture() );
 
-	render(scene, frustum, terrain->getRootNode() );
+	render(scene, terrain->getRootNode() );
 }
 
-/** Scene rendering */
-void Renderer::draw(Scene& scene, PassType pass){
-	
 
-	// OpenGL state
-	mNumRenderedTerrainNodes = 0;
-	gl( PolygonMode(GL_FRONT_AND_BACK, mRenderState.polygonMode) );
-
-	gl( Enable(GL_DEPTH_TEST) );
-	//glDisable(GL_BLEND);
-
-	gl( Viewport(0, 0, mViewPort.x, mViewPort.y) );
-
-	// View matrix
-	glm::mat4x4 viewMat;
-	scene.getCamera().getMatrix(viewMat);
-
-	// Frustum planes
-	float frustum[6][4];
-	//extractFrustum(frustum, viewMat, mFrustum.getProjMatrix());
-
-	// Terrain
-	if(scene.getTerrain() != NULL){
-		render(&scene, frustum, scene.getTerrain(), pass);
-	}
-
-	// Actors
-	mBasicShader.use();
-	gl( ActiveTexture(GL_TEXTURE0) );
-	mBasicShader.setUniformVal("uPassType", pass);
-	setShaderLightUniforms(&scene, mBasicShader);
-
-#ifdef MATERIALS_DISABLED
-	setShaderMaterialUniforms(NULL, mBasicShader);
-#endif
-
-	mBasicShader.setMPMatrix(
-		viewMat, mFrustum.getProjMatrix());
-
-	gl( Disable(GL_BLEND) );
-	gl( Enable(GL_DEPTH_TEST) );
-	gl( Disable(GL_CULL_FACE) );
-
-	for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-		render(&scene, i->second, pass);
-	}
-
-	// Sky
-	if(pass == eNORMAL_PASS){
-		SkyBox* sky = scene.getSkyBox();
-		if(sky != NULL){
-			render(scene, sky);
-		}
-	}
-
-	if(mRenderBones){
-		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-			if(i->second->getModel() && i->second->getModel()->getSkeleton()){
-				render(&scene, i->second, i->second->getModel()->getSkeleton());
-			}
-		}
-	}
-}
 
 
 void Renderer::getGodRayParams(GodRayParams& dst){
@@ -786,6 +721,64 @@ void Renderer::setGodRayParams(const GodRayParams& src){
 	mGodRayShader.setUniformVal("uNumSamples", mGodRayParams.mNumSamples);
 	mGodraySunShader.setUniformVal("uSunSize", mGodRayParams.mSunSize);
 #endif
+}
+
+void Renderer::render(Scene& scene, PassType pass){
+	// OpenGL state
+	mNumRenderedTerrainNodes = 0;
+	gl( PolygonMode(GL_FRONT_AND_BACK, mRenderState.polygonMode) );
+
+	gl( Enable(GL_DEPTH_TEST) );
+	//glDisable(GL_BLEND);
+
+	gl( Viewport(0, 0, mViewPort.x, mViewPort.y) );
+
+	// View matrix
+	glm::mat4x4 viewMat;
+	scene.getCamera().getMatrix(viewMat);
+
+	
+	// Terrain entities
+	for(Scene::TerrainSet::const_iterator iter=scene.getTerrainSet().cbegin(); iter!=scene.getTerrainSet().cend(); iter++){
+		render(scene, *iter, pass);
+	}
+
+	// Modelled actors
+	mBasicShader.use();
+	gl( ActiveTexture(GL_TEXTURE0) );
+	mBasicShader.setUniformVal("uPassType", pass);
+	setShaderLightUniforms(&scene, mBasicShader);
+
+#ifdef MATERIALS_DISABLED
+	setShaderMaterialUniforms(NULL, mBasicShader);
+#endif
+
+	mBasicShader.setMPMatrix(
+		viewMat, mFrustum.getProjMatrix());
+
+	gl( Disable(GL_BLEND) );
+	gl( Enable(GL_DEPTH_TEST) );
+	gl( Disable(GL_CULL_FACE) );
+
+	for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
+		render(scene, *iter, pass);
+	}
+
+	// Sky
+	if(pass == eNORMAL_PASS){
+		SkyBox* sky = scene.getSkyBox();
+		if(sky != NULL){
+			render(scene, sky);
+		}
+	}
+
+	/*if(mRenderBones){
+		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+			if(i->second->getModel() && i->second->getModel()->getSkeleton()){
+				render(&scene, i->second, i->second->getModel()->getSkeleton());
+			}
+		}
+	}*/
 }
 
 void Renderer::render(Scene& scene, RenderTarget* target){
@@ -841,7 +834,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 		// render the entire scene (without textures and lighting)
 		gl( Enable(GL_CULL_FACE) );
-		draw(scene, eGODRAY_PASS);
+		render(scene, eGODRAY_PASS);
 	}
 
 	if(mGodRayParams.mIsEnabled){ 
@@ -892,7 +885,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		//setClearColor(Color::red());
 		gl( Enable(GL_CULL_FACE) );
 		gl( Disable(GL_BLEND) );
-		draw(scene, eNORMAL_PASS);
+		render(scene, eNORMAL_PASS);
 	}
 
 	if(mGodRayParams.mIsEnabled){

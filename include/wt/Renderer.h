@@ -296,28 +296,44 @@ public:
 
 	void render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color=Color::white());
 
-	void render(Scene* scene, const float frustum[6][4], TerrainNode* chunk);	
 
-	void render(Scene& scene, SkyBox* sky);
-
-	void renderTerrainBounds(TerrainNode* node, math::Camera* camera);
-
-	void render(Scene* scene,  SceneActor* actor, SkeletonBone* bone);
-
-	void draw(Scene& scene, PassType pass);
-
-	void render(Scene* scene, SceneActor* actor, PassType pass);
+	
 
 	void render(Scene* scene, Model* model, Mesh* mesh, PassType pass);
-
-	void render(Scene* scene, const float frustum[6][4], Terrain* terrain, PassType pass);
 
 	void getGodRayParams(GodRayParams& dst);
 
 	void setGodRayParams(const GodRayParams& src);
 
-	///
+	
+	/** Render all passes of the scene to the given render target
+	 *
+	 * @param target	Destination target to which the scene will be rendered.
+     *					may be NULL in which case the scene is going to be rendered
+	 *					to the default frame bufffer
+	 */
 	void render(Scene& scene, RenderTarget* target=NULL);
+
+private:
+	
+
+	/** Render entire scene in a single pass */
+	void render(Scene& scene, PassType pass);
+
+	/** Render a single ModelledActor */
+	void render(Scene& scene, const ModelledActor* actor, PassType pass);
+
+	/** Render actor's bone and all its predecessors recursivley (used for debugging */
+	void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bone);
+
+	/** Render a single Terrain entity */
+	void render(Scene& scene, const Terrain* terrain, PassType pass);
+
+	/** Render a single TerrainNode beloging to a Terrain entity */
+	void render(Scene& scene, const TerrainNode* chunk);
+
+	/** Render the skybox */
+	void render(Scene& scene, SkyBox* sky);
 }; // </Renderer>
 
 }; // </wt>

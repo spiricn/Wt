@@ -614,7 +614,7 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 	}
 }
 
-PhysicsActor* Physics::createActor(SceneActor* sceneActor, PhysicsActor::Desc& desc){
+PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& desc){
 	WT_ASSERT(desc.isValid(), "Invalid actor description");
 
 	PxTransform pxTransform = PxTransform::createIdentity();

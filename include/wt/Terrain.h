@@ -3,7 +3,7 @@
 
 
 #include "wt/TerrainChunk.h"
-#include "wt/SceneActor.h"
+#include "wt/ASceneActor.h"
 
 #define LOGEX(tag, bnds) LOGI("center = {%f, %f, %f},  extents = {%f, %f, %f}", \
 			bnds.getCenter().x, bnds.getCenter().y, bnds.getCenter().z, \
@@ -117,11 +117,11 @@ public:
 		return mChildren == NULL;
 	}
 
-	TerrainNode* getChildren(){
+	const TerrainNode* getChildren() const{
 		return mChildren;
 	}
 
-	void render(){
+	void render() const{
 		mBatch->render(0,
 			mChunks[0]->mIndices.getData(),
 			mChunks[0]->mIndices.getCapacity()
@@ -147,7 +147,7 @@ struct TerrainDesc{
 	}
 };
 
-class Terrain : public SceneActor{
+class Terrain : public ASceneActor{
 public:
 WT_DISALLOW_COPY(Terrain);
 
@@ -164,7 +164,7 @@ private:
 	TerrainDesc mDesc;
 
 public:
-	Terrain(uint32_t actorId);
+	Terrain(Scene* parent, uint32_t actorId, const String& name="");
 
 	~Terrain();
 
@@ -213,11 +213,11 @@ public:
 
 	void editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols);
 
-	Texture2D* getMapTexture();
+	Texture2D* getMapTexture() const;
 
-	TextureArray* getTerrainTexture();
+	TextureArray* getTerrainTexture() const;
 
-	TerrainNode* getRootNode();
+	const TerrainNode* getRootNode() const;
 
 }; // </Terrain>
 
