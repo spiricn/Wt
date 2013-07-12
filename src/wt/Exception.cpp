@@ -22,6 +22,10 @@ Exception::Exception(const char* functionName, const char* fileName, long lineNu
 	LOGE(getFullDescription().c_str());
 }
 
+const String& Exception::getDescription() const{
+	return mDesc;
+}
+
 const String Exception::getFullDescription() const{
 	std::stringstream s;
 		s << mDesc << "\n" << mFunctionName << " at " << mFile << " ( line " << mLineNumber << " )";

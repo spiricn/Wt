@@ -4,7 +4,7 @@
 #include "wte/ResourcePickerDialog.h"
 #include "wte/HeightmapCreateDialog.h"
 
-const char* TerrainEditDialog::TAG = "TerrainEditDialog";
+#define TD_TRACE_TAG "TerrainEditDialog"
 
 TerrainEditDialog::TerrainEditDialog(QWidget* parent, wt::Assets* assets) : QDialog(parent), mAssets(assets), mAccepted(false){
     ui.setupUi(this);

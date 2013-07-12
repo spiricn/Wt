@@ -29,8 +29,6 @@ public:
 	EditResult mResult;
 
 private:
-    static const char* TAG;
-
 	wt::Assets* mAssets;
     Ui::ActorCreationDialog ui;
 

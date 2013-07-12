@@ -4,7 +4,7 @@
 
 #include "wte/TransformEdit.h"
 
-const char* TransformEdit::TAG = "TransformEdit";
+#define TD_TRACE_TAG "TransformEdit"
 
 TransformEdit::TransformEdit(QWidget* parent) : QWidget(parent){
     ui.setupUi(this);

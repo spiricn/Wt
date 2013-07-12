@@ -7,7 +7,7 @@
 
 #include <wt/Model.h>
 
-const char* ActorCreationDialog::TAG = "ActorCreationDialog";
+#define TD_TRACE_TAG "ActorCreationDialog"
 
 ActorCreationDialog::ActorCreationDialog(QWidget* parent, wt::Assets* assets) : QDialog(parent), mAssets(assets){
     ui.setupUi(this);

@@ -3,7 +3,9 @@
 #include "wte/DoodadEditDialog.h"
 #include "wte/ResourcePickerDialog.h"
 
-const char* DoodadEditDialog::TAG = "DoodadEditDialog";
+
+#define TD_TRACE_TAG "DoodadEditDialog"
+
 
 DoodadEditDialog::DoodadEditDialog(QWidget* parent) : QDialog(parent){
     ui.setupUi(this);

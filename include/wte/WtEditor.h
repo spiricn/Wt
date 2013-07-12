@@ -21,14 +21,14 @@
 
 #include "ui_WtEditor.h"
 
-class WtEditor : public QMainWindow, public wt::ALogListener{
+class WtEditor : public QMainWindow{
 	Q_OBJECT
 public:
 	WtEditor(QWidget *parent = 0, Qt::WFlags flags = 0);
 
 	~WtEditor();
 
-	 bool log(int level, const wt::String& tag, const wt::String& text);
+	 static void logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message);
 
 private:
 	

@@ -11,8 +11,6 @@ class SoundManagerTab : public ARsrcManagerTab{
 Q_OBJECT
 
 private:
-    static const char* TAG;
-
     Ui::SoundManagerTab ui;
 
 public:

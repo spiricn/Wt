@@ -20,8 +20,6 @@ public:
 	};
 
 private:
-    static const char* TAG;
-
     Ui::DoodadEditDialog ui;
 
 	EditResult mResult;

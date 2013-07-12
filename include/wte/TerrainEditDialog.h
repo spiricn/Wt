@@ -10,8 +10,6 @@ class TerrainEditDialog : public QDialog{
 Q_OBJECT
 
 private:
-    static const char* TAG;
-
     Ui::TerrainEditDialog ui;
 
 	wt::TerrainDesc mResult;

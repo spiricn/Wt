@@ -8,12 +8,50 @@
 
 using namespace std;
 
+void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message){
+	WtEditor* thiz = static_cast<WtEditor*>(opaque);
+
+	QListWidgetItem* item = new QListWidgetItem(thiz->ui.logList);
+
+	item->setText(QString(tag) + " : " + message);
+
+	QColor color;
+
+	switch(level){
+	case eTD_LVL_VERBOSE:
+		color = QColor(127, 127, 127);
+		break;
+	case eTD_LVL_DEBUG:
+		color = QColor(255, 255, 255);
+		break;
+	case eTD_LVL_INFO:
+		color = QColor(0, 255, 0);
+		break;
+	case eTD_LVL_WARNING:
+		color = QColor(0, 255, 255);
+		break;
+	case eTD_LVL_ERROR:
+		color = QColor(255, 0, 0);
+		break;
+	}
+
+	item->setBackgroundColor(QColor(0, 0, 0));
+	item->setTextColor(color);
+
+	thiz->ui.logList->addItem(item);
+
+	
+	thiz->ui.logList->scrollToItem(item);
+	thiz->ui.logList->setCurrentItem(item);
+}
+
 WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
-	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"), mScene(new wt::Physics, &mAssets){
+	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"), mScene(new wt::Physics(new wt::EventManager), &mAssets){
 	ui.setupUi(this);
 
 	mGameLevel = new wt::GameLevel(&mAssets, &mScene, &mEntityManager);
-	wt::Log::setListener(this);
+
+	td_setCallbackFnc(logCallback, this);
 
 	mWorldEdit = new WorldEditTab(this, mGameLevel);
 	ui.mainTabWidget->addTab(mWorldEdit, "World edit");
@@ -91,43 +129,6 @@ void WtEditor::onAssetsLoaded(){
 
 void WtEditor::onReload(){
 	mAssets.reload();
-}
-
-bool WtEditor::log(int level, const wt::String& tag, const wt::String& text){
-	QListWidgetItem* item = new QListWidgetItem(ui.logList);
-
-	item->setText((tag + " : " + text).c_str());
-
-	QColor color;
-
-	switch(level){
-	case wt::Log::VERBOSE:
-		color = QColor(127, 127, 127);
-		break;
-	case wt::Log::DEBUG:
-		color = QColor(255, 255, 255);
-		break;
-	case wt::Log::INFO:
-		color = QColor(0, 255, 0);
-		break;
-	case wt::Log::WARNING:
-		color = QColor(0, 255, 255);
-		break;
-	case wt::Log::ERR:
-		color = QColor(255, 0, 0);
-		break;
-	}
-
-	item->setBackgroundColor(QColor(0, 0, 0));
-	item->setTextColor(color);
-
-	ui.logList->addItem(item);
-
-	
-	ui.logList->scrollToItem(item);
-	ui.logList->setCurrentItem(item);
-
-	return true;
 }
 
 void WtEditor::onBtnSaveClick(){

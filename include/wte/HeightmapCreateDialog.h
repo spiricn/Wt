@@ -7,8 +7,6 @@ class HeightmapCreateDialog : public QDialog{
 Q_OBJECT
 
 private:
-    static const char* TAG;
-
     Ui::HeightmapCreateDialog ui;
 	QString mResult;
 

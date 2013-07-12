@@ -9,8 +9,6 @@ class FogTool : public QDialog{
 Q_OBJECT
 
 private:
-    static const char* TAG;
-
     Ui::FogTool ui;
 	SceneView* mSceneView;
 

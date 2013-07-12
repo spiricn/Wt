@@ -4,7 +4,7 @@
 
 #include "wte/SoundManagerTab.h"
 
-const char* SoundManagerTab::TAG = "SoundManagerTab";
+#define TD_TRACE_TAG "SoundManagerTab"
 
 SoundManagerTab::SoundManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
 	assets->getSoundManager(), true){

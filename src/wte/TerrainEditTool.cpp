@@ -3,7 +3,7 @@
 #include "wte/TerrainEditTool.h"
 #include "wte/HeightmapCreateDialog.h"
 
-const char* TerrainEditTool::TAG = "TerrainEditTool";
+#define TD_TRACE_TAG "TerrainEditTool"
 
 TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager, wt::Scene* scene, wt::Assets* assets) 
 	: QDialog(parent), mSceneView(sceneView), ATool(toolManager), mScene(scene), mAssets(assets){
@@ -27,7 +27,7 @@ void TerrainEditTool::onSaveTexture(){
 		"Save", QDir::current().path()+QString("/assets/images/terrain/terrain.tga"));
 	if(!path.isEmpty()){
 		mScene->getTerrain()->getMapTexture()->dump(path.toStdString());
-		LOGI(TAG, "Terrain texture saved to \"%s\"", path.toStdString().c_str());
+		LOGI("Terrain texture saved to \"%s\"", path.toStdString().c_str());
 	}
 }
 
@@ -42,12 +42,12 @@ void TerrainEditTool::onSaveHeightmap(){
 
 		out.close();
 
-		LOGI(TAG, "Terrain heightmap saved to \"%s\"", path.toStdString().c_str());
+		LOGI("Terrain heightmap saved to \"%s\"", path.toStdString().c_str());
 	}
 }
 
 void TerrainEditTool::onResetTexture(){
-	LOGI(TAG, "Resetting texture...");
+	LOGI("Resetting texture...");
 	mFrameBuffer.bind(wt::Gl::FrameBuffer::DRAW);
 
 	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
@@ -69,11 +69,11 @@ void TerrainEditTool::onResetTexture(){
 }
 
 void TerrainEditTool::onResetHeightmap(){
-	wt::Buffer<wt::Int16> bfr;
+	wt::Buffer<int16_t> bfr;
 
 	
-	wt::Uint32 nc = mScene->getTerrain()->getNumCols();
-	wt::Uint32 nr = mScene->getTerrain()->getNumRows();
+	uint32_t nc = mScene->getTerrain()->getNumCols();
+	uint32_t nr = mScene->getTerrain()->getNumRows();
 
 	bfr.create(nc*nr);
 
@@ -111,24 +111,24 @@ void TerrainEditTool::onSceneInitialized(){
 	}
 }
 
-void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, wt::Uint32 startRow, wt::Uint32 startCol,
-	wt::Uint32 numRows, wt::Uint32 numCols, float pressure, BrushMode mode){
+void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol,
+	uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode){
 
-	wt::Buffer<wt::Int16> samples;
+	wt::Buffer<int16_t> samples;
 	samples.create(numRows*numCols);
 
 	wt::TerrainChunk::HeightMap& heightmap = terrain.getHeightmap();
 
-	wt::Uint32 totalRows=terrain.getNumRows();
-	wt::Uint32 totalCols=terrain.getNumCols();
+	uint32_t totalRows=terrain.getNumRows();
+	uint32_t totalCols=terrain.getNumCols();
 
 	// max distance from center
 	float maxDistance = glm::length( glm::vec2(numRows/2.0, numCols/2.0) );
 	glm::vec2 center(startRow + numRows/2.0f, startCol + numCols/2.0f);
 
-	for(wt::Uint32 row=startRow; row<startRow+numRows; row++){
-		for(wt::Uint32 col=startCol; col<startCol+numCols; col++){
-			wt::Int16 finalSample=0;
+	for(uint32_t row=startRow; row<startRow+numRows; row++){
+		for(uint32_t col=startCol; col<startCol+numCols; col++){
+			int16_t finalSample=0;
 
 			switch(mode){
 			case eELEVATE:
@@ -138,10 +138,10 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, wt::Uint32 startRow
 
 					float quantFactor = terrain.getHeightScale(); // minimum delta
 		
-					wt::Int16 currentHeight = heightmap[row*totalCols + col];
+					int16_t currentHeight = heightmap[row*totalCols + col];
 
 					float maxHeightDelta = 1.0;
-					wt::Int16 maxQuantDelta = maxHeightDelta/quantFactor;
+					int16_t maxQuantDelta = maxHeightDelta/quantFactor;
 					float delta = glm::floor( (1.0f - factor) * ( pressure * (maxQuantDelta-1.0f) + 1.0f ) ) * (mode == eELEVATE ? 1.0 : -1.0 );
 
 					finalSample = currentHeight + delta;
@@ -153,8 +153,8 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, wt::Uint32 startRow
 				int n=0;
 				float sum = 0.0f;
 
-				for(wt::Uint32 i=row-kernelSize/2; i<row+kernelSize/2; i++){
-					for(wt::Uint32 j=col-kernelSize/2; j<col+kernelSize/2; j++){
+				for(uint32_t i=row-kernelSize/2; i<row+kernelSize/2; i++){
+					for(uint32_t j=col-kernelSize/2; j<col+kernelSize/2; j++){
 						sum += heightmap[i*totalCols + j] * terrain.getHeightScale();
 						n++;
 					}
@@ -240,22 +240,22 @@ void TerrainEditTool::editAt(float x, float y){
 			
 			//wt::TerrainChunk::Vertex* vertices = (wt::TerrainChunk::Vertex*)batch.getVertexBuffer().map(wt::Gl::Buffer::eREAD_WRITE);
 
-			wt::Uint32 idx = mScene->getTerrain()->getTriangleIndex(res.mTriangleIndex);
+			uint32_t idx = mScene->getTerrain()->getTriangleIndex(res.mTriangleIndex);
 
-			wt::Uint32 numRows = mScene->getTerrain()->getNumRows();
-			wt::Uint32 numCols = mScene->getTerrain()->getNumCols();
+			uint32_t numRows = mScene->getTerrain()->getNumRows();
+			uint32_t numCols = mScene->getTerrain()->getNumCols();
 
-			wt::Int32 row = idx/numRows;
-			wt::Int32 col = idx%numCols;
+			int32_t row = idx/numRows;
+			int32_t col = idx%numCols;
 
 
-			wt::Int32 d = ui.brushSize->value(); // brush size
+			int32_t d = ui.brushSize->value(); // brush size
 
-			wt::Int32 startRow = (row-d/2)<0?0:row-d/2;
-			wt::Int32 startCol = (col-d/2)<0?0:col-d/2;
+			int32_t startRow = (row-d/2)<0?0:row-d/2;
+			int32_t startCol = (col-d/2)<0?0:col-d/2;
 
-			wt::Int32 endRow = (row+d/2)>=numRows?numRows:row+d/2;
-			wt::Int32 endCol = (col+d/2)>=numCols?numCols:col+d/2;
+			int32_t endRow = (row+d/2)>=numRows?numRows:row+d/2;
+			int32_t endCol = (col+d/2)>=numCols?numCols:col+d/2;
 
 			
 			editTerrainChunk(*mScene->getTerrain(),

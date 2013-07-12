@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include <Wt/Texture.h>
-#include <wt/Log.h>
 
 #include "wte/TextureManagerTab.h"
 

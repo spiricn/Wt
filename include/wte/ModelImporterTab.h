@@ -18,7 +18,6 @@ class ModelImporterTab : public QWidget{
 	Q_OBJECT;
 
 private:
-	static const char* TAG;
 	wt::Assets* mAssets;
 	Ui::ModelImporter ui;
 

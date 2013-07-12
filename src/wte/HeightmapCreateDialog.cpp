@@ -2,7 +2,7 @@
 
 #include "wte/HeightmapCreateDialog.h"
 
-const char* HeightmapCreateDialog::TAG = "HeightmapCreateDialog";
+#define TD_TRACE_TAG "HeightmapCreateDialog"
 
 HeightmapCreateDialog::HeightmapCreateDialog(QWidget* parent) : QDialog(parent){
     ui.setupUi(this);
@@ -17,16 +17,16 @@ void HeightmapCreateDialog::onCreate(){
 		return;
 	}
 
-	wt::Uint32 numRows = ui.numRows->value();
+	uint32_t numRows = ui.numRows->value();
 
-	wt::Uint32 numCols = ui.numColumns->value();
+	uint32_t numCols = ui.numColumns->value();
 
-	wt::Int16 initialValue = ui.initialValue->value();
+	int16_t initialValue = ui.initialValue->value();
 
 	std::ofstream outfile(path.toStdString().c_str(), std::ios::binary);
 
 	for(int i=0; i<numRows*numCols; i++){
-		outfile.write((char*)&initialValue, sizeof(wt::Int16));
+		outfile.write((char*)&initialValue, sizeof(int16_t));
 	}
 
 

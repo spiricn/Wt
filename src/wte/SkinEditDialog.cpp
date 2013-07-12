@@ -35,7 +35,7 @@
 //						i->first.c_str(), i->second.mTexture);
 //				}
 //				else{
-//					LOGW(TAG, "Null pointer texture in skin %s", skin->getName().c_str());
+//					LOGW("Null pointer texture in skin %s", skin->getName().c_str());
 //				}
 //		}
 //	}

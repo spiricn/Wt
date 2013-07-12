@@ -7,8 +7,6 @@ class Vec3View : public QWidget{
 Q_OBJECT
 
 private:
-    static const char* TAG;
-
     Ui::Vec3View ui;
 
 	glm::vec3 mValue;

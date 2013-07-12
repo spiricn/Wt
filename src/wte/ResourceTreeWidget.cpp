@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include <wt/Log.h>
-
 #include "wte/ResourceTreeWidget.h"
 
 ResourceTreeWidget::ResourceTreeWidget(QWidget* parent) : QTreeWidget(parent){

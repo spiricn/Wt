@@ -3,8 +3,6 @@
 
 #include "stdafx.h"
 
-#include <wt/Log.h>
-
 class SimpleTreeWidget : public QTreeWidget{
 Q_OBJECT;
 

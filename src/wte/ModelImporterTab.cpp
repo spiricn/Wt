@@ -4,7 +4,6 @@
 #include <qmessagebox.h>
 #include <qinputdialog.h>
 
-#include <wt/Log.h>
 #include <wt/AssimpModelLoader.h>
 #include <Wt/ModelLoader.h>
 #include <Wt/AnimationLoader.h>
@@ -15,7 +14,7 @@
 #include "wte/ModelImporterTab.h"
 #include "wte/ResourcePickerDialog.h"
 
-const char* ModelImporterTab::TAG = "ModelImporterTab";
+#define TD_TRACE_TAG "ModelImporterTab"
 
 void ModelImporterTab::import(const QString& srcModel){
 // TODO rethink this whole concept, this isn't going to work ...
@@ -122,7 +121,7 @@ void ModelImporterTab::import(const QString& srcModel){
 					dstTexPath = dstDir + "/" + newTextureName + "." + extension;
 					if(QFile::exists(dstTexPath)){
 						// TODO handle this (just generate a new name)
-						LOGE(TAG, "TODO handle this");
+						LOGE("TODO handle this");
 						return;
 					}
 					break;
@@ -136,7 +135,7 @@ void ModelImporterTab::import(const QString& srcModel){
 			dstTexPath = dstDir + "/" + srcTexName + "." + extension;
 			if(QFile::exists(dstTexPath)){
 				// TODO handle this (just generate a new name)
-				LOGE(TAG, "TODO handle this");
+				LOGE("TODO handle this");
 				return;
 			}
 		}
@@ -149,14 +148,14 @@ void ModelImporterTab::import(const QString& srcModel){
 			// import the texture fil	e to workspace
 			QFile::copy(srcTexPath, dstTexPath);
 
-			LOGI(TAG, "Importing \"%s\"", srcTexPath.toStdString().c_str());
+			LOGI("Importing \"%s\"", srcTexPath.toStdString().c_str());
 
 			// create texture
 			texture = texGroup->create(dstTexName.toStdString());
 			texture->setUri(dstTexPath.toStdString());
 		}
 		else{
-			LOGI(TAG, "Texture already exists");
+			LOGI("Texture already exists");
 		}
 
 		wt::Model::GeometrySkin::Mesh* mesh = skin->findMeshByName(i->first);
@@ -173,11 +172,11 @@ bool ModelImporterTab::sameFile(const QString& path1, const QString& path2){
 	QFile file1(path1), file2(path2);
 
 	if(!file1.open(QIODevice::ReadOnly) || !file2.open(QIODevice::ReadOnly)){
-		LOGE(TAG, "Error comparing files (open file failed)");
+		LOGE("Error comparing files (open file failed)");
 	}
 	
 	if(file1.size() != file2.size()){
-		LOGW(TAG, "Same file name, different sizes");
+		LOGW("Same file name, different sizes");
 		return false;
 	}
 	else{
@@ -190,12 +189,12 @@ bool ModelImporterTab::sameFile(const QString& path1, const QString& path2){
 			read2 = file2.read(bfr2, 1024);
 		
 			if(read1 == -1 || read2 == -1 || read1 != read2){
-				LOGE(TAG, "Error comparing files (read error)");
+				LOGE("Error comparing files (read error)");
 				return false;
 			}
 
 			if(memcmp(bfr1, bfr2, read1) != 0){
-				LOGW(TAG, "Same file name, same sizes, different content");
+				LOGW("Same file name, same sizes, different content");
 				return false;
 			}
 
@@ -244,7 +243,7 @@ void ModelImporterTab::onBatchConvert(){
 		
 		try{
 			wt::ModelLoader::getSingleton().save(convModelName, &model);
-			LOGI(TAG, "Converted model saved to \"%s\"", convModelName.c_str());
+			LOGI("Converted model saved to \"%s\"", convModelName.c_str());
 		}catch(wt::Exception& e){
 			QMessageBox::critical(this,
 				QString("Error saving converted model to \"" + QString(convModelName.c_str()) + "\""),
@@ -256,7 +255,7 @@ void ModelImporterTab::onBatchConvert(){
 		std::string convAniName = baseName+".wta";
 		try{
 			wt::AnimationLoader::getSingleton().save(convAniName, &animation);
-			LOGI(TAG, "Converted animation saved to \"%s\"", convAniName.c_str());
+			LOGI("Converted animation saved to \"%s\"", convAniName.c_str());
 		}catch(wt::Exception& e){
 			QMessageBox::critical(this,
 				QString("Error saving converted animation to \"" + QString(convAniName.c_str()) + "\""),

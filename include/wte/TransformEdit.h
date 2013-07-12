@@ -7,8 +7,6 @@ class TransformEdit : public QWidget{
 Q_OBJECT
 
 private:
-    static const char* TAG;
-
     Ui::TransformEdit ui;
 
 	glm::vec3 mTranslation;

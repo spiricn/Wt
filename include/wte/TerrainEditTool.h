@@ -14,8 +14,6 @@ class TerrainEditTool : public QDialog, public ATool{
 Q_OBJECT;
 
 private:
-	static const char* TAG;
-
 	enum BrushMode{
 		eELEVATE,
 		eLOWER,
@@ -43,7 +41,7 @@ public:
 	}
 
 private:
-	void editTerrainChunk(wt::Terrain& terrain, wt::Uint32 startRow, wt::Uint32 startCol, wt::Uint32 numRows, wt::Uint32 numCols, float pressure, BrushMode mode);
+	void editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode);
 
 	void editAt(float x, float y);
 
