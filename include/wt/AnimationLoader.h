@@ -11,7 +11,6 @@ namespace wt{
 
 class AnimationLoader : public Singleton<AnimationLoader>, public AResourceLoader<Animation>{
 private:
-	static const char* TAG;
 	static const char* FORMAT_ID;
 
 public:

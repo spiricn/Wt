@@ -2,8 +2,8 @@
 
 #include "wt/LuaStateManager.h"
 
-namespace wt{
+#define TD_TRACE_TAG "LuaStateManager"
 
-const char* LuaStateManager::TAG = "LuaStateManager";
+namespace wt{
 
 }; // </wt>

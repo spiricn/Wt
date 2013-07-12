@@ -5,6 +5,8 @@
 
 #include <wt/ASoundSystem.h>
 
+#define TD_TRACE_TAG "SoundDemo"
+
 namespace wt{
 
 class SoundDemo : public ADemo{
@@ -12,7 +14,7 @@ private:
 	SoundPtr mSound;
 	ASoundSystem* mSoundSystem;
 	SoundStreamPtr mMusic;
-	static const char* TAG;
+
 public:
 	void onRender(float dt){
 		getRenderer()->render( *getScene() );
@@ -33,13 +35,13 @@ public:
 		if(c == KEY_m){
 			// Play music
 			if(mMusic->getStatus() == ASoundStream::ePLAYING){
-				LOGI(TAG,
+				LOGI(
 					"Stopping music");
 				mMusic->stop();
 			}
 			else{
 				mMusic->play();
-				LOGI(TAG,
+				LOGI(
 					"Playing music");
 			}
 		}
@@ -54,13 +56,13 @@ public:
 	}
 
 	void printHelp(){
-		LOGI(TAG,
+		LOGI(
 			"Press M to toggle music");
 
-		LOGI(TAG,
+		LOGI(
 			"Press +/- to change global volume");
 
-		LOGI(TAG,
+		LOGI(
 			"Press H for help");
 	}
 
@@ -107,8 +109,6 @@ public:
 
 WT_DECLARE_DEMO(SoundDemo)
 
-
-const char* SoundDemo::TAG = "SoundDemo";
 
 }; // </wt>
 

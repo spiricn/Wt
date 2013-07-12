@@ -321,7 +321,7 @@ public:
 		time.reset();
 		float dt=0.0f;
 
-		LOGI(TAG, "Main loop running.");
+		LOGI("Main loop running.");
 		StopWatch perfTime;
 
 		GLDBG("MainLoop init");
@@ -385,14 +385,14 @@ public:
 			String fmt;
 			
 			printf("\r");
-			LOGI(TAG, "Rendering %.2f%% ( ETA %s elapsed %s )",
+			LOGI("Rendering %.2f%% ( ETA %s elapsed %s )",
 				((float)i/numFrames)*100.0f,
 				Utils::formatSeconds(remTime, "%H:%M:%S").c_str(),
 				Utils::formatSeconds(elapsed, "%H:%M:%S").c_str()
 				);
 		}
 		mVideoEnc.finish();
-		LOGI(TAG, "Done");
+		LOGI("Done");
 #endif
 
 	}
@@ -498,19 +498,19 @@ public:
 		case KEY_p:
 			{
 				const glm::vec3& pos = mCamera->getPosition();
-				LOGI(TAG, "Camera position: = {%f, %f, %f}", pos.x, pos.y, pos.z);
+				LOGI("Camera position: = {%f, %f, %f}", pos.x, pos.y, pos.z);
 
 				glm::quat rot;
 				mCamera->getRotation(rot);
-				LOGI(TAG, "Camera rotation = {%f, %f, %f, %f}", rot.x, rot.y, rot.z, rot.w);
+				LOGI("Camera rotation = {%f, %f, %f, %f}", rot.x, rot.y, rot.z, rot.w);
 
 				glm::vec3 fw = mCamera->getForwardVec();
-				LOGI(TAG, "Camera facing = {%f, %f, %f}", fw.x, fw.y, fw.z);
+				LOGI("Camera facing = {%f, %f, %f}", fw.x, fw.y, fw.z);
 
 
 				float h = mPhysics->getTerrainHeightAt(glm::vec2(pos.x, pos.z));
 
-				LOGI(TAG, "Terrain position = {%f, %f, %f}", pos.x, h, pos.z);
+				LOGI("Terrain position = {%f, %f, %f}", pos.x, h, pos.z);
 			}
 			break;
 

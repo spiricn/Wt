@@ -5,6 +5,8 @@
 #include "wt/Color.h"
 #include "wt/Exception.h"
 
+#define TD_TRACE_TAG "Lua"
+
 namespace wt{
 
 namespace Lua{

@@ -4,6 +4,8 @@
 #include "wt/camera.h"
 #include "Wt/frustum.h"
 
+#define TD_TRACE_TAG "Physics"
+
 namespace wt{
 
 enum InternalGroups{
@@ -188,8 +190,8 @@ Physics::~Physics(){
 	mFoundation->release();
 }
 
-Physics::Physics(EventManager* eventManager) : TAG("Physics"), mTimeAccumulator(1/60.0f) {
-    LOGV(TAG, "Initializing Physx");
+Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f) {
+    LOGV("Initializing Physx");
 
 	// Setup events
 	mEventManager = eventManager;
@@ -265,29 +267,29 @@ Physics::Physics(EventManager* eventManager) : TAG("Physics"), mTimeAccumulator(
     PxShape* shape = plane->createShape(PxPlaneGeometry(), *mDefaultMaterial);
     mScene->addActor(*plane);
 
-    LOGV(TAG, "Physx successfuly initialized");
+    LOGV("Physx successfuly initialized");
 }
 
 void Physics::connectToVisualDebugger(const String& addr, Int32 port, Int32 timeout){
 	#ifdef PX_SUPPORT_VISUAL_DEBUGGER
 	// Physx Visual Debugger
 	if(mSdk->getPvdConnectionManager() == NULL){
-		WT_EXCEPT(TAG, "Unable to get PVD connection manager");
+		WT_EXCEPT(TD_TRACE_TAG, "Unable to get PVD connection manager");
 	}
 	else{
-		LOGV(TAG, "Connecting to PVD %s : %d ...", addr.c_str(), port);
+		LOGV("Connecting to PVD %s : %d ...", addr.c_str(), port);
 
 		PVD::PvdConnection* theConnection = PxVisualDebuggerExt::createConnection(mSdk->getPvdConnectionManager(),
 			addr.c_str(), port, timeout, PxVisualDebuggerExt::getAllConnectionFlags());
 		if(theConnection){
-			LOGI(TAG, "Connected");
+			LOGI("Connected");
 		}
 		else{
-			WT_EXCEPT(TAG, "Connection timed out after %d ms", timeout);
+			WT_EXCEPT(TD_TRACE_TAG, "Connection timed out after %d ms", timeout);
 		}
 	}
 	#else
-	LOGW(TAG, "Unable to connect to PVD (PX_SUPPORT_VISUAL_DEBUGGER compile flag must be set");
+	LOGW("Unable to connect to PVD (PX_SUPPORT_VISUAL_DEBUGGER compile flag must be set");
 	#endif
 }
 
@@ -313,7 +315,7 @@ void Physics::update(float dt){
 
 		
         if(actor==NULL){
-            LOGW(TAG, "No physx actor found in PxActor object");
+            LOGW("No physx actor found in PxActor object");
             continue;
         }
 
@@ -332,8 +334,7 @@ void Physics::update(float dt){
 				);
 		}
 		else{
-			LOGW(TAG,
-				"No scene actor associated with physx actor!");
+			LOGW("No scene actor associated with physx actor!");
 		}
     }
 

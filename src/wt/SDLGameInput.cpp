@@ -2,6 +2,8 @@
 
 #include "wt/SDLGameInput.h"
 
+#define TD_TRACE_TAG "SDLGameInput"
+
 namespace wt{
 
 const char* SDLGameInput::TAG = "SDLGameInput";

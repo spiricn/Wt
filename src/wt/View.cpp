@@ -3,6 +3,8 @@
 #include "wt/gui/View.h"
 #include "wt/Font.h"
 
+#define TD_TRACE_TAG "View"
+
 namespace wt{
 
 namespace Gui{

@@ -4,6 +4,9 @@
 
 #define NOMINMAX 
 
+// Tracedog
+#include <td/td.h>
+
 // LuaPlus
 #include <LuaPlus.h>
 

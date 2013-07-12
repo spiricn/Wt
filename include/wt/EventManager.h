@@ -8,7 +8,7 @@
 
 #include "wt/EventListener.h"
 #include "wt/Event.h"
-#include "wt/Log.h"
+#include <td/td.h>
 #include "wt/Defines.h"
 #include "wt/Mutex.h"
 

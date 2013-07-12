@@ -3,11 +3,11 @@
 #include "wt/net/TCPServer.h"
 #include "wt/Exception.h"
 
+#define TD_TRACE_TAG "TCPServer"
+
 namespace wt{
 
 namespace net{
-
-const char* TCPServer::TAG = "TCPServer";
 
 #if defined(WIN32)
 
@@ -21,7 +21,7 @@ void TCPServer::init(const std::string& address, unsigned short port){
 	mSocket.init(address, port);
 	
 	if( listen(mSocket.getWin32SockHandle(), 1) == SOCKET_ERROR ){
-		WT_EXCEPT(TAG, "%s", 
+		WT_EXCEPT(TD_TRACE_TAG, "%s", 
 			Socket::getErrorString().c_str());
 	}
 }
@@ -37,7 +37,7 @@ TCPServer::SocketPtr TCPServer::acceptClient(){
 		return new Socket(s, addr);
 	}
 	else{
-		WT_EXCEPT(TAG, "%s", 
+		WT_EXCEPT(TD_TRACE_TAG, "%s", 
 			Socket::getErrorString().c_str());
 	}
 }

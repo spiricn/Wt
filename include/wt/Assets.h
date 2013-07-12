@@ -25,7 +25,6 @@ namespace wt{
 
 class Assets : public Singleton<Assets>{
 private:
-	const String TAG;
 	Profiler mProfiler;
 
 	ImageManager* mImageManager;
@@ -76,7 +75,7 @@ private:
 	}
 
 public:
-	Assets() : TAG("Assets"){
+	Assets(){
 		mImageManager = new ImageManager;
 		mTextureManager = new TextureManager(mImageManager);
 		mAnimationManager = new AnimationManager;
@@ -157,7 +156,7 @@ public:
 	}
 
 	void unloadAll(){
-		LOGD(TAG, "Unloading assets..");
+		LOGD("Unloading assets..");
 		mImageManager->destroy();
 		mTextureManager->destroy();
 		mSkyBoxManager->destroy();
@@ -166,7 +165,7 @@ public:
 		mSoundManager->destroy();
 		mFontManager->destroy();
 
-		LOGD(TAG, "Done..");
+		LOGD("Done..");
 	}
 
 	void reload(){

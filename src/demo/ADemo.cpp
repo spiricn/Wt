@@ -5,9 +5,9 @@
 #include "wt/AGameWindow.h"
 #include "wt/AGameInput.h"
 
-namespace wt{
+#define TD_TRACE_TAG "ADemo"
 
-const char* ADemo::TAG = "ADemo";
+namespace wt{
 
 static const char* DEFAULT_CONFIG_SCRIPT = 
 	"cameraRotation = {0.017936, 0.980664, 0.108806, -0.161684}\n"
@@ -131,7 +131,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 }
 
 void ADemo::printHelp(){
-	LOGW(TAG, "No demo-specific help available");
+	LOGW("No demo-specific help available");
 }
 
 Gui::UIWindow& ADemo::getUi(){
@@ -320,25 +320,25 @@ void ADemo::onKeyUp(VirtualKey code){
 }
 
 void ADemo::printHelpPriv(){
-	LOGI(TAG,
+	LOGI(
 		"Press F1 for help");
 
-	LOGI(TAG,
+	LOGI(
 		"Press F2 to toggle mouse grab");
 
-	LOGI(TAG,
+	LOGI(
 		"Press F3 to toggle polygon mode");
 
-	LOGI(TAG,
+	LOGI(
 		"Press F4 to stop current demo");
 
-	LOGI(TAG,
+	LOGI(
 		"Press F5 to print camera info");
 
-	LOGI(TAG,
+	LOGI(
 		"Press F10 to take a screen shot");
 
-	LOGI(TAG,
+	LOGI(
 		"Press F9 to hide GUI");
 
 	printHelp();
@@ -368,19 +368,19 @@ void ADemo::onKeyDownPriv(VirtualKey code){
 		case KEY_F5:
 			{
 				const glm::vec3& pos = mScene->getCamera().getPosition();
-				LOGI(TAG, "Camera position: = {%f, %f, %f}", pos.x, pos.y, pos.z);
+				LOGI("Camera position: = {%f, %f, %f}", pos.x, pos.y, pos.z);
 
 				glm::quat rot;
 				mScene->getCamera().getRotation(rot);
-				LOGI(TAG, "Camera rotation = {%f, %f, %f, %f}", rot.x, rot.y, rot.z, rot.w);
+				LOGI("Camera rotation = {%f, %f, %f, %f}", rot.x, rot.y, rot.z, rot.w);
 
 				glm::vec3 fw = mScene->getCamera().getForwardVec();
-				LOGI(TAG, "Camera facing = {%f, %f, %f}", fw.x, fw.y, fw.z);
+				LOGI("Camera facing = {%f, %f, %f}", fw.x, fw.y, fw.z);
 
 
 				float h = mPhysics->getTerrainHeightAt(glm::vec2(pos.x, pos.z));
 
-				LOGI(TAG, "Terrain position = {%f, %f, %f}", pos.x, h, pos.z);
+				LOGI("Terrain position = {%f, %f, %f}", pos.x, h, pos.z);
 			}
 			break;
 

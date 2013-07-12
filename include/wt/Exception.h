@@ -1,11 +1,7 @@
 #ifndef WT_EXCEPTION_H
 #define WT_EXCEPTION_H
 
-
 #include "wt/stdafx.h"
-
-
-#include "wt/Log.h"
 
 namespace wt{
 	
@@ -55,6 +51,12 @@ public:
 #define WT_EXCEPT(tag, descFmt, ...) \
 	do{ throw wt::Exception(tag, __FUNCTION__, __FILE__, __LINE__, \
 			descFmt, __VA_ARGS__); }while(0)
+#endif
+
+#ifndef WT_THROW
+#define WT_THROW(fmt, ...) \
+	do{ throw wt::Exception("Exception", __FUNCTION__, __FILE__, __LINE__, \
+			fmt, __VA_ARGS__); }while(0)
 #endif
 
 #define WT_QEXCEPT(descFmt, ...) WT_EXCEPT("Exception", descFmt, __VA_ARGS__)

@@ -2,6 +2,7 @@
 
 #include "wt/ConditionVar.h"
 
+#define TD_TRACE_TAG "ConditionVar"
 
 namespace wt{
 

@@ -2,6 +2,8 @@
 
 #include "wt/Texture2D.h"
 
+#define TD_TRACE_TAG "Texture2D"
+
 namespace wt{
 
 void Texture2D::dump(const String& path){

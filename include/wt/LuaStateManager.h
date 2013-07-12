@@ -5,7 +5,7 @@
 #include "wt/stdafx.h"
 
 
-#include "wt/Log.h"
+#include <td/td.h>
 #include "wt/Exception.h"
 #include "wt/Singleton.h"
 
@@ -24,8 +24,6 @@ public:
 
 class LuaStateManager : public Singleton<LuaStateManager>{
 private:
-	static const char* TAG;
-
 	LuaStateOwner mGlobalState;
 	LuaObject mMetaTable;
 
@@ -60,11 +58,11 @@ public:
 		if(condition){
 			LuaStackObject  top = mGlobalState->StackTop();
 			if(top.IsString()){
-				WT_EXCEPT(TAG,
+				WT_EXCEPT(TD_TRACE_TAG,
 					"Lua script error occured: \"%s\"", top.GetString());
 			}
 			else{
-				WT_EXCEPT(TAG,
+				WT_EXCEPT(TD_TRACE_TAG,
 					"Lua script error occured");
 			}
 		}
@@ -102,8 +100,11 @@ public:
 
 	void logMessage(LuaObject arg1, LuaObject arg2, LuaObject arg3){
 		if(arg1.IsInteger() && arg2.IsString() && arg3.IsString()){
+			// TODO 
+#if 0
 			// LEVEL, TAG, MESSAGE
-			Log::log((Log::Level)arg1.ToInteger(), arg2.ToString(), arg3.ToString());
+			//Log::log((Log::Level)arg1.ToInteger(), arg2.ToString(), arg3.ToString());
+#endif
 		}
 		else if(arg1.IsString() && arg2.IsString()){
 			// TAG, MESSAGE
@@ -111,7 +112,7 @@ public:
 		}
 		else if(arg1.IsString()){
 			// MESSAGE
-			LOGD(TAG, arg1.ToString());
+			LOGD(arg1.ToString());
 		}
 	}
 

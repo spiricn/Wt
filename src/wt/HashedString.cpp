@@ -2,8 +2,9 @@
 
 #include "wt/HashedString.h"
 
-namespace wt{
+#define TD_TRACE_TAG "HashedString"
 
+namespace wt{
 
 Uint32 HashedString::hash(const String& x, int M) {
 #if 0

@@ -3,6 +3,8 @@
 
 #include "demo/ADemo.h"
 
+#define TD_TRACE_TAG "PathFindingDemo"
+
 namespace wt{
 
 	
@@ -98,10 +100,6 @@ struct Path{
 };
 
 class PathFindingDemo : public ADemo{
-private:
-
-	static const char* TAG;
-
 public:
 
 	PathFindingDemo(){
@@ -136,8 +134,6 @@ public:
 }; // </PathFindingDemo>
 
 WT_DECLARE_DEMO(PathFindingDemo)
-
-const char* PathFindingDemo::TAG = "PathFindingDemo";
 
 }; // </wt>
 

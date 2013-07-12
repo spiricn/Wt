@@ -110,7 +110,7 @@ public:
 		mAttachActor = actor;
 		mAttachBone = actor->getModel()->getSkeleton()->findChildByName(bone);
 
-		LOGIF(mAttachBone==0, "No bone named \"%s\"", bone.c_str());
+		WT_ASSERT(mAttachBone, "No bone named \"%s\"", bone.c_str());
 	}
 
 	virtual physx::PxBounds3 getBounds(){

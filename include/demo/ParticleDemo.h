@@ -3,7 +3,7 @@
 
 #include "demo/ADemo.h"
 
-
+#define TD_TRACE_TAG "ParticleDemo"
 
 namespace wt{
 
@@ -12,7 +12,6 @@ private:
 	ParticleEmitter mEmitter;
 	glm::vec3 mCameraTarget;
 	ParticleEffect* mRain;
-	static const char* TAG;
 	
 public:
 	void onRender(float dt){
@@ -24,10 +23,10 @@ public:
 	}
 
 	void printHelp(){
-		LOGI(TAG,
+		LOGI(
 			"Press R to toggle rain");
 
-		LOGI(TAG,
+		LOGI(
 			"Press H for help");
 	}
 
@@ -116,8 +115,6 @@ public:
 }; // </ParticleDemo>
 
 WT_DECLARE_DEMO(ParticleDemo)
-
-const char* ParticleDemo::TAG = "ParticleDemo";
 
 }; // </wt>
 

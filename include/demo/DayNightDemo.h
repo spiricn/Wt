@@ -5,13 +5,13 @@
 
 #include <wt/SkyDome.h>
 
-namespace wt{
+#define TD_TRACE_TAG "DayNightDemo"
 
+namespace wt{
 
 class DayNightDemo : public ADemo{
 private:
 	SkyDome mSkyDome;
-	static const char* TAG;
 	bool mPaused;
 
 public:
@@ -30,16 +30,16 @@ public:
 	}
 
 	void printHelp(){
-		LOGI(TAG,
+		LOGI(
 			"Press W/A/S/D to move, use mouse to look around");
 
-		LOGI(TAG,
+		LOGI(
 			"Press P to pause day/night cycle");
 
-		LOGI(TAG,
+		LOGI(
 			"Press UP/DOWN while paused to manually move the sun");
 
-		LOGI(TAG,
+		LOGI(
 			"Press H for help");
 	}
 
@@ -117,8 +117,6 @@ public:
 
 }; // </DayNightDemo>
 
-
-const char* DayNightDemo::TAG = "DayNightDemo";
 
 WT_DECLARE_DEMO(DayNightDemo)
 

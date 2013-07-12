@@ -55,8 +55,6 @@ public:
 	typedef std::map<String, CreateDemoFunc> DemoMap;
 
 private:
-	static const char* TAG;
-
 	DemoMap mDemos;
 
 	AGameWindow* mWindow;

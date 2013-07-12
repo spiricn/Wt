@@ -2,7 +2,7 @@
 #define WT_PROFILER_H
 
 #include "wt/Timer.h"
-#include "wt/Log.h"
+#include <td/td.h>
 
 namespace wt{
 

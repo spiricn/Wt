@@ -3,6 +3,8 @@
 #include "wt/Renderer.h"
 #include "wt/DevilImageLoader.h"
 
+#define TD_TRACE_TAG "Renderer"
+
 
 namespace wt{
 
@@ -61,11 +63,11 @@ void Renderer::initGodray(){
 }
 
 void Renderer::init(Uint32 portW, Uint32 portH ){
-	LOGV(TAG, "Initializing...");
+	LOGV("Initializing...");
 
-	LOGV(TAG, "GL_VERSION = %s", glGetString(GL_VERSION));
-	LOGV(TAG, "GL_VENDOR = %s", glGetString(GL_VENDOR));
-	LOGV(TAG, "GL_RENDERER = %s", glGetString(GL_RENDERER));
+	LOGV("GL_VERSION = %s", glGetString(GL_VERSION));
+	LOGV("GL_VENDOR = %s", glGetString(GL_VENDOR));
+	LOGV("GL_RENDERER = %s", glGetString(GL_RENDERER));
 
 	mMatStack.pushIdentity();
 
@@ -79,21 +81,21 @@ void Renderer::init(Uint32 portW, Uint32 portH ){
 
 	GLenum r = glewInit();
 
-	LOGV(TAG, "Initializing glew");
+	LOGV("Initializing glew");
 	if(r != GLEW_OK){
 		WT_EXCEPT("Renderer", "GLEW_ERROR", "Error initializing glew \"%s\"", (const char*)glewGetErrorString(r));
 	}
 
-	LOGV(TAG, "Compiling shaders");
-	LOGV(TAG, "Compiling basic..");
+	LOGV("Compiling shaders");
+	LOGV("Compiling basic..");
 	mBasicShader.create();
-	LOGV(TAG, "Compiling sky..");
+	LOGV("Compiling sky..");
 	mSkyShader.create();
-	LOGV(TAG, "Compiling terrain..");
+	LOGV("Compiling terrain..");
 	mTerrainShader.create();
-	LOGV(TAG, "Compiling godray..");
+	LOGV("Compiling godray..");
 	mGodRayShader.create();
-	LOGV(TAG, "Compiling rect..");
+	LOGV("Compiling rect..");
 	mRectShader.create();
 
 	mGodraySunShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
@@ -104,7 +106,7 @@ void Renderer::init(Uint32 portW, Uint32 portH ){
 
 	Utils::makeCube(mCubeBatch, 0.01, BasicShader::VERTEX, BasicShader::TEXTURE_COORDS, BasicShader::NORMALS);
 
-	LOGV(TAG, "Generating default texture");
+	LOGV("Generating default texture");
 	gl( GenTextures(1, &mFontTexture) );
 	gl( BindTexture(GL_TEXTURE_2D, mFontTexture) );
 	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
@@ -142,7 +144,7 @@ void Renderer::init(Uint32 portW, Uint32 portH ){
 	// TODO move to encoded header file
 	TextureLoader::getSingleton().load("assets/brushes/images/circle_soft.png", &mGodraySunTexture);
 
-	LOGV(TAG, "Initialized OK");
+	LOGV("Initialized OK");
 }
 
 

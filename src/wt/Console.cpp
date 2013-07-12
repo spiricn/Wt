@@ -4,6 +4,8 @@
 
 #define LOG_BFR_SIZE 2048
 
+#define TD_TRACE_TAG "Console"
+
 namespace wt{
 
 void Console::setColor(ConsoleColor text, ConsoleColor background){

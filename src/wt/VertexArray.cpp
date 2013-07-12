@@ -3,6 +3,8 @@
 #include "wt/VertexArray.h"
 #include "wt/Exception.h"
 
+#define TD_TRACE_TAG "VertexArray"
+
 namespace wt{
 
 namespace Gl{

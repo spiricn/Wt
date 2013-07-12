@@ -2,6 +2,9 @@
 
 #include "wt/FrameBuffer.h"
 #include "wt/RenderBuffer.h"
+#include "wt/GLTrace.h"
+
+#define TD_TRACE_TAG "FrameBuffer"
 
 namespace wt{
 

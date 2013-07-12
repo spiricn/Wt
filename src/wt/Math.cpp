@@ -2,6 +2,8 @@
 
 #include "wt/math.h"
 
+#define TD_TRACE_TAG "Math"
+
 namespace wt{
 
 namespace math{

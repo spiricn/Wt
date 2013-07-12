@@ -3,10 +3,9 @@
 
 #include "wt/Scene.h"
 
+#define TD_TRACE_TAG "Scene"
+
 namespace wt{
-
-const char* Scene::TAG = "Scene";
-
 
 Scene::Scene(Physics* physics, Assets* assets) : 
 	mSkyBox(NULL), mNumPointLights(0), mNumSpotLights(0), mTerrain(NULL), mAssets(assets), mPhysics(physics){
@@ -122,7 +121,7 @@ void Scene::createTerrain(const LuaObject& config){
 		createTerrain(tDesc);
 	}
 	else{
-		WT_EXCEPT(TAG, "Invalid LuaObject of type %s passed as terrain configuration.", config.TypeName());
+		WT_EXCEPT(TD_TRACE_TAG, "Invalid LuaObject of type %s passed as terrain configuration.", config.TypeName());
 	}
 }
 
@@ -217,7 +216,7 @@ SkyBox* Scene::getSkyBox(){
 }
 
 
-#define LUA_ERROR(fmt, ...) do{ LOGE(TAG, "%s " fmt, __FUNCTION__, __VA_ARGS__); }while(0)
+#define LUA_ERROR(fmt, ...) do{ LOGE("%s " fmt, __FUNCTION__, __VA_ARGS__); }while(0)
 
 void Scene::lua_setLightDir(LuaObject obj){
 	if(obj.Get("direction").IsTable()){
@@ -280,7 +279,7 @@ void Scene::lua_setActorPosition(Uint32 actorId, LuaObject luaPos){
 		}
 	}
 	else{
-		LOGE(TAG, "Invalid position object for actor ID %d", actorId);
+		LOGE("Invalid position object for actor ID %d", actorId);
 	}
 }
 
@@ -307,7 +306,7 @@ void Scene::lua_cameraLookAt(LuaObject luaPos){
 		mCamera->lookAt(pos);
 	}
 	else{
-		LOGE(TAG, "Invalid camera position, expected vec3");
+		LOGE("Invalid camera position, expected vec3");
 	}
 
 }

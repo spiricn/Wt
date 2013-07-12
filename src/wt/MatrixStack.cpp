@@ -2,6 +2,8 @@
 
 #include "wt/MatrixStack.h"
 
+#define TD_TRACE_TAG "MatrixStack"
+
 namespace wt{
 
 namespace math{

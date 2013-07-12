@@ -2,6 +2,8 @@
 
 #include "wt/AProcess.h"
 
+#define TD_TRACE_TAG "AProcess"
+
 namespace wt{
 
 

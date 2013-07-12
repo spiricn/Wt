@@ -11,7 +11,6 @@ namespace wt{
 template<class T>
 class Buffer{
 private:
-	static const char* TAG;
 	T* mData;
 	Uint32 mCapacity, mPosPut, mPosGet;
 
@@ -89,7 +88,7 @@ public:
 	void seekp(Uint32 pos){
 		#ifdef WT_CHECKED
 		if(pos >= mCapacity){
-			WT_EXCEPT(TAG, "Seek position out of bounds (bounds=%d, pos=%d)",
+			WT_EXCEPT(TD_TRACE_TAG, "Seek position out of bounds (bounds=%d, pos=%d)",
 				mCapacity, pos);
 		}
 		#endif
@@ -100,7 +99,7 @@ public:
 	void seekg(Uint32 pos){
 		#ifdef WT_CHECKED
 		if(pos >= mCapacity){
-			WT_EXCEPT(TAG, "Seek position out of bounds (bounds=%d, pos=%d)",
+			WT_EXCEPT(TD_TRACE_TAG, "Seek position out of bounds (bounds=%d, pos=%d)",
 				mCapacity, pos);
 		}
 		#endif
@@ -130,7 +129,7 @@ public:
 	void put(const T* t, Uint32 count){
 		#ifdef WT_CHECKED
 		if(mPosPut+count > mCapacity){
-			WT_EXCEPT(TAG,
+			WT_EXCEPT(TD_TRACE_TAG,
 				"Put failed, buffer full (size %d pos %d count %d)", mCapacity, mPosPut, count);
 		}
 		#endif
@@ -142,7 +141,7 @@ public:
 	T& get(){
 		#ifdef WT_CHECKED
 		if(mPosGet >= mCapacity){
-			WT_EXCEPT(TAG,
+			WT_EXCEPT(TD_TRACE_TAG,
 				"Get failed, position out of bounds (pos=%d bounds=%d)",
 				mPosGet, mCapacity);
 		}
@@ -158,7 +157,7 @@ public:
 	void put(const T& t){
 		#ifdef WT_CHECKED
 		if(mPosPut>=mCapacity){
-			WT_EXCEPT(TAG,
+			WT_EXCEPT(TD_TRACE_TAG,
 				"Put failed, buffer full (size %d)", mCapacity);
 		}
 		#endif
@@ -169,7 +168,7 @@ public:
 	T& operator[](Uint32 index){
 		#ifdef WT_CHECKED
 		if(index >= mCapacity){
-			WT_EXCEPT(TAG,
+			WT_EXCEPT(TD_TRACE_TAG,
 				"Attempted to index buffer (size %d) index %d", mCapacity, index);
 		}
 		#endif
@@ -180,7 +179,7 @@ public:
 	const T& operator[](Uint32 index) const{
 		#ifdef WT_CHECKED
 		if(index >= mCapacity){
-			WT_EXCEPT(TAG, "Attempted to index buffer (size %d) index %d",
+			WT_EXCEPT(TD_TRACE_TAG, "Attempted to index buffer (size %d) index %d",
 				mCapacity, index);
 		}
 		#endif
@@ -197,9 +196,6 @@ public:
 typedef Buffer<float> FloatBuffer;
 
 typedef Buffer<Uint8> ByteBuffer;
-
-template<class T>
-const char* Buffer<T>::TAG = "Buffer";
 
 }; // </wt>
 

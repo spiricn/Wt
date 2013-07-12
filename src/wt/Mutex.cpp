@@ -4,6 +4,8 @@
 #include "wt/Exception.h"
 #include "wt/Timer.h"
 
+#define TD_TRACE_TAG "Mutex"
+
 namespace wt{
 
 #if defined(WIN32)

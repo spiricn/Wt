@@ -4,15 +4,16 @@
 #include "demo/ADemo.h"
 
 
+#define TD_TRACE_TAG "BasicDemo"
+
 namespace wt{
 
 class BasicDemo : public ADemo{
 private:
-	String TAG;
 	float mRainbowFactor;
 
 public:
-	BasicDemo() : mRainbowFactor(0.0f), TAG("BasicDemo"){
+	BasicDemo() : mRainbowFactor(0.0f){
 	}
 
 	void onRender(float dt){
@@ -28,22 +29,22 @@ public:
 	}
 
 	void onKeyDown(VirtualKey code){
-		LOGI(TAG, "Key %d pressed", code);
+		LOGI("Key %d pressed", code);
 		ADemo::onKeyDown(code);
 	}
 
 	void onMouseDown(float x, float y, MouseButton btn){
-		LOGI(TAG, "%s mouse button clicked @ (%d, %d)",
+		LOGI("%s mouse button clicked @ (%d, %d)",
 			(btn == BTN_LEFT ? "Left" : btn == BTN_RIGHT ? "Right" : "Middle"), (int)x, (int)y);
 	}
 
 	void onWindowSizeChanged(Uint32 w, Uint32 h){
-		LOGI(TAG,
+		LOGI(
 			"Window size changed to (%d, %d)", w, h);
 	}
 
 	void onKeyUp(VirtualKey code){
-		LOGI(TAG,
+		LOGI(
 			"Key %d released", code);
 
 		ADemo::onKeyUp(code);
@@ -52,12 +53,12 @@ public:
 	void onStart(const LuaObject& config){
 		ADemo::getManager()->getInput()->setMouseGrabbed(false);
 
-		LOGI(TAG,
+		LOGI(
 			"Starting basic demo !");
 	}
 
 	void onStop(){
-		LOGI(TAG,
+		LOGI(
 			"Stopping basic demo !");
 	}
 

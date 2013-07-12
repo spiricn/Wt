@@ -2,6 +2,8 @@
 
 #include "wt/game/Creature.h"
 
+#define TD_TRACE_TAG "Creature"
+
 namespace wt{
 
 

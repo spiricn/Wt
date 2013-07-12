@@ -2,6 +2,9 @@
 
 #include "wt/SkeletalAnimationPlayer.h"
 
+#define TD_TRACE_TAG "SkeletonAnimationPlayer"
+
+
 namespace wt{
 
 SkeletalAnimationPlayer::SkeletalAnimationPlayer(Model* model) : mModel(model), mAnimationTime(0.0f),

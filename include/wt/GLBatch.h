@@ -1,6 +1,8 @@
 #ifndef WT_GLBATCH_H
 #define WT_GLBATCH_H
 
+#include "wt/GLTrace.h"
+
 namespace wt{
 
 namespace Gl{

@@ -2,6 +2,8 @@
 
 #include "wt/SkeletonBone.h"
 
+#define TD_TRACE_TAG "SkeletonBone"
+
 namespace wt{
 
 glm::mat4& SkeletonBone::getOffset(){

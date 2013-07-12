@@ -3,6 +3,10 @@
 #include "wt/GLShader.h"
 #include "wt/Utils.h"
 
+#include <sstream>
+
+#define TD_TRACE_TAG "GLShader"
+
 namespace wt{
 
 namespace Gl{
@@ -25,7 +29,7 @@ void Shader::createFromSource(const String& source){
 	glShaderSource(mHandle, 1, s, NULL);
 }
 
-#include <sstream>
+
 
 void Shader::createFromFile(const String& path){
 	String source;

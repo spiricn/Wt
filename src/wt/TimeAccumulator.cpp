@@ -2,6 +2,8 @@
 
 #include "wt/TimeAccumulator.h"
 
+#define TD_TRACE_TAG "TimeAccumulator"
+
 namespace wt{
 
 TimeAccumulator::TimeAccumulator(float timeStep) : mTimeStep(timeStep), mTime(0.0f){

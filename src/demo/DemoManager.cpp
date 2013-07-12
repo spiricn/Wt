@@ -2,11 +2,11 @@
 
 #include "demo/DemoManager.h"
 
+#define TD_TRACE_TAG "DemoManager"
+
 namespace wt{
 
 #define DEMO_CONSOLE_XYWH -800, 126, 677, 342
-
-const char* DemoManager::TAG = "DemoManager";
 
 AGameWindow* DemoManager::getWindow() const{
 	return mWindow;
@@ -48,7 +48,7 @@ void DemoManager::stopDemo(){
 		return;
 	}
 
-	LOGI(TAG, "Stopping demo \"%s\" ...", mActiveDemo->getName().c_str());
+	LOGI("Stopping demo \"%s\" ...", mActiveDemo->getName().c_str());
 
 	mActiveDemo->destroyDemo();
 
@@ -60,12 +60,12 @@ void DemoManager::stopDemo(){
 }
 
 void DemoManager::startDemo(const String& name){
-	LOGI(TAG, "Starting demo \"%s\" ...", name.c_str());
+	LOGI("Starting demo \"%s\" ...", name.c_str());
 
 	stopDemo();
 
 	if(getDemo(name) == NULL){
-		LOGE(TAG, "No demo named \"%s\"", name.c_str());
+		LOGE("No demo named \"%s\"", name.c_str());
 	}
 
 	mActiveDemo = getDemo(name)();
@@ -73,7 +73,7 @@ void DemoManager::startDemo(const String& name){
 	mActiveDemo->setName(name);
 
 	if(!mActiveDemo){
-		WT_EXCEPT(TAG,
+		WT_EXCEPT(TD_TRACE_TAG,
 			"Unexisting demo named \"%s\"", name.c_str());
 	}
 
@@ -89,7 +89,7 @@ void DemoManager::startDemo(const String& name){
 	out << name;
 	out.close();
 
-	LOGI(TAG, "Demo running");
+	LOGI("Demo running");
 }
 
 void DemoManager::initialize(){
@@ -102,7 +102,9 @@ void DemoManager::initialize(){
 	mLogFile = fopen(LOG_FILE_PATH, "w");
 	WT_ASSERT(mLogFile != NULL, "Error openning log file");
 
-	Log::setOutput(mLogFile);
+	td_setFileOutput(mLogFile);
+	td_setFileOutputType(eTD_FILE_HTML);
+
 	LOG("New log session %s", wt::Utils::getCurrentTime("%H:%M:%S %d/%b/%Y").c_str());
 
 	LOG("Setting working directory \"%s\"", WORK_DIR);
@@ -210,7 +212,7 @@ void DemoManager::mainLoop(){
 	time.reset();
 	float dt=0.0f;
 
-	LOGI(TAG, "Main loop running.");
+	LOGI("Main loop running.");
 	
 	//GLDBG("MainLoop init");
 	
@@ -253,7 +255,7 @@ void DemoManager::mainLoop(){
 			}
 
 			if(!mActiveDemo){
-				LOGE(TAG, "Invalid choice");
+				LOGE("Invalid choice");
 			}
 
 		}

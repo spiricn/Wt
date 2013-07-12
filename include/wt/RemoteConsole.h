@@ -6,6 +6,8 @@
 #include "wt/net/TCPServer.h"
 #include "wt/EventManager.h"
 
+#define TD_TRACE_TAG "RemoteConsole"
+
 namespace wt{
 
 class RemoteConsoleCmdEvent : public Event{
@@ -49,14 +51,14 @@ public:
 		net::TCPServer::SocketPtr client;
 
 		try{
-			LOGD(TAG, "Accepting remote client...");
+			LOGD("Accepting remote client...");
 			mServer.init("127.0.0.1", 13099);
 			client = mServer.acceptClient();
 		}catch(Exception& e){
 			return;
 		}
 
-		LOGI(TAG, "Client accepted, receiving...");
+		LOGI("Client accepted, receiving...");
 
 		net::Packet packet;
 

@@ -3,6 +3,7 @@
 #include "wt/Camera.h"
 #include "wt/Lua.h"
 
+#define TD_TRACE_TAG "LuaExposes"
 
 namespace wt{
 

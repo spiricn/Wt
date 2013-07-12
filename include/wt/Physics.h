@@ -168,7 +168,7 @@ public:
 
 		if(hitNum == -1){
 			// TODO increase buffer size dynamically?
-			LOGW(TAG, "Buffer overflow (more than %d actors contained in radius)", bufferSize);
+			LOGW("Buffer overflow (more than %d actors contained in radius)", bufferSize);
 			return NULL;
 		}
 		else{
@@ -181,7 +181,7 @@ public:
 						);
 				}
 				else{
-					LOGW(TAG, "No user data found for PxActor!");
+					LOGW("No user data found for PxActor!");
 				}
 			}
 
@@ -260,7 +260,7 @@ public:
 		float radius;
 
 		if(!Lua::luaConv(luaPos, pos) || !Lua::luaConv(luaRadius, radius)){
-			LOGE(TAG, "Error creating region, invalid position or radius value");
+			LOGE("Error creating region, invalid position or radius value");
 			return -1;
 		}
 

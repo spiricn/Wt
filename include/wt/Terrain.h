@@ -5,7 +5,7 @@
 #include "wt/TerrainChunk.h"
 #include "wt/SceneActor.h"
 
-#define LOGEX(tag, bnds) LOGI(tag, "center = {%f, %f, %f},  extents = {%f, %f, %f}", \
+#define LOGEX(tag, bnds) LOGI("center = {%f, %f, %f},  extents = {%f, %f, %f}", \
 			bnds.getCenter().x, bnds.getCenter().y, bnds.getCenter().z, \
 			bnds.getExtents().x, bnds.getExtents().y, bnds.getExtents().z);
 

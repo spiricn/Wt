@@ -5,6 +5,8 @@
 #include "wt/SceneActor.h"
 #include "wt/Physics.h"
 
+#define TD_TRACE_TAG "Terrain"
+
 namespace wt{
 
 

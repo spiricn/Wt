@@ -3,6 +3,8 @@
 #include "wt/Model.h"
 #include "wt/GLBuffer.h"
 
+#define TD_TRACE_TAG "Model"
+
 namespace wt{
 
 Model::SkinMap& Model::getSkins(){

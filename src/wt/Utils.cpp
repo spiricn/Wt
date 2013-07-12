@@ -5,6 +5,8 @@
 #include "wt/Buffer.h"
 #include "wt/GLBatch.h"
 
+#define TD_TRACE_TAG "Utils"
+
 namespace wt{
 
 namespace Utils{

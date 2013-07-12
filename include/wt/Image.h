@@ -7,7 +7,7 @@
 #include "wt/AResource.h"
 #include "wt/AResourceManager.h"
 #include "wt/GLBuffer.h"
-#include "wt/Log.h"
+#include <td/td.h>
 namespace wt{
 
 class Image : public AResource<Image>{

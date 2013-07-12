@@ -3,6 +3,8 @@
 
 #include "demo/ADemo.h"
 
+#define TD_TRACE_TAG "GoldDiggersDemo"
+
 namespace wt{
 
 class OnGameUpdateEvent : public Event{
@@ -33,8 +35,6 @@ const EvtType OnGameUpdateEvent::TYPE = "OnGameUpdate";
 
 class GoldDiggersDemo : public ADemo{
 private:
-
-	static const char* TAG;
 	EventTable<GoldDiggersDemo> mEventTable;
 	ASoundSystem* mSoundSystem;
 
@@ -141,8 +141,6 @@ public:
 }; // </GoldDiggersDemo>
 
 WT_DECLARE_DEMO(GoldDiggersDemo)
-
-const char* GoldDiggersDemo::TAG = "GoldDiggersDemo";
 
 }; // </wt>
 

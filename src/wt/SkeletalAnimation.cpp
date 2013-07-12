@@ -2,6 +2,8 @@
 
 #include "wt/SkeletalAnimation.h"
 
+#define TD_TRACE_TAG "SkeletalAnimation"
+
 namespace wt{
 
 SkeletalAnimation::SkeletalAnimation(Model* model, SkeletonBone* skeleton, Animation* animation) : mModel(model), mAnimation(animation){

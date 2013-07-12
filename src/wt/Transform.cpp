@@ -1,6 +1,8 @@
 #include "wt/stdafx.h"
 #include "wt/Transform.h"
 
+#define TD_TRACE_TAG "Transform"
+
 namespace wt{
 
 namespace math{

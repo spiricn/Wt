@@ -2,6 +2,8 @@
 
 #include "wt/Thread.h"
 
+#define TD_TRACE_TAG "Thread"
+
 namespace wt{
 
 

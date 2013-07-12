@@ -1,6 +1,8 @@
 #include "wt/stdafx.h"
 #include "wt/Frustum.h"
 
+#define TD_TRACE_TAG "Frustum"
+
 namespace wt{
 
 namespace math{

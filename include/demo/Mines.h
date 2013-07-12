@@ -4,6 +4,8 @@
 
 #include "demo/ADemo.h"
 
+#define TD_TRACE_TAG "Mines"
+
 namespace wt{
 
 struct MineCell{
@@ -217,10 +219,7 @@ public:
 
 private:
 	Minefield* mField;
-	EventManager* mEventManager;
-	static const char* TAG;
-
-	
+	EventManager* mEventManager;	
 
 	GameState mGameState;
 public:
@@ -459,8 +458,6 @@ public:
 	}
 };
 
-
-const char* Minesweeper::TAG = "Minesweeper";
 
 }; // </wt>
 

@@ -8,6 +8,7 @@
 #include <wt/Toast.h>
 #include <wt/Sp.h>
 
+#define TD_TRACE_TAG "GuiDemo"
 
 static const char* kTEST_TEXT = 
 	"Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod\n"
@@ -23,11 +24,11 @@ static const char* kTEST_TEXT =
 	"Claritas est etiam processus dynamicus, qui sequitur mutationem consuetudium lectorum.\n"
 	"Mirum est notare quam littera gothica, quam nunc putamus parum claram, anteposuerit litterarum formas\n"
 	"humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.";
+
 namespace wt{
 
 class GuiDemo : public ADemo{
 private:
-	static const char* TAG;
 
 	float mProgress;
 	bool mProgressBarPaused;
@@ -221,8 +222,6 @@ public:
 }; // </GuiDemo>
 
 WT_DECLARE_DEMO(GuiDemo)
-
-const char* GuiDemo::TAG = "GuiDemo";
 
 }; // </wt>
 

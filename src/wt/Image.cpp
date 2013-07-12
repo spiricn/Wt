@@ -3,9 +3,9 @@
 #include "wt/Image.h"
 #include "wt/Exception.h"
 
-namespace wt{
+#define TD_TRACE_TAG "Image"
 
-const String Image::TAG = "Image";
+namespace wt{
 
 Image::Image(ResourceHandle handle, const String& name) : mData(NULL),
 	mWidth(0), mHeigth(0), mFormat(INVALID), mBufferSize(0), mNumComponents(0),AResource(handle, name){

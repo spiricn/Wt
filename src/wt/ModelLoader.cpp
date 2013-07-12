@@ -1,6 +1,8 @@
 #include "wt/stdafx.h"
 #include "wt/ModelLoader.h"
 
+#define TD_TRACE_TAG "ModelLoader"
+
 namespace wt{
 
 const char* ModelLoader::TAG = "ModelLoader";
@@ -38,7 +40,7 @@ void ModelLoader::readNode(std::ifstream& file, Model* model, SkeletonBone* pare
 	// name_id
 	std::string name;
 	std::getline(file, name, '\0');
-	//LOGV(TAG, "Node name: %s", name.c_str());
+	//LOGV("Node name: %s", name.c_str());
 
 	// transform
 	glm::mat4 transform;
@@ -72,7 +74,7 @@ void ModelLoader::readNode(std::ifstream& file, Model* model, SkeletonBone* pare
 	// num_children
 	Uint32 numChildren;
 	file.read((char*)&numChildren, 4);
-	//LOGV(TAG, "Num children: %d", numChildren);
+	//LOGV("Num children: %d", numChildren);
 
 	// read children
 	for(Uint32 i=0; i<numChildren; i++){
@@ -140,7 +142,7 @@ void ModelLoader::load(const String& path, Model* model){
 		// name_id
 		std::string name;
 		std::getline(file, name, '\0');
-		//LOGV(TAG, "geo name_id: %s", name.c_str());
+		//LOGV("geo name_id: %s", name.c_str());
 
 		// create structure
 		//Geometry* geo = model->createGeometry(name);
@@ -152,7 +154,7 @@ void ModelLoader::load(const String& path, Model* model){
 		// NoI
 		Uint32 noi;
 		file.read((char*)&noi, 4);
-		//LOGV(TAG, "noi: %d", noi);
+		//LOGV("noi: %d", noi);
 
 		// vertex_data
 		Buffer<Geometry::Vertex> vertices(nov);

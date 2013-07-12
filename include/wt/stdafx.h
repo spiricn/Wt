@@ -6,6 +6,9 @@
 
 #pragma message("\nCreating wt precompiled header!\n")
 
+// Tracedog
+#include <td/td.h>
+
 //SFML
 #include <SFML/Audio.hpp>
 

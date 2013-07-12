@@ -3,6 +3,8 @@
 #include "wt/ParticleEngine.h"
 #include "wt/Transform.h"
 
+#define TD_TRACE_TAG "ParticleEngine"
+
 namespace wt{
 
 void ParticleShader::create(const String& userProgPath){

@@ -2,6 +2,8 @@
 
 #include "wt/Timer.h"
 
+#define TD_TRACE_TAG "Timer"
+
 namespace wt{
 
 #if defined(WIN32)

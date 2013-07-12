@@ -5,6 +5,7 @@
 #include "wt/Exception.h"
 #include "wt/VertexArray.h"
 
+#define TD_TRACE_TAG "GLBatch"
 
 namespace wt{
 

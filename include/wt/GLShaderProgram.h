@@ -5,7 +5,6 @@
 #include "wt/stdafx.h"
 
 #include "wt/GLShader.h"
-#include "wt/Log.h"
 #include "wt/Exception.h"
 #include "wt/Defines.h"
 #include "wt/Color.h"
@@ -18,7 +17,6 @@ class ShaderProgram{
 private:
 	WT_DISALLOW_COPY(ShaderProgram)
 
-	static const String TAG;
 	Shader mVertexShader, mFragmentShader, mGeometryShader;
 	String mLogs, mLog;
 	GLuint mProgHandle;

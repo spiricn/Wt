@@ -5,7 +5,7 @@
 #include "wt/stdafx.h"
 
 
-#include "wt/Log.h"
+#include <td/td.h>
 #include "wt/Exception.h"
 
 namespace wt{

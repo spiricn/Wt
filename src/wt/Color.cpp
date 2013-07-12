@@ -4,6 +4,8 @@
 #include "wt/Exception.h"
 #include "wt/Math.h"
 
+#define TD_TRACE_TAG "Color"
+
 namespace wt{
 
 Color::Color(float r, float g, float b, float a){

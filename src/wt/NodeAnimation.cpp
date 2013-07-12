@@ -3,6 +3,8 @@
 #include "wt/NodeAnimation.h"
 #include "wt/math.h"
 
+#define TD_TRACE_TAG "NodeAnimation"
+
 #define SPLINE_TENSION 0.8f
 
 namespace wt{

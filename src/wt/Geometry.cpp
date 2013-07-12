@@ -2,6 +2,8 @@
 
 #include "wt/Geometry.h"
 
+#define TD_TRACE_TAG "Geometry"
+
 namespace wt{
 
 Geometry::VertexBuffer& Geometry::getVertices(){

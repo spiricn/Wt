@@ -2,6 +2,8 @@
 
 #include "wt/AGameInput.h"
 
+#define TD_TRACE_TAG "AGameInput"
+
 namespace wt{
 	const EvtType KeyPressEvent::TYPE = "KeyPress";
 	const EvtType AppQuitEvent::TYPE = "AppQuit";

@@ -2,8 +2,8 @@
 
 #include "wt/AssimpModelLoader.h"
 
-namespace wt{
+#define TD_TRACE_TAG "AssimpModelLoader"
 
-const char* AssimpModelLoader::TAG = "AssimpModeLoader";
+namespace wt{
 
 } // </wt>

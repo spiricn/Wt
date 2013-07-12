@@ -26,13 +26,13 @@ int main(int argc, char** argv){
 			wt::Model model(0, "tmp");
 
 			try{
-				LOGD(TAG, "Loading model from \"%s\"...", input);
+				LOGD("Loading model from \"%s\"...", input);
 				ModelLoader::getSingleton().load(input, &model);
 
-				LOGD(TAG, "Removing geometry batch \"%s\"...", geoName);
+				LOGD("Removing geometry batch \"%s\"...", geoName);
 				model.removeGeometry(geoName);
 
-				LOGD(TAG, "Saving to \"%s\"...", output);
+				LOGD("Saving to \"%s\"...", output);
 				ModelLoader::getSingleton().save(output, &model);
 			}
 			catch(wt::Exception&){
@@ -47,22 +47,22 @@ int main(int argc, char** argv){
 		wt::Model model(0, "tmp");
 		wt::Animation animation;
 
-		LOGD(TAG, "Loading model from \"%s\"...", input);
+		LOGD("Loading model from \"%s\"...", input);
 
 		try{
 			AssimpModelLoader::getSingleton().load(input, model, &animation);
 
-			LOGD(TAG, "Converting to wtm...");
+			LOGD("Converting to wtm...");
 
 			char tmp[1024];
 			*tmp = 0;
 
 			sprintf(tmp, "%s.wtm", output);
-			LOGD(TAG, "Saving geo model to \"%s\"...", tmp);
+			LOGD("Saving geo model to \"%s\"...", tmp);
 			wt::ModelLoader::getSingleton().save(tmp, &model);
 
 			sprintf(tmp, "%s.wta", output);
-			LOGD(TAG, "Saving animation to \"%s\"...", tmp);
+			LOGD("Saving animation to \"%s\"...", tmp);
 			AnimationLoader::getSingleton().save(tmp, &animation);
 		}
 		catch(wt::Exception&){
@@ -70,16 +70,16 @@ int main(int argc, char** argv){
 		}
 	}
 
-	LOGI(TAG, "Done!");
+	LOGI("Done!");
 
 	return 0;
 
 error:
-	LOGE(TAG, "Error converting model");
+	LOGE("Error converting model");
 	return 1;
 
 usage:
-	LOGW(TAG, "Program usage: wtconv [<input_file> <out_name>] [<input_file> <out_file> -r <geo_name>");
+	LOGW("Program usage: wtconv [<input_file> <out_name>] [<input_file> <out_file> -r <geo_name>");
 	return 0;
 }
 #endif
@@ -198,7 +198,7 @@ int main(int argc, char** argv){
 
 	std::ofstream outFile(output);
 	if(!outFile.is_open()){
-		LOGE(TAG, "Error openning output file \"%s\"", output);
+		LOGE("Error openning output file \"%s\"", output);
 		goto error;
 	}
 
@@ -208,22 +208,22 @@ int main(int argc, char** argv){
 		bool isModel=true;
 
 		if(Utils::endsWith(input, ".wtm")){
-			LOGD(TAG, "Loading model from \"%s\" using WTM loader...", input.c_str());
+			LOGD("Loading model from \"%s\" using WTM loader...", input.c_str());
 			ModelLoader::getSingleton().load(input, &model);
 		}
 		else if(Utils::endsWith(input, ".wta")){
-			LOGD(TAG, "Loading animation from \"%s\" using WTA loader...", input.c_str());
+			LOGD("Loading animation from \"%s\" using WTA loader...", input.c_str());
 			AnimationLoader::getSingleton().load(input, &animation);
 			isModel=false;
 		}
 		else{
-			LOGD(TAG, "Loading model from \"%s\" using ASSIMP loader...", input.c_str());
+			LOGD("Loading model from \"%s\" using ASSIMP loader...", input.c_str());
 			AssimpModelLoader::getSingleton().load(input, model, &animation, &texMap);
 		}
 
 
 		if(isModel){
-			LOGD(TAG, "Dumping model data..");
+			LOGD("Dumping model data..");
 			printModel(outFile, model);
 
 			if(!texMap.empty()){
@@ -235,12 +235,12 @@ int main(int argc, char** argv){
 			}
 		}
 		else{
-			LOGD(TAG, "Dumping animation data..");
+			LOGD("Dumping animation data..");
 
 			printAnimation(outFile, animation);
 		}
 
-		LOGI(TAG, "Dump saved to \"%s\"", output);
+		LOGI("Dump saved to \"%s\"", output);
 	}
 	catch(wt::Exception&){
 		outFile.close();
@@ -252,11 +252,11 @@ int main(int argc, char** argv){
 	return 0;
 
 error:
-	LOGE(TAG, "Error converting model");
+	LOGE("Error converting model");
 	return 1;
 
 usage:
-	LOGW(TAG, "Program usage: wtdump <input_file> <out_name>");
+	LOGW("Program usage: wtdump <input_file> <out_name>");
 	return 0;
 }
 

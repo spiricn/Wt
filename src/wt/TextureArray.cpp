@@ -1,6 +1,8 @@
 #include "wt/stdafx.h"
 #include "wt/TextureArray.h"
 
+#define TD_TRACE_TAG "TextureArray"
+
 namespace wt{
 
 void TextureArray::create(Uint32 width, Uint32 height, Uint32 num_textures, GLenum format){

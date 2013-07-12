@@ -1,9 +1,10 @@
 #include "wt/stdafx.h"
 #include "wt/AnimationLoader.h"
 
+#define TD_TRACE_TAG "AnimationLoader"
+
 namespace wt{
 
-const char* AnimationLoader::TAG = "AnimationLoader";
 const char* AnimationLoader::FORMAT_ID = "#WTANI";
 
 void AnimationLoader::load(const String& path, Animation* ani){
@@ -26,12 +27,12 @@ void AnimationLoader::load(const String& path, Animation* ani){
 	float dur;
 	file.read((char*)&dur, 4);
 	ani->setDuration(dur);
-	//LOGV(TAG, "Duration: %f", dur);
+	//LOGV("Duration: %f", dur);
 
 	// num_node_anims
 	Uint32 numNodes;
 	file.read((char*)&numNodes, 4);
-	//LOGV(TAG, "Num nodes: %d", numNodes);
+	//LOGV("Num nodes: %d", numNodes);
 
 	// nodes
 	for(Uint32 i=0; i<numNodes; i++){
@@ -80,7 +81,7 @@ void AnimationLoader::load(const String& path, Animation* ani){
 		// num_scale_keys
 		Uint32 numScaleKeys;
 		file.read((char*)&numScaleKeys, 4);
-		//LOGV(TAG, "Num scale keys: %d", numScaleKeys);
+		//LOGV("Num scale keys: %d", numScaleKeys);
 
 		// pos_keys
 		for(Uint32 j=0; j<numScaleKeys; j++){

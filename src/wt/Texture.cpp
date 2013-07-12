@@ -3,12 +3,9 @@
 #include "wt/Texture.h"
 #include "wt/Exception.h"
 
-///////////////////////////////////////////////////////////////////////////
-// Texture
+#define TD_TRACE_TAG "Texture"
 
 namespace wt{
-
-const String Texture::TAG = "Texture";
 
 Texture::Texture(GLenum type) : mTexHandle(0), mType(type), mIsGenerated(false){
 }

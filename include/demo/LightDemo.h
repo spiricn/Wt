@@ -4,6 +4,8 @@
 #include "demo/ADemo.h"
 #include "wt/CameraAnimation.h"
 
+#define TD_TRACE_TAG "LightDemo"
+
 namespace wt{
 
 struct LightOrb{
@@ -45,7 +47,6 @@ class LightDemo : public ADemo{
 private:
 	CameraAnimationBuilder mBuilder;
 	std::vector<Sp<LightOrb>> mOrbs;
-	static const char* TAG;
 	int mFollowing;
 
 public:
@@ -76,16 +77,16 @@ public:
 	}
 
 	void printHelp(){
-		LOGI(TAG,
+		LOGI(
 			"Press W/A/S/D to move, use mouse to look around");
 
-		LOGI(TAG,
+		LOGI(
 			"Press F to toggle flashlight");
 
-		LOGI(TAG,
+		LOGI(
 			"Press R to toggle following one of the light orbs");
 
-		LOGI(TAG,
+		LOGI(
 			"Press H for help");
 	}
 
@@ -218,8 +219,6 @@ public:
 }; // </LightDemo>
 
 WT_DECLARE_DEMO(LightDemo)
-
-const char* LightDemo::TAG = "LightDemo";
 
 }; // </wt>
 

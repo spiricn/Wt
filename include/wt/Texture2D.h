@@ -7,7 +7,7 @@
 #include "wt/ImageManager.h"
 #include "wt/AResource.h"
 #include "wt/AResourceManager.h"
-#include "wt/Log.h"
+#include <td/td.h>
 #include "wt/Singleton.h"
 #include "wt/Buffer.h"
 #include "wt/DevilImageLoader.h"

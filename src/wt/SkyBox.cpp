@@ -3,6 +3,8 @@
 #include "wt/ImageManager.h"
 #include "wt/LuaStateManager.h"
 
+#define TD_TRACE_TAG "SkyBox"
+
 namespace wt{
 
 SkyBox::SkyBox(ResourceHandle handle, const std::string& name) : AResource(handle, name){

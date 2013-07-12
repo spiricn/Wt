@@ -2,6 +2,8 @@
 
 #include "wt/Gui/Checkbox.h"
 
+#define TD_TRACE_TAG "Checkbox"
+
 namespace wt{
 
 namespace Gui{

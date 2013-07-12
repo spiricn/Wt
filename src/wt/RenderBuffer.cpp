@@ -2,6 +2,8 @@
 
 #include "wt/RenderBuffer.h"
 
+#define TD_TRACE_TAG "RenderBuffer"
+
 namespace wt{
 
 namespace Gl{

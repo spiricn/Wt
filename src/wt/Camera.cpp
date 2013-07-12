@@ -2,6 +2,8 @@
 #include "wt/math.h"
 #include "wt/Camera.h"
 
+#define TD_TRACE_TAG "Camera"
+
 namespace wt{
 
 namespace math{

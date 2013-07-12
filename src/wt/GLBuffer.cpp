@@ -3,6 +3,8 @@
 #include "wt/GLBuffer.h"
 #include "wt/Exception.h"
 
+#define TD_TRACE_TAG "GLBuffer"
+
 namespace wt{
 
 namespace Gl{

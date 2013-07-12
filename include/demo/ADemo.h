@@ -47,9 +47,6 @@ class DemoManager;
 class ADemo{
 friend class DemoManager;
 
-private:
-	static const char* TAG;
-
 public:
 	enum CameraControlMode{
 		eCAMERA_FPS,

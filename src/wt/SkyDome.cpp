@@ -2,6 +2,8 @@
 #include "wt/SkyDome.h"
 #include "wt/Frustum.h"
 
+#define TD_TRACE_TAG "SkyDome"
+
 namespace wt{
 
 

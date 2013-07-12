@@ -2,9 +2,9 @@
 
 #include "wt/ProcessManager.h"
 
+#define TD_TRACE_TAG "ProcessManager"
+
 namespace wt{
-
-
 
 void ProcessManager::upate(float dt){
 	ProcList::iterator procEnd = mProcesses.end();

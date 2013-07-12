@@ -18,8 +18,6 @@ namespace wt{
 #define DEFAULT_TICKS_PER_SEC 25.0f
 
 class AssimpModelLoader : public Singleton<AssimpModelLoader>, public AResourceLoader<Model>{
-private:
-	static const char* TAG;
 public:
 
 	typedef std::map<String, String> TextureMap;
@@ -82,7 +80,7 @@ public:
 
 	static void buildSkeleton(Model& model, aiNode* aiRoot){
 		if(aiRoot == NULL){
-			LOGW(TAG, "Skeleton root node not found");
+			LOGW("Skeleton root node not found");
 			return;
 		}
 
@@ -131,15 +129,15 @@ public:
 			const aiMesh* mesh = scene->mMeshes[i];
 			
 			if(!mesh->HasNormals()){
-				LOGW(TAG, "Mesh normals not found.");
+				LOGW("Mesh normals not found.");
 			}
 	
 			if(!mesh->HasTangentsAndBitangents()){
-				LOGW(TAG, "Mesh tangents not found.");
+				LOGW("Mesh tangents not found.");
 			}
 
 			if(!mesh->HasTextureCoords(0)){
-				LOG(TAG, "Mesh texture coordinates not found.");
+				LOG( "Mesh texture coordinates not found.");
 			}
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

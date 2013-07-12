@@ -1,14 +1,15 @@
 #include "wt/stdafx.h"
 #include "wt/GLShaderProgram.h"
-#include "wt/Log.h"
+#include <td/td.h>
 #include "wt/Exception.h"
 #include "wt/Utils.h"
+
+
+#define TD_TRACE_TAG "ShaderProgram"
 
 namespace wt{
 
 namespace Gl{
-
-const String ShaderProgram::TAG = "ShaderProgram";
 
 void ShaderProgram::create(){
 	mProgHandle = glCreateProgram();
@@ -238,7 +239,7 @@ void ShaderProgram::setUniformVal(GLint location, const Color& val){
 GLint ShaderProgram::getUniformLocation(const String& name){
 	int loc = glGetUniformLocation(mProgHandle, name.c_str());
 	if(loc==-1){
-		WT_EXCEPT(TAG,
+		WT_EXCEPT(TD_TRACE_TAG,
 			"Invalid uniform name \"%s\" in program \"%s\"\n", name.c_str(), ""
 			);
 	}
@@ -258,7 +259,7 @@ void ShaderProgram::link(){
 	glLinkProgram(mProgHandle);
 
 	if(!isLinked()){
-		WT_EXCEPT(TAG,
+		WT_EXCEPT(TD_TRACE_TAG
 			"Error linking shader program \"%s\" : \"%s\"", "", getLog().c_str()
 			);
 	}

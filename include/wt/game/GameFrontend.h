@@ -334,7 +334,7 @@ public:
 		try{
 			LuaFunction<void>(mLuaStateManager->getGlobalState(), "onUpdate")(dt);
 		}catch(LuaException e){
-			WT_EXCEPT(TAG, "Error calling update function");
+			WT_EXCEPT(TD_TRACE_TAG, "Error calling update function");
 		}
 
 		controlCharacter(dt);
@@ -361,7 +361,7 @@ public:
 	wt::Uint32 lua_getEntityHandle(LuaObject name){
 		AGameActor* e = mLevel.mEntityManager->findByName(name.ToString());
 		if(e==NULL){
-			LOGE(TAG, "No entity named \"%s\"", name.ToString());
+			LOGE("No entity named \"%s\"", name.ToString());
 			return 0;
 		}
 		else{

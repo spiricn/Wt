@@ -3,12 +3,11 @@
 
 #include "demo/ADemo.h"
 
+#define TD_TRACE_TAG "FogDemo"
+
 namespace wt{
 
 class FogDemo : public ADemo{
-private:
-	static const char* TAG;
-
 public:
 
 	FogDemo(){
@@ -19,10 +18,10 @@ public:
 	}
 
 	void printHelp(){
-		LOGI(TAG,
+		LOGI(
 			"Hold I to increase fog density");
 
-		LOGI(TAG,
+		LOGI(
 			"Hold O to decrease fog density");
 	}
 
@@ -59,8 +58,6 @@ public:
 }; // </FogDemo>
 
 WT_DECLARE_DEMO(FogDemo)
-
-const char* FogDemo::TAG = "FogDemo";
 
 }; // </wt>
 

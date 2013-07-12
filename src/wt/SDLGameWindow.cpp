@@ -2,6 +2,7 @@
 
 #include "wt/SDLGameWindow.h"
 
+#define TD_TRACE_TAG "SDLGameWindow"
 
 namespace wt{
 
@@ -19,7 +20,7 @@ bool SDLGameWindow::updateVideoMode(){
 			|(mVideoMode.mFullscreenEnabled?SDL_FULLSCREEN:0));
 
 	if(mScreen == 0){
-		LOGE(TAG, "SDL_SetVideoMode failed: \"%s\"", SDL_GetError());
+		LOGE("SDL_SetVideoMode failed: \"%s\"", SDL_GetError());
 		return false;
 	}
 	else{
@@ -36,7 +37,7 @@ bool SDLGameWindow::create(const VideoMode& mode){
 	_putenv("SDL_VIDEO_CENTERED=1");
 
 	if(SDL_Init(SDL_INIT_VIDEO)==-1){
-		LOGE(TAG, "SDL_Init failed: \"%s\"", SDL_GetError());
+		LOGE("SDL_Init failed: \"%s\"", SDL_GetError());
 		return false;
 	}
 

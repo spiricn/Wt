@@ -7,7 +7,7 @@
 
 #include "wt/AGameWindow.h"
 #include "wt/AGameInput.h"
-#include "wt/Log.h"
+#include <td/td.h>
 
 #pragma comment(lib, "SDL.lib")
 #pragma comment(lib, "SDLmain.lib")

@@ -2,6 +2,8 @@
 
 #include "wt/TerrainChunk.h"
 
+#define TD_TRACE_TAG "TerrainChunk"
+
 namespace wt{
 
 void TerrainChunk::setTexArrays(TextureArray* textureArray, Texture2D* mapArray){

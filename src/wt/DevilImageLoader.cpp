@@ -1,6 +1,8 @@
 #include "wt/stdafx.h"
 #include "wt/DevilImageLoader.h"
 
+#define TD_TRACE_TAG "DevilimageLoader"
+
 namespace wt{
 
 DevilImageLoader::DevilImageLoader() : mImageHandle(0){
