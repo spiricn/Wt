@@ -76,7 +76,7 @@ void ShaderProgram::createFromSources(const String& vertexSource, const String& 
 			msg << "\nGeometry shader error:\n" << mGeometryShader.getLog().c_str();
 		}
 
-		WT_EXCEPT("GLShaderProgram", msg.str().c_str());
+		WT_THROW("%s", msg.str().c_str());
 	}
 }
 
@@ -239,9 +239,7 @@ void ShaderProgram::setUniformVal(GLint location, const Color& val){
 GLint ShaderProgram::getUniformLocation(const String& name){
 	int loc = glGetUniformLocation(mProgHandle, name.c_str());
 	if(loc==-1){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Invalid uniform name \"%s\" in program \"%s\"\n", name.c_str(), ""
-			);
+		WT_THROW("Invalid uniform name \"%s\"", name.c_str());
 	}
 
 	return loc;
@@ -259,9 +257,7 @@ void ShaderProgram::link(){
 	glLinkProgram(mProgHandle);
 
 	if(!isLinked()){
-		WT_EXCEPT(TD_TRACE_TAG
-			"Error linking shader program \"%s\" : \"%s\"", "", getLog().c_str()
-			);
+		WT_THROW("Error linking shader program \"%s\"", getLog().c_str());
 	}
 }
 

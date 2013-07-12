@@ -18,8 +18,7 @@ static WSAData gWSAData;
 
 void Socket::initializeLib(){
 	if(WSAStartup( MAKEWORD( 2, 1 ), &gWSAData) != 0){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Error initializing socket system");
+		WT_THROW("Error initializing socket system");
 	}
 }
 
@@ -127,7 +126,7 @@ bool Socket::connectToServer(const String& address, Uint16 port, float timeout){
 
 	SOCKADDR_IN serverAddr;
 	if(initAddress(serverAddr, address, port, true) == false){
-		WT_EXCEPT(TD_TRACE_TAG, getErrorString().c_str());
+		WT_THROW("%s", getErrorString().c_str());
 	}
 
 	int res = SOCKET_ERROR;
@@ -151,20 +150,17 @@ void Socket::init(const std::string& address, unsigned short port)
 	close();
 
 	if(initAddress(mAddr, address, port, true) == false){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"%s", getErrorString().c_str());
+		WT_THROW("%s", getErrorString().c_str());
 	}
 
 	mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	if(mSocket == SOCKET_ERROR){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"%s", getErrorString().c_str());
+		WT_THROW("%s", getErrorString().c_str());
 	}
 
 	if( bind(mSocket, (SOCKADDR*)&mAddr, sizeof(SOCKADDR)) == SOCKET_ERROR ){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"%s", getErrorString().c_str());
+		WT_THROW("%s", getErrorString().c_str());
 	}
 }
 
@@ -178,8 +174,7 @@ void Socket::sendBfr(const void* bfr, int size){
 		s = send(mSocket, (const char*)bfr+bytesWritten, size-bytesWritten, 0);
 
 		if(s<=0){
-			WT_EXCEPT(TD_TRACE_TAG,
-			"Error sending buffer \"%s\"", getErrorString().c_str()
+			WT_THROW("Error sending buffer \"%s\"", getErrorString().c_str()
 			);
 		}
 
@@ -195,9 +190,7 @@ void Socket::recvBfr(void* bfr, int size){
 		r = recv(mSocket, (char*)bfr+bytesRead, size-bytesRead, 0);
 
 		if(r<=0){
-			WT_EXCEPT(TD_TRACE_TAG,
-			"Error recieving buffer \"%s\"", getErrorString().c_str()
-			);
+			WT_THROW("Error recieving buffer \"%s\"", getErrorString().c_str());
 		}
 
 		bytesRead += r;

@@ -75,8 +75,7 @@ public:
 		void* data){
 
 		if(xOffset+width > mWidth || yOffset+height > mHeight){
-			WT_EXCEPT("Texture2D",
-				"Texture sub data dimensions out of bounds by {%d, %d}",
+			WT_THROW("Texture sub data dimensions out of bounds by {%d, %d}",
 				mWidth-(xOffset+width), mHeight-(yOffset+height)
 				);
 		}
@@ -118,7 +117,7 @@ public:
 			Image* image = mImageManager->getFromPath(path);
 
 			if(image==NULL){
-				WT_QEXCEPT("Unable to deserialize texture, image is missing \"%s\"", path);
+				WT_THROW("Unable to deserialize texture, image is missing \"%s\"", path);
 			}
 
 			mImage = ImageLink(image, path);

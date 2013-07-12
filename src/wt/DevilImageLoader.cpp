@@ -7,8 +7,7 @@ namespace wt{
 
 DevilImageLoader::DevilImageLoader() : mImageHandle(0){
 	if(ilGetInteger(IL_VERSION_NUM) != IL_VERSION){
-		WT_EXCEPT("DevilImageLoader", 
-			"Invalid Devil version (DLL doesn't match the headers)");
+		WT_THROW("Invalid Devil version (DLL doesn't match the headers)");
 	}
 
 	ilInit();
@@ -40,8 +39,7 @@ Image::Format convertFormat(int format){
 	case IL_BGRA:
 		return Image::BGRA;
 	default:
-		WT_EXCEPT("DevilImageLoader",
-			"Unsupported format %d", format);
+		WT_THROW("Unsupported format %d", format);
 	}
 }
 
@@ -66,7 +64,7 @@ void DevilImageLoader::save(const String& path, Image* image){
 	ilSave(IL_TYPE_UNKNOWN, path.c_str());
 
 	if(ilGetError()!=IL_NO_ERROR){
-		WT_EXCEPT("DevilImageLoader", "Error saving image \"%s\"",
+		WT_THROW("Error saving image \"%s\"",
 			path.c_str());
 	}
 
@@ -77,7 +75,7 @@ void DevilImageLoader::load(const String& path, Image* image){
 	ilBindImage(mImageHandle);
 
 	if(ilLoadImage(path.c_str()) != IL_TRUE){
-		WT_EXCEPT("DevilImageLoader", "Error loading image \"%s\" : %s",
+		WT_THROW("Error loading image \"%s\" : %s",
 			path.c_str(), getErrorString().c_str());
 	}
 

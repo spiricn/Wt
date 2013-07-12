@@ -80,7 +80,7 @@ public:
 		case eNEG_Z:
 			return mNegZ;
 		default:
-			WT_EXCEPT("SkyBox", "Invalid SkyBox side %d", side);
+			WT_THROW("Invalid SkyBox side %d", side);
 		}
 	}
 

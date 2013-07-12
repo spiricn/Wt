@@ -84,7 +84,7 @@ public:
 	virtual T* create(const String& name){
 		// prohibit resources with a same name
 		if(contains(name)){
-			WT_QEXCEPT("AResource named \"%s\" already exists", name.c_str());
+			WT_THROW("AResource named \"%s\" already exists", name.c_str());
 		}
 
 		// allocate resource & add store it
@@ -261,12 +261,12 @@ public:
 
 	virtual void deserialize(const LuaPlus::LuaObject& table){
 		if(!table.IsTable()){
-			WT_QEXCEPT("Resoruce group deserialization failed [%s], Lua object not a table", mName.c_str());
+			WT_THROW("Resoruce group deserialization failed [%s], Lua object not a table", mName.c_str());
 		}
 
 		LuaPlus::LuaObject content = table.Get("content");
 		if(!content.IsTable()){
-			WT_QEXCEPT("Deserialization failed, \"content\" not a table");
+			WT_THROW("Deserialization failed, \"content\" not a table");
 		}
 
 		// iterate through the table

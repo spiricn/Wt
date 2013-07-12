@@ -19,8 +19,7 @@ VertexArray::~VertexArray(){
 void VertexArray::bind(){
 	#if WT_CHECKED
 	if(!mIsGenerated){
-		WT_EXCEPT(
-			"VertexArray", "Called bind() on VertexArray object before initializing it with create()");
+		WT_THROW("Called bind() on VertexArray object before initializing it with create()");
 	}
 	#endif
 
@@ -34,8 +33,7 @@ void VertexArray::unbind(){
 void VertexArray::create(){
 	#if WT_CHECKED
 	if(mIsGenerated){
-		WT_EXCEPT("VertexArray",
-			"Called create() on VertexArray object more than once");
+		WT_THROW("Called create() on VertexArray object more than once");
 	}
 	#endif
 

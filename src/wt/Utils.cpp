@@ -142,7 +142,7 @@ void readFile(const String& path, String& dst){
 	// open file stream for reading
 	std::ifstream file(path.c_str(), std::ios::binary);
 	if(!file.is_open()){
-		WT_EXCEPT("Utils", "Error opening file for reading \"%s\"", path.c_str());
+		WT_THROW("Error opening file for reading \"%s\"", path.c_str());
 	}
 
 	// determine file size & move source to buffer

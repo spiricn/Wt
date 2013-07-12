@@ -28,10 +28,8 @@ public:
 	virtual ~AssimpModelLoader(){
 	}
 
-	void save(const String& filePath, Model* model){
-		WT_UNUSED(filePath);
-		WT_UNUSED(model);
-		WT_NOT_IMPLEMENTED;
+	void save(const String&, Model*){
+		// Not implemented
 	}
 
 	static bool nodeTreeHasMesh(aiNode* root){
@@ -103,7 +101,7 @@ public:
 		//importer.
 
 		if(scene==NULL){
-			WT_EXCEPT("AssimpModelLoader", "Error loading model file \"%s\" reason: \"%s\"",
+			WT_THROW("Error loading model file \"%s\" reason: \"%s\"",
 				filePath.c_str(), importer.GetErrorString());
 		}
 

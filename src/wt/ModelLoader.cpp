@@ -86,7 +86,7 @@ void ModelLoader::load(const String& path, Model* model){
 	std::ifstream file(path.c_str(), std::ios::binary);
 
 	if(!file.is_open()){
-		WT_QEXCEPT("Unable to open file: \"%s\"", path.c_str());
+		WT_THROW("Unable to open file: \"%s\"", path.c_str());
 	}
 
 	// format_identifier
@@ -95,7 +95,7 @@ void ModelLoader::load(const String& path, Model* model){
 	file.read(fmtId, 6);
 
 	if(strcmp(fmtId, FORMAT_ID) != 0){
-		WT_QEXCEPT("Invalid wt model file \"%s\"", path.c_str());
+		WT_THROW("Invalid wt model file \"%s\"", path.c_str());
 	}
 
 	// num_geometry
@@ -241,7 +241,7 @@ void ModelLoader::save(const String& path, Model* model){
 	std::ofstream file(path.c_str(), std::ios::binary);
 
 	if(!file.is_open()){
-		WT_QEXCEPT("Unable to open file: \"%s\"", path.c_str());
+		WT_THROW("Unable to open file: \"%s\"", path.c_str());
 	}
 
 	// format_identifier

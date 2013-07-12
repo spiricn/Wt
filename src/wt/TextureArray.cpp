@@ -41,26 +41,26 @@ void TextureArray::create(Uint32 num, ...){
 void TextureArray::addTexture(const Image* image){
 	// check image dimensions
 	if((Uint32)image->getWidth()!=mWidth && (Uint32)image->getHeigth()!=mHeight){
-		WT_QEXCEPT(
+		WT_THROW(
 				"Image size doesn't match texture array size (texture array: %x,%d, image: %dx%d)",
 				mWidth, mHeight, image->getWidth(), image->getHeigth()
 			);
 	}
 	// check internal format
 	else if(image->getFormat()!=mFormat){
-		WT_QEXCEPT(
+		WT_THROW(
 			"Image format doesn't match texture array format (texture array: %d, image: %d)",
 			mFormat, image->getFormat()
 			);
 	}
 	// check texture number
 	else if(mCurrTex >= mNumTextures){
-		WT_QEXCEPT(
+		WT_THROW(
 			"Texture array full (capacity %d)", mNumTextures);
 	}
 	// initialization check
 	else if(!mIsInitialized){
-		WT_QEXCEPT(
+		WT_THROW(
 			"Texture array not initialized (addTexture called before create)");
 	}
 

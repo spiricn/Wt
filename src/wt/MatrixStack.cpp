@@ -31,7 +31,7 @@ void MatrixStack::push(const math::Transform& transform){
 
 void MatrixStack::push(const float* data){
 	if(mStackPtr > mDepth-1){
-		WT_EXCEPT("MatrixStack", "Maximum stack depth exceeded ");
+		WT_THROW("Maximum stack depth exceeded ");
 	}
 
 	memcpy(mData + (mStackPtr++)*16*sizeof(float),
@@ -54,7 +54,7 @@ void MatrixStack::top(float* data) const{
 
 void MatrixStack::pop(float* data){
 	if(isEmpty()){
-		WT_EXCEPT("MatrixStack", "Pop operation over empty stack");
+		WT_THROW("Pop operation over empty stack");
 	}
 
 	mStackPtr--;
@@ -63,7 +63,7 @@ void MatrixStack::pop(float* data){
 
 void MatrixStack::pop(){
 	if(isEmpty()){
-		WT_EXCEPT("MatrixStack", "Pop operation over empty stack");
+		WT_THROW("Pop operation over empty stack");
 	}
 
 	mStackPtr--;

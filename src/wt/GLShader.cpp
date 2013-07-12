@@ -41,7 +41,7 @@ void Shader::createFromFile(const String& path){
 void Shader::compile(){
 	glCompileShader(mHandle);
 	if(!isCompiled()){
-		WT_QEXCEPT("Error compiling shader");
+		WT_THROW("Error compiling shader");
 	}
 }
 

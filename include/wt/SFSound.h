@@ -117,8 +117,7 @@ public:
 		SFSoundBuffer* bfr = static_cast<SFSoundBuffer*>(dst);
 
 		if(!bfr->getSFSoundBuffer().LoadFromFile(path)){
-			WT_EXCEPT("SoundBufferLoader",
-				"Error loading sound \"%s\" from \"%s\"", bfr->getName().c_str(),
+			WT_THROW("Error loading sound \"%s\" from \"%s\"", bfr->getName().c_str(),
 				path.c_str());
 		}
 
@@ -147,7 +146,7 @@ public:
 		ASoundStream::setSource(src);
 
 		if(!mMusic.OpenFromFile(src)){
-			WT_EXCEPT("SFSoundStream",
+			WT_THROW(
 				"Error openning sound stream from \"%s\"", src.c_str());
 		}
 	}

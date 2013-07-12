@@ -70,7 +70,7 @@ Uint32 Batch::getIndexAt(Uint32 index) const{
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumIndices){
-		WT_QEXCEPT("Index buffer index out of range (index=%d size=%d)", index, mNumIndices);
+		WT_THROW("Index buffer index out of range (index=%d size=%d)", index, mNumIndices);
 	}
 
 	Uint32 res;
@@ -82,7 +82,7 @@ void Batch::getVertexAt(Uint32 index, void* vertex) const{
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumVertices){
-		WT_QEXCEPT("Vertex buffer index out of range (index=%d size=%d)", index, mNumVertices);
+		WT_THROW("Vertex buffer index out of range (index=%d size=%d)", index, mNumVertices);
 	}
 
 	mVertexBuffer->getSubData(index*mVertexSize, vertex, mVertexSize);
@@ -92,7 +92,7 @@ void Batch::setIndexAt(Uint32 index, Uint32 value){
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumIndices){
-		WT_QEXCEPT("Index buffer index out of range (index=%d size=%d)", index, mNumIndices);
+		WT_THROW("Index buffer index out of range (index=%d size=%d)", index, mNumIndices);
 	}
 
 	mIndexBuffer->setSubData(index*mIndexSize, &value, mIndexSize);
@@ -102,7 +102,7 @@ void Batch::setVertexAt(Uint32 index, const void* vertex){
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	if(index >= mNumVertices){
-		WT_QEXCEPT("Vertex buffer index out of range (index=%d size=%d)", index, mNumVertices);
+		WT_THROW("Vertex buffer index out of range (index=%d size=%d)", index, mNumVertices);
 	}
 
 	mVertexBuffer->setSubData(index*mVertexSize, vertex, mVertexSize);

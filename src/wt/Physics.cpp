@@ -205,30 +205,30 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f) {
     // Initialize the SDK
     mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocator, mDefaultErrorCallback);
     if(mFoundation == NULL){
-        WT_QEXCEPT("Error creating PxFoundation");
+        WT_THROW("Error creating PxFoundation");
     }
 
     mSdk = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, PxTolerancesScale());
     if(mSdk == NULL){
-        WT_QEXCEPT("Error creating PxSdk");
+        WT_THROW("Error creating PxSdk");
     }
 
     // Extensions
     if(!PxInitExtensions(*mSdk)){
-        WT_QEXCEPT("Error initializing PxExtensions");
+        WT_THROW("Error initializing PxExtensions");
     }
 
     // Dispatcher
     mCpuDispatcher = PxDefaultCpuDispatcherCreate(1);
     if(mCpuDispatcher == NULL){
-        WT_QEXCEPT("Error creating PxCpuDispatcher");
+        WT_THROW("Error creating PxCpuDispatcher");
     }
 
     // Cooking
     mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *mFoundation, PxCookingParams());
 		
     if(mCooking == NULL){
-        WT_QEXCEPT("Error creating cooking interface");
+        WT_THROW("Error creating cooking interface");
     }
         
     // Filter shader
@@ -237,7 +237,7 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f) {
     // Character controler
     mCtrlManager = PxCreateControllerManager(*mFoundation);
     if(mCtrlManager == NULL){
-        WT_QEXCEPT("Error creating PxCharacterController");
+        WT_THROW("Error creating PxCharacterController");
     }
 
     // Scene
@@ -249,12 +249,12 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f) {
 	sceneDesc.simulationEventCallback = new SimulationCalblack(mEventManager);;
 
     if(!sceneDesc.isValid()){
-        WT_QEXCEPT("Invalid Px scene description");
+        WT_THROW("Invalid Px scene description");
     }		
 
     mScene = mSdk->createScene(sceneDesc);
     if(mScene == NULL){
-        WT_QEXCEPT("Error creating PxScene");
+        WT_THROW("Error creating PxScene");
     }
 
     // material
@@ -274,7 +274,7 @@ void Physics::connectToVisualDebugger(const String& addr, Int32 port, Int32 time
 	#ifdef PX_SUPPORT_VISUAL_DEBUGGER
 	// Physx Visual Debugger
 	if(mSdk->getPvdConnectionManager() == NULL){
-		WT_EXCEPT(TD_TRACE_TAG, "Unable to get PVD connection manager");
+		WT_THROW("Unable to get PVD connection manager");
 	}
 	else{
 		LOGV("Connecting to PVD %s : %d ...", addr.c_str(), port);
@@ -285,7 +285,7 @@ void Physics::connectToVisualDebugger(const String& addr, Int32 port, Int32 time
 			LOGI("Connected");
 		}
 		else{
-			WT_EXCEPT(TD_TRACE_TAG, "Connection timed out after %d ms", timeout);
+			WT_THROW("Connection timed out after %d ms", timeout);
 		}
 	}
 	#else
@@ -425,7 +425,7 @@ PxTriangleMesh* Physics::cook(PxBoundedData& vertices, PxBoundedData& indices){
 
     PxToolkit::MemoryOutputStream writeBuffer;
     if(!mCooking->cookTriangleMesh(desc, writeBuffer)){
-        WT_QEXCEPT("Error cooking triangle mesh");
+        WT_THROW("Error cooking triangle mesh");
     }
 
     PxToolkit::MemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
@@ -568,7 +568,7 @@ Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 		};
 
 		default:
-			WT_EXCEPT("Physics", "Unsupported geometry type %d", desc.geometryType);
+			WT_THROW("Unsupported geometry type %d", desc.geometryType);
 		}
 }
 
@@ -608,7 +608,7 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 		return mCtrlManager->createController(*mSdk, mScene, pxDesc);
 	}
 	else{
-		WT_EXCEPT("Physics", "Invalid physics controller geometry type %d",
+		WT_THROW("Invalid physics controller geometry type %d",
 			desc.controllerDesc.geometryType
 			);
 	}
@@ -733,14 +733,12 @@ PhysicsActor* Physics::createActor(SceneActor* sceneActor, PhysicsActor::Desc& d
 			}
 		}
 		else{
-			WT_EXCEPT("Physics",
-				"Invalid physics actor control mode %d", desc.controlMode
+			WT_THROW("Invalid physics actor control mode %d", desc.controlMode
 				);
 		}
 	}
 	else{
-		WT_EXCEPT("Physics",
-			"Invalid physics actor type %d", desc.type
+		WT_THROW("Invalid physics actor type %d", desc.type
 				);
 	}
 

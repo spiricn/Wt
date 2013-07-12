@@ -22,8 +22,7 @@ protected:
 
 	T* addChild(const String& name, T* node){
 		if(containsChild(name)){
-			WT_EXCEPT(
-				"ANode", "ANode already contains a child named \"%s\"", name.c_str());
+			WT_THROW("ANode already contains a child named \"%s\"", name.c_str());
 		}
 		mChildren.push_back(node);
 		return node;

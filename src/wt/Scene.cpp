@@ -121,7 +121,7 @@ void Scene::createTerrain(const LuaObject& config){
 		createTerrain(tDesc);
 	}
 	else{
-		WT_EXCEPT(TD_TRACE_TAG, "Invalid LuaObject of type %s passed as terrain configuration.", config.TypeName());
+		WT_THROW("Invalid LuaObject of type %s passed as terrain configuration.", config.TypeName());
 	}
 }
 

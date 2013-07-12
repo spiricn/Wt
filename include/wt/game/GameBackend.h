@@ -155,7 +155,7 @@ public:
 		// initialize glew
 		GLenum r = glewInit();
 		if(r != GLEW_OK){
-			WT_QEXCEPT("Error initializing glew \"%s\"",
+			WT_THROW("Error initializing glew \"%s\"",
 				(const char*)glewGetErrorString(r));
 		}
 

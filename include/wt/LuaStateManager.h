@@ -58,12 +58,10 @@ public:
 		if(condition){
 			LuaStackObject  top = mGlobalState->StackTop();
 			if(top.IsString()){
-				WT_EXCEPT(TD_TRACE_TAG,
-					"Lua script error occured: \"%s\"", top.GetString());
+				WT_THROW("Lua script error occured: \"%s\"", top.GetString());
 			}
 			else{
-				WT_EXCEPT(TD_TRACE_TAG,
-					"Lua script error occured");
+				WT_THROW("Lua script error occured");
 			}
 		}
 	}

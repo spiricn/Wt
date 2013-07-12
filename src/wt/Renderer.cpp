@@ -83,7 +83,7 @@ void Renderer::init(Uint32 portW, Uint32 portH ){
 
 	LOGV("Initializing glew");
 	if(r != GLEW_OK){
-		WT_EXCEPT("Renderer", "GLEW_ERROR", "Error initializing glew \"%s\"", (const char*)glewGetErrorString(r));
+		WT_THROW("Error initializing glew \"%s\"", (const char*)glewGetErrorString(r));
 	}
 
 	LOGV("Compiling shaders");

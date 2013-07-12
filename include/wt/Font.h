@@ -160,7 +160,7 @@ public:
 
 	void load(const String& path, Uint32 size){
 		if(FT_New_Face(*mLib, path.c_str(), 0, &mFace)){
-			WT_EXCEPT("Font", "Error loading font \"%s\"", path.c_str());
+			WT_THROW("Error loading font \"%s\"", path.c_str());
 		}
 		setSize(size);
 		mAtlas.create(mFace);
@@ -178,7 +178,7 @@ public:
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		if(FT_Load_Char(mFace, c, FT_LOAD_RENDER)){
-			WT_EXCEPT("Font", "Error rendering char");
+			WT_THROW("Error rendering char");
 		}
 
 		mTexture.setData(getBmpWidth(), getBmpHeight(),
@@ -210,7 +210,7 @@ private:
 public:
 	FontManager(){
 		if(FT_Init_FreeType(&mFt)){
-			WT_EXCEPT("FontFactory", "Error initializing font library");
+			WT_THROW("Error initializing font library");
 		}
 		//FTC_Manager_New(mFt, 1, 1, 1024*1024, 
 	}

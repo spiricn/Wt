@@ -21,8 +21,7 @@ void TCPServer::init(const std::string& address, unsigned short port){
 	mSocket.init(address, port);
 	
 	if( listen(mSocket.getWin32SockHandle(), 1) == SOCKET_ERROR ){
-		WT_EXCEPT(TD_TRACE_TAG, "%s", 
-			Socket::getErrorString().c_str());
+		WT_THROW("%s", Socket::getErrorString().c_str());
 	}
 }
 
@@ -37,8 +36,7 @@ TCPServer::SocketPtr TCPServer::acceptClient(){
 		return new Socket(s, addr);
 	}
 	else{
-		WT_EXCEPT(TD_TRACE_TAG, "%s", 
-			Socket::getErrorString().c_str());
+		WT_THROW("%s",  Socket::getErrorString().c_str());
 	}
 }
 

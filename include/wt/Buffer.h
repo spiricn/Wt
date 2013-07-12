@@ -88,7 +88,7 @@ public:
 	void seekp(Uint32 pos){
 		#ifdef WT_CHECKED
 		if(pos >= mCapacity){
-			WT_EXCEPT(TD_TRACE_TAG, "Seek position out of bounds (bounds=%d, pos=%d)",
+			WT_THROW("Seek position out of bounds (bounds=%d, pos=%d)",
 				mCapacity, pos);
 		}
 		#endif
@@ -99,7 +99,7 @@ public:
 	void seekg(Uint32 pos){
 		#ifdef WT_CHECKED
 		if(pos >= mCapacity){
-			WT_EXCEPT(TD_TRACE_TAG, "Seek position out of bounds (bounds=%d, pos=%d)",
+			WT_THROW("Seek position out of bounds (bounds=%d, pos=%d)",
 				mCapacity, pos);
 		}
 		#endif
@@ -129,8 +129,7 @@ public:
 	void put(const T* t, Uint32 count){
 		#ifdef WT_CHECKED
 		if(mPosPut+count > mCapacity){
-			WT_EXCEPT(TD_TRACE_TAG,
-				"Put failed, buffer full (size %d pos %d count %d)", mCapacity, mPosPut, count);
+			WT_THROW("Put failed, buffer full (size %d pos %d count %d)", mCapacity, mPosPut, count);
 		}
 		#endif
 
@@ -141,8 +140,7 @@ public:
 	T& get(){
 		#ifdef WT_CHECKED
 		if(mPosGet >= mCapacity){
-			WT_EXCEPT(TD_TRACE_TAG,
-				"Get failed, position out of bounds (pos=%d bounds=%d)",
+			WT_THROW("Get failed, position out of bounds (pos=%d bounds=%d)",
 				mPosGet, mCapacity);
 		}
 		#endif
@@ -157,8 +155,7 @@ public:
 	void put(const T& t){
 		#ifdef WT_CHECKED
 		if(mPosPut>=mCapacity){
-			WT_EXCEPT(TD_TRACE_TAG,
-				"Put failed, buffer full (size %d)", mCapacity);
+			WT_THROW("Put failed, buffer full (size %d)", mCapacity);
 		}
 		#endif
 
@@ -168,8 +165,7 @@ public:
 	T& operator[](Uint32 index){
 		#ifdef WT_CHECKED
 		if(index >= mCapacity){
-			WT_EXCEPT(TD_TRACE_TAG,
-				"Attempted to index buffer (size %d) index %d", mCapacity, index);
+			WT_THROW("Attempted to index buffer (size %d) index %d", mCapacity, index);
 		}
 		#endif
 
@@ -179,7 +175,7 @@ public:
 	const T& operator[](Uint32 index) const{
 		#ifdef WT_CHECKED
 		if(index >= mCapacity){
-			WT_EXCEPT(TD_TRACE_TAG, "Attempted to index buffer (size %d) index %d",
+			WT_THROW("Attempted to index buffer (size %d) index %d",
 				mCapacity, index);
 		}
 		#endif

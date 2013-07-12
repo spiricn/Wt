@@ -54,8 +54,7 @@ public:
 		void addBone(Int32 index, float weight){
 #ifdef WT_CHECKED
 			if(index < 0 || index >= MAX_BONES){
-				WT_EXCEPT("Vertex",
-					"Bone infdex out of valid range %d (min=0, max=%d)", index, MAX_BONES);
+				WT_THROW("Bone infdex out of valid range %d (min=0, max=%d)", index, MAX_BONES);
 			}
 #endif
 
@@ -69,7 +68,7 @@ public:
 				}
 			}
 #ifdef WT_CHECKED
-			WT_EXCEPT("Vertex", "Vertex supports max 4 bones (attempted to add 5th)");
+			WT_THROW("Vertex supports max 4 bones (attempted to add 5th)");
 #endif
 		}
 	};

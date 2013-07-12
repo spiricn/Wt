@@ -206,7 +206,7 @@ public:
 	void load(const String& path){
 		LuaPlus::LuaStateOwner state;
 		if(state->DoFile(path.c_str())){
-			WT_QEXCEPT("Error executing asset script");
+			WT_THROW("Error executing asset script");
 		}
 
 		LuaObject assets = state->GetGlobal("ASSETS");

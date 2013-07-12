@@ -23,7 +23,7 @@ void Texture2D::setData(GLint width, GLint height,
 	GLenum format, GLenum internalFormat, const GLbyte* data, GLenum type, bool mmap){
 
 	if(!isCreated()){
-		WT_QEXCEPT("Must create texture before setting data (%s)", mName.c_str());
+		WT_THROW("Must create texture before setting data (%s)", mName.c_str());
 	}
 
 	mFormat = format;
@@ -43,7 +43,7 @@ void Texture2D::setData(GLint width, GLint height,
 
 void Texture2D::setData(Image* image){
 	if(!isCreated()){
-		WT_QEXCEPT("Must create texture before setting data (%s)", mName.c_str());
+		WT_THROW("Must create texture before setting data (%s)", mName.c_str());
 	}
 
 	mFormat = image->getFormat();

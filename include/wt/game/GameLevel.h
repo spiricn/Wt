@@ -40,8 +40,7 @@ public:
 		const LuaObject& assetsTable = table.Get("ASSETS") ;
 
 		if(!assetsTable.IsTable()){
-			WT_EXCEPT("GameLevel", 
-				"Error loading level - missing assets table");
+			WT_THROW("Error loading level - missing assets table");
 		}
 
 		mAssets->load(assetsTable);

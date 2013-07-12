@@ -2,29 +2,44 @@
 
 #include "wt/Exception.h"
 
+#define TD_TRACE_TAG "Exception"
+
 namespace wt{
 
-Exception::Exception(const String& tag, const char* functionName,
-	const char* fileName, long lineNumber, const char* descFmt, ...
-	) :  mLineNumber(lineNumber), mDesc(descFmt),
-	mTag(tag), mFile(fileName), mFunctionName(functionName){
+Exception::Exception(const char* functionName, const char* fileName, long lineNumber, const char* descFmt, ...) 
+	:  mLineNumber(lineNumber), mDesc(descFmt), mFile(fileName), mFunctionName(functionName){
 
-		va_list argList;
-		va_start(argList, descFmt);
-		char bfr[1024];
-		vsnprintf(bfr, 1024, descFmt, argList);
-		va_end(argList);
+	va_list argList;
+	va_start(argList, descFmt);
 
-		mDesc = bfr;
+	// Format the message
+	char bfr[1024];
+	vsnprintf(bfr, 1024, descFmt, argList);
+	va_end(argList);
 
-		LOGE(tag.c_str(), getFullDescription().c_str());
+	mDesc = bfr;
+
+	LOGE(getFullDescription().c_str());
 }
 
 const String Exception::getFullDescription() const{
 	std::stringstream s;
-		s << mDesc << " in " << mFunctionName << " at " << mFile << " ( line " << mLineNumber << " )";
+		s << mDesc << "\n" << mFunctionName << " at " << mFile << " ( line " << mLineNumber << " )";
 
 	return s.str();
+}
+
+const String& Exception::getFileName() const{
+	return mFile;
+}
+
+long Exception::getLineNumber() const{
+	return mLineNumber;
+}
+
+
+const String& Exception::getFunctionName() const{
+	return mFunctionName;
 }
 
 }; // </wt>

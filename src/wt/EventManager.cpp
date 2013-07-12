@@ -9,8 +9,7 @@ namespace wt{
 
 void EventManager::registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered, Uint32 filterData){
 	if(!isRegistered(eventType)){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Trying to register a listener for an unregistered event type \"%s\"",
+		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
 			eventType.c_str()
 			);
 	}
@@ -54,8 +53,7 @@ EventManager::~EventManager(){
 
 void EventManager::addScriptListener(const EvtType& eventType, LuaObject& callback){
 	if(!isRegistered(eventType)){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Trying to register a listener for an unregistered event type \"%s\"",
+		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
 			eventType.c_str()
 			);
 	}
@@ -70,8 +68,7 @@ inline bool EventManager::isRegistered(const EvtType& type){
 
 void EventManager::registerGlobalListener(EventListener* listener){
 	if(std::find(mGlobalListeners.begin(), mGlobalListeners.end(), listener) != mGlobalListeners.end()){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Global listener already registered");
+		WT_THROW("Global listener already registered");
 	}
 	else{
 		mGlobalListeners.push_back(listener);
@@ -83,8 +80,7 @@ void EventManager::unregisterGlobalListener(EventListener* listener){
 	ListenerList::iterator iter = std::find(mGlobalListeners.begin(), mGlobalListeners.end(), listener);
 
 	if(iter == mGlobalListeners.end()){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Global listener not registered");
+		WT_THROW("Global listener not registered");
 	}
 	else{
 		mGlobalListeners.erase(iter);
@@ -100,8 +96,7 @@ void EventManager::unregisterInternalEvent(const EvtType& eventType){
 
 void EventManager::registerEvent(const EvtType& type, ARegisteredEvtPtr evt){
 	if(isRegistered(type)){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Trying to register an already registered event of type \"%s\"", type.getString().c_str());
+		WT_THROW("Trying to register an already registered event of type \"%s\"", type.getString().c_str());
 	}
 	else{
 		mRegisteredEvents.insert(
@@ -120,8 +115,7 @@ void EventManager::registerScriptEvent(const EvtType& eventType){
 
 void EventManager::registerListener(EventListener* listener, const EvtType& eventType){
 	if(!isRegistered(eventType)){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Trying to register a listener for an unregistered event type \"%s\"",
+		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
 			eventType.getString().c_str());
 	}
 
@@ -137,8 +131,7 @@ void EventManager::registerListener(EventListener* listener, const EvtType& even
 	ListenerList& list = mEvtListenerTable[eventType.getHashCode()];
 	for(ListenerList::iterator i=list.begin(); i!=list.end(); i++){
 		if(*i==listener){
-			WT_EXCEPT(TD_TRACE_TAG,
-				"Listener already registered for the event \"%s\"\n", eventType.getString().c_str()
+			WT_THROW("Listener already registered for the event \"%s\"\n", eventType.getString().c_str()
 				);
 		}
 	}
@@ -162,7 +155,7 @@ void EventManager::unregisterListener(EventListener* listener, const EvtType& ev
 
 	ListenerList::iterator listenerIter = std::find(listIter ->second.begin(), listIter ->second.end(), listener);
 	if(listenerIter == listIter->second.end()){
-		WT_EXCEPT(TD_TRACE_TAG,
+		WT_THROW(
 				"Listener not registered for event \"%s\"\n", eventType.getString().c_str()
 		);
 	}
@@ -175,7 +168,7 @@ void EventManager::queueEvent(EvtPtr evt){
 	mMutex.lock();
 
 	if(!isRegistered(evt->getType())){
-		WT_EXCEPT(TD_TRACE_TAG,
+		WT_THROW(
 			"Trying to queue an unregistered event \"%s\"   %d\n",
 				evt->getType().getString().c_str(), evt->getType().getHashCode()
 				);

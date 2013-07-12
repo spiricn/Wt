@@ -201,8 +201,7 @@ std::ostream& operator<<(std::ostream& stream, LuaObject& obj){
 				stream << "[" << key << "] = " << value << ",";
 			}
 			else{
-				WT_EXCEPT(
-					"Lua", "Keys of type \"%s\" not yet supported for serialization", key.TypeName());
+				WT_THROW("Keys of type \"%s\" not yet supported for serialization", key.TypeName());
 			}
 		}
 

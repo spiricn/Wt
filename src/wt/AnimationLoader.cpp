@@ -11,7 +11,7 @@ void AnimationLoader::load(const String& path, Animation* ani){
 	std::ifstream file(path.c_str(), std::ios::binary);
 
 	if(!file.is_open()){
-		WT_QEXCEPT("Unable to open file: \"%s\"", path.c_str());
+		WT_THROW("Unable to open file: \"%s\"", path.c_str());
 	}
 
 	// format_identifier
@@ -20,7 +20,7 @@ void AnimationLoader::load(const String& path, Animation* ani){
 	file.read(fmtId, 6);
 
 	if(strcmp(fmtId, FORMAT_ID) != 0){
-		WT_QEXCEPT("Invalid wt animation file \"%s\"", path.c_str());
+		WT_THROW("Invalid wt animation file \"%s\"", path.c_str());
 	}
 
 	// duration
@@ -132,7 +132,7 @@ void AnimationLoader::save(const String& path, Animation* ani){
 	std::ofstream file(path.c_str(), std::ios::binary);
 
 	if(!file.is_open()){
-		WT_QEXCEPT("Unable to open file: \"%s\"", path.c_str());
+		WT_THROW("Unable to open file: \"%s\"", path.c_str());
 	}
 
 	// format_identifier

@@ -60,7 +60,7 @@ HashedString& HashedString::operator=(const HashedString& other){
 bool HashedString::operator==(const HashedString& other) const{
 	#ifdef _DEBUG
 		if(getHashCode() == other.getHashCode() && getString().compare(other.getString())!=0){
-			WT_QEXCEPT("Hashed string collision \"%s\"==\"%s\" && %d!=%d", mString.c_str(),
+			WT_THROW("Hashed string collision \"%s\"==\"%s\" && %d!=%d", mString.c_str(),
 				other.mString.c_str(), mHash, other.mHash);
 		}
 	#endif

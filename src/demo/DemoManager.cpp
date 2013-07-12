@@ -73,8 +73,7 @@ void DemoManager::startDemo(const String& name){
 	mActiveDemo->setName(name);
 
 	if(!mActiveDemo){
-		WT_EXCEPT(TD_TRACE_TAG,
-			"Unexisting demo named \"%s\"", name.c_str());
+		WT_THROW("Unexisting demo named \"%s\"", name.c_str());
 	}
 
 	mActiveDemo->createDemo(this, mWindow, mInput, mEventManager);
@@ -118,7 +117,7 @@ void DemoManager::initialize(){
 	// Execute init script
 	LuaStateOwner initState;
 	if(initState->DoFile(INIT_SCRIPT_FILE)){
-		WT_EXCEPT("init", "Exception", "Error executing init script");
+		WT_THROW("Error executing init script");
 	}
 
 	// Create window (get parameters from previously executed script)
@@ -137,7 +136,7 @@ void DemoManager::initialize(){
 	// Initialize glew (must be done AFTER creating a valid OpenGL context i.e. rendering window)
 	GLenum r = glewInit();
 	if(r != GLEW_OK){
-		WT_QEXCEPT("Error initializing glew \"%s\"",
+		WT_THROW("Error initializing glew \"%s\"",
 			(const char*)glewGetErrorString(r));
 	}
 

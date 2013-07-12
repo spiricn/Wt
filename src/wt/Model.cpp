@@ -85,7 +85,7 @@ void Model::removeGeometry(const String& name){
 	}
 
 	if(geometry == mGeometry.end()){
-		WT_EXCEPT("Model", "No geometry named \"%s\" found", name.c_str());
+		WT_THROW("No geometry named \"%s\" found", name.c_str());
 		return;
 	}
 

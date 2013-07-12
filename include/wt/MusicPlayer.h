@@ -39,8 +39,7 @@ public:
 				mTracks.push_back(track);
 			}
 			else{
-				WT_EXCEPT("Playlist",
-					"Invalid track path in table of type \"%s\" expected string", iter.GetValue().TypeName());
+				WT_THROW("Invalid track path in table of type \"%s\" expected string", iter.GetValue().TypeName());
 			}
 		}
 	}
