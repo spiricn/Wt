@@ -217,6 +217,7 @@ private:
 	GodRayParams mGodRayParams;
 
 	// Shaders
+	ParticleShader mParticleShader;
 	BasicShader mBasicShader;
 	TerrainShader mTerrainShader;
 	SkyboxShader mSkyShader;

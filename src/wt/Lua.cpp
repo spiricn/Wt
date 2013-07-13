@@ -221,6 +221,32 @@ void serializeTable(LuaObject& table, std::ostream& stream, uint32_t depth){
 	serialize(table, stream);
 }
 
+void luaDoStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject& fenv){
+}
+
+void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject* fenv){
+	WT_ASSERT(stream.isReadable(), "Stream not readable");
+
+	char* bfr = new char[stream.getSize()];
+
+	// TODO switch to using DoBuffer ?
+
+	try{
+		if(fenv){
+			state->DoString(bfr, *fenv);
+		}
+		else{
+			state->DoString(bfr);
+		}
+	}catch(...){
+		// Prevent memory leakage in case of an exception
+		delete[] bfr;
+		throw;
+	}
+
+	delete[] bfr;
+}
+
 }; // </Lua
 
 }; // </wt>

@@ -97,6 +97,8 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	mGodRayShader.create();
 	LOGV("Compiling rect..");
 	mRectShader.create();
+	LOGV("Compiling particle..");
+	mParticleShader.create();
 
 	mGodraySunShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
 	mGodraySunShader.bindAttribLocation(0, "inPosition");
@@ -715,27 +717,36 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
 	gl( DepthMask(false) );
 
-	effect->mShader.use();
+
+	mParticleShader.use();
 
 	// modelview
 	glm::mat4 view;
 	scene.getCamera().getMatrix(view);
 
+	mParticleShader.setUniformVal("uPosition", effect->getTransform().getPosition());
 	
-	effect->mShader.setUniformVal("uPosition", effect->getTransform().getPosition());
-	
-	effect->mShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
+	mParticleShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
 
+
+	// Effect specific params
+	mParticleShader.setUniformVal("uMaxLife", effect->mDesc.life);
+	mParticleShader.setUniformVal("uSize", effect->mDesc.size);
+	mParticleShader.setUniformVal("uVelocity", effect->mDesc.velocity);
+	mParticleShader.setUniformVal("uColor", effect->mDesc.color);
+	mParticleShader.setUniformVal("uDt", effect->dt);
+
+	wt::printGlErrors(__FILE__, __LINE__, "3");
 	// texture
 	gl( ActiveTexture(GL_TEXTURE0) );
-	effect->mShader.setUniformVal("uParticleTexture", 0);
+	mParticleShader.setUniformVal("uParticleTexture", 0);
 
 	// modelview projection
-	effect->mShader.setModelViewProj(view, getFrustum().getProjMatrix());
+	mParticleShader.setModelViewProj(view, getFrustum().getProjMatrix());
 
-	effect->mShader.setUniformVal("uSeed", math::random(0, 1000));
+	mParticleShader.setUniformVal("uSeed", math::random(0, 1000));
 
-	effect->mParticleTexture->bind();
+	effect->mDesc.texture->bind();
 	effect->mBatches[effect->mCurrBatch].render( &effect->mBatches[(effect->mCurrBatch+1)%2].getVertexBuffer() );
 	effect->mCurrBatch = (effect->mCurrBatch+1)%2;
 

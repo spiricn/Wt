@@ -103,25 +103,38 @@ void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
 
 void ShaderProgram::createFromFiles(const String& vertexPath, const String& fragmentPath,  const String& geometryPath){
 	String vertexSource, fragmentSource, geometrySource;
-	
+	String vertexProcessed, fragmentProcessed;
+
+	// Read vertex source into a buffer and preprocess it
 	Utils::readFile(vertexPath, vertexSource);
+	Shader::preprocess(vertexSource, vertexProcessed);
+	{
+		// Dump it for debugging purposes
+		std::stringstream ss;
+		ss << vertexPath << ".preprocessed_tmp";
+		std::ofstream out(ss.str().c_str());
+		out << vertexProcessed;
+		out.close();
+	}
+
+	// Read fragment source into a buffer and preprocess it
 	Utils::readFile(fragmentPath, fragmentSource);
+	Shader::preprocess(fragmentSource, fragmentProcessed);
+	{
+		// Dump it for debugging purposes
+		std::stringstream ss;
+		ss << fragmentPath << ".preprocessed_tmp";
+		std::ofstream out(ss.str().c_str());
+		out << fragmentProcessed;
+		out.close();
+	}
+
+	// Read geometry source into a buffer
 	if(geometryPath.size() != 0){
 		Utils::readFile(geometryPath, geometrySource);
 	}
 
-		{
-			String sourceProcessed;
-			Shader::preprocess(fragmentSource, sourceProcessed);
-			std::stringstream ss;
-			ss << fragmentPath << ".preprocessed_tmp";
-			std::ofstream out(ss.str().c_str());
-			out << sourceProcessed;
-			out.close();
-		}
-
-
-	createFromSources(vertexSource, fragmentSource, geometrySource);
+	createFromSources(vertexProcessed, fragmentProcessed, geometrySource);
 }
 
 bool ShaderProgram::isLinked(){
@@ -239,7 +252,7 @@ void ShaderProgram::setUniformVal(GLint location, const Color& val){
 GLint ShaderProgram::getUniformLocation(const String& name){
 	int loc = glGetUniformLocation(mProgHandle, name.c_str());
 	if(loc==-1){
-		WT_THROW("Invalid uniform name \"%s\"", name.c_str());
+		//LOGW("Invalid uniform name \"%s\"", name.c_str());
 	}
 
 	return loc;

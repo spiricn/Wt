@@ -14,38 +14,22 @@ namespace wt{
 class ParticleShader : public Gl::ShaderProgram{
 public:
 	enum Attribute{
-		POSITION,
-		COLOR,
-		LIFE,
-		SIZE,
-		VELOCITY,
+		eATTR_POSITION = 0,
+		eATTR_COLOR = 1,
+		eATTR_LIFE = 2,
+		eATTR_VELOCITY = 3,
 	};
 
-	void create(const String& userProgPath){
-		String vertexBase;
-		Utils::readFile("shaders/particle.vp", vertexBase);
+	void create(){
+		Gl::ShaderProgram::createFromFiles("shaders/particle.vp", "shaders/particle.fp");
 
-		vertexBase.append("\n");
+		bindAttribLocation(eATTR_POSITION, "inPosition");
+		bindAttribLocation(eATTR_COLOR, "inColor");
+		bindAttribLocation(eATTR_LIFE, "inLife");
+		bindAttribLocation(eATTR_VELOCITY, "inVelocity");
 
-		String userProg;
-		Utils::readFile(userProgPath, userProg);
-		vertexBase.append(userProg);
-
-		String fragmentProg;
-		Utils::readFile("shaders/particle.fp", fragmentProg);
-
-		createFromSources(vertexBase, fragmentProg);
-
-
-		bindAttribLocation(POSITION, "inPosition");
-		bindAttribLocation(COLOR, "inColor");
-		bindAttribLocation(LIFE, "inLife");
-		bindAttribLocation(VELOCITY, "inVelocity");
-		bindAttribLocation(SIZE, "inPointSize");
-		
-
-		setTransformFeedbackVaryings(5,
-			"outPosition", "outColor", "outPointSize", "outLife", "outVelocity"
+		setTransformFeedbackVaryings(4,
+			"outPosition", "outColor", "outLife", "outVelocity"
 			);
 
 		link();
@@ -62,24 +46,41 @@ class ParticleEffect : public ASceneActor{
 public:
 	
 	struct Particle{
-		float x,y,z; // vec3
-		float r,g,b; // vec3 
-		float size; // float
-		float life, maxLife; // vec2
-		float vx,vy,vz; // vec3
+		// vec3 position
+		float x,y,z;
+
+		// vec3 color
+		float r,g,b;
+		
+		// float life
+		float life;
+
+		// vec3 velocity
+		float vx,vy,vz; 
 	};
 
+	struct EffectDesc{
+		float duration;
+		float size;
+		float life;		
+		float velocity;
+		Color color;
+		Texture2D* texture;
+		uint32_t maxNumber;
+	};
+
+
+	EffectDesc mDesc;
 	uint8_t mCurrBatch;
 	Gl::Batch mBatches[2];
 	Texture2D* mParticleTexture;
 	uint32_t mNumParticles;
 	
 	bool mEnabled;
-
-
-	ParticleShader mShader;
+	float dt;
 
 	ParticleEffect(Scene* parent, uint32_t id, const String& name="") : mEnabled(true), ASceneActor(parent, ASceneActor::eTYPE_PARTICLE_EFFECT, id, name){
+		dt = 0.0f;
 	}
 
 	void setEnable(bool enabled){
@@ -91,54 +92,55 @@ public:
 	}
 
 	void update(float dt){
-		mShader.use();
-		mShader.setUniformVal("uDt", dt);
+		this->dt = dt;
+		/*mShader.use();
+		mShader.setUniformVal("uDt", dt);*/
 	}
 
-	void create(uint32_t numParticles, Texture2D* particleTexture, const String& userProg){
+	//void create(uint32_t numParticles, Texture2D* particleTexture, const String& userProg){
+	void create(const EffectDesc& desc){
+		mDesc = desc;
 		glEnable(GL_POINT_SPRITE);
 		glEnable(GL_PROGRAM_POINT_SIZE);
 
-		
 		mCurrBatch = 0;
-		mShader.create(userProg);
-		mNumParticles = numParticles;
-		mParticleTexture = particleTexture;
 
-		Particle* particles = new Particle[numParticles];
-		memset(particles, 0x00, sizeof(Particle)*numParticles);
-		uint32_t* indices = new uint32_t[numParticles];
+		// Initialize particles
+		Particle* particles = new Particle[desc.maxNumber];
+		memset(particles, 0x00, sizeof(Particle)*desc.maxNumber);
 
-		for(uint32_t i=0; i<numParticles; i++){
+		uint32_t* indices = new uint32_t[desc.maxNumber];
+		for(uint32_t i=0; i<desc.maxNumber; i++){
 			indices[i] = i;
-			Particle& p = particles[i];
-			p.life = 1.0f;
-			p.x = math::random()*100;
-			p.y = math::random()*100;
-			p.z = math::random()*100;
-
 		}
 
+		for(uint32_t i=0; i<desc.maxNumber; i++){
+			particles[i].life = 0;
+			
+			// Not the actual position but rather a seed for initial directoin
+			particles[i].x = math::random() * 1000;
+			particles[i].y = math::random() * 1000;
+			particles[i].z = math::random() * 1000;
+		}
+
+		// Create two batches for double-buffered transform feedback
 		for(uint32_t i=0; i<2; i++){
-			mBatches[i].create(i==0?particles:0, numParticles, sizeof(Particle),
-				indices, numParticles, sizeof(uint32_t),
+			mBatches[i].create(i==0?particles:0, desc.maxNumber, sizeof(Particle),
+				indices, desc.maxNumber, sizeof(uint32_t),
 				GL_POINTS);
 
 			// position
 			mBatches[i].setVertexAttribute(
-				ParticleShader::POSITION, 3, GL_FLOAT, offsetof(Particle, x));
+				ParticleShader::eATTR_POSITION, 3, GL_FLOAT, offsetof(Particle, x));
 			// color
 			mBatches[i].setVertexAttribute(
-				ParticleShader::COLOR, 3, GL_FLOAT, offsetof(Particle, r));
-			// life/maxlife
+				ParticleShader::eATTR_COLOR, 3, GL_FLOAT, offsetof(Particle, r));
+			// life
 			mBatches[i].setVertexAttribute(
-				ParticleShader::LIFE, 2, GL_FLOAT, offsetof(Particle, life));
+				ParticleShader::eATTR_LIFE, 1, GL_FLOAT, offsetof(Particle, life));
 			// velocity
 			mBatches[i].setVertexAttribute(
-				ParticleShader::VELOCITY, 3, GL_FLOAT, offsetof(Particle, vx));
-			// size
-			mBatches[i].setVertexAttribute(
-				ParticleShader::SIZE, 1, GL_FLOAT, offsetof(Particle, size));
+				ParticleShader::eATTR_VELOCITY, 3, GL_FLOAT, offsetof(Particle, vx));
 		}
 
 		delete[] particles;

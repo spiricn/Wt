@@ -70,9 +70,13 @@ public:
 				String bfr;
 				Utils::readFile(includeFile, bfr);
 
-				ssource << bfr << "\n";
+				ssource << bfr << '\n';
 			}
 			else{
+				if(line.size() && line[line.size()-1] == '\r'){
+					//line[line.size()-1] = 0;
+					line.erase(line.size()-1);
+				}
 				ssource << line << "\n";
 			}
 		}while(!ss.eof());

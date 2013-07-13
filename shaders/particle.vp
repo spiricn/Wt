@@ -2,77 +2,60 @@
 
 #pragma include shaders/noise3D.glsl
 
-in vec4 inPosition;
-in vec4 inColor;
-in float inPointSize;
-in vec2 inLife;
+in vec3 inPosition;
+in vec3 inColor;
+in float inLife;
 in vec3 inVelocity;
+
+// Transform feedback
+out vec3 outPosition;
+out vec3 outColor;
+out float outLife;
+out vec3 outVelocity;
+
+// Fragment shader
+out vec4 fsColor;
 
 uniform mat4 uModelViewMat;
 uniform mat4 uProjMat;
 uniform vec3 uCamPos;
+uniform vec3 uPosition;
 uniform float uDt;
 uniform int uSeed;
-uniform float uRainbowFactor;
 
-out vec3 outPosition;
-out vec3 outColor;
-out float outPointSize;
-out vec2 outLife;
-out vec3 outVelocity;
+// Effect specific uniforms
+uniform float uMaxLife;
+uniform vec4 uColor;
+uniform float uSize;
+uniform float uVelocity;
 
-out vec4 fsColor;
+void main(){
+	// TODO calculate dynamically
+	gl_PointSize = uSize * 1280/length(uCamPos.xyz-inPosition.xyz);
 
-// h [0.0 1.0]
-vec4 hsv_to_rgb(float h, float s, float v, float a){
-	float c = v * s;
-	h = mod((h * 6.0), 6.0);
-	float x = c * (1.0 - abs(mod(h, 2.0) - 1.0));
-	vec4 color;
+	float life = inLife;
 
-	if (0.0 <= h && h < 1.0) {
-		color = vec4(c, x, 0.0, a);
-	} else if (1.0 <= h && h < 2.0) {
-		color = vec4(x, c, 0.0, a);
-	} else if (2.0 <= h && h < 3.0) {
-		color = vec4(0.0, c, x, a);
-	} else if (3.0 <= h && h < 4.0) {
-		color = vec4(0.0, x, c, a);
-	} else if (4.0 <= h && h < 5.0) {
-		color = vec4(x, 0.0, c, a);
-	} else if (5.0 <= h && h < 6.0) {
-		color = vec4(c, 0.0, x, a);
-	} else {
-		color = vec4(0.0, 0.0, 0.0, a);
+	life = life - uDt;
+
+	// Is the particle dead?
+	if(life <= 0){
+		// Emit new particle
+		outPosition.xyz = uPosition;
+		outLife = uMaxLife;
+		outVelocity = normalize(vec3(-3 + nrand(vec3(inPosition))*6, 1, -3 + nrand(vec3(inPosition))*6))*uVelocity;
+	}
+	else{
+		// Move the particle
+		outPosition.xyz = inPosition + inVelocity * uDt;
+		outLife = life;
+		outVelocity = inVelocity ;
 	}
 
-	color.rgb += v - c;
+	// Constant color for now
+	outColor = uColor.rgb;
 
-	return color;
-
-}
-
-
-
-#define RAND_MAX 0x7FFF
-int seed = uSeed + int(length(uCamPos))*300 + int(inPosition.x) + int(inPosition.y) + int(inPosition.z) + int(uDt*500.0)
-+ int(inVelocity.x) + int(inVelocity.y) + int(inVelocity.z) + int(length(inColor)) + int(uRainbowFactor*300) + 123123;
-
-int rand1(){
-    seed = (seed * 125) % 2796203;
-    return ((seed %  RAND_MAX ) + 1);
-}
-
-int rand_r()
-{
-        seed = seed * 1103515245 + 12345;
-        return (seed % (RAND_MAX + 1));
-}
-
-float rand(){
-	return float(rand_r())/float( RAND_MAX );
-}
-
-float nrand(vec3 seed){
-	return snoise( seed * rand() );
+	// Just pass it to the fragmnet shader
+	fsColor.rgb = outColor;
+	
+	gl_Position = (uProjMat*uModelViewMat) * vec4(outPosition, 1.0);
 }

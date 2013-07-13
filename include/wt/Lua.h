@@ -4,7 +4,7 @@
 
 #include "wt/stdafx.h"
 
-
+#include "wt/AIOStream.h"
 #include "wt/Utils.h"
 
 namespace wt{
@@ -53,6 +53,8 @@ bool luaConv(const Color& src, LuaObject& dst);
 bool luaConv(const LuaObject& src, Color& dst);
 
 void serializeTable(LuaObject& table, std::ostream& stream, uint32_t depth=0);
+
+void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject* fenv=NULL);
 
 }; // </Lua
 

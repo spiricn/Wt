@@ -7,49 +7,49 @@ void main(){
 	// TODO calculate dynamically
 	gl_PointSize = inPointSize * 1280/length(uCamPos.xyz-inPosition.xyz);
 
-	float life = inLife.x;
-	float maxLife = inLife.y;
+			float life = inLife.x;
+			float maxLife = inLife.y;
 
-	life += uDt;
-	if(life >= maxLife){
-		outPosition.xyz = uPosition;
+			life += uDt;
+			if(life >= maxLife){
+				outPosition.xyz = uPosition;
 
-		outPointSize = 1.0 + rand()*2.0;
+				outPointSize = 1.0 + rand()*2.0;
 
-		outLife.x = 0.0;
-		outLife.y = 1 + nrand(vec3(inPosition))*2.0;
+				outLife.x = 0.0;
+				outLife.y = 1 + nrand(vec3(inPosition))*2.0;
 
-		outVelocity.x = -3 + nrand(vec3(inPosition))*6;
-		outVelocity.y = 1 + nrand(vec3(inPosition))*5.0;
-		outVelocity.z = -3 + nrand(vec3(inPosition))*6;
-	}
-	else{
-		outPosition = inPosition.xyz + inVelocity*uDt;
-		outColor = hsv_to_rgb(life/maxLife, 1.0, 1.0, 1.0).rgb;
-		outVelocity = inVelocity;
-		outPointSize = inPointSize;
+				outVelocity.x = -3 + nrand(vec3(inPosition))*6;
+				outVelocity.y = 1 + nrand(vec3(inPosition))*5.0;
+				outVelocity.z = -3 + nrand(vec3(inPosition))*6;
+			}
+			else{
+				outPosition = inPosition.xyz + inVelocity*uDt;
+				outColor = hsv_to_rgb(life/maxLife, 1.0, 1.0, 1.0).rgb;
+				outVelocity = inVelocity;
+				outPointSize = inPointSize;
 
-		outLife = inLife;
-		outLife.x = life;
-	}
-//
-	float fadeTime = maxLife/4.0;
+				outLife = inLife;
+				outLife.x = life;
+			}
+		//
+			float fadeTime = maxLife/4.0;
 
-	fsColor = hsv_to_rgb(uRainbowFactor, 1.0, 1.0, 1.0);//vec4(1.0, 0.4, 0.1, 1.0);
-	fsColor = vec4(1.0, 0.4, 0.1, 1.0);
+			fsColor = hsv_to_rgb(uRainbowFactor, 1.0, 1.0, 1.0);//vec4(1.0, 0.4, 0.1, 1.0);
+			fsColor = vec4(1.0, 0.4, 0.1, 1.0);
 
-	// fade in
-	if(life <= maxLife/4){
-		fsColor.a = life/fadeTime;
-	}
-	// fade out
-	else if(life >= maxLife*3/4){
-		fsColor.a = 1.0 - ((life-(maxLife*3/4))/fadeTime);
-	}
-	// normal
-	else{
-		fsColor.a = 1.0;
-	}
+			// fade in
+			if(life <= maxLife/4){
+				fsColor.a = life/fadeTime;
+			}
+			// fade out
+			else if(life >= maxLife*3/4){
+				fsColor.a = 1.0 - ((life-(maxLife*3/4))/fadeTime);
+			}
+			// normal
+			else{
+				fsColor.a = 1.0;
+			}
 
-	gl_Position = (uProjMat*uModelViewMat) * vec4(outPosition, 1.0);
+			gl_Position = (uProjMat*uModelViewMat) * vec4(outPosition, 1.0);
 }

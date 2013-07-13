@@ -86,6 +86,9 @@ public:
 	}; //</FileSystemType>
 
 	Assets(FileSystemType fileSystemType, const String& fileSystemRoot){
+		LOGD("Creating a %s file system, with \"%s\" as root",
+			fileSystemType == eFS_DIR ? "directory" : "zip", fileSystemRoot.c_str());
+
 		if(fileSystemType == eFS_DIR){
 			mFileSystem = new LocalFileSystem(fileSystemRoot);
 		}
@@ -225,9 +228,19 @@ public:
 
 	void load(const String& path){
 		LuaPlus::LuaStateOwner state;
+#if 0
 		if(state->DoFile(path.c_str())){
 			WT_THROW("Error executing asset script");
 		}
+#else
+		Sp<AIOStream> stream = mFileSystem->open(path, AIOStream::eMODE_READ);
+		try{
+			Lua::doStream(state, *(stream.get()));
+		}catch(...){
+			LOGE("Error executing asset script");
+			throw;
+		}
+#endif
 
 		LuaObject assets = state->GetGlobal("ASSETS");
 
