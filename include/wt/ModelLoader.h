@@ -14,17 +14,17 @@ private:
 	static const char* TAG;
 	static const char* FORMAT_ID;
 
-	void writeNode(std::ofstream& file, SkeletonBone* node);
+	void writeNode(AIOStream* stream, SkeletonBone* node);
 
-	void readNode(std::ifstream& file, Model* model, SkeletonBone* parent);
+	void readNode(AIOStream* stream, Model* model, SkeletonBone* parent);
 
 public:
 
-	void load(const String& path, Model* model);
+	void load(AIOStream* stream, Model* model);
+
+	void save(AIOStream* stream, Model* model);
 
 	void create(Model* model);
-
-	void save(const String& path, Model* model);
 
 	void postProcess(SkeletonBone* bone, const glm::mat4& transform);
 

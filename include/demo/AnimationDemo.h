@@ -83,7 +83,8 @@ public:
 
 		// Load camera animation
 		Animation* ani = getAssets()->getAnimationManager()->create("ani_demo_animation");
-		getAssets()->getAnimationManager()->getLoader()->load("assets/demo/AnimationDemo/camera_animation.wta", ani);
+		FileIOStream stream("assets/demo/AnimationDemo/camera_animation.wta", AIOStream::eMODE_READ);
+		getAssets()->getAnimationManager()->getLoader()->load(&stream, ani);
 
 		setupGUI();
 	}

@@ -208,7 +208,7 @@ private:
 	FT_Library mFt;
 	
 public:
-	FontManager(){
+	FontManager(AResourceSystem* assets=NULL) : AResourceManager(assets){
 		if(FT_Init_FreeType(&mFt)){
 			WT_THROW("Error initializing font library");
 		}

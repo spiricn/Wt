@@ -12,43 +12,43 @@ void ModelLoader::create(Model* model){
 	model->create();
 }
 
-void ModelLoader::writeNode(std::ofstream& file, SkeletonBone* bone){
+void ModelLoader::writeNode(AIOStream* stream, SkeletonBone* bone){
 	// name_id
-	file.write(bone->getName().c_str(), bone->getName().size()+1);
+	stream->write(bone->getName().c_str(), bone->getName().size()+1);
 
 	// transform
-	file.write((const char*)glm::value_ptr(bone->getTransform()), 16*sizeof(float));
+	stream->write((const char*)glm::value_ptr(bone->getTransform()), 16*sizeof(float));
 
 	// offset
-	file.write((const char*)glm::value_ptr(bone->getOffset()), 16*sizeof(float));
+	stream->write((const char*)glm::value_ptr(bone->getOffset()), 16*sizeof(float));
 
 	// index
 	uint32_t idx=bone->getIndex();
-	file.write((const char*)&idx, sizeof(uint32_t));
+	stream->write((const char*)&idx, sizeof(uint32_t));
 
 	// num_children
 	uint32_t num_children = bone->getNumChildren(false);
-	file.write((const char*)&num_children, 4);
+	stream->write((const char*)&num_children, 4);
 
 	// children
 	for(SkeletonBone::Iterator i=bone->getBeg(); i!=bone->getEnd(); i++){
-		writeNode(file, *i);
+		writeNode(stream, *i);
 	}
 }
 
-void ModelLoader::readNode(std::ifstream& file, Model* model, SkeletonBone* parent){
+void ModelLoader::readNode(AIOStream* stream, Model* model, SkeletonBone* parent){
 	// name_id
 	std::string name;
-	std::getline(file, name, '\0');
+	std::getline(*stream, name, '\0');
 	//LOGV("Node name: %s", name.c_str());
 
 	// transform
 	glm::mat4 transform;
-	file.read((char*)glm::value_ptr(transform), 16*sizeof(float));
+	stream->read((char*)glm::value_ptr(transform), 16*sizeof(float));
 
 	// offset
 	glm::mat4 offset;
-	file.read((char*)glm::value_ptr(offset), 16*sizeof(float));
+	stream->read((char*)glm::value_ptr(offset), 16*sizeof(float));
 
 #if 0
 	glm::mat4 rot = glm::mat4_cast(glm::angleAxis(90.0f, glm::vec3(0, 1, 0)));
@@ -57,7 +57,7 @@ void ModelLoader::readNode(std::ifstream& file, Model* model, SkeletonBone* pare
 
 	// index
 	uint32_t idx;
-	file.read((char*)&idx, sizeof(uint32_t));
+	stream->read((char*)&idx, sizeof(uint32_t));
 
 	// create node
 	SkeletonBone* self;
@@ -73,37 +73,35 @@ void ModelLoader::readNode(std::ifstream& file, Model* model, SkeletonBone* pare
 
 	// num_children
 	uint32_t numChildren;
-	file.read((char*)&numChildren, 4);
+	stream->read((char*)&numChildren, 4);
 	//LOGV("Num children: %d", numChildren);
 
 	// read children
 	for(uint32_t i=0; i<numChildren; i++){
-		readNode(file, model, self);
+		readNode(stream, model, self);
 	}
 }
 
-void ModelLoader::load(const String& path, Model* model){
-	std::ifstream file(path.c_str(), std::ios::binary);
-
-	if(!file.is_open()){
-		WT_THROW("Unable to open file: \"%s\"", path.c_str());
+void ModelLoader::load(AIOStream* stream, Model* model){
+	if(!stream->isReadable()){
+		WT_THROW("Error loading model, stream not readable");
 	}
 
 	// format_identifier
 	char fmtId[7];
 	fmtId[6] = 0; // null terminator
-	file.read(fmtId, 6);
+	stream->read(fmtId, 6);
 
 	if(strcmp(fmtId, FORMAT_ID) != 0){
-		WT_THROW("Invalid wt model file \"%s\"", path.c_str());
+		WT_THROW("Stream does not contain valid wt model data (header missing)");
 	}
 
 	// num_geometry
 	uint32_t numGeometry;
-	file.read((char*)&numGeometry, 4);
+	stream->read((char*)&numGeometry, 4);
 
 	/* start of geometry data */
-	uint32_t geoOffset = file.tellg();
+	uint64_t geoOffset = stream->tell();
 
 
 	uint32_t numVertices=0;
@@ -112,22 +110,22 @@ void ModelLoader::load(const String& path, Model* model){
 	for(uint32_t i=0; i<numGeometry; i++){
 		// name_id
 		std::string name;
-		std::getline(file, name, '\0');
+		std::getline(*stream, name, '\0');
 
 		// NoV
 		uint32_t nov;
-		file.read((char*)&nov, 4);
+		stream->read((char*)&nov, 4);
 		numVertices += nov;
 
 		// NoI
 		uint32_t noi;
-		file.read((char*)&noi, 4);
+		stream->read((char*)&noi, 4);
 		numIndices += noi;
 
 		if(i < numGeometry-1){
 			/* skip the vertex/index data since we're only interested in the number
 			of vertices/indices*/
-			file.seekg(nov*sizeof(Geometry::Vertex) + noi*sizeof(uint32_t), std::ios::cur);
+			stream->seek(AIOStream::eSEEK_CURRENT, nov*sizeof(Geometry::Vertex) + noi*sizeof(uint32_t));
 		}
 
 	}
@@ -135,13 +133,13 @@ void ModelLoader::load(const String& path, Model* model){
 	model->setSize(numVertices, numIndices);
 
 	/* seek back to the beggining of geometry data */
-	file.seekg(geoOffset);
+	stream->seek(geoOffset);
 
 	// geometry
 	for(uint32_t i=0; i<numGeometry; i++){
 		// name_id
 		std::string name;
-		std::getline(file, name, '\0');
+		std::getline(*stream, name, '\0');
 		//LOGV("geo name_id: %s", name.c_str());
 
 		// create structure
@@ -149,16 +147,16 @@ void ModelLoader::load(const String& path, Model* model){
 
 		// NoV
 		uint32_t nov;
-		file.read((char*)&nov, 4);
+		stream->read((char*)&nov, 4);
 
 		// NoI
 		uint32_t noi;
-		file.read((char*)&noi, 4);
+		stream->read((char*)&noi, 4);
 		//LOGV("noi: %d", noi);
 
 		// vertex_data
 		Buffer<Geometry::Vertex> vertices(nov);
-		file.read((char*)vertices.getData(), nov*sizeof(Geometry::Vertex));
+		stream->read((char*)vertices.getData(), nov*sizeof(Geometry::Vertex));
 
 		// post processing
 #if 0
@@ -183,7 +181,7 @@ void ModelLoader::load(const String& path, Model* model){
 #endif
 		// index_data
 		Buffer<GLuint> indices(noi);
-		file.read((char*)indices.getData(), noi*sizeof(uint32_t));
+		stream->read((char*)indices.getData(), noi*sizeof(uint32_t));
 
 		model->addGeometry(name, vertices, indices);
 		// setup structure
@@ -191,13 +189,11 @@ void ModelLoader::load(const String& path, Model* model){
 	}
 
 	// has_skeleton
-	bool hasSkeleton = file.get()==1?true:false;
+	bool hasSkeleton = stream->get()==1?true:false;
 
 	if(hasSkeleton){
-		readNode(file, model, NULL);
+		readNode(stream, model, NULL);
 	}
-
-	file.close();
 }
 
 void ModelLoader::postProcess(SkeletonBone* bone, const glm::mat4& transform){
@@ -237,54 +233,50 @@ void ModelLoader::postProcess(Model* model, const glm::mat4& transform){
 #endif
 }
 
-void ModelLoader::save(const String& path, Model* model){
-	std::ofstream file(path.c_str(), std::ios::binary);
-
-	if(!file.is_open()){
-		WT_THROW("Unable to open file: \"%s\"", path.c_str());
+void ModelLoader::save(AIOStream* stream, Model* model){
+	if(!stream->isWritable()){
+		WT_THROW("Unable to save model - stream not writable");
 	}
 
 	// format_identifier
-	file.write(FORMAT_ID, strlen(FORMAT_ID));
+	stream->write(FORMAT_ID, strlen(FORMAT_ID));
 
 	// num_geometry
 	uint32_t numGeometry = model->getGeometry().size();
-	file.write((const char*)&numGeometry, 4);
+	stream->write((const char*)&numGeometry, 4);
 
 	// geometry
 	for(Model::GeoList::iterator i=model->getGeometry().begin(); i!=model->getGeometry().end(); i++){
 		Geometry* geo = *i;
 
 		// name_id
-		file.write(geo->getName().c_str(), geo->getName().size()+1);
+		stream->write(geo->getName().c_str(), geo->getName().size()+1);
 
 		// NoV
 		uint32_t nov = geo->getVertices().getCapacity();
-		file.write((const char*)&nov, 4); 
+		stream->write((const char*)&nov, 4); 
 
 		// NoI
 		uint32_t noi = geo->getIndices().getCapacity();
-		file.write((const char*)&noi, 4);
+		stream->write((const char*)&noi, 4);
 
 		// vertex_data
 		void* vertices = (void*)geo->getVertices().getData();
-		file.write((const char*)vertices, nov*sizeof(Geometry::Vertex));
+		stream->write((const char*)vertices, nov*sizeof(Geometry::Vertex));
 		
 		// index_data
 		void* indices = (void*)geo->getIndices().getData();
-		file.write((const char*)indices, noi*4);
+		stream->write((const char*)indices, noi*4);
 	}
 
 	// has_skeleton 
 	char hasSkeleton = model->getRootBone()==NULL?0:1;
-	file.write(&hasSkeleton, 1);
+	stream->write(&hasSkeleton, 1);
 
 	if(hasSkeleton){
 		// root_node
-		writeNode(file, model->getRootBone());
+		writeNode(stream, model->getRootBone());
 	}
-
-	file.close();
 }
 
 }; // </wt>

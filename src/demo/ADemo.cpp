@@ -29,6 +29,9 @@ static const char* DEFAULT_CONFIG_SCRIPT =
 	"physxVDBAddress = \"192.168.1.4\"\n"
 	"\n"
 	"physxVDBPort = 5425\n"
+	"\n"
+	"fileSystemType = 'DIR'\n"
+	"fileSystemRoot = 'd:/Documents/prog/c++/workspace/Wt/assets/'\n"
 ;
 
 DemoManager* ADemo::getManager(){
@@ -59,7 +62,22 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 		mWindow->getVideoMode().mScreenHeigth);
 		
 	// Load assets
-	mAssets = new Assets;
+	Assets::FileSystemType type;
+
+	String typeStr;
+	String rfs;
+	if(!Lua::luaConv(mConfig->GetGlobal("fileSystemType"), typeStr)){
+		type = Assets::eFS_DIR;
+	}
+	else{
+		type = typeStr.compare("DIR") == 0 ?  Assets::eFS_DIR : Assets::eFS_ZIP;
+	}
+
+	if(!Lua::luaConv(mConfig->GetGlobal("fileSystemRoot"), rfs)){
+		WT_THROW("No file system root specified!");
+	}
+
+	mAssets = new Assets(type, rfs);
 
 	// Initialize PhysX
 	mPhysics = new Physics(mEventManager);

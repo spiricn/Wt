@@ -10,19 +10,15 @@
 namespace wt{
 
 class ModelManager : public AResourceManager<Model>{
-private:
-	TextureManager* mTextureManager;
-	AnimationManager* mAnimationManager;
-
 public:
-	ModelManager(TextureManager* textureManager, AnimationManager* animationManager) : mTextureManager(textureManager), mAnimationManager(animationManager){
+	ModelManager(AResourceSystem* assets) : AResourceManager(assets){
 	}
 
 	Model* create(const String& name){
 		Model* res = AResourceManager<Model>::create(name);
 
-		res->setTextureManager(mTextureManager);
-		res->setAnimationManager(mAnimationManager);
+		res->setTextureManager( getResourceSystem()->getTextureManager() );
+		res->setAnimationManager( getResourceSystem()->getAnimationManager()  );
 
 		return res;
 	}

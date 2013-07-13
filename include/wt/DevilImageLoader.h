@@ -26,9 +26,9 @@ public:
 
 	DevilImageLoader();
 	
-	void save(const String& path, Image* image);
+	void save(AIOStream* stream, Image* image);
 
-	void load(const String& path, Image* image);
+	void load(AIOStream* stream, Image* image);
 
 }; // </DevilImageLoader>
 

@@ -142,7 +142,8 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 
 
 	// TODO move to encoded header file
-	TextureLoader::getSingleton().load("assets/brushes/images/circle_soft.png", &mGodraySunTexture);
+	FileIOStream stream("assets/brushes/images/circle_soft.png", AIOStream::eMODE_READ);
+	TextureLoader::getSingleton().load(&stream, &mGodraySunTexture);
 
 	LOGV("Initialized OK");
 }
@@ -286,7 +287,9 @@ void saveDepthTexture(Texture2D* texture, const String& path){
 
 	Image img;
 	img.setData(w, h, Image::RGB, 3, (unsigned char*)rgb.getData());
-	DevilImageLoader::getSingleton().save(path, &img);
+
+	FileIOStream stream(path, AIOStream::eMODE_WRITE);
+	DevilImageLoader::getSingleton().save(&stream, &img);
 }
 
 math::Camera lightCamera;
@@ -514,7 +517,8 @@ void Renderer::saveScreenshot(const String& path){
 	Image img;
 	img.fromFrameBuffer(Image::RGB);
 
-	DevilImageLoader::getSingleton().save(path, &img);
+	FileIOStream stream(path, AIOStream::eMODE_WRITE);
+	DevilImageLoader::getSingleton().save(&stream, &img);
 }
 
 const math::Frustum& Renderer::getFrustum() const{

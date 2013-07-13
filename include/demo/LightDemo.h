@@ -160,7 +160,8 @@ public:
 
 			// Load animation
 			Animation* ani  = getAssets()->getAnimationManager()->create(anims[i]);
-			getAssets()->getAnimationManager()->getLoader()->load(anims[i], ani);
+			FileIOStream stream(anims[i], AIOStream::eMODE_READ);
+			getAssets()->getAnimationManager()->getLoader()->load(&stream, ani);
 
 			// Create orb
 			Sp<LightOrb> orb = new LightOrb(actor, ani,

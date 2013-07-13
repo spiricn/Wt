@@ -105,13 +105,13 @@ private:
 	ImageManager* mImageManager;
 
 public:
-	SkyBoxManager(ImageManager* imageManager) : mImageManager(imageManager){
+	SkyBoxManager(AResourceSystem* assets) : AResourceManager(assets){
 	}
 
 	SkyBox* create(const String& name){
 		SkyBox* res = AResourceManager<SkyBox>::create(name);
 
-		res->setImageManager(mImageManager);
+		res->setImageManager( getResourceSystem()->getImageManager() );
 
 		return res;
 	}
@@ -119,6 +119,12 @@ public:
 
 class SkyBoxLoader : public AResourceLoader<SkyBox>, public Singleton<SkyBoxLoader>{
 public:
+	void load(AIOStream* /*stream*/, SkyBox* /*dst*/){
+	}
+
+	void save(AIOStream* /*stream*/, SkyBox* /*src*/){
+	}
+
 	void create(SkyBox* sky){
 		sky->create();
 	}

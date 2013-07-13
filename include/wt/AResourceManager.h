@@ -8,14 +8,18 @@
 
 #include "wt/Exception.h"
 #include "wt/AResourceLoader.h"
+#include "wt/AResourceSystem.h"
 
 namespace wt{
+
+class AResourceSystem;
 
 template <class T>
 class AResourceManager : public AResourceAllocator<T>, public AResourceGroup<T>{
 private:
 	ResourceHandle mHandleCount;
 	typedef std::map<ResourceHandle, T*> ResourceMap;
+	AResourceSystem* mResourceSystem;
 
 public:
 
@@ -76,7 +80,12 @@ protected:
 		return mHandleCount++;
 	}
 public:
-	AResourceManager() : mHandleCount(0), mLoader(NULL){
+
+	AResourceSystem* getResourceSystem(){
+		return mResourceSystem;
+	}
+
+	AResourceManager(AResourceSystem* assets) : mHandleCount(0), mLoader(NULL), mResourceSystem(assets){
 		AResourceGroup<T>::setResourceAllocator(this);
 		AResourceGroup<T>::setName("$ROOT");
 	}
@@ -96,27 +105,33 @@ public:
 	}
 
 
-	T* load(const String& path, T* dst){
-		WT_ASSERT(mLoader != NULL, "No resoruce loader set, cannot load \"%s\"", path.c_str());
-
-		mLoader->load(path, dst);
+	T* load(AIOStream* stream, T* dst){
+		mLoader->load(stream, dst);
 
 		dst->setResourceState(AResource<T>::eLOADED);
 
 		return dst;
 	}
 
-	void save(const String& path, T* src){
+	void save(AIOStream* stream, T* src){
 		WT_ASSERT(mLoader != NULL, "No resoruce loader set, cannot save \"%s\"", path.c_str());
 
-		mLoader->save(path, src);
+		mLoader->save(stream, src);
 	}
 
 	void loadAll(){
 		for(AResourceManager<T>::ResourceMap::iterator i=AResourceManager<T>::mResources.begin();
 			i!=AResourceManager<T>::mResources.end(); i++){
 				if(!i->second->isResourceLoaded() && mLoader != NULL){
-					load(i->second->getUri(), i->second);
+					// TODO acquire stream from elsewhere
+					//FileIOStream stream(i->second->getUri(), AIOStream::eMODE_READ);
+					Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(i->second->getUri(), AIOStream::eMODE_READ);
+
+					try{
+						load(stream, i->second);
+					}catch(...){
+						LOGE("Error loading resource from uri \"%s\"", i->second->getUri().c_str());
+					}
 				}
 		}
 	}

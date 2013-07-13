@@ -1,22 +1,20 @@
 #pragma once
-#ifndef WT_FILEIOSTREAM_H
-#define WT_FILEIOSTREAM_H
+#ifndef WT_ZIPINPUSTREAM_H
+#define WT_ZIPINPUSTREAM_H
+
+#include "wt/stdafx.h"
 
 #include "wt/AIOStream.h"
 
+#include <physfs.h>
+
 namespace wt{
 
-class FileIOStream : public AIOStream{
+class ZipInputStream : public AIOStream{
 public:
-	FileIOStream(const String& path, Mode mode);
+	ZipInputStream(PHYSFS_file* file);
 
-	FileIOStream();
-
-	~FileIOStream();
-
-	void open(const String& path, Mode mode);
-
-	void close();
+	~ZipInputStream();
 
 	int64_t read(void* dst, int64_t size);
 
@@ -37,10 +35,13 @@ public:
 	bool isSeekable();
 
 	void flush();
+
 private:
-	FILE* mFile;
-}; // </FileInputStream>
+	PHYSFS_file* mFile;
+
+}; // </ZipInputStream>
+
 
 }; // </wt>
 
-#endif // </WT_FILEIOSTREAM_H>
+#endif // </WT_ZIPINPUSTREAM_H>

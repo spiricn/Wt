@@ -98,7 +98,8 @@ public:
 	}
 
 	void saveAnimation(const String& path){
-		AnimationLoader::getSingleton().save(path, &mAnimation);
+		FileIOStream stream(path, AIOStream::eMODE_WRITE);
+		AnimationLoader::getSingleton().save(&stream, &mAnimation);
 	}
 
 }; // </CameraAnimationBuilder>

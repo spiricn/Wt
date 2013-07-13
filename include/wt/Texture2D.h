@@ -130,6 +130,12 @@ public:
 
 class TextureLoader : public Singleton<TextureLoader>, public AResourceLoader<Texture2D>{
 public:
+	void load(AIOStream* /*stream*/, Texture2D* /*dst*/){
+	}
+
+	void save(AIOStream* /*stream*/, Texture2D* /*src*/){
+	}
+
 	void create(Texture2D* tex){
 		tex->create();
 
@@ -140,24 +146,23 @@ public:
 		}
 		else{
 			Image tmp;
-			DevilImageLoader::getSingleton().load(tex->getUri(), &tmp);
+			// TODO TextureLoader should acquire this stream from elsewhere
+			FileIOStream stream(tex->getUri(), AIOStream::eMODE_READ);
+			DevilImageLoader::getSingleton().load(&stream, &tmp);
 			tex->setData(&tmp);
 		}
 	}
 }; // </TextureLoader>
 
 class TextureManager : public AResourceManager<Texture2D>{
-private:
-	ImageManager* mImageManager;
-
 public:
-	TextureManager(ImageManager* imageManager) : mImageManager(imageManager){
+	TextureManager(AResourceSystem* assets) : AResourceManager(assets){
 	}
 
 	Texture2D* create(const String& name){
 		Texture2D* res = AResourceManager<Texture2D>::create(name);
 
-		res->setImageManager(mImageManager);
+		res->setImageManager( getResourceSystem()->getImageManager() );
 
 		return res;
 	}

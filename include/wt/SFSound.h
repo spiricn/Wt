@@ -98,7 +98,6 @@ public:
 
 class SFSoundManager : public AResourceManager<ASoundBuffer>{
 private:
-
 	ASoundBuffer* allocate(AResourceGroup<ASoundBuffer>* parent, const String& resourceName){
 		// Generate a new handle
 		ResourceHandle handle = newHandle();
@@ -109,19 +108,32 @@ private:
 		rsrc->setGroup(parent);
 		return rsrc;
 	}
+
+public:
+	SFSoundManager(AResourceSystem* assets) : AResourceManager(assets){
+	}
 };
 
 class SFSoundLoader: public AResourceLoader<ASoundBuffer>, public Singleton<SFSoundLoader>{
 public:
-	void load(const String& path, ASoundBuffer* dst){
+	void load(AIOStream* stream, ASoundBuffer* dst){
 		SFSoundBuffer* bfr = static_cast<SFSoundBuffer*>(dst);
+		//bfr->getSFSoundBuffer().load
 
-		if(!bfr->getSFSoundBuffer().LoadFromFile(path)){
-			WT_THROW("Error loading sound \"%s\" from \"%s\"", bfr->getName().c_str(),
-				path.c_str());
+		char* data = new char[stream->getSize()];
+
+		stream->read(data, stream->getSize());
+
+		if(!bfr->getSFSoundBuffer().LoadFromMemory(data, stream->getSize())){
+			WT_THROW("Error loading sound from stream");
 		}
 
+		delete[] data;
 		//dst->setUri(path);
+	}
+
+	void save(AIOStream* stream, ASoundBuffer* dst){
+		LOGW("Saving not implemented!");
 	}
 };
 

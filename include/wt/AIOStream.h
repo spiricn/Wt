@@ -24,20 +24,22 @@ private:
 	Mode mMode;
 
 protected:
-	void setMode(Mode mode){
-		mMode = mode;
-	}
+	void setMode(Mode mode);
 
 public:
-	AIOStream() : mMode(eMODE_NONE){
-	}
+	AIOStream();
 
-	virtual ~AIOStream(){
-	}
+	virtual ~AIOStream();
 
-	Mode getMode() const{
-		return mMode;
-	}
+	Mode getMode() const;
+
+	virtual int16_t get();
+
+	virtual int64_t put(char c);
+
+	virtual int64_t puts(const String& src);
+
+	virtual int64_t gets(String& dst);
 
 	/**
 	 * Helper seek function which takes an absolute position rather than using origin/offset combo.
@@ -45,9 +47,7 @@ public:
 	 * @param position	Absolute position in the stream (from the beggining)
 	 * @return Position sought to or -1 on error
 	 */
-	virtual int64_t seek(int64_t position){
-		return seek(eSEEK_BEGGINING, position);
-	}
+	virtual int64_t seek(int64_t position);
 
 	/**
 	 * Read @size bytes into the destination buffer.
@@ -56,7 +56,7 @@ public:
 	 * @param size Number of bytes to read.
 	 * @return Number of bytes read, or -1 on error.
 	 */
-	virtual int64_t read(uint8_t* dst, int64_t size) = 0;
+	virtual int64_t read(void* dst, int64_t size) = 0;
 
 	/**
 	 * Writes @size bytes into the stream.
@@ -65,7 +65,7 @@ public:
 	 * @param size Number of bytes to write.
 	 * @return Number of bytes written, or -1 on error.
 	 */
-	virtual int64_t write(const uint8_t* src, int64_t size) = 0;
+	virtual int64_t write(const void* src, int64_t size) = 0;
 
 	/**
 	 * Seeks the stream.
@@ -96,4 +96,8 @@ public:
 
 }; // </wt>
 
+
+namespace std{
+	void getline(wt::AIOStream& stream, std::string& dst, char delim);
+}; // </std>
 #endif // </WT_AIOSTREAM_H;

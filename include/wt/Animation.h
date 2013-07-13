@@ -65,6 +65,9 @@ public:
 
 class AnimationManager : public AResourceManager<Animation>{
 public:
+	AnimationManager(AResourceSystem* assets) : AResourceManager(assets){
+	}
+
 	virtual ~AnimationManager(){
 	}
 

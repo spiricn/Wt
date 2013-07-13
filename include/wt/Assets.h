@@ -20,10 +20,14 @@
 #include "wt/SFSound.h"
 #include "wt/Profiler.h"
 #include "wt/Thread.h"
+#include "wt/AFileSystem.h"
+#include "wt/LocalFileSystem.h"
+#include "wt/AResourceSystem.h"
+#include "wt/ZipFileSystem.h"
 
 namespace wt{
 
-class Assets : public Singleton<Assets>{
+class Assets : public AResourceSystem, public Singleton<Assets>{
 private:
 	Profiler mProfiler;
 
@@ -34,6 +38,7 @@ private:
 	FontManager* mFontManager;
 	AnimationManager* mAnimationManager;
 	AResourceManager<ASoundBuffer>* mSoundManager;
+	AFileSystem* mFileSystem;
 
 	template<class T>
 	void serialize(AResourceManager<T>* manager, const String& name, Lua::LuaObject& table){
@@ -75,13 +80,25 @@ private:
 	}
 
 public:
-	Assets(){
-		mImageManager = new ImageManager;
-		mTextureManager = new TextureManager(mImageManager);
-		mAnimationManager = new AnimationManager;
-		mModelManager = new ModelManager(mTextureManager, mAnimationManager);
-		mSkyBoxManager = new SkyBoxManager(mImageManager);
-		mSoundManager = new SFSoundManager;
+	enum FileSystemType{
+		eFS_DIR,
+		eFS_ZIP,
+	}; //</FileSystemType>
+
+	Assets(FileSystemType fileSystemType, const String& fileSystemRoot){
+		if(fileSystemType == eFS_DIR){
+			mFileSystem = new LocalFileSystem(fileSystemRoot);
+		}
+		else{
+			mFileSystem = new ZipFileSystem(fileSystemRoot);
+		}
+
+		mImageManager = new ImageManager(this);
+		mTextureManager = new TextureManager(this);
+		mAnimationManager = new AnimationManager(this);
+		mModelManager = new ModelManager(this);
+		mSkyBoxManager = new SkyBoxManager(this);
+		mSoundManager = new SFSoundManager(this);
 
 		// TODO remvoe singleton
 		mFontManager = &FontManager::getSingleton();
@@ -92,6 +109,10 @@ public:
 		mModelManager->setLoader( &ModelLoader::getSingleton() );
 		mAnimationManager->setLoader( &AnimationLoader::getSingleton() );
 		mSoundManager->setLoader( &SFSoundLoader::getSingleton() );
+	}
+
+	AFileSystem* getFileSystem(){
+		return mFileSystem;
 	}
 
 	ImageManager* getImageManager(){
@@ -169,11 +190,22 @@ public:
 	}
 
 	void reload(){
+		LOGD("Loading images ...");
 		mImageManager->loadAll();
+
+		LOGD("Loading textures ...");
 		mTextureManager->loadAll();
+
+		LOGD("Loading skyboxes ...");
 		mSkyBoxManager->loadAll();
+
+		LOGD("Loading animations ...");
 		mAnimationManager->loadAll();
+
+		LOGD("Loading models ...");
 		mModelManager->loadAll();
+
+		LOGD("Loading sounds...");
 		mSoundManager->loadAll();
 
 		mImageManager->createAll();
@@ -188,19 +220,7 @@ public:
 	void load(const LuaObject& table){
 		deserialize(table);
 
-		mImageManager->loadAll();
-		mTextureManager->loadAll();
-		mSkyBoxManager->loadAll();
-		mAnimationManager->loadAll();
-		mModelManager->loadAll();
-		mSoundManager->loadAll();
-
-		mImageManager->createAll();
-		mTextureManager->createAll();
-		mSkyBoxManager->createAll();
-		mAnimationManager->createAll();
-		mSoundManager->createAll();
-		mModelManager->createAll();
+		reload();
 	}
 
 	void load(const String& path){
@@ -252,6 +272,7 @@ public:
 		delete mSkyBoxManager;
 		delete mAnimationManager;
 		delete mSoundManager;
+		delete mFileSystem;
 	}
 
 }; // </Assets>

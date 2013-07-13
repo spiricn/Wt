@@ -17,6 +17,8 @@
 #include <LuaPlus.h>
 #include <LuaFunction.h>
 
+#include <physfs.h>
+
 // PhysX
 #include <PxPhysicsAPI.h> 
 #include <extensions/PxExtensionsAPI.h>

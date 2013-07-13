@@ -14,9 +14,9 @@ private:
 	static const char* FORMAT_ID;
 
 public:
-	void load(const String& path, Animation* ani);
+	void load(AIOStream* stream, Animation* ani);
 
-	void save(const String& path, Animation* ani);
+	void save(AIOStream* stream, Animation* ani);
 
 	void postProcess(Animation* ani, const glm::mat4& transform);
 

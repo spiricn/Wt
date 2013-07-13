@@ -15,7 +15,10 @@ void Texture2D::dump(const String& path){
 
 	Image img;
 	img.setData(mWidth, mHeight, Image::RGB, 3, (unsigned char*)p.getData());
-	DevilImageLoader::getSingleton().save(path,
+
+	// TODO Textrue2D should acquire this stream from elsewhere
+	FileIOStream stream(path, AIOStream::eMODE_WRITE);
+	DevilImageLoader::getSingleton().save(&stream,
 		&img);
 }
 

@@ -80,57 +80,75 @@ int main(){
 
 #else
 
-#include <physfs.h>
+
 #include "wt/exception.h"
 
+#include <wt/FileIOStream.h>
+#include <wt/Sp.h>
+
+#include <wt/ZipFileSystem.h>
+#include <wt/LocalFileSystem.h>
+
+
 int main(){
+	wt::AFileSystem* fileSystem = new wt::ZipFileSystem;
 
-	FileIOStream out("out.txt", AIOStream::eMODE_WRITE);
-	WT_ASSERT(out.isWritable(), "File not writable");
+	wt::Sp<wt::AIOStream> stream = fileSystem->open("test_dir/test.txt", wt::AIOStream::eMODE_READ);
 
-	char bfr[] = "12345";
-	out.write((uint8_t*)bfr, strlen(bfr));
-	out.close();
+	WT_ASSERT(stream->isReadable(), "Stream not readable");
 
-	FileIOStream in("out.txt", AIOStream::eMODE_READ);
-	WT_ASSERT(in.isReadable(), "File not readable");
-	memset(bfr, 0x00, sizeof(bfr));
+	char* contents = new char[stream->getSize()+1];
+	memset(contents, 0x00, stream->getSize()+1);
+	stream->read(contents, stream->getSize());
 
-	LOG("read %ld bytes", in.read((uint8_t*)bfr, 5));
-
-	LOG("read %s", bfr);
-
-	LOG("File size %d", in.getSize());
-
-	PHYSFS_init(NULL);
-
-	//PHYSFS_new
-
-	PHYSFS_addToSearchPath("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\dir.zip", 0);
-	//PHYSFS_addToSearchPath("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\", 1);
-
-	LOG("%d", PHYSFS_exists("test.txt"));
-
-	//PHYSFS_setWriteDir("dir.zip");
-
-	//PHYSFS_file* file = PHYSFS_openRead("test.txt");
-	//char bfr[256];
-	//memset(bfr, 0x00, 256);
-	//LOG("%ld read", PHYSFS_read(file, bfr, 256, 1));
-
-
-	//LOG("read: \"%s\"", bfr);
-
-	PHYSFS_setWriteDir("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\dir.zip");
-
-	//PHYSFS_
-	PHYSFS_file* file = PHYSFS_openWrite("test.txt");
-	WT_ASSERT(file, "Invalid file");
-	PHYSFS_write(file, "asdf", 4, 1);
-	LOG("%p", file);
-
-	PHYSFS_close(file);
-	PHYSFS_deinit();
+	LOGI("Read contents: \"%s\"", contents);
+//
+//	FileIOStream out("out.txt", AIOStream::eMODE_WRITE);
+//	WT_ASSERT(out.isWritable(), "File not writable");
+//
+//	char bfr[] = "12345";
+//	out.write((uint8_t*)bfr, strlen(bfr));
+//	out.close();
+//
+//	FileIOStream in("out.txt", AIOStream::eMODE_READ);
+//	WT_ASSERT(in.isReadable(), "File not readable");
+//	memset(bfr, 0x00, sizeof(bfr));
+//
+//	LOG("read %ld bytes", in.read((uint8_t*)bfr, 5));
+//
+//	LOG("read %s", bfr);
+//
+//	LOG("File size %d", in.getSize());
+//
+//	PHYSFS_init(NULL);
+//
+//	//PHYSFS_new
+//
+//	PHYSFS_addToSearchPath("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\dir.zip", 0);
+//	//PHYSFS_addToSearchPath("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\", 1);
+//
+//	LOG("%d", PHYSFS_exists("test.txt"));
+//
+//	//PHYSFS_setWriteDir("dir.zip");
+//
+//	//PHYSFS_file* file = PHYSFS_openRead("test.txt");
+//	//char bfr[256];
+//	//memset(bfr, 0x00, 256);
+//	//LOG("%ld read", PHYSFS_read(file, bfr, 256, 1));
+//
+//
+//	//LOG("read: \"%s\"", bfr);
+//
+//	PHYSFS_setWriteDir("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\dir.zip");
+//
+//	//PHYSFS_
+//	PHYSFS_file* file = PHYSFS_openWrite("test.txt");
+//	WT_ASSERT(file, "Invalid file");
+//	PHYSFS_write(file, "asdf", 4, 1);
+//	LOG("%p", file);
+//
+//	PHYSFS_close(file);
+//	PHYSFS_deinit();
 
 }
 
