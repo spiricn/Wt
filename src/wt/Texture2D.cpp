@@ -8,7 +8,7 @@ namespace wt{
 
 void Texture2D::dump(const String& path){
 	bind();
-	Buffer<Uint8> p;
+	Buffer<uint8_t> p;
 
 	p.create(mWidth*mHeight*3);
 	glGetTexImage(getType(), 0, Image::RGB, GL_UNSIGNED_BYTE, (GLvoid*)p.getData());

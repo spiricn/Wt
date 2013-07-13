@@ -31,7 +31,6 @@
 #include "wt/SDLGameInput.h"
 #include "wt/LuaStateManager.h"
 #include "wt/Font.h"
-#include "wt/ParticleEngine.h"
 #include "wt/net/Socket.h"
 #include "wt/Lua.h"
 

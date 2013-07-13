@@ -19,7 +19,7 @@ Exception::Exception(const char* functionName, const char* fileName, long lineNu
 	va_end(argList);
 
 	mDesc = bfr;
-	LOGE("uncaught: %d", std::uncaught_exception());
+
 	LOGE("%s", getFullDescription().c_str());
 
 }

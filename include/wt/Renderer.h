@@ -21,6 +21,7 @@
 #include "wt/Font.h"
 #include "wt/SkeletalAnimationPlayer.h"
 #include "wt/RenderTarget.h"
+#include "wt/ParticleEffect.h"
 
 namespace wt{
 
@@ -334,6 +335,9 @@ private:
 
 	/** Render the skybox */
 	void render(Scene& scene, SkyBox* sky);
+
+	/** Render a particle effect */
+	void render(Scene& scene, const ParticleEffect* effect, PassType pass);
 }; // </Renderer>
 
 }; // </wt>

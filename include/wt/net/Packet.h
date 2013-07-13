@@ -24,7 +24,7 @@ public:
 
 	Packet(int32_t id, const String& data) : mId(id){
 		mData.create(data.size() + 1);
-		mData.put((Uint8*)data.c_str(), data.size()+1);
+		mData.put((uint8_t*)data.c_str(), data.size()+1);
 	}
 
 	Packet(const Packet& other){
@@ -35,7 +35,7 @@ public:
 		mData.create(size);
 
 		if(data){
-			mData.put((Uint8*)data, size);
+			mData.put((uint8_t*)data, size);
 		}
 	}
 

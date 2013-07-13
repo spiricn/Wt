@@ -19,7 +19,7 @@ class ASceneActor{
 public:
 	enum ActorType{
 		eTYPE_TERRAIN,
-		eTYPE_EFFECT,
+		eTYPE_PARTICLE_EFFECT,
 		eTYPE_MODELLED
 	};
 
@@ -49,7 +49,7 @@ protected:
 
 public:
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="") : mName(name), mId(id),
-		mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL){
+		mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type){
 	}
 
 	ActorType getActorType() const{

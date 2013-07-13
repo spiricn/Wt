@@ -9,7 +9,7 @@ namespace wt{
 
 class ParticleDemo : public ADemo{
 private:
-	ParticleEmitter mEmitter;
+	//ParticleEmitter mEmitter;
 	glm::vec3 mCameraTarget;
 	ParticleEffect* mRain;
 	
@@ -18,8 +18,8 @@ public:
 		getRenderer()->render( *getScene() );
 
 		// Render particles
-		mEmitter.render(&getScene()->getCamera(),
-			&getRenderer()->getFrustum());
+		/*mEmitter.render(&getScene()->getCamera(),
+			&getRenderer()->getFrustum());*/
 	}
 
 	void printHelp(){
@@ -31,16 +31,16 @@ public:
 	}
 
 	void onUpdate(float dt){
-		mEmitter.update(dt);
+		//mEmitter.update(dt);
 
 		getPhysics()->update(dt);
 		getScene()->update(dt);
 
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		mRain->setParam("uPosition",
+	/*	mRain->setParam("uPosition",
 			getScene()->getCamera().getPosition() + glm::vec3(0, 20, 0)
-			);
+			);*/
 	}
 
 	void onKeyDown(VirtualKey code){
@@ -57,27 +57,33 @@ public:
 
 		// Create particle emitters
 
-		mEmitter.create(150,
-			getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/fire.vp")
-			// Fire position
-			->setParam("uPosition", glm::vec3(200, 0, 200));
+		ParticleEffect* effect = getScene()->createParticleEffect();
 
-		mEmitter.create(400,
-			getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/force.vp")
-			// Field center
-			->setParam("uPosition", glm::vec3(202, 10, 269))
-			->setParam("uSize", glm::vec3(1, 1, 1));
+		effect->create(150,
+			getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/fire.vp");
+		effect->getTransform().setPosition(200, 0, 200);
 
-		mEmitter.create(500, 
-			getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/field.vp")
-			// Field center
-			->setParam("uPosition", glm::vec3(200, 10, 200))
-			// Field volume
-			->setParam("uSize", glm::vec3(500, 20, 500));
+		//mEmitter.create(150,
+		//	getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/fire.vp")
+		//	// Fire position
+		//	->setParam("uPosition", glm::vec3(200, 0, 200));
 
-		mRain = mEmitter.create(1000,
-			getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/rain.vp");
-		mRain->setEnable(false);
+		//mEmitter.create(400,
+		//	getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/force.vp")
+		//	// Field center
+		//	->setParam("uPosition", glm::vec3(202, 10, 269))
+		//	->setParam("uSize", glm::vec3(1, 1, 1));
+
+		//mEmitter.create(500, 
+		//	getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/field.vp")
+		//	// Field center
+		//	->setParam("uPosition", glm::vec3(200, 10, 200))
+		//	// Field volume
+		//	->setParam("uSize", glm::vec3(500, 20, 500));
+
+		//mRain = mEmitter.create(1000,
+		//	getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft"), "shaders/rain.vp");
+		//mRain->setEnable(false);
 
 		// Setup lighting & color
 		PointLight light;

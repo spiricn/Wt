@@ -191,7 +191,7 @@ public:
 
 typedef Buffer<float> FloatBuffer;
 
-typedef Buffer<Uint8> ByteBuffer;
+typedef Buffer<uint8_t> ByteBuffer;
 
 }; // </wt>
 

@@ -5,6 +5,9 @@
 
 #define TD_TRACE_TAG "TestDemo"
 
+
+#include "wt/ParticleEffect.h"
+
 namespace wt{
 
 class TestDemo : public ADemo{

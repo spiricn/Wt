@@ -33,7 +33,7 @@ public:
 		float nx, ny, nz;
 
 		/* bone IDs this vertex is affected by */
-		Uint8 bones[4];
+		uint8_t bones[4];
 
 		/* bone weights of said bones */
 		float weights[4];

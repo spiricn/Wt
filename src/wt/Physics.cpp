@@ -76,7 +76,6 @@ PxFilterFlags Physics::filterShader(PxFilterObjectAttributes attributes0, PxFilt
 		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
 		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize){
 
-	LOG("filterShader");
 	// let triggers through
 	if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
 	{
@@ -105,7 +104,6 @@ PxFilterFlags Physics::filterShader(PxFilterObjectAttributes attributes0, PxFilt
 	}
 	else if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1)){
 		// Collision occured
-		LOG("NORMAL COLLISION");
 		pairFlags |= PxPairFlag::eCONTACT_DEFAULT /* allow collision, no need for callbacks yet*/;
 	}
 	

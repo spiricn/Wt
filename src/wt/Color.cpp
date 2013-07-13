@@ -26,7 +26,7 @@ Color Color::transparent(){
 
 String Color::hex() const{
 	char bfr[9];
-	sprintf(bfr, "%02x%02x%02x%02x", (Uint8)(mRed*255), (Uint8)(mGreen*255), (Uint8)(mBlue*255), (Uint8)(mAlpha*255));
+	sprintf(bfr, "%02x%02x%02x%02x", (uint8_t)(mRed*255), (uint8_t)(mGreen*255), (uint8_t)(mBlue*255), (uint8_t)(mAlpha*255));
 
 	return bfr;
 }

@@ -31,7 +31,7 @@ SDLGameInput::SDLGameInput() : mEventManager(NULL),  mMouseGrabbed(false){
 }
 
 bool SDLGameInput::isMouseButtonDown(MouseButton button){
-	Uint8 mask=0;
+	uint8_t mask=0;
 
 	switch(button)
 	{
@@ -52,7 +52,7 @@ bool SDLGameInput::isMouseButtonDown(MouseButton button){
 }
 
 bool SDLGameInput::isKeyDown(VirtualKey code){
-	Uint8* keystate = SDL_GetKeyState(NULL);
+	uint8_t* keystate = SDL_GetKeyState(NULL);
 	return keystate[ toSDLKey(code) ]==0?false:true;
 }
 

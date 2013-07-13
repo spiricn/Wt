@@ -1,5 +1,6 @@
 #include "demo/stdafx.h"
 
+#if 1
 #include "demo/DemoManager.h"
 
 #include "demo/GodRayDemo.h"
@@ -18,6 +19,7 @@
 #include "demo/GoldDiggersDemo.h"
 #include "demo/PathFindingDemo.h"
 #include "demo/TestDemo.h"
+#include "wt/FileIOStream.h"
 
 using namespace wt;
 
@@ -75,3 +77,61 @@ int main(){
 
 	return 0;
 }
+
+#else
+
+#include <physfs.h>
+#include "wt/exception.h"
+
+int main(){
+
+	FileIOStream out("out.txt", AIOStream::eMODE_WRITE);
+	WT_ASSERT(out.isWritable(), "File not writable");
+
+	char bfr[] = "12345";
+	out.write((uint8_t*)bfr, strlen(bfr));
+	out.close();
+
+	FileIOStream in("out.txt", AIOStream::eMODE_READ);
+	WT_ASSERT(in.isReadable(), "File not readable");
+	memset(bfr, 0x00, sizeof(bfr));
+
+	LOG("read %ld bytes", in.read((uint8_t*)bfr, 5));
+
+	LOG("read %s", bfr);
+
+	LOG("File size %d", in.getSize());
+
+	PHYSFS_init(NULL);
+
+	//PHYSFS_new
+
+	PHYSFS_addToSearchPath("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\dir.zip", 0);
+	//PHYSFS_addToSearchPath("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\", 1);
+
+	LOG("%d", PHYSFS_exists("test.txt"));
+
+	//PHYSFS_setWriteDir("dir.zip");
+
+	//PHYSFS_file* file = PHYSFS_openRead("test.txt");
+	//char bfr[256];
+	//memset(bfr, 0x00, 256);
+	//LOG("%ld read", PHYSFS_read(file, bfr, 256, 1));
+
+
+	//LOG("read: \"%s\"", bfr);
+
+	PHYSFS_setWriteDir("d:\\Documents\\prog\\c++\\workspace\\Wt\\vfs\\dir.zip");
+
+	//PHYSFS_
+	PHYSFS_file* file = PHYSFS_openWrite("test.txt");
+	WT_ASSERT(file, "Invalid file");
+	PHYSFS_write(file, "asdf", 4, 1);
+	LOG("%p", file);
+
+	PHYSFS_close(file);
+	PHYSFS_deinit();
+
+}
+
+#endif

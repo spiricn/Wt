@@ -159,6 +159,8 @@ void Scene::deleteActor(ASceneActor* aActor){
 }
 
 Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
+	WT_ASSERT(iter != mActors.end(), "Invalid actor iterator");
+
 	if(iter->second->getPhysicsActor()){
 		mPhysics->removeActor( iter->second->getPhysicsActor() );
 	}
@@ -193,6 +195,16 @@ void Scene::clear(){
 ASceneActor* Scene::getActorById(uint32_t id){
 	ActorMap::iterator i = mActors.find(id);
 	return i == mActors.end() ? NULL : i->second;
+}
+
+ParticleEffect* Scene::createParticleEffect(const String& name){
+	ParticleEffect* effect = new ParticleEffect(this, generateActorId(), name);
+
+	mActors.insert( std::make_pair(effect->getId(), effect) );
+
+	mParticleEffects.insert(effect);
+
+	return effect;
 }
 
 ModelledActor* Scene::createModelledActor(const String& name){

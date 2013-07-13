@@ -15,6 +15,7 @@
 #include "wt/Fog.h"
 #include "wt/ASceneActor.h"
 #include "wt/ModelledActor.h"
+#include "wt/ParticleEffect.h"
 
 namespace wt{
 
@@ -34,6 +35,8 @@ public:
 
 	typedef std::set<ModelledActor*> ModelledActorSet;
 
+	typedef std::set<ParticleEffect*> ParticleEffectSet;
+
 	typedef std::set<Terrain*> TerrainSet;
 
 protected:
@@ -45,6 +48,10 @@ protected:
 		return mTerrainSet;
 	}
 
+	const ParticleEffectSet& getParticleEffects() const{
+		return mParticleEffects;
+	}
+
 private:
 	/** Master actor list */
 	ActorMap mActors;
@@ -54,6 +61,8 @@ private:
 
 	/** A list of terrain entities (also contained in 'mActors') */
 	TerrainSet mTerrainSet;
+
+	ParticleEffectSet mParticleEffects;
 
 	math::Camera* mCamera;
 
@@ -120,6 +129,8 @@ public:
 	uint32_t getNumPointLights() const;
 	
 	ModelledActor* createModelledActor(const String& name="");
+
+	ParticleEffect* createParticleEffect(const String& name="");
 
 	ASceneActor* findActorByName(const String& name) const;
 

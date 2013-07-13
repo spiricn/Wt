@@ -277,7 +277,7 @@ void saveDepthTexture(Texture2D* texture, const String& path){
 	Buffer<unsigned char> rgb;
 	rgb.create(w*h*3);
 	for(uint32_t i=0; i<w*h; i++){
-		Uint8 depth = (Uint8)((1.0 - (1.0 - p[i]) * 25.0)*255.0);
+		uint8_t depth = (uint8_t)((1.0 - (1.0 - p[i]) * 25.0)*255.0);
 
 		rgb[i*3 + 0] = depth;
 		rgb[i*3 + 1] = depth;
@@ -701,8 +701,42 @@ void Renderer::render(Scene& scene, const Terrain* terrain, PassType pass){
 	render(scene, terrain->getRootNode() );
 }
 
+void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
+	// TODO fix this
+	ParticleEffect* effect = const_cast<ParticleEffect*>(e);
 
+	gl( Enable(GL_BLEND) );
 
+	gl( BlendEquation(GL_FUNC_ADD) );
+	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
+	gl( DepthMask(false) );
+
+	effect->mShader.use();
+
+	// modelview
+	glm::mat4 view;
+	scene.getCamera().getMatrix(view);
+
+	
+	effect->mShader.setUniformVal("uPosition", effect->getTransform().getPosition());
+	
+	effect->mShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
+
+	// texture
+	gl( ActiveTexture(GL_TEXTURE0) );
+	effect->mShader.setUniformVal("uParticleTexture", 0);
+
+	// modelview projection
+	effect->mShader.setModelViewProj(view, getFrustum().getProjMatrix());
+
+	effect->mShader.setUniformVal("uSeed", math::random(0, 1000));
+
+	effect->mParticleTexture->bind();
+	effect->mBatches[effect->mCurrBatch].render( &effect->mBatches[(effect->mCurrBatch+1)%2].getVertexBuffer() );
+	effect->mCurrBatch = (effect->mCurrBatch+1)%2;
+
+	gl( DepthMask(true) );
+}
 
 void Renderer::getGodRayParams(GodRayParams& dst){
 	dst = mGodRayParams;
@@ -770,6 +804,11 @@ void Renderer::render(Scene& scene, PassType pass){
 		if(sky != NULL){
 			render(scene, sky);
 		}
+	}
+
+	// Particles
+	for(Scene::ParticleEffectSet::const_iterator iter=scene.getParticleEffects().cbegin(); iter!=scene.getParticleEffects().cend(); iter++){
+		render(scene, *iter, pass);
 	}
 
 	/*if(mRenderBones){

@@ -58,7 +58,7 @@ public:
 
 		dst->create();
 
-		Buffer<Uint8> p;
+		Buffer<uint8_t> p;
 		uint32_t w=src->getWidth();
 		uint32_t h=src->getHeigth();
 		p.create(w*h*3);

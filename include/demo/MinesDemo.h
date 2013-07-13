@@ -10,7 +10,7 @@
 namespace wt{
 
 
-#define CURSOR_ENABLED
+//#define CURSOR_ENABLED
 	
 
 class MineActor{
@@ -25,7 +25,7 @@ public:
 class MinesDemo : public ADemo, public EventListener{
 private:
 	Minesweeper mGameState;
-	ParticleEmitter mEmitter;
+	//ParticleEmitter mEmitter;
 	ASoundSystem* mSoundSystem;
 	MusicPlayer* mAmbientMusic;
 	MusicPlayer* mDefeatMusic;
@@ -155,15 +155,15 @@ public:
 	void onRender(float dt){
 		getRenderer()->render( *getScene() );
 
-		mEmitter.render(&getScene()->getCamera(),
-			&getRenderer()->getFrustum());
+		/*mEmitter.render(&getScene()->getCamera(),
+			&getRenderer()->getFrustum());*/
 	}
 
 	void onUpdate(float dt){
 		getPhysics()->update(dt);
 		getScene()->update(dt);
 
-		mEmitter.update(dt);
+		//mEmitter.update(dt);
 		mSoundSystem->update(dt);
 		
 		getScene()->getSkyBox()->getTransform().rotate(1, 1, 1, 3*dt);
@@ -288,6 +288,8 @@ public:
 	}
 
 	void restart(Difficulty difficulty){
+		LOG("restart");
+
 		Uint32 numRows, numColumns, numMines;
 		glm::quat cameraRotation;
 		glm::vec3 cameraPosition;
@@ -322,7 +324,7 @@ public:
 		getScene()->getCamera().setPosition(cameraPosition);
 		getScene()->getCamera().setRotation(cameraRotation);
 
-		// remvoe all the actors from the scene
+		// Remove all the actors from the scene
 		for(ActorList::iterator i=mActors.begin(); i!=mActors.end(); i++){
 			getScene()->deleteActor((*i)->sceneActor);
 			delete *i;
