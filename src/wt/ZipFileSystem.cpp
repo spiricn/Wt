@@ -16,11 +16,11 @@ ZipFileSystem::~ZipFileSystem(){
 }
 
 Sp<AIOStream> ZipFileSystem::open(const String& uri, AIOStream::Mode mode){
-#if 0
+
 	if(!PHYSFS_exists(uri.c_str())){
-		return NULL;
+		LOGW("File \"%s\" does not exist in zip archive", uri.c_str());
 	}
-#endif
+
 	return new ZipInputStream(PHYSFS_openRead(uri.c_str()));
 }
 

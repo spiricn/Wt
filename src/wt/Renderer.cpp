@@ -143,9 +143,11 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	setClearColor(Color(0.3, 0.3, 0.3));
 
 
+#if 0
 	// TODO move to encoded header file
 	FileIOStream stream("assets/brushes/images/circle_soft.png", AIOStream::eMODE_READ);
 	TextureLoader::getSingleton().load(&stream, &mGodraySunTexture);
+#endif
 
 	LOGV("Initialized OK");
 }
@@ -708,11 +710,16 @@ void Renderer::render(Scene& scene, const Terrain* terrain, PassType pass){
 }
 
 void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
+	// No need to render particles in any other pass
+	if(pass != eNORMAL_PASS){
+		return;
+	}
+
 	// TODO fix this
 	ParticleEffect* effect = const_cast<ParticleEffect*>(e);
 
+	// Setup OpenGL
 	gl( Enable(GL_BLEND) );
-
 	gl( BlendEquation(GL_FUNC_ADD) );
 	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
 	gl( DepthMask(false) );
@@ -720,35 +727,27 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 
 	mParticleShader.use();
 
-	// modelview
 	glm::mat4 view;
 	scene.getCamera().getMatrix(view);
 
+	// Upload uniforms
 	mParticleShader.setUniformVal("uPosition", effect->getTransform().getPosition());
-	
 	mParticleShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
-
-
-	// Effect specific params
-	mParticleShader.setUniformVal("uMaxLife", effect->mDesc.life);
-	mParticleShader.setUniformVal("uSize", effect->mDesc.size);
-	mParticleShader.setUniformVal("uVelocity", effect->mDesc.velocity);
-	mParticleShader.setUniformVal("uColor", effect->mDesc.color);
-	mParticleShader.setUniformVal("uDt", effect->dt);
-
-	wt::printGlErrors(__FILE__, __LINE__, "3");
-	// texture
-	gl( ActiveTexture(GL_TEXTURE0) );
+	mParticleShader.setUniformVal("uMaxLife", effect->getDesc().life);
+	mParticleShader.setUniformVal("uSize", effect->getDesc().size);
+	mParticleShader.setUniformVal("uVelocity", effect->getDesc().velocity);
+	mParticleShader.setUniformVal("uColor", effect->getDesc().color);
+	mParticleShader.setUniformVal("uDt", effect->getTimeDelta());
 	mParticleShader.setUniformVal("uParticleTexture", 0);
-
-	// modelview projection
 	mParticleShader.setModelViewProj(view, getFrustum().getProjMatrix());
-
 	mParticleShader.setUniformVal("uSeed", math::random(0, 1000));
 
-	effect->mDesc.texture->bind();
-	effect->mBatches[effect->mCurrBatch].render( &effect->mBatches[(effect->mCurrBatch+1)%2].getVertexBuffer() );
-	effect->mCurrBatch = (effect->mCurrBatch+1)%2;
+	// Texture
+	gl( ActiveTexture(GL_TEXTURE0) );
+	effect->getDesc().texture->bind();
+
+	// Render the particles
+	effect->render();
 
 	gl( DepthMask(true) );
 }

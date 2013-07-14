@@ -7,6 +7,9 @@
 #include "wt/FileIOStream.h"
 #include "wt/Sp.h"
 
+
+#define TD_TRACE_TAG "AResourceLoader"
+
 namespace wt{
 
 
@@ -32,6 +35,25 @@ public:
 	virtual void create(T* resource){
 	}
 
+	virtual void load(const String& path, T* dst){
+		FileIOStream stream(path, AIOStream::eMODE_READ);
+		try{
+			load(&stream, dst);
+		}catch(...){
+			LOGE("Error loading resource from \"%s\"", path.c_str());
+			throw;
+		}
+	}
+
+	virtual void save(const String& path, T* dst){
+		FileIOStream stream(path, AIOStream::eMODE_WRITE);
+		try{
+			save(&stream, dst);
+		}catch(...){
+			LOGE("Error saving resource to \"%s\"", path.c_str());
+			throw;
+		}
+	}
 	
 
 }; // <AResourceLoader>

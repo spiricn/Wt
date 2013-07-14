@@ -8,7 +8,6 @@
 #include <wt/ImageManager.h>
 #include <wt/DevilImageLoader.h>
 #include <Wt/Assets.h>
-#include <wt/game/GameLevel.h>
 
 #include "wte/ImageManagerTab.h"
 #include "wte/SkyBoxManagerTab.h"
@@ -34,9 +33,7 @@ private:
 	
 	wt::Assets mAssets;
 	WorldEditTab* mWorldEdit;
-	wt::GameLevel* mGameLevel;
 	QSettings* mSettings;
-	wt::EntityManager mEntityManager;
 
 	wt::Scene mScene;
 

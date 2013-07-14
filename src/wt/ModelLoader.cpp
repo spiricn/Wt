@@ -158,6 +158,15 @@ void ModelLoader::load(AIOStream* stream, Model* model){
 		Buffer<Geometry::Vertex> vertices(nov);
 		stream->read((char*)vertices.getData(), nov*sizeof(Geometry::Vertex));
 
+		// Verify vertices
+		for(uint32_t i=0; i<nov; i++){
+#define VALID_FLOAT( val ) ( !(glm::isnan( (val) ) || glm::isinf( (val) )) )
+			
+			WT_ASSERT(VALID_FLOAT(vertices[i].x), "Corrupted vertex data");
+			WT_ASSERT(VALID_FLOAT(vertices[i].y), "Corrupted vertex data");
+			WT_ASSERT(VALID_FLOAT(vertices[i].z), "Corrupted vertex data");
+		}
+
 		// post processing
 #if 0
 		// NOTE this part works fine
@@ -183,8 +192,13 @@ void ModelLoader::load(AIOStream* stream, Model* model){
 		Buffer<GLuint> indices(noi);
 		stream->read((char*)indices.getData(), noi*sizeof(uint32_t));
 
+		// Verfify indices
+		for(uint32_t i=0; i<noi; i++){
+			WT_ASSERT(indices[i] < nov, "Invalid geometry index, data corrupted (index=%u num_vertices=%u)", indices[i], nov);
+		}
+
 		model->addGeometry(name, vertices, indices);
-		// setup structure
+		//// setup structure
 		//geo->create(vertices, indices);
 	}
 

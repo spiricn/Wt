@@ -9,6 +9,8 @@ TextureManagerTab::TextureManagerTab(QWidget* parent, wt::Assets* assets) : ARsr
 	ui.setupUi(this);
 
 	setAcceptDrops(true);
+
+	setTreeWidget(ui.treeWidget);
 }
 
 void TextureManagerTab::onCtxMenuSetUri(RTWItem* item){
@@ -16,7 +18,10 @@ void TextureManagerTab::onCtxMenuSetUri(RTWItem* item){
 		tr("Open Image"), "", tr("Image Files (*.png *.jpg *.bmp *.tga)"));
 
 	LOG("SETTING IMAGE URI %s", path.toStdString().c_str());
-	((wt::Texture2D*)item->userData)->setUri(path.toStdString());
+
+	
+	// Set uri relative to AResourceSystem RFS
+	((wt::Texture2D*)item->userData)->setUri( getAssets()->getRelativeURI( path.toStdString() ) );
 }
 
 void TextureManagerTab::dropEvent(QDropEvent* evt){

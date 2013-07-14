@@ -34,10 +34,20 @@ void Batch::render(const SubBatch& batch){
 	WT_ASSERT(mIsInitialized, "Batch not initialized (call create before attempting to render)");
 #endif
 
+
+	// TODO Not sure why but it seems that index and vertex buffer must be bound manually along side vertex array
+	mIndexBuffer->bind();
+	mVertexBuffer->bind();
+
+	// TODO check if the right index buffer is bound, will cause crash otherwise
+	
+	/* TODO min max indices do nothing at the moment
+	from what I understand their only purpose is to let GPU driver optimize the actual drawing
+	so they should probably be precalculated in runtime (or maybe even stored in a model file)*/
 	glDrawRangeElements(
-		mPrimitive,
-		batch.mMinIndex,
-		batch.mMaxIndex,
+		mPrimitive,	
+		/* batch.mMinIndex */ 0,
+		/* batch.mMaxIndex */ 0xFFFFFFFF,
 		batch.mNumIndices,
 		mIndexType, 
 		(const GLvoid*)(batch.mStartIndex*mIndexSize)

@@ -80,6 +80,7 @@ void SkeletalAnimationPlayer::calculateGlobalTransforms(SkeletonBone* bone){
 }
 
 void SkeletalAnimationPlayer::play(const String& name, bool loop){
+	mCurrentAnimationName = name;
 	play(mModel->getSkeletalAnimation(name), loop);
 }
 

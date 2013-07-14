@@ -17,7 +17,7 @@ namespace wt{
 
 #define DEFAULT_TICKS_PER_SEC 25.0f
 
-class AssimpModelLoader : public Singleton<AssimpModelLoader>, public AResourceLoader<Model>{
+class AssimpModelLoader : public Singleton<AssimpModelLoader>{
 public:
 
 	typedef std::map<String, String> TextureMap;

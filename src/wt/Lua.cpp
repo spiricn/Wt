@@ -187,6 +187,10 @@ std::ostream& operator<<(std::ostream& stream, LuaObject& obj){
 		stream << "\"" << obj.ToString() << "\"";
 		break;
 
+	case LUA_TBOOLEAN:
+		stream << (obj.GetBoolean() ? "true" : "false");
+		break;
+
 	case LUA_TTABLE:
 		stream << "{";
 
@@ -221,14 +225,63 @@ void serializeTable(LuaObject& table, std::ostream& stream, uint32_t depth){
 	serialize(table, stream);
 }
 
+bool luaConv(const math::Transform& src, LuaObject& dst){
+	// Position
+	dst.Set(1, src.getPosition().x);
+	dst.Set(2, src.getPosition().y);
+	dst.Set(3, src.getPosition().z);
+
+	// Scale
+	dst.Set(4, src.getScale().x);
+	dst.Set(5, src.getScale().y);
+	dst.Set(6, src.getScale().z);
+
+	// Rotation
+	dst.Set(7, src.getQuat().x);
+	dst.Set(8, src.getQuat().y);
+	dst.Set(9, src.getQuat().z);
+	dst.Set(10, src.getQuat().w);
+
+	return true;
+}
+
+bool luaConv(const LuaObject& src, math::Transform& dst){
+	// Position
+	float px, py, pz;
+	if(!luaConv(src.Get(1), px)) return false;
+	if(!luaConv(src.Get(2), py)) return false;
+	if(!luaConv(src.Get(3), pz)) return false;
+	dst.setPosition(px, py, pz);
+
+	// Scale
+	float sx, sy, sz;
+	if(!luaConv(src.Get(4), sx)) return false;
+	if(!luaConv(src.Get(5), sy)) return false;
+	if(!luaConv(src.Get(6), sz)) return false;
+	dst.setScale(sx, sy, sz);
+
+	// Rotation
+	float rx, ry, rz, rw;
+	if(!luaConv(src.Get(7), rx)) return false;
+	if(!luaConv(src.Get(8), ry)) return false;
+	if(!luaConv(src.Get(9), rz)) return false;
+	if(!luaConv(src.Get(10), rw)) return false;
+	dst.setQuat(rx, ry, rz, rw);
+
+	return true;
+}
+
+
 void luaDoStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject& fenv){
 }
 
 void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject* fenv){
 	WT_ASSERT(stream.isReadable(), "Stream not readable");
 
-	char* bfr = new char[stream.getSize()];
+	char* bfr = new char[stream.getSize() + 1];
+	memset(bfr, 0x00, stream.getSize() + 1);
 
+	stream.read(bfr, stream.getSize());
 	// TODO switch to using DoBuffer ?
 
 	try{

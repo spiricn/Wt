@@ -59,6 +59,18 @@ public:
 		float vx,vy,vz; 
 	};
 
+	/**
+	per effect attributes:
+		color
+		texture
+		particleNumber
+		effectDuration
+
+	per particle attributes:
+		currentLife
+		totalLife
+		position
+	*/
 	struct EffectDesc{
 		float duration;
 		float size;
@@ -69,18 +81,8 @@ public:
 		uint32_t maxNumber;
 	};
 
-
-	EffectDesc mDesc;
-	uint8_t mCurrBatch;
-	Gl::Batch mBatches[2];
-	Texture2D* mParticleTexture;
-	uint32_t mNumParticles;
-	
-	bool mEnabled;
-	float dt;
-
-	ParticleEffect(Scene* parent, uint32_t id, const String& name="") : mEnabled(true), ASceneActor(parent, ASceneActor::eTYPE_PARTICLE_EFFECT, id, name){
-		dt = 0.0f;
+	ParticleEffect(Scene* parent, uint32_t id, const String& name="") : mEnabled(true), ASceneActor(parent, ASceneActor::eTYPE_PARTICLE_EFFECT, id, name),
+		mTimeDelta(0.0f){
 	}
 
 	void setEnable(bool enabled){
@@ -92,12 +94,9 @@ public:
 	}
 
 	void update(float dt){
-		this->dt = dt;
-		/*mShader.use();
-		mShader.setUniformVal("uDt", dt);*/
+		mTimeDelta = dt;
 	}
 
-	//void create(uint32_t numParticles, Texture2D* particleTexture, const String& userProg){
 	void create(const EffectDesc& desc){
 		mDesc = desc;
 		glEnable(GL_POINT_SPRITE);
@@ -146,7 +145,33 @@ public:
 		delete[] particles;
 		delete[] indices;
 	}
-};
+
+	const EffectDesc& getDesc() const{
+		return mDesc;
+	}
+
+	void render(){
+		mBatches[mCurrBatch].render( &mBatches[(mCurrBatch+1)%2].getVertexBuffer() );
+		mCurrBatch = (mCurrBatch+1)%2;
+	}
+
+	float getTimeDelta() const{
+		return mTimeDelta;
+	}
+
+private:
+	EffectDesc mDesc;
+
+	uint8_t mCurrBatch;
+	Gl::Batch mBatches[2];
+	Texture2D* mParticleTexture;
+	uint32_t mNumParticles;
+	
+	bool mEnabled;
+	float mTimeDelta;
+
+
+}; // </ParticleEffect>
 
 
 

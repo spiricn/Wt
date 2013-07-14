@@ -48,21 +48,43 @@ public:
 
 		// Create particle emitters
 
-		ParticleEffect* effect = getScene()->createParticleEffect();
-		ParticleEffect::EffectDesc desc;
+		// layer 1
+		{
+			ParticleEffect* effect = getScene()->createParticleEffect();
+			ParticleEffect::EffectDesc desc;
 
-		desc.color = Color::red();
-		desc.duration = 1;
-		desc.life = 0.5;
-		desc.maxNumber = 300;
-		desc.size = 0.2;
-		desc.texture = getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft");
-		desc.velocity = 23;
+			desc.color = Color::green();
+			desc.life = 3;
+			desc.maxNumber = 50;
+			desc.size = 1;
+			desc.texture = getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft");
+			desc.velocity = 4;
 
-		effect->getTransform().setPosition(200, 0, 269);
+			effect->getTransform().setPosition(200, 20, 269);
 
-		effect->create(desc);
+			effect->create(desc);
+		}
+		{
+
+			ParticleEffect* effect = getScene()->createParticleEffect();
+			ParticleEffect::EffectDesc desc;
+
+			desc.color = Color::green();
+			desc.maxNumber = 1;
+			desc.size = 10;
+			desc.texture = getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft");
+			desc.velocity = 0;
+
+			effect->getTransform().setPosition(200, 20, 269);
+
+			effect->create(desc);
+		}
+
+		/*ModelledActor* a = getScene()->createModelledActor();
+		a->setModel(getAssets()->getModelManager()->find("arthas"), "default");
+		a->getAnimationPlayer()->play("walk", true);*/
 	}
+
 
 	String getConfigFile() const{
 		return "assets/ParticleDemoConfig.lua";
@@ -70,6 +92,7 @@ public:
 
 	String getLevelFile() const{
 		return "assets/demo/ParticleDemo/level.lua";
+		//return "level1.lua";
 	}
 
 

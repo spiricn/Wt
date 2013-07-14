@@ -25,6 +25,8 @@
 #include "wt/AResourceSystem.h"
 #include "wt/ZipFileSystem.h"
 
+#define TD_TRACE_TAG "Assets"
+
 namespace wt{
 
 class Assets : public AResourceSystem, public Singleton<Assets>{
@@ -79,13 +81,15 @@ private:
 		deserialize(mSoundManager, "SOUND_MANAGER", assets);
 	}
 
+	String mRootDir;
+
 public:
 	enum FileSystemType{
 		eFS_DIR,
 		eFS_ZIP,
 	}; //</FileSystemType>
 
-	Assets(FileSystemType fileSystemType, const String& fileSystemRoot){
+	Assets(FileSystemType fileSystemType, const String& fileSystemRoot) : mRootDir(fileSystemRoot){
 		LOGD("Creating a %s file system, with \"%s\" as root",
 			fileSystemType == eFS_DIR ? "directory" : "zip", fileSystemRoot.c_str());
 
@@ -148,12 +152,9 @@ public:
 
 	template<class T>
 	void fixAbsolutePaths(AResourceManager<T>* manager){
-		String homeDir = Utils::getHomeDir();
-
 		for(AResourceManager<T>::ResourceIterator i=manager->getResourceIterator(); i.next(); i++){
-
 			i->setUri(
-				Utils::toRelative(homeDir, i->getUri())
+				getRelativeURI(i->getUri())
 				);
 		}
 	}
@@ -219,6 +220,9 @@ public:
 		mModelManager->createAll();
 	}
 
+	String getRelativeURI(const String& uri){
+		return Utils::toRelative(mRootDir, uri);
+	}
 
 	void load(const LuaObject& table){
 		deserialize(table);

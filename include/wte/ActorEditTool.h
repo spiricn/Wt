@@ -6,9 +6,6 @@
 #include "wte/SceneView.h"
 #include "wte/ATool.h"
 
-#include <wt/game/AGameActor.h>
-#include <wt/game/GameLevel.h>
-
 class ActorEditTool : public QDialog, public ATool{
 Q_OBJECT
 
@@ -18,15 +15,12 @@ private:
 	wt::Scene* mScene;
 	wt::Physics* mPhysics;
 
-	void addActor(wt::AGameActor* actor);
+	/*void addActor(wt::AGameActor* actor);
 
-	void selectActor(wt::AGameActor* actor);
+	void selectActor(wt::AGameActor* actor);*/
 
-	wt::AGameActor* mSelectedActor;
-
+	
 	void updateSelectionStats();
-
-	wt::GameLevel* mGameLevel;
 
 	bool mSelectingActor;
 
@@ -44,11 +38,11 @@ public:
 		ui.buttonBrushToggle->setText("Deactivate brush");
 	}
 
-    ActorEditTool(SceneView* sceneView, wt::GameLevel* level, QWidget* parent, AToolManager*);
+    ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager*);
 
 protected slots:
 
-	void onSceneInitialized();
+	/*void onSceneInitialized();
 
 	void onNewActor();
 
@@ -70,7 +64,7 @@ protected slots:
 
 	void onRotationChanged();
 
-	void onMousePress(QMouseEvent*);
+	void onMousePress(QMouseEvent*);*/
 
 }; // </ActorEditTool>
 

@@ -3,7 +3,7 @@
 
 #include "ui_ActorCreationDialog.h"
 
-#include <wt/SceneActor.h>
+#include <wt/ModelledActor.h>
 #include <wt/Physics.h>
 #include <wt/Assets.h>
 
@@ -41,7 +41,7 @@ private:
 public:
     ActorCreationDialog(QWidget* parent, wt::Assets* assets);
 
-	static EditResult edit(QWidget* parent,  wt::Assets* assets, wt::SceneActor* actor=NULL){
+	static EditResult edit(QWidget* parent,  wt::Assets* assets, wt::ModelledActor* actor=NULL){
 		ActorCreationDialog dlg(parent, assets);
 		dlg.exec();
 

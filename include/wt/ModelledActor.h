@@ -2,6 +2,8 @@
 #define WT_MODELLEDACTOR_H
 
 #include "wt/ASceneActor.h"
+#include "wt/ASerializable.h"
+#include "wt/SkeletalAnimationPlayer.h"
 
 namespace wt{
 
@@ -14,6 +16,12 @@ private:
 	ModelledActor* mAttachActor;
 	SkeletonBone* mAttachBone;
 	float mAttachDistance;
+
+	struct AttachPoint{
+		math::Transform transform;
+		SkeletonBone* bone;
+		ASceneActor* actor;
+	};
 
 public:
 	ModelledActor(Scene* parent, uint32_t id, const String& name="") : ASceneActor(parent, ASceneActor::eTYPE_MODELLED, id, name),
@@ -95,6 +103,50 @@ public:
 			if(mAttachDistance != 0.0f){
 				mTransform.moveForward( mAttachDistance );
 			}
+		}
+	}
+
+	/*********************************/
+	/*********** Serialization *******/
+	/*********************************/
+
+	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst){
+		ASceneActor::serialize(assets, dst);
+
+		dst.Set("model",
+			mModel ? mModel->getPath().c_str() : NULL
+			);
+
+		dst.Set("skin",
+			mSkin ? mSkin->getName().c_str() : NULL
+			);
+
+		if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
+			dst.Set("animation",
+				mAnimationPlayer->getCurrentAnimationName().c_str()
+			);
+
+			dst.Set("animationLoop",
+				mAnimationPlayer->isLooping()
+			);
+		}
+	}
+
+	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src){
+		// ASceneActor is going to do the transform deserialization
+		ASceneActor::deserialize(assets, src);
+
+		const char* modelPath = src.Get("model").ToString();
+		const char* skin = src.Get("skin").ToString();
+
+		setModel( assets->getModelManager()->getFromPath(modelPath), skin );
+
+		String animation;
+		bool isLooping = false;
+		if(Lua::luaConv(src.Get("animation"), animation)){
+			Lua::luaConv(src.Get("animationLoop"), isLooping);
+
+			getAnimationPlayer()->play(animation, isLooping);
 		}
 	}
 }; // </ModeledActor>

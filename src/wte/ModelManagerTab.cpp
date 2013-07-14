@@ -16,7 +16,7 @@ void ModelManagerTab::onCtxMenuSetUri(RTWItem* item){
 	QString path = QFileDialog::getOpenFileName(this,
 		tr("Open model"), "", tr("Wt model file(*.wtm)"));
 
-	((wt::Model*)item->userData)->setUri(path.toStdString());
+	((wt::Model*)item->userData)->setUri( getAssets()->getRelativeURI( path.toStdString() ) );
 }
 
 

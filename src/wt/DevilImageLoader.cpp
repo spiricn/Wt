@@ -66,14 +66,17 @@ void DevilImageLoader::save(AIOStream* stream, Image* image){
 	ilEnable(IL_FILE_OVERWRITE);
 	ilSave(IL_TYPE_UNKNOWN, path.c_str());
 #else
-	uint32_t lumpSize = 1024*1024;
-	ILubyte* lump = new ILubyte[lumpSize];
+	// Maximum size to allocate for a image 10MB
+	const uint32_t kMAX_SIZE = 1024*1024*10;
 
-	ILuint bytesWritten = ilSaveL(IL_TYPE_UNKNOWN, lump, lumpSize);
+	ILubyte* lump = new ILubyte[kMAX_SIZE];
+
+	//Buffer<
+	ILuint bytesWritten = ilSaveL(IL_BMP, lump, kMAX_SIZE);
 
 	ILenum rc =  ilGetError();
 	if(rc!=IL_NO_ERROR){
-		WT_THROW("Error saving image to stream (buffer not large enough?) rc=%#x", rc);
+		WT_THROW("Error saving image to stream (buffer not large enough?) (rc=%#x bytesWritten=%d bytesAllocated=%d)", rc, bytesWritten, kMAX_SIZE);
 	}
 
 	if(stream->write(lump, bytesWritten) != bytesWritten){

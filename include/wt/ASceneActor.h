@@ -7,8 +7,7 @@
 
 #include "wt/Transform.h"
 #include "wt/Model.h"
-#include "wt/ASerializable.h"
-#include "wt/SkeletalAnimationPlayer.h"
+#include "wt/AResourceSystem.h"
 
 namespace wt{
 
@@ -97,6 +96,34 @@ public:
 
 	virtual void update(float /*dt*/){
 	}
+
+	/*********************************/
+	/*********** Serialization *******/
+	/*********************************/
+
+	virtual void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst){
+		Lua::LuaObject tf;
+		LUA_NEW_TABLE(tf);
+
+		Lua::luaConv(mTransform, tf);
+		dst.Set("transform", tf);
+
+		dst.Set("name", mName.c_str());
+
+		// TODO storing this as an integer might not be a good idea
+		dst.Set("type", (int)mType);
+	}
+
+	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src){
+		if(!Lua::luaConv(src.Get("transform"), mTransform)){
+			WT_THROW("Error deserializing transform");
+		}
+
+		if(!Lua::luaConv(src.Get("name"), mName)){
+			mName = "";
+		}
+	}
+
 
 }; // </ASceneActor>
 

@@ -15,10 +15,11 @@ private:
 	Buffer<glm::mat4> mGlobalBoneTransforms; // global bone * offset
 	Model* mModel;
 	SkeletalAnimation* mCurrentAnimation;
+	String mCurrentAnimationName;
 	float mAnimationTime;
 	float mAnimationSpeed;
 	TimeAccumulator mTimeAccumulator;
-
+	
 	bool mIsLooping;
 
 	void evaluate();
@@ -35,6 +36,14 @@ public:
 
 	SkeletalAnimation* getCurrentAnimation() const{
 		return mCurrentAnimation;
+	}
+
+	bool isLooping() const{
+		return mIsLooping;
+	}
+
+	const String& getCurrentAnimationName() const{
+		return mCurrentAnimationName;
 	}
 
 	SkeletalAnimationPlayer(Model* model);

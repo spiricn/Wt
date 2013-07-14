@@ -17,5 +17,5 @@ void SoundManagerTab::onCtxMenuSetUri(RTWItem* item){
 	QString path = QFileDialog::getOpenFileName(this,
 		tr("Open Sound"), "", tr("Vorbis files(*.ogg)"));
 
-	((wt::ASoundBuffer*)item->userData)->setUri(path.toStdString());
+	((wt::ASoundBuffer*)item->userData)->setUri( getAssets()->getRelativeURI( path.toStdString() ) );
 }

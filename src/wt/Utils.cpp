@@ -350,7 +350,9 @@ String toRelative(const String& base, const String& path){
 
 	String b = base;
 	Utils::replacePathSplitters(b, '/');
-	b.append("/");
+	if(b[b.size()-1] != '/'){
+		b.append("/");
+	}
 	std::transform(b.begin(), b.end(), b.begin(), ::tolower);
 
 	String p = path;

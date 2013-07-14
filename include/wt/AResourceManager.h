@@ -119,6 +119,18 @@ public:
 		mLoader->save(stream, src);
 	}
 
+	void save(const String& path, T* src){
+		WT_ASSERT(mLoader != NULL, "No resoruce loader set, cannot save \"%s\"", path.c_str());
+
+		mLoader->save(path, src);
+	}
+
+	void load(const String& path, T* src){
+		WT_ASSERT(mLoader != NULL, "No resoruce loader set, cannot load \"%s\"", path.c_str());
+
+		mLoader->load(path, src);
+	}
+
 	void loadAll(){
 		for(AResourceManager<T>::ResourceMap::iterator i=AResourceManager<T>::mResources.begin();
 			i!=AResourceManager<T>::mResources.end(); i++){

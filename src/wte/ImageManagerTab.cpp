@@ -15,5 +15,5 @@ void ImageManagerTab::onCtxMenuSetUri(RTWItem* item){
 	QString path = QFileDialog::getOpenFileName(this,
 		tr("Open Image"), "", tr("Image Files (*.png *.jpg *.bmp *.tga)"));
 
-	((wt::Image*)item->userData)->setUri(path.toStdString());
+	((wt::Image*)item->userData)->setUri( getAssets()->getRelativeURI( path.toStdString() ) );
 }

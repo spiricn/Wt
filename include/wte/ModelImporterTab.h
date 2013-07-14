@@ -10,6 +10,8 @@ class Assets;
 }; // </wt>
 
 
+#include <wt/AResourceSystem.h>
+
 #include "ui_ModelImporterTab.h"
 
 #include "wte/utils.h"
@@ -18,7 +20,7 @@ class ModelImporterTab : public QWidget{
 	Q_OBJECT;
 
 private:
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
 	Ui::ModelImporter ui;
 
 	bool sameFile(const QString& file1, const QString& file2);
@@ -33,7 +35,7 @@ protected:
 	void import(const QString& path);
 
 public:
-	ModelImporterTab(QWidget* parent, wt::Assets* assets);
+	ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets);
 
 protected slots:
 	void onBatchConvert();

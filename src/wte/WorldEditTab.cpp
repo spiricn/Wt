@@ -14,30 +14,21 @@
 #include "wte/TerrainEditDialog.h"
 
 #include <wt/SFSound.h>
-#include <wt/game/Creature.h>
 
 #define FPS 50
 	
 
-WorldEditTab::WorldEditTab(QWidget* parent, wt::GameLevel* gameLevel) : QMainWindow(parent), mGameLevel(gameLevel),
-	mSelectedActor(NULL){
+WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets) : QMainWindow(parent),
+	mSelectedActor(NULL), mAssets(assets), mScene(scene){
 	 ui.setupUi(this);
-	 
-	 mScene = gameLevel->getScene();
 
-	 mAssets = gameLevel->getAssets();
-
-	 mWorld = new World; // TODO memory leak
-	 mWorld->physics = mScene->getPhysics();
-	 mWorld->scene = mScene;
-	 //mWorld->eventManager = &wt::EventManager::getSingleton();
-
-	 // scene setup
+	 // Scene setup
 	 connect(ui.sceneView, SIGNAL(initialized()),
 		 this, SLOT(onGLContextCreated()));
 
-	 ui.sceneView->setScene(mWorld->scene);
+	 ui.sceneView->setScene(mScene);
 
+#if 0
 	 // terrain tool
 	 mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this, mScene, mAssets);
 	 mTerrainEditTool->setModal(false);
@@ -54,10 +45,11 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::GameLevel* gameLevel) : QMainWin
 	 ui.actorEditToolDock->setWidget(mActorEditTool );
 	 mTools.push_back(mActorEditTool);
 
-	 //// fog tool
-	 //mFogTool = new FogTool(ui.sceneView, this);
-	 //ui.fogToolDock->setWidget(mFogTool);
-	 
+	 // fog tool
+	 mFogTool = new FogTool(ui.sceneView, this);
+	 ui.fogToolDock->setWidget(mFogTool);
+#endif
+
 	 // main loop timer
 	 connect(&mTimer, SIGNAL(timeout()),
 		 this, SLOT(onTimeout()));
@@ -70,13 +62,14 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::GameLevel* gameLevel) : QMainWin
 void WorldEditTab::onTimeout(){
 	float dt = 1.0f/FPS;
 
-	mWorld->scene->update(dt);
-	mWorld->physics->update(dt);
+	mScene->update(dt);
+	mScene->getPhysics()->update(dt);
 
 	ui.sceneView->update(dt);
 }
 
 void WorldEditTab::createToolbar(){
+#if 0
 	QAction* terrainEdit = new QAction(QIcon(":/icons/placeholder"), "Terrain editor", this);
 	connect(terrainEdit, SIGNAL(triggered(bool)),
 		this, SLOT(onShowTerrainTool(bool)));
@@ -86,6 +79,7 @@ void WorldEditTab::createToolbar(){
 	connect(lightEdit, SIGNAL(triggered(bool)),
 		this, SLOT(onShowLightEditor(bool)));
 	ui.toolBar->addAction(lightEdit);
+#endif
 }
 
 void WorldEditTab::onShowLightEditor(bool){
@@ -122,8 +116,20 @@ void WorldEditTab::onScreenshot(){
 	p->execute(path);*/
 }
 
+#include <qmessagebox.h>
+
 void WorldEditTab::loadLevel(const QString& path){
-	mGameLevel->init( path.toStdString() );
+	LuaPlus::LuaStateOwner state;
+	state->DoFile(path.toStdString().c_str());
+
+	try{
+		mAssets->load( state->GetGlobal("ASSETS") );
+	}catch(...){
+		QMessageBox::critical(this, "Error", "Error loading assets from \"" + path + "\"");
+		return;
+	}
+
+	
 	emit assetsLoaded();
 	emit onTerrainCreated();
 }
@@ -139,7 +145,7 @@ void WorldEditTab::onSetSkybox(){
 
 	wt::SkyBox* sky = picker.pickResource(this, mAssets->getSkyBoxManager());
 	if(sky){
-		mWorld->scene->setSkyBox(sky);
+		mScene->setSkyBox(sky);
 	}
 }
 
@@ -188,12 +194,12 @@ void WorldEditTab::onSave(){
 }
 
 void WorldEditTab::unloadLevel(){
-	mGameLevel->clear();
-	mGameLevel->getScene()->clear();
+	//mGameLevel->clear();
+	//mGameLevel->getScene()->clear();
 }
 
 void WorldEditTab::onCreateTerrain(){
-	wt::TerrainDesc desc;
+	/*wt::TerrainDesc desc;
 	
 	if(!TerrainEditDialog::editTerrain(this, mAssets, desc)){
 		return;
@@ -201,5 +207,5 @@ void WorldEditTab::onCreateTerrain(){
 
 	mScene->createTerrain(desc);
 
-	emit onTerrainCreated();
+	emit onTerrainCreated();*/
 }

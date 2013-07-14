@@ -7,8 +7,6 @@
 
 #include "wte/ATool.h"
 
-#include <wt/game/GameLevel.h>
-
 class TerrainEditTool;
 class LightEditTool;
 class ActorEditTool;
@@ -33,16 +31,14 @@ class WorldEditTab : public QMainWindow, public AToolManager{
 private:
 	Ui::WorldEdit ui;
 
-	wt::SceneActor* mSelectedActor;
+	wt::ASceneActor* mSelectedActor;
 	wt::math::Camera mCamera;
 	TerrainEditTool* mTerrainEditTool;
 	LightEditTool* mLightTool;
 	ActorEditTool* mActorEditTool;
 	FogTool* mFogTool;
-	World* mWorld;
 
-	wt::Assets* mAssets;
-	wt::GameLevel* mGameLevel;
+	wt::AResourceSystem* mAssets;
 	wt::Scene* mScene;
 
 	QTimer mTimer;
@@ -51,7 +47,7 @@ private:
 	ToolList mTools;
 
 public:
-	WorldEditTab(QWidget* parent, wt::GameLevel* gameLevel);
+	WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets);
 
 	void requestFocus(ATool* tool){
 		for(ToolList::Iterator i=mTools.begin(); i!=mTools.end(); i++){

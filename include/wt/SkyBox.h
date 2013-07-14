@@ -111,7 +111,7 @@ public:
 	SkyBox* create(const String& name){
 		SkyBox* res = AResourceManager<SkyBox>::create(name);
 
-		res->setImageManager( getResourceSystem()->getImageManager() );
+		res->setImageManager( (ImageManager*)getResourceSystem()->getImageManager() );
 
 		return res;
 	}

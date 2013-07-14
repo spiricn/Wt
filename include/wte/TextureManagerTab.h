@@ -24,7 +24,6 @@ protected:
 		ui.treeWidget->buildTree<wt::Texture2D>(NULL, getAssets()->getTextureManager());
 
 		ui.treeWidget->setFilter("");
-		setTreeWidget(ui.treeWidget);
 	}
 
 	void destroyAll(){

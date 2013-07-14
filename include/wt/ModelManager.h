@@ -17,8 +17,8 @@ public:
 	Model* create(const String& name){
 		Model* res = AResourceManager<Model>::create(name);
 
-		res->setTextureManager( getResourceSystem()->getTextureManager() );
-		res->setAnimationManager( getResourceSystem()->getAnimationManager()  );
+		res->setTextureManager( (TextureManager*)getResourceSystem()->getTextureManager() );
+		res->setAnimationManager( (AnimationManager*)getResourceSystem()->getAnimationManager()  );
 
 		return res;
 	}

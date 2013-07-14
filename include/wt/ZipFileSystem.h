@@ -9,6 +9,7 @@ namespace wt{
 
 /**
  * @todo abstract this class (e.g. AZipFileSystem) so that we're not limited to phyfs
+ * Might be a good idea to use something like Minzip http://www.winimage.com/zLibDll/minizip.html
  */
 class ZipFileSystem : public AFileSystem{
 public:

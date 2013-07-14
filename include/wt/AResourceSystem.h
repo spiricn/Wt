@@ -2,17 +2,19 @@
 #ifndef WT_ARESOURCESYSTEM_H
 #define WT_ARESOURCESYSTEM_H
 
-#include "wt/AFileSystem.h"
-#include "wt/ASound.h"
-
 namespace wt{
 
-class ImageManager;
-class TextureManager;
-class FontManager;
-class ModelManager;
-class SkyBoxManager;
-class AnimationManager;
+// Forward declarations
+class Image;
+class Animation;
+class Font;
+class Model;
+class SkyBox;
+class Animation;
+class Texture2D;
+
+class AFileSystem;
+class ASoundBuffer;
 
 template<class T>
 class AResourceManager;
@@ -24,19 +26,33 @@ public:
 
 	virtual AFileSystem* getFileSystem() = 0;
 
-	virtual ImageManager* getImageManager() = 0;
+	virtual AResourceManager<Image>* getImageManager() = 0;
 
-	virtual TextureManager* getTextureManager() = 0;
+	virtual AResourceManager<Texture2D>* getTextureManager() = 0;
 
-	virtual FontManager* getFontManager() = 0;
+	virtual AResourceManager<Font>* getFontManager() = 0;
 
-	virtual ModelManager* getModelManager() = 0;
+	virtual AResourceManager<Model>* getModelManager() = 0;
 
-	virtual SkyBoxManager* getSkyBoxManager() = 0;
+	virtual AResourceManager<SkyBox>* getSkyBoxManager() = 0;
 
-	virtual AnimationManager* getAnimationManager() = 0;
+	virtual AResourceManager<Animation>* getAnimationManager() = 0;
 
 	virtual AResourceManager<ASoundBuffer>* getSoundManager() = 0;
+
+	virtual void unloadAll() = 0;
+
+	virtual void reload() = 0;
+
+	virtual void load(const LuaPlus::LuaObject& table) = 0;
+
+	virtual void load(const String& path) = 0;
+
+	virtual void serialize(LuaPlus::LuaObject& assets) = 0;
+
+	virtual void serialize(const String& path) = 0;
+
+	virtual String getRelativeURI(const String& uri) = 0;
 };
 
 }; // </wt>

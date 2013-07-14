@@ -2,13 +2,24 @@
 
 #include "wt/FileIOStream.h"
 
+#define TD_TRACE_TAG "FileIOStream"
+
 namespace wt{
 
-FileIOStream::FileIOStream(const String& path, Mode mode) : mFile(NULL){
+
+// TODO handle not owned file streams (fd and std::ostream)
+
+FileIOStream::FileIOStream(const String& path, Mode mode) : mFile(NULL), mFileOwned(true), mStream(NULL){
 	open(path, mode);
 }
 
-FileIOStream::FileIOStream() : mFile(NULL){
+FileIOStream::FileIOStream() : mFile(NULL), mFileOwned(true), mStream(NULL){
+}
+
+FileIOStream::FileIOStream(std::ostream& stdstream, Mode mode) : mFile(NULL), mFileOwned(false), mStream(&stdstream){
+}
+
+FileIOStream::FileIOStream(FILE* fd, Mode mode) : mFile(fd), mFileOwned(false), mStream(NULL){
 }
 
 FileIOStream::~FileIOStream(){
@@ -21,7 +32,13 @@ void FileIOStream::open(const String& path, Mode mode){
 	close();
 
 	mFile = fopen(path.c_str(), mode == eMODE_READ ? "rb" : "wb");
-	setMode(mode);
+
+	if(!mFile){
+		TRACEE("fopen failed for \"%s\" (mode=\"%s\" errno=%d, desc=\"%s\")",
+			path.c_str(), mode == eMODE_READ ? "rb" : "wb", errno, strerror(errno));
+	}
+	
+	setMode(mFile ? mode : eMODE_NONE);
 }
 
 void FileIOStream::close(){
@@ -36,7 +53,12 @@ int64_t FileIOStream::read(void* dst, int64_t size){
 		return -1;
 	}
 
-	return fread(dst, 1, size, mFile);
+	size_t read = fread(dst, 1, size, mFile);
+	if(read != size){
+		LOGE("fread failed (read %d / %d)", read, size);
+	}
+
+	return read;
 }
 
 int64_t FileIOStream::write(const void* src, int64_t size){
@@ -44,7 +66,13 @@ int64_t FileIOStream::write(const void* src, int64_t size){
 		return -1;
 	}
 
-	return fwrite(src, 1, size, mFile);
+	size_t written = fwrite(src, 1, size, mFile);
+
+	if(written != size){
+		TRACEE("fwrite failed (wrote %d / %d)", written, size);
+	}
+
+	return written;
 }
 
 int64_t FileIOStream::seek(SeekOrigin origin, int64_t offset){

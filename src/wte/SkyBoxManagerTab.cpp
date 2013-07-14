@@ -5,6 +5,15 @@
 #include "wte/SkyBoxManagerTab.h"
 #include "wte/SkyboxEditDialog.h"
 
+
+SkyBoxManagerTab::SkyBoxManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
+	assets->getSkyBoxManager()){
+
+	ui.setupUi(this);
+
+	setTreeWidget(ui.treeWidget);
+}
+
 void updateSkybox(wt::SkyBox* sky, SkyboxEditDialog::EditResult& res){
 	sky->setImages(
 		const_cast<wt::Image*>(res.posX),
@@ -16,13 +25,6 @@ void updateSkybox(wt::SkyBox* sky, SkyboxEditDialog::EditResult& res){
 	);
 }
 
-SkyBoxManagerTab::SkyBoxManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
-	assets->getSkyBoxManager()){
-
-	ui.setupUi(this);
-
-	setTreeWidget(ui.treeWidget);
-}
 
 void SkyBoxManagerTab::onTreeItemActivated(RTWItem* item){
 	if(item->type == RTWItem::RESOURCE){

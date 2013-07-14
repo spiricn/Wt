@@ -10,6 +10,10 @@ class FileIOStream : public AIOStream{
 public:
 	FileIOStream(const String& path, Mode mode);
 
+	FileIOStream(std::ostream& stdstream, Mode mode);
+
+	FileIOStream(FILE* fd, Mode mode);
+
 	FileIOStream();
 
 	~FileIOStream();
@@ -39,6 +43,9 @@ public:
 	void flush();
 private:
 	FILE* mFile;
+	std::ostream* mStream;
+
+	bool mFileOwned;
 }; // </FileInputStream>
 
 }; // </wt>

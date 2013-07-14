@@ -46,26 +46,29 @@ void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel le
 }
 
 WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
-	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"), mScene(new wt::Physics(new wt::EventManager), &mAssets){
+	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"), mScene(new wt::Physics(new wt::EventManager), &mAssets), mAssets(wt::Assets::eFS_DIR, "D:\\Documents\\prog\\c++\\workspace\\Wt\\workspace\\"){
 	ui.setupUi(this);
 
-	mGameLevel = new wt::GameLevel(&mAssets, &mScene, &mEntityManager);
+	//mGameLevel = new wt::GameLevel(&mAssets, &mScene, &mEntityManager);
 
 	td_setCallbackFnc(logCallback, this);
 
-	mWorldEdit = new WorldEditTab(this, mGameLevel);
+	// World edit tab
+	mWorldEdit = new WorldEditTab(this, &mScene, &mAssets);
 	ui.mainTabWidget->addTab(mWorldEdit, "World edit");
 
 	connect(mWorldEdit, SIGNAL(initialized()),
 		this, SLOT(onInitialized()));
 
-	ModelImporterTab* importer = new ModelImporterTab(this, &mAssets);
-	ui.mainTabWidget->addTab(importer, "Model importer");
-	
 	connect(mWorldEdit, SIGNAL(assetsLoaded()),
 		this, SLOT(onAssetsLoaded()));
 
+	// Model importer tab
+	ModelImporterTab* importer = new ModelImporterTab(this, &mAssets);
+	ui.mainTabWidget->addTab(importer, "Model importer");
+	
 	ui.mainTabWidget->setCurrentWidget(mWorldEdit);
+	//ui.mainTabWidget->setCurrentWidget(importer);
 
 	/* MANAGERS TAB */
 	/* Image */
@@ -89,11 +92,9 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 }
 
 void WtEditor::onInitialized(){
-	loadLevel("test.lua");
 }
 
 WtEditor::~WtEditor(){
-	delete mGameLevel;
 }
 
 void WtEditor::unloadLevel(){
@@ -135,7 +136,7 @@ void WtEditor::onBtnSaveClick(){
 	if(QMessageBox::question(this, "Confirmation",
 		"Save current level to \"" + mWorkspaceFilePath + "\" ?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes){
 
-		mGameLevel->serialize( mWorkspaceFilePath.toStdString() );
+		mAssets.serialize( mWorkspaceFilePath.toStdString() );
 	}
 	
 }

@@ -139,8 +139,11 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	// Load level
 	if(!getLevelFile().empty()){
 		Lua::LuaStateOwner state;
+		Sp<AIOStream> stream = mAssets->getFileSystem()->open(getLevelFile(), AIOStream::eMODE_READ);
+		WT_ASSERT(stream->isOpen(), "Error openning demo level file \"%s\"", getLevelFile().c_str());
+
 		try{
-			state->DoFile(getLevelFile().c_str());
+			Lua::doStream(state, *stream);
 		}catch(LuaPlus::LuaException& e){
 			WT_THROW("Error loading level file \"%s\" - \"%s\"", getLevelFile().c_str(), e.GetErrorMessage());
 		}
@@ -148,7 +151,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 		const LuaObject& table = state->GetGlobal("WORLD");
 		WT_ASSERT(table.IsTable(), "Error loading level - invalid level table");
 
-		const LuaObject& assetsTable = table.Get("ASSETS") ;
+		const LuaObject& assetsTable = table.Get("ASSETS");
 
 		if(!assetsTable.IsTable()){
 			WT_THROW("Error loading level - missing assets table");
@@ -346,17 +349,19 @@ void ADemo::startDemo(){
 
 	mRunning = true;
 
-	//// Setup camera controller
-	//PhysicsActor::Desc desc;
-	//desc.type = PhysicsActor::eDYNAMIC_ACTOR;
-	//desc.controlMode = PhysicsActor::eCONTROLLER_MODE;
-	//desc.controllerDesc.geometryType = PhysicsActor::eCAPSULE_CONTROLLER;
-	//desc.controllerDesc.geometryDesc.capsuleController.height = 1.0f;
-	//desc.controllerDesc.geometryDesc.capsuleController.radius = 1.0f;
-	//math::Transform t;
-	//t.setPosition(200, 3, 200);
-	//desc.pose = t;
-	//mCamController = getPhysics()->createActor(NULL, desc);
+#if 0
+	// Setup camera controller
+	PhysicsActor::Desc desc;
+	desc.type = PhysicsActor::eDYNAMIC_ACTOR;
+	desc.controlMode = PhysicsActor::eCONTROLLER_MODE;
+	desc.controllerDesc.geometryType = PhysicsActor::eCAPSULE_CONTROLLER;
+	desc.controllerDesc.geometryDesc.capsuleController.height = 1.0f;
+	desc.controllerDesc.geometryDesc.capsuleController.radius = 1.0f;
+	math::Transform t;
+	t.setPosition(200, 3, 200);
+	desc.pose = t;
+	mCamController = getPhysics()->createActor(NULL, desc);
+#endif
 
 	printHelp();
 	onStart( mConfig->GetGlobals() );
@@ -500,10 +505,10 @@ void ADemo::onKeyDownPriv(VirtualKey code){
 				mRenderer->saveScreenshot(path);
 			}catch(std::exception& e){
 				e.what();
-				LOGE("Test", "Error saving screenshot..");
+				LOGE("Error saving screenshot..");
 			}
 
-			LOGI("Test", "Screenshot saved \"%s\"", path.c_str());
+			LOGI("Screenshot saved \"%s\"", path.c_str());
 
 			break;
 		}

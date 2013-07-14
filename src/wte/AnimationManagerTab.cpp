@@ -15,5 +15,5 @@ void AnimationManagerTab::onCtxMenuSetUri(RTWItem* item){
 	QString path = QFileDialog::getOpenFileName(this,
 		tr("Open animation"), "", tr("Animation files (*.wta)"));
 
-	((wt::Animation*)item->userData)->setUri(path.toStdString());
+	((wt::Animation*)item->userData)->setUri( getAssets()->getRelativeURI( path.toStdString() ) );
 }

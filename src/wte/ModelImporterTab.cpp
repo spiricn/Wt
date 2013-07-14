@@ -29,7 +29,8 @@ void ModelImporterTab::import(const QString& srcModel){
 	}
 
 	// location where the assets are going to be copied
-	QString dstDir = "assets/imported";
+	// TODO get root dir from Assets
+	QString dstDir = "d:/Documents/prog/c++/workspace/Wt/workspace/assets";
 
 	// Directory of the model being imported
 	QString srcDir =  QFileInfo(srcModel).dir().absolutePath();
@@ -52,7 +53,7 @@ void ModelImporterTab::import(const QString& srcModel){
 	}
 
 	// Check if model with this name already exists in workspace
-	QString dstModel = dstDir + "/" + model->getName().c_str() + ".wtm";
+	QString dstModel = dstDir + "/model/" + model->getName().c_str() + ".wtm";
 	if(QFile::exists(dstModel)){
 		QMessageBox::critical(this,
 			QString("Error importing model"), QString("File \"") + dstModel + "\" already exists");
@@ -60,11 +61,18 @@ void ModelImporterTab::import(const QString& srcModel){
 	}
 
 	// Save the converted model to workspace
-	wt::ModelLoader::getSingleton().save(dstModel.toStdString(), model);
+	mAssets->getModelManager()->save(dstModel.toStdString(), model);
+
 	model->setUri(dstModel.toStdString());
 
 	// Texture group where the new skin textures are going to be created in
-	wt::TextureGroup* texGroup = mAssets->getTextureManager()->getGroupFromPath("$ROOT/models");
+	wt::TextureGroup* texGroup = mAssets->getTextureManager()->getGroupFromPath("$ROOT/model");
+	if(!texGroup){
+		// Create the group if it doesn't exist
+		texGroup = mAssets->getTextureManager()->createGroup("model");
+	}
+
+	// Create a skin
 	wt::Model::GeometrySkin* skin = model->createSkin("default");
 
 	for(wt::AssimpModelLoader::TextureMap::iterator i=texMap.begin(); i!=texMap.end(); i++){
@@ -118,11 +126,17 @@ void ModelImporterTab::import(const QString& srcModel){
 					// Texture does not exist, we have to import it
 
 					dstTexName = newTextureName;
-					dstTexPath = dstDir + "/" + newTextureName + "." + extension;
+					dstTexPath = dstDir + "/image/" + newTextureName + "." + extension;
 					if(QFile::exists(dstTexPath)){
-						// TODO handle this (just generate a new name)
-						LOGE("TODO handle this");
-						return;
+						// Check if this is the same file as we're trying to import
+						if(sameFile(dstTexPath, srcTexPath)){
+							LOGI("File already exists, skipping copy");
+						}
+						else{
+							// TODO handle this (just generate a new name)
+							TRACEE("TODO handle this");
+							return;
+						}
 					}
 					break;
 				}
@@ -132,11 +146,17 @@ void ModelImporterTab::import(const QString& srcModel){
 			// Texture does not exist, we have to import it
 			dstTexName = srcTexName;
 
-			dstTexPath = dstDir + "/" + srcTexName + "." + extension;
+			dstTexPath = dstDir + "/image/" + srcTexName + "." + extension;
 			if(QFile::exists(dstTexPath)){
-				// TODO handle this (just generate a new name)
-				LOGE("TODO handle this");
-				return;
+				// Check if this is the same file as we're trying to import
+				if(sameFile(dstTexPath, srcTexPath)){
+					LOGI("File already exists, skipping copy");
+				}
+				else{
+					// TODO handle this (just generate a new name)
+					TRACEE("TODO handle this");
+					return;
+				}
 			}
 		}
 		else{
@@ -207,7 +227,7 @@ bool ModelImporterTab::sameFile(const QString& path1, const QString& path2){
 	return true;
 }
 
-ModelImporterTab::ModelImporterTab(QWidget* parent, wt::Assets* assets) : QWidget(parent), mAssets(assets){
+ModelImporterTab::ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets) : QWidget(parent), mAssets(assets){
 	ui.setupUi(this);
 
 	setAcceptDrops(true);
@@ -242,7 +262,7 @@ void ModelImporterTab::onBatchConvert(){
 		std::string convModelName = baseName+".wtm";
 		
 		try{
-			wt::ModelLoader::getSingleton().save(convModelName, &model);
+			mAssets->getModelManager()->save(convModelName, &model);
 			LOGI("Converted model saved to \"%s\"", convModelName.c_str());
 		}catch(wt::Exception& e){
 			QMessageBox::critical(this,
@@ -254,7 +274,7 @@ void ModelImporterTab::onBatchConvert(){
 
 		std::string convAniName = baseName+".wta";
 		try{
-			wt::AnimationLoader::getSingleton().save(convAniName, &animation);
+			mAssets->getAnimationManager()->save(convAniName, &animation);
 			LOGI("Converted animation saved to \"%s\"", convAniName.c_str());
 		}catch(wt::Exception& e){
 			QMessageBox::critical(this,
