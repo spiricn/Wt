@@ -109,7 +109,7 @@ void WtEditor::loadLevel(const QString& path){
 	mWorkspaceFilePath = path;
 	setWindowTitle(path);
 
-	mWorldEdit->loadLevel(path);
+	mWorldEdit->loadResources(path);
 }
 
 
@@ -143,7 +143,7 @@ void WtEditor::onBtnSaveClick(){
 
 void WtEditor::onNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save", "", "Level files (*.lua)");
+		"Save resources", "", "Resource files (*.lua)");
 	if(!path.size()){
 		return;
 	}
@@ -156,7 +156,7 @@ void WtEditor::onNew(){
 
 void WtEditor::onOpen(){
 	QString path = QFileDialog::getOpenFileName(this,
-		"Load level", "", "Level files (*.lua)");
+		"Load resources", "", "Resource files (*.lua)");
 	if(!path.size()){
 		return;
 	}
@@ -165,3 +165,23 @@ void WtEditor::onOpen(){
 	loadLevel(path);
 }
 
+
+void WtEditor::onLoadScene(){
+	QString path = QFileDialog::getOpenFileName(this,
+		"Load scene", "", "Scene files (*.lua)");
+	if(!path.size()){
+		return;
+	}
+
+	mWorldEdit->loadScene(path);
+}
+
+void WtEditor::onSaveScene(){
+	QString path = QFileDialog::getSaveFileName(this,
+		"Save scene", "", "Scene files (*.lua)");
+	if(!path.size()){
+		return;
+	}
+
+	mWorldEdit->saveScene(path);
+}

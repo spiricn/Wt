@@ -35,7 +35,7 @@ private:
 
 public:
 	Toast(Gui::UIWindow* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture) : 
-		mParent(parent), mState(eIDLE), mDuration(3), mFadeInTime(0.5), mFadeOutTime(2), mFadeOutVal(0.0f), mFadeInVal(0.7f), mLinger(false){
+		mParent(parent), mState(eIDLE), mDuration(3), mFadeInTime(0.5), mFadeOutTime(2), mFadeOutVal(0.0f), mFadeInVal(.8f), mLinger(false){
 	
 		Gui::RectView* view = mParent->createView<Gui::RectView>();
 		view->setScalingMode(Gui::View::eFIXED);

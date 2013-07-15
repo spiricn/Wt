@@ -24,6 +24,21 @@ int16_t AIOStream::get(){
 	return read(&res, 1) == 1 ? (int16_t)res : -1;
 }
 
+int64_t AIOStream::print(const char* fmt, ...){
+	va_list args;
+	va_start(args, fmt);
+
+	// TODO dynamic buffer size?
+	char bfr[1024];
+	memset(bfr, 0x00, 1024);
+	vsprintf(bfr, fmt, args);
+
+	va_end(args);
+
+
+	return write(bfr, strlen(bfr));
+}
+
 int64_t AIOStream::put(char c){
 	return write(&c, 1);
 }

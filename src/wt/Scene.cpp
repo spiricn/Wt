@@ -8,7 +8,7 @@
 namespace wt{
 
 Scene::Scene(Physics* physics, Assets* assets) : 
-	mSkyBox(NULL), mNumPointLights(0), mNumSpotLights(0), mTerrain(NULL), mAssets(assets), mPhysics(physics){
+	mSkyBox(NULL), mNumPointLights(0), mNumSpotLights(0), mAssets(assets), mPhysics(physics){
 		setCamera(&mDefaultCamera);
 }
 
@@ -41,10 +41,6 @@ void Scene::setCamera(math::Camera* camera){
 	mCamera = camera;
 }
 
-Terrain* Scene::getTerrain(){
-	return mTerrain;
-}
-
 void Scene::addPointLight(const PointLight& light){
 	mPointLights[mNumPointLights++] = light;
 }
@@ -67,78 +63,6 @@ void Scene::load(const String& path){
 
 }
 #endif
-
-void Scene::createTerrain(const TerrainDesc& tDesc){
-	WT_ASSERT(mTerrain == NULL, "Terrain already created");
-
-	mTerrain = new Terrain(this, generateActorId());
-
-	mTerrain->create(tDesc);
-
-	PhysicsActor::Desc desc;
-
-	desc.type = PhysicsActor::eSTATIC_ACTOR;
-
-	desc.group = tDesc.collisionGroup;
-
-	desc.geometryType = PhysicsActor::eHEIGHTMAP_GEOMETRY;
-
-	desc.geometryDesc.heightfieldGeometry.heightScale = mTerrain->getHeightScale();
-	desc.geometryDesc.heightfieldGeometry.rowScale = mTerrain->getRowScale();
-	desc.geometryDesc.heightfieldGeometry.colScale = mTerrain->getColScale();
-
-	desc.geometryDesc.heightfieldGeometry.numRows = mTerrain->getNumRows();
-	desc.geometryDesc.heightfieldGeometry.numCols = mTerrain->getNumCols();
-
-	desc.geometryDesc.heightfieldGeometry.heightmap = &mTerrain->getHeightmap();
-
-	mPhysics->createActor(mTerrain, desc);
-
-	mActors.insert(std::make_pair(mTerrain->getId(), mTerrain));
-
-	mTerrainSet.insert(mTerrain);
-}
-
-
-void Scene::createTerrain(const LuaObject& config){
-	// terrain
-	if(config.IsTable()){
-		TerrainDesc tDesc;
-
-		tDesc.texture1 = mAssets->getImageManager()->getFromPath( config.Get("tex1").ToString() );
-		tDesc.texture2 = mAssets->getImageManager()->getFromPath( config.Get("tex2").ToString() );
-		tDesc.texture3 = mAssets->getImageManager()->getFromPath( config.Get("tex3").ToString() );
-
-		tDesc.textureMap =  mAssets->getTextureManager()->getFromPath( config.Get("map").ToString() );
-
-		tDesc.numRows = config.Get("vertsPerChunk").ToNumber();
-		tDesc.numColumns = config.Get("vertsPerChunk").ToNumber();
-
-		tDesc.rowScale = config.Get("rowScale").ToNumber();
-		tDesc.columnScale = config.Get("columnScale").ToNumber();
-		tDesc.heightScale = config.Get("heightScale").ToNumber();
-
-		tDesc.heightmapPath = config.Get("chunks").ToString();
-
-		createTerrain(tDesc);
-	}
-	else{
-		WT_THROW("Invalid LuaObject of type %s passed as terrain configuration.", config.TypeName());
-	}
-}
-
-void Scene::destroyTerrain(){
-	if(mTerrain != NULL){
-		mPhysics->removeActor( mTerrain->getPhysicsActor() );
-
-		mActors.erase( mTerrain->getId() );
-
-		mTerrainSet.erase(mTerrain);
-
-		delete mTerrain;
-		mTerrain = NULL;
-	}
-}
 
 
 uint32_t Scene::generateActorId(){
@@ -180,8 +104,6 @@ Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
 void Scene::clear(){
 	setSkyBox(NULL);
 
-	destroyTerrain();
-
 	for(ActorMap::iterator i=mActors.begin(); i!=mActors.end(); i++){
 		i = eraseActor(i);
 		if(i == mActors.end()){
@@ -195,6 +117,16 @@ void Scene::clear(){
 ASceneActor* Scene::getActorById(uint32_t id){
 	ActorMap::iterator i = mActors.find(id);
 	return i == mActors.end() ? NULL : i->second;
+}
+
+Terrain* Scene::createTerrain(const String& name){
+	Terrain* terrain = new Terrain(this, generateActorId(), name);
+
+	mActors.insert( std::make_pair(terrain->getId(), terrain) );
+
+	mTerrainSet.insert(terrain);
+
+	return terrain;
 }
 
 ParticleEffect* Scene::createParticleEffect(const String& name){

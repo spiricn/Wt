@@ -58,6 +58,10 @@ protected slots:
 
 	void onOpen();
 
+	void onLoadScene();
+
+	void onSaveScene();
+
 	void onAssetsLoaded();
 	
 	void onInitialized();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>832</width>
-    <height>605</height>
+    <width>612</width>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -76,6 +76,20 @@
       </widget>
      </widget>
     </item>
+    <item row="4" column="0">
+     <widget class="QPushButton" name="pushButton_4">
+      <property name="text">
+       <string>Load scene</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QPushButton" name="pushButton_5">
+      <property name="text">
+       <string>Save scene</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -83,7 +97,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>832</width>
+     <width>612</width>
      <height>21</height>
     </rect>
    </property>
@@ -113,8 +127,8 @@
    <slot>onBtnSaveClick()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>346</y>
+     <x>102</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
      <x>117</x>
@@ -129,11 +143,11 @@
    <slot>onOpen()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>617</x>
-     <y>359</y>
+     <x>452</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>618</x>
+     <x>611</x>
      <y>371</y>
     </hint>
    </hints>
@@ -145,8 +159,8 @@
    <slot>onNew()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>352</y>
+     <x>302</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
      <x>363</x>
@@ -161,12 +175,44 @@
    <slot>onReload()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>737</x>
-     <y>351</y>
+     <x>602</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>833</x>
+     <x>611</x>
      <y>336</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onLoadScene()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>37</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_5</sender>
+   <signal>clicked()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onSaveScene()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>395</x>
+     <y>342</y>
     </hint>
    </hints>
   </connection>
@@ -179,5 +225,7 @@
   <slot>onBtnClearAllClick()</slot>
   <slot>onOpen()</slot>
   <slot>onReload()</slot>
+  <slot>onLoadScene()</slot>
+  <slot>onSaveScene()</slot>
  </slots>
 </ui>

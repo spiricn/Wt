@@ -62,6 +62,10 @@ public:
 
 	void setSpeed(float speed);
 
+	float getSpeed() const;
+
+	float getPosition() const;
+
 	const glm::mat4* getBoneMatrices() const;
 
 	uint32_t getNumBones() const;

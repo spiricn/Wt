@@ -72,7 +72,6 @@ private:
 	Fog mFog;
 	
 	Physics* mPhysics;
-	Terrain* mTerrain;
 
 	DirectionalLight mDirectionalLight;
 
@@ -96,19 +95,11 @@ public:
 
 	void setCamera(math::Camera* camera);
 
-	Terrain* getTerrain();
-
 	Physics* getPhysics() const;
 
 	void deleteActor(ASceneActor* actor);
 
 	Fog& getFog();
-
-	void createTerrain(const LuaObject& config);
-
-	void createTerrain(const TerrainDesc& tDesc);
-
-	void destroyTerrain();
 
 	void setPhysics(Physics* p);
 
@@ -131,6 +122,8 @@ public:
 	ModelledActor* createModelledActor(const String& name="");
 
 	ParticleEffect* createParticleEffect(const String& name="");
+
+	Terrain* createTerrain(const String& name="");
 
 	ASceneActor* findActorByName(const String& name) const;
 

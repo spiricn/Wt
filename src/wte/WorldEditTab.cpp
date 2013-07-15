@@ -4,6 +4,7 @@
 #include <QColorDialog>
 #include <qtoolbar.h>
 #include <qprocess.h>
+#include <qmessagebox.h>
 
 #include "wte/WorldEditTab.h"
 #include "wte/ResourcePickerDialog.h"
@@ -14,6 +15,7 @@
 #include "wte/TerrainEditDialog.h"
 
 #include <wt/SFSound.h>
+#include <wt/SceneLoader.h>
 
 #define FPS 50
 	
@@ -116,9 +118,32 @@ void WorldEditTab::onScreenshot(){
 	p->execute(path);*/
 }
 
-#include <qmessagebox.h>
 
-void WorldEditTab::loadLevel(const QString& path){
+void WorldEditTab::saveScene(const QString& path){
+	wt::SceneLoader loader(mScene, mAssets);
+
+	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_WRITE);
+
+	try{
+		loader.save(stream);
+	}catch(...){
+		QMessageBox::critical(this, "Error", "Error saving scene to \"" + path + "\"");
+	}
+}
+
+void WorldEditTab::loadScene(const QString& path){
+	wt::SceneLoader loader(mScene, mAssets);
+
+	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_READ);
+
+	try{
+		loader.load(stream);
+	}catch(...){
+		QMessageBox::critical(this, "Error", "Error loading scene from \"" + path + "\"");
+	}
+}
+
+void WorldEditTab::loadResources(const QString& path){
 	LuaPlus::LuaStateOwner state;
 	state->DoFile(path.toStdString().c_str());
 
@@ -133,8 +158,6 @@ void WorldEditTab::loadLevel(const QString& path){
 	emit assetsLoaded();
 	emit onTerrainCreated();
 }
-
-#include <qsettings.h>
 
 void WorldEditTab::onGLContextCreated(){
 	emit initialized();

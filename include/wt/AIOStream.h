@@ -75,6 +75,13 @@ public:
 	 * @return Absolute location to which we sought, or -1 on error.
 	 */
 	virtual int64_t seek(SeekOrigin origin, int64_t offset) = 0;
+	
+
+	/**
+	 * Formatted write.
+	 * Analog to fprintf.
+	 */
+	virtual int64_t print(const char* fmt, ...);
 
 	virtual int64_t tell() = 0;
 

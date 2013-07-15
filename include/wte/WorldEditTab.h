@@ -97,12 +97,18 @@ protected slots:
 
 public:
 
-	void loadLevel(const QString&);
+	void loadResources(const QString&);
+
+	void loadScene(const QString&);
+
+	void saveScene(const QString&);
 
 	void unloadLevel();
 
 signals:
 	void assetsLoaded();
+
+	void sceneLoaded();
 
 	void onTerrainCreated();
 

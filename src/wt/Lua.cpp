@@ -169,58 +169,70 @@ bool luaConv(const LuaObject& src, String& dst){
 	}
 }
 
-std::ostream& operator<<(std::ostream& stream, LuaObject& obj){
+
+void serialize(LuaObject& obj, AIOStream& stream){
 	int type = obj.Type();
 
 	switch(type){
 
-	case LUA_TNUMBER:
-		if(obj.IsNumber()){
-			stream << obj.ToNumber();
+	case LUA_TNUMBER:{
+		// TODO there must be a better way of finding out wheter an object
+		// is integer or float (LuaPlus does not seem to have a working one)
+		double number = obj.ToNumber();
+
+		if(fmod(number, 1.0) == 0.0){
+			// Integer
+			stream.print("%d", (int32_t)number);
 		}
 		else{
-			stream << obj.ToInteger();
+			// Number
+			stream.print("%f", number);
 		}
 		break;
-
+	}
 	case LUA_TSTRING:
-		stream << "\"" << obj.ToString() << "\"";
+		stream.print("\"%s\"", obj.ToString()); 
 		break;
 
 	case LUA_TBOOLEAN:
-		stream << (obj.GetBoolean() ? "true" : "false");
+		stream.print("%s", (obj.GetBoolean() ? "true" : "false"));
+		break;
+
+	case LUA_TNIL:
+		stream.print("nil");
 		break;
 
 	case LUA_TTABLE:
-		stream << "{";
+		stream.print("{");
 
 		for(LuaTableIterator iter(obj); iter; iter.Next()){
 			LuaObject& key = iter.GetKey();
 			LuaObject& value = iter.GetValue();
 
 			if(key.IsInteger()){ // array
-				stream << value << ", ";
+				serialize(value, stream);
+				stream.print(", ");
 			}
 			else if(key.IsString()){
-				stream << "[" << key << "] = " << value << ",";
+				stream.print("[");
+				serialize(key, stream);
+
+				stream.print("] = ");
+				serialize(value, stream);
+
+				stream.print(",");
 			}
 			else{
 				WT_THROW("Keys of type \"%s\" not yet supported for serialization", key.TypeName());
 			}
 		}
 
-		stream << "}\n";
+		stream.print("}\n");
 		break;
 	}
-
-	return stream;
 }
 
-std::ostream& serialize(LuaObject& obj, std::ostream& stream){
-	return stream << obj;
-}
-
-void serializeTable(LuaObject& table, std::ostream& stream, uint32_t depth){
+void serializeTable(LuaObject& table, AIOStream& stream, uint32_t depth){
 	WT_UNUSED(depth);
 	serialize(table, stream);
 }

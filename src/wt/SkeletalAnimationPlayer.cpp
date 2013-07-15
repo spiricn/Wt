@@ -23,16 +23,24 @@ SkeletalAnimationPlayer::SkeletalAnimationPlayer(Model* model) : mModel(model), 
 }
 
 void SkeletalAnimationPlayer::initTransforms(SkeletonBone* bone){
-		mLocalBoneTransforms[bone->getIndex()] = bone->getTransform();
+	mLocalBoneTransforms[bone->getIndex()] = bone->getTransform();
 
-		bone->getGlobalTransform( mGlobalTransforms[bone->getIndex()] );
+	bone->getGlobalTransform( mGlobalTransforms[bone->getIndex()] );
 
-		mGlobalBoneTransforms[bone->getIndex()] = mGlobalTransforms[bone->getIndex()] * bone->getOffset();
+	mGlobalBoneTransforms[bone->getIndex()] = mGlobalTransforms[bone->getIndex()] * bone->getOffset();
 
-		for(uint32_t i=0; i<bone->getNumChildren(false); i++){
-			initTransforms(bone->getChildAt(i));
-		}
+	for(uint32_t i=0; i<bone->getNumChildren(false); i++){
+		initTransforms(bone->getChildAt(i));
 	}
+}
+
+float SkeletalAnimationPlayer::getSpeed() const{
+	return mAnimationSpeed;
+}
+
+float SkeletalAnimationPlayer::getPosition() const{
+	return mAnimationTime;
+}
 
 SkeletalAnimationPlayer::~SkeletalAnimationPlayer(){
 }

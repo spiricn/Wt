@@ -192,6 +192,9 @@ public:
 		return mHeightMap[row*mNumZVertices + col] * mHeightScale;
 	}
 
+	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
+
+	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
 
 	float getRowScale() const;
 

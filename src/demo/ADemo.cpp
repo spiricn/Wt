@@ -183,7 +183,8 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 		// Terrain
 		if(table.Get("terrain").IsTable()){
-			mScene->createTerrain( table.Get("terrain") );
+			Terrain* terrain = mScene->createTerrain();
+			terrain->deserialize(mAssets, table.Get("terrain"));
 		}
 
 		// Actors

@@ -4,6 +4,7 @@
 
 #include "wt/stdafx.h"
 
+#include "wt/FileIOStream.h"
 #include "wt/ImageManager.h"
 #include "wt/Texture.h"
 #include "wt/Material.h"
@@ -273,11 +274,10 @@ public:
 
 		serialize(assets);
 
-		std::ofstream file(path.c_str());
+		FileIOStream file(path.c_str(), AIOStream::eMODE_WRITE);
 
-		file << "ASSETS=";
+		file.print("ASSETS=");
 		Lua::serializeTable(assets, file);
-
 
 		file.close();
 	}

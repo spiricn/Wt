@@ -4,6 +4,7 @@
 #include "wt/ASceneActor.h"
 #include "wt/ASerializable.h"
 #include "wt/SkeletalAnimationPlayer.h"
+#include "wt/FileIOStream.h"
 
 namespace wt{
 
@@ -24,6 +25,11 @@ private:
 	};
 
 public:
+	struct DeserializationData{
+		PhysicsActor::Desc pxDesc;
+		bool phyiscs;
+	};
+
 	ModelledActor(Scene* parent, uint32_t id, const String& name="") : ASceneActor(parent, ASceneActor::eTYPE_MODELLED, id, name),
 		mModel(NULL), mSkin(NULL), mAnimationPlayer(NULL), mAttachActor(NULL), mAttachBone(NULL), mAttachDistance(0.0f){
 	}
@@ -43,6 +49,9 @@ public:
 		}
 
 		mModel = model;
+		if(!model){
+			return;
+		}
 
 		if(model->hasSkeleton()){
 			mAnimationPlayer = new SkeletalAnimationPlayer(model);
@@ -110,43 +119,95 @@ public:
 	/*********** Serialization *******/
 	/*********************************/
 
-	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst){
+	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL){
 		ASceneActor::serialize(assets, dst);
 
-		dst.Set("model",
-			mModel ? mModel->getPath().c_str() : NULL
-			);
-
-		dst.Set("skin",
-			mSkin ? mSkin->getName().c_str() : NULL
-			);
+		
+		if(mModel){
+			dst.Set("model", mModel->getPath().c_str());
+			dst.Set("skin", mSkin->getName().c_str());
+		}
+		else{
+			
+			dst.Set("model", 0);
+			dst.Set("skin", 0);
+		}
 
 		if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
-			dst.Set("animation",
+			dst.Set("ani",
 				mAnimationPlayer->getCurrentAnimationName().c_str()
 			);
 
-			dst.Set("animationLoop",
+			dst.Set("ani.loop",
 				mAnimationPlayer->isLooping()
 			);
+
+			dst.Set("ani.pos",
+				mAnimationPlayer->getPosition()
+			);
+
+			dst.Set("ani.speed",
+				mAnimationPlayer->getSpeed()
+			);
+
 		}
+
+		// Physics
+		if(getPhysicsActor()){
+			Lua::LuaObject physicsActor;
+			LUA_NEW_TABLE(physicsActor);
+
+			dst.Set("physics", physicsActor);
+
+			const_cast<PhysicsActor::Desc&>(getPhysicsActor()->getDesc()).serialize(physicsActor);
+
+			LOG("%f", dst.Get("physics").Get("geo.hx").ToNumber());
+		}
+		else{
+			dst.Set("physics", 0);
+		}		
 	}
 
-	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src){
+	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
+		DeserializationData* deserData = static_cast<DeserializationData*>(opaque);
+
 		// ASceneActor is going to do the transform deserialization
 		ASceneActor::deserialize(assets, src);
 
-		const char* modelPath = src.Get("model").ToString();
-		const char* skin = src.Get("skin").ToString();
+		String modelPath, skin;
+		
+		// Model  & animation
+		if(Lua::luaConv(src.Get("model"), modelPath)){
+			Lua::luaConv(src.Get("skin"), skin);
 
-		setModel( assets->getModelManager()->getFromPath(modelPath), skin );
+			setModel( assets->getModelManager()->getFromPath(modelPath), skin );
 
-		String animation;
-		bool isLooping = false;
-		if(Lua::luaConv(src.Get("animation"), animation)){
-			Lua::luaConv(src.Get("animationLoop"), isLooping);
+			String animation;
+			bool loop = false;
+			float speed = 1.0f;
+			float pos = 0.0f;
 
-			getAnimationPlayer()->play(animation, isLooping);
+			if(Lua::luaConv(src.Get("ani"), animation)){
+				Lua::luaConv(src.Get("ani.loop"), loop);
+				Lua::luaConv(src.Get("ani.pos"), pos);
+				Lua::luaConv(src.Get("ani.speed"), speed);
+
+				getAnimationPlayer()->play(animation, loop);
+				getAnimationPlayer()->setSpeed(speed);
+				getAnimationPlayer()->setPosition(pos);
+			}
+		}
+
+		// Physics
+		if(deserData){
+			const LuaObject& luaDesc = src.Get("physics");
+			if(luaDesc.IsTable()){
+				deserData->phyiscs = true;
+				deserData->pxDesc.deserialize(luaDesc);
+			}
+			else{
+				deserData->phyiscs = false;
+			}
 		}
 	}
 }; // </ModeledActor>

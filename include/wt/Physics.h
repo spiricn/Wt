@@ -61,7 +61,7 @@ class WtPxErrorCallback : public PxErrorCallback{
 	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line){
 		if( code != 128 /* static actor moved (safe to ignore)*/
 			){
-			LOGE("PhysX", "Error (code %d): \"%s\" at %s:%d", code, message, file, line);
+			TRACEE("Error (code %d): \"%s\" at %s:%d", code, message, file, line);
 		}
 	}
 }; // </WtPxErrorCallback>

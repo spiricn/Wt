@@ -101,7 +101,7 @@ public:
 	/*********** Serialization *******/
 	/*********************************/
 
-	virtual void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst){
+	virtual void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL){
 		Lua::LuaObject tf;
 		LUA_NEW_TABLE(tf);
 
@@ -111,10 +111,12 @@ public:
 		dst.Set("name", mName.c_str());
 
 		// TODO storing this as an integer might not be a good idea
-		dst.Set("type", (int)mType);
+		dst.Set("type",
+				mType == eTYPE_MODELLED ? "modelled" : mType == eTYPE_TERRAIN ? "terrain" : "particle"
+			) ;
 	}
 
-	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src){
+	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL){
 		if(!Lua::luaConv(src.Get("transform"), mTransform)){
 			WT_THROW("Error deserializing transform");
 		}

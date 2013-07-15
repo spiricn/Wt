@@ -573,10 +573,8 @@ Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 
 PxController* Physics::createController(const PhysicsActor::Desc& desc){
 	if(desc.controllerDesc.geometryType == PhysicsActor::eCAPSULE_CONTROLLER){
-		// capsule
-
+		// Capsule
 		PxCapsuleControllerDesc pxDesc;
-
 
 		pxConvert(desc.pose.getPosition(), pxDesc.position);
 
@@ -589,8 +587,7 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 		return mCtrlManager->createController(*mSdk, mScene, pxDesc);
 	}
 	else if(desc.controllerDesc.geometryType == PhysicsActor::eBOX_CONTROLLER){
-		// box
-
+		// Box
 		PxBoxControllerDesc pxDesc;
 
 		pxConvert(desc.pose.getPosition(), pxDesc.position);
@@ -608,7 +605,7 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 	else{
 		WT_THROW("Invalid physics controller geometry type %d",
 			desc.controllerDesc.geometryType
-			);
+		);
 	}
 }
 
@@ -741,6 +738,8 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 	}
 
 	if(createdActor){
+		createdActor->setDesc(desc);
+
 		mActors.insert(
 			std::make_pair(actorId, createdActor)
 		);

@@ -360,4 +360,42 @@ Terrain::~Terrain(){
 	}
 }
 
+void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
+	ASceneActor::deserialize(assets, src);
+
+	TerrainDesc tDesc;
+
+	tDesc.texture1 = assets->getImageManager()->getFromPath( src.Get("tex1").ToString() );
+	tDesc.texture2 = assets->getImageManager()->getFromPath( src.Get("tex2").ToString() );
+	tDesc.texture3 = assets->getImageManager()->getFromPath( src.Get("tex3").ToString() );
+
+	tDesc.textureMap =  assets->getTextureManager()->getFromPath( src.Get("map").ToString() );
+
+	tDesc.numRows = src.Get("vertsPerChunk").ToNumber();
+	tDesc.numColumns = src.Get("vertsPerChunk").ToNumber();
+
+	tDesc.rowScale = src.Get("rowScale").ToNumber();
+	tDesc.columnScale = src.Get("columnScale").ToNumber();
+	tDesc.heightScale = src.Get("heightScale").ToNumber();
+
+	tDesc.heightmapPath = src.Get("chunks").ToString();
+
+	create(tDesc);
+}
+
+void Terrain::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque){
+	ASceneActor::serialize(assets, dst);
+
+	dst.Set("vertsPerChunk", mDesc.numRows);
+	dst.Set("size", 1);
+	dst.Set("heightScale", mDesc.heightScale);
+	dst.Set("rowScale", mDesc.rowScale);
+	dst.Set("columnScale", mDesc.columnScale);
+	dst.Set("chunks", mDesc.heightmapPath.c_str());
+	dst.Set("map", mDesc.textureMap->getPath().c_str());
+	dst.Set("tex1", mDesc.texture1->getPath().c_str());
+	dst.Set("tex2", mDesc.texture2->getPath().c_str());
+	dst.Set("tex3", mDesc.texture3->getPath().c_str());
+}
+
 }; // </wt>
