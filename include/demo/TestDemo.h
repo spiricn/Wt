@@ -42,73 +42,84 @@ public:
 
 		
 
-		//if(1){
-		if(0){
+		if(1){
+		//if(0){
 			// Actor 1
+
 			{
-				ModelledActor* actor = getScene()->createModelledActor();
-				actor->setModel(getAssets()->getModelManager()->find("arthas"), "default");
-				actor->getAnimationPlayer()->play("walk", true);
+				ModelledActor* actor = getScene()->createModelledActor("lich");
+				actor->setModel(getAssets()->getModelManager()->find("lich_king"), "default");
+				actor->getAnimationPlayer()->play("attack", true);
 				actor->getAnimationPlayer()->setSpeed(0.3);
 				actor->getTransform().setScale(1.5, 2, 1.5);
 				getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
 			}
 
-			// Actor 2
+			
 			{
-				ModelledActor* actor = getScene()->createModelledActor();
-				actor->setModel(getAssets()->getModelManager()->find("cube"), "crate");
+				ParticleEffect* effect = getScene()->createParticleEffect();
+				ParticleEffect::EffectDesc desc;
 
-				actor->getTransform().setPosition(4, 5, 4);
-				getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
+				desc.color = Color::cyan();
+				desc.maxNumber = 550;
+				desc.size = 0.3;
+				desc.life = 2;
+				desc.texture = getAssets()->getTextureManager()->getFromPath("$ROOT/particle/circle_soft");
+				desc.velocity = 0.3;
 
-				PhysicsActor::Desc desc;
+				effect->getTransform().setPosition(0, 3, 0);
 
-				desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
-				desc.controlMode = PhysicsActor::ePHYSICS_MODE;
-				desc.type = PhysicsActor::eDYNAMIC_ACTOR;
-				desc.geometryDesc.boxGeometry.hx = 1.0f;
-				desc.geometryDesc.boxGeometry.hy = 1.0f;
-				desc.geometryDesc.boxGeometry.hz = 1.0f;
-				desc.pose = actor->getTransform();
+				effect->create(desc);
 
-				getPhysics()->createActor(actor, desc);
+				effect->attach( getScene()->findActorByName("lich"), config.Get("bone").ToString() );
 			}
 
-			// Terrain
-			{
-				TerrainDesc desc;
-				desc.texture1 = getAssets()->getImageManager()->find("grass");
-				desc.texture2 = getAssets()->getImageManager()->find("dirt");
-				desc.texture3 = getAssets()->getImageManager()->find("stone");
+			//// Actor 2
+			//{
+			//	ModelledActor* actor = getScene()->createModelledActor();
+			//	actor->setModel(getAssets()->getModelManager()->find("cube"), "crate");
 
-				desc.textureMap = getAssets()->getTextureManager()->find("map1");
+			//	actor->getTransform().setPosition(4, 5, 4);
+			//	getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
 
-				desc.columnScale = 3.0f;
-				desc.rowScale = 3.0f;
-				desc.heightScale = .1f;
+			//	PhysicsActor::Desc desc;
 
-				desc.numColumns = 129;
-				desc.numRows = 129;
+			//	desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
+			//	desc.controlMode = PhysicsActor::ePHYSICS_MODE;
+			//	desc.type = PhysicsActor::eDYNAMIC_ACTOR;
+			//	desc.geometryDesc.boxGeometry.hx = 1.0f;
+			//	desc.geometryDesc.boxGeometry.hy = 1.0f;
+			//	desc.geometryDesc.boxGeometry.hz = 1.0f;
+			//	desc.pose = actor->getTransform();
 
-				desc.heightmapPath = "workspace/assets/terrain/terrain";
+			//	getPhysics()->createActor(actor, desc);
+			//}
 
-				getScene()->createTerrain()->create(desc);
-			}
+			//// Terrain
+			//{
+			//	TerrainDesc desc;
+			//	desc.texture1 = getAssets()->getImageManager()->find("grass");
+			//	desc.texture2 = getAssets()->getImageManager()->find("dirt");
+			//	desc.texture3 = getAssets()->getImageManager()->find("stone");
 
-			FileIOStream file("saved-actors.lua", AIOStream::eMODE_WRITE);
+			//	desc.textureMap = getAssets()->getTextureManager()->find("map1");
 
-			loader.save(file);
+			//	desc.columnScale = 3.0f;
+			//	desc.rowScale = 3.0f;
+			//	desc.heightScale = .1f;
 
-			file.close();
+			//	desc.numColumns = 129;
+			//	desc.numRows = 129;
+
+			//	desc.heightmapPath = "workspace/assets/terrain/terrain";
+
+			//	getScene()->createTerrain()->create(desc);
+			//}
+
+			loader.save("saved-actors.lua");
 		}
 		else{
-			
-			FileIOStream file("saved-actors.lua", AIOStream::eMODE_READ);
-
-			loader.load(file);
-
-			file.close();
+			loader.load("saved-actors.lua");
 		}
 	}
 

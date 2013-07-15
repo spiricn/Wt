@@ -95,6 +95,8 @@ public:
 
 	void update(float dt){
 		mTimeDelta = dt;
+
+		ASceneActor::update(dt);
 	}
 
 	void create(const EffectDesc& desc){
@@ -120,6 +122,10 @@ public:
 			particles[i].x = math::random() * 1000;
 			particles[i].y = math::random() * 1000;
 			particles[i].z = math::random() * 1000;
+
+			particles[i].vx = math::random() * 1000;
+			particles[i].vy = math::random() * 1000;
+			particles[i].vz = math::random() * 1000;
 		}
 
 		// Create two batches for double-buffered transform feedback

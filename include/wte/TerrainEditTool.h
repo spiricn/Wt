@@ -26,6 +26,7 @@ private:
 	wt::Physics* mPhysics;
 	wt::Gl::FrameBuffer mFrameBuffer;
 	wt::Assets* mAssets;
+	wt::Terrain* mTerrain;
 
 public:
 	TerrainEditTool(SceneView* scene, QWidget*, AToolManager*, wt::Scene*, wt::Assets*);

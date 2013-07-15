@@ -22,6 +22,14 @@ public:
 		eTYPE_MODELLED
 	};
 
+	struct AttachPoint{
+		const ASceneActor* actor;
+		String pointId;
+
+		AttachPoint() : actor(NULL), pointId(""){
+		}
+	}; // </AttachPoint>
+
 protected:
 	/** Owner of the actor (scene which created it) */
 	Scene* mParent;
@@ -46,86 +54,46 @@ protected:
 	/** Scene actor may be paired with a physics actor for its physicall representation */
 	PhysicsActor* mPhysicsActor;
 
+	AttachPoint mAttachPoint;
+
 public:
-	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="") : mName(name), mId(id),
-		mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type){
-	}
+	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
 
-	ActorType getActorType() const{
-		return mType;
-	}
+	virtual ~ASceneActor();
 
-	void* getUserData() const{
-		return mUserData;
-	}
+	const AttachPoint& getAttachPoint() const;
 
-	void setUserData(void* data){
-		mUserDataSet = true;
-		mUserData = data;
-	}
+	ActorType getActorType() const;
 
-	PhysicsActor* getPhysicsActor(){
-		return mPhysicsActor;
-	}
+	void* getUserData() const;
 
-	void setPhysicsActor(PhysicsActor* actor){
-		mPhysicsActor = actor;
-	}
-	bool hasUserData() const{
-		return mUserDataSet;
-	}
+	virtual bool getAttachPointTransform(const String& /*pointId*/, math::Transform& /*res*/) const;
 
-	virtual ~ASceneActor(){
-	}
+	virtual bool validAttachPoint(const String& /*pointId*/) const;
 
-	uint32_t getId() const{
-		return mId;
-	}	
+	bool attach(const ASceneActor* actor, const String& pointId);
 
-	const String& getName() const{
-		return mName;
-	}
+	void setUserData(void* data);
 
-	math::Transform& getTransform(){
-		return mTransform;
-	}
+	PhysicsActor* getPhysicsActor();
 
-	const math::Transform& getTransform() const{
-		return mTransform;
-	}
+	void setPhysicsActor(PhysicsActor* actor);
 
-	virtual void update(float /*dt*/){
-	}
+	bool hasUserData() const;
 
-	/*********************************/
-	/*********** Serialization *******/
-	/*********************************/
+	uint32_t getId() const;
 
-	virtual void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL){
-		Lua::LuaObject tf;
-		LUA_NEW_TABLE(tf);
+	const String& getName() const;
 
-		Lua::luaConv(mTransform, tf);
-		dst.Set("transform", tf);
+	math::Transform& getTransform();
 
-		dst.Set("name", mName.c_str());
+	const math::Transform& getTransform() const;
 
-		// TODO storing this as an integer might not be a good idea
-		dst.Set("type",
-				mType == eTYPE_MODELLED ? "modelled" : mType == eTYPE_TERRAIN ? "terrain" : "particle"
-			) ;
-	}
+	virtual void update(float /*dt*/);
 
-	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL){
-		if(!Lua::luaConv(src.Get("transform"), mTransform)){
-			WT_THROW("Error deserializing transform");
-		}
+	virtual void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
 
-		if(!Lua::luaConv(src.Get("name"), mName)){
-			mName = "";
-		}
-	}
-
+	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
 
 }; // </ASceneActor>
 

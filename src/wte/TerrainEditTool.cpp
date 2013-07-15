@@ -26,7 +26,7 @@ void TerrainEditTool::onSaveTexture(){
 	QString path = QFileDialog::getSaveFileName(this,
 		"Save", QDir::current().path()+QString("/assets/images/terrain/terrain.tga"));
 	if(!path.isEmpty()){
-		mScene->getTerrain()->getMapTexture()->dump(path.toStdString());
+		mTerrain->getMapTexture()->dump(path.toStdString());
 		LOGI("Terrain texture saved to \"%s\"", path.toStdString().c_str());
 	}
 }
@@ -37,8 +37,8 @@ void TerrainEditTool::onSaveHeightmap(){
 	if(!path.isEmpty()){
 		std::ofstream out(path.toStdString().c_str(), std::ios::binary);
 
-		out.write((const char*)mScene->getTerrain()->getHeightmap().getData(),
-			mScene->getTerrain()->getHeightmap().getSize());
+		out.write((const char*)mTerrain->getHeightmap().getData(),
+			mTerrain->getHeightmap().getSize());
 
 		out.close();
 
@@ -53,7 +53,7 @@ void TerrainEditTool::onResetTexture(){
 	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 	glDrawBuffers(1, bfrMap);
 
-	wt::Texture2D* tex = mScene->getTerrain()->getMapTexture();
+	wt::Texture2D* tex = mTerrain->getMapTexture();
 
 	glClearColor(ui.materialIndex->currentIndex()==0, 
 		ui.materialIndex->currentIndex()==1, 
@@ -72,14 +72,14 @@ void TerrainEditTool::onResetHeightmap(){
 	wt::Buffer<int16_t> bfr;
 
 	
-	uint32_t nc = mScene->getTerrain()->getNumCols();
-	uint32_t nr = mScene->getTerrain()->getNumRows();
+	uint32_t nc = mTerrain->getNumCols();
+	uint32_t nr = mTerrain->getNumRows();
 
 	bfr.create(nc*nr);
 
 	bfr.clearMem();
 
-	mScene->getTerrain()->editChunk(
+	mTerrain->editChunk(
 		bfr, 0, 0, nr, nc);
 }
 
@@ -99,13 +99,13 @@ void TerrainEditTool::onBrushActivated(){
 }
 
 void TerrainEditTool::onSceneInitialized(){
-	if(mScene->getTerrain()){
+	if(mTerrain){
 
 		// TODO creating it every time is a bad idea
 
 		mFrameBuffer.create();
 
-		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, mScene->getTerrain()->getMapTexture());
+		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, mTerrain->getMapTexture());
 
 		WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete framebuffer");
 	}
@@ -187,8 +187,8 @@ void TerrainEditTool::editAt(float x, float y){
 		glm::vec2(x, y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
 
 			if(paintMode){
-			glm::vec2 uv = glm::vec2(res.mImpact.x, res.mImpact.z)/glm::vec2(mScene->getTerrain()->getNumRows()*mScene->getTerrain()->getRowScale(), 
-					mScene->getTerrain()->getNumCols()*mScene->getTerrain()->getColScale());
+			glm::vec2 uv = glm::vec2(res.mImpact.x, res.mImpact.z)/glm::vec2(mTerrain->getNumRows()*mTerrain->getRowScale(), 
+					mTerrain->getNumCols()*mTerrain->getColScale());
 
 
 			mFrameBuffer.bind(wt::Gl::FrameBuffer::DRAW);
@@ -196,7 +196,7 @@ void TerrainEditTool::editAt(float x, float y){
 			static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 			glDrawBuffers(1, bfrMap);
 
-			wt::Texture2D* tex = mScene->getTerrain()->getMapTexture();
+			wt::Texture2D* tex = mTerrain->getMapTexture();
 
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH_TEST);
@@ -222,7 +222,7 @@ void TerrainEditTool::editAt(float x, float y){
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
-			//mScene->getTerrain().getMapTexture()->dump("test.jpg");
+			//mTerrain.getMapTexture()->dump("test.jpg");
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			mFrameBuffer.unbind(wt::Gl::FrameBuffer::DRAW);
@@ -230,20 +230,20 @@ void TerrainEditTool::editAt(float x, float y){
 		else{
 
 			PxShape* shapes[1];
-			((PxRigidStatic*)mScene->getTerrain()->getPhysicsActor()->getPxActor())->getShapes(shapes, 1);
+			((PxRigidStatic*)mTerrain->getPhysicsActor()->getPxActor())->getShapes(shapes, 1);
 
 			PxHeightField* pxHeightField = shapes[0]->getGeometry().heightField().heightField;
 
 
 			
-			wt::Gl::Batch& batch = mScene->getTerrain()->getBatch();
+			wt::Gl::Batch& batch = mTerrain->getBatch();
 			
 			//wt::TerrainChunk::Vertex* vertices = (wt::TerrainChunk::Vertex*)batch.getVertexBuffer().map(wt::Gl::Buffer::eREAD_WRITE);
 
-			uint32_t idx = mScene->getTerrain()->getTriangleIndex(res.mTriangleIndex);
+			uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
 
-			uint32_t numRows = mScene->getTerrain()->getNumRows();
-			uint32_t numCols = mScene->getTerrain()->getNumCols();
+			uint32_t numRows = mTerrain->getNumRows();
+			uint32_t numCols = mTerrain->getNumCols();
 
 			int32_t row = idx/numRows;
 			int32_t col = idx%numCols;
@@ -258,7 +258,7 @@ void TerrainEditTool::editAt(float x, float y){
 			int32_t endCol = (col+d/2)>=numCols?numCols:col+d/2;
 
 			
-			editTerrainChunk(*mScene->getTerrain(),
+			editTerrainChunk(*mTerrain,
 				startRow, startCol, endRow-startRow, endCol-startCol, (ui.pressure->value()/100.0f),
 				(BrushMode)ui.comboBox->currentIndex() // TODO fix this
 				); 

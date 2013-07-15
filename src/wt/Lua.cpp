@@ -238,6 +238,10 @@ void serializeTable(LuaObject& table, AIOStream& stream, uint32_t depth){
 }
 
 bool luaConv(const math::Transform& src, LuaObject& dst){
+	if(!dst.IsTable()){
+		return false;
+	}
+
 	// Position
 	dst.Set(1, src.getPosition().x);
 	dst.Set(2, src.getPosition().y);
@@ -258,6 +262,10 @@ bool luaConv(const math::Transform& src, LuaObject& dst){
 }
 
 bool luaConv(const LuaObject& src, math::Transform& dst){
+	if(!src.IsTable()){
+		return false;
+	}
+
 	// Position
 	float px, py, pz;
 	if(!luaConv(src.Get(1), px)) return false;

@@ -69,7 +69,7 @@ public:
 			ParticleEffect* effect = getScene()->createParticleEffect();
 			ParticleEffect::EffectDesc desc;
 
-			desc.color = Color::green();
+			desc.color = Color::gray();
 			desc.maxNumber = 1;
 			desc.size = 10;
 			desc.texture = getAssets()->getTextureManager()->getFromPath("$ROOT/particle_soft");

@@ -5,6 +5,7 @@
 #include "wt/ASerializable.h"
 #include "wt/SkeletalAnimationPlayer.h"
 #include "wt/FileIOStream.h"
+#include "wt/PhysicsActor.h"
 
 namespace wt{
 
@@ -14,15 +15,14 @@ private:
 	Model* mModel;
 	Model::GeometrySkin* mSkin;
 	SkeletalAnimationPlayer* mAnimationPlayer;
-	ModelledActor* mAttachActor;
-	SkeletonBone* mAttachBone;
-	float mAttachDistance;
+	/*ModelledActor* mAttachActor;
+	float mAttachDistance;*/
 
-	struct AttachPoint{
+	/*struct AttachPoint{
 		math::Transform transform;
 		SkeletonBone* bone;
 		ASceneActor* actor;
-	};
+	};*/
 
 public:
 	struct DeserializationData{
@@ -31,7 +31,7 @@ public:
 	};
 
 	ModelledActor(Scene* parent, uint32_t id, const String& name="") : ASceneActor(parent, ASceneActor::eTYPE_MODELLED, id, name),
-		mModel(NULL), mSkin(NULL), mAnimationPlayer(NULL), mAttachActor(NULL), mAttachBone(NULL), mAttachDistance(0.0f){
+		mModel(NULL), mSkin(NULL), mAnimationPlayer(NULL){
 	}
 
 	bool hasAnimation() const{
@@ -60,6 +60,8 @@ public:
 		setSkin(skin);
 	}
 
+	
+
 	SkeletalAnimationPlayer* getAnimationPlayer() const{
 		return mAnimationPlayer;
 	}
@@ -78,41 +80,51 @@ public:
 		mSkin = skin;
 	}
 
-	/**
-	 * Attach self to other actor's bone
-	 */
-	void attach(ASceneActor* aActor, const String& bone, float distance=0.0f){
-		WT_ASSERT(aActor->getActorType() != eTYPE_MODELLED, "Invalid actor type");
-
-
-		ModelledActor* actor = static_cast<ModelledActor*>(aActor);
-		mAttachDistance = distance;
-
-		mAttachActor = actor;
-		mAttachBone = actor->getModel()->getSkeleton()->findChildByName(bone);
-
-		WT_ASSERT(mAttachBone, "No bone named \"%s\"", bone.c_str());
+	bool validAttachPoint(const String& pointId) const{
+		return mModel->getSkeleton()->findChildByName(pointId, true) != NULL;
 	}
+
+	bool getAttachPointTransform(const String& point, math::Transform& res) const{
+		SkeletonBone* bone = mModel->getSkeleton()->findChildByName(point, true);
+		if(!bone){
+			return false;
+		}
+
+		glm::mat4 boneTransf;
+		if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
+			boneTransf = mAnimationPlayer->getGlobalBoneTransform(bone->getIndex());
+		}
+		else{
+			bone->getGlobalTransform(boneTransf);
+		}
+
+		res = getTransform() * boneTransf;
+
+		return true;
+	}
+
+	///**
+	// * Attach self to other actor's bone
+	// */
+	//void attach(ASceneActor* aActor, const String& bone, float distance=0.0f){
+	//	WT_ASSERT(aActor->getActorType() != eTYPE_MODELLED, "Invalid actor type");
+
+
+	//	ModelledActor* actor = static_cast<ModelledActor*>(aActor);
+	//	mAttachDistance = distance;
+
+	//	mAttachActor = actor;
+	//	mAttachBone = actor->getModel()->getSkeleton()->findChildByName(bone);
+
+	//	WT_ASSERT(mAttachBone, "No bone named \"%s\"", bone.c_str());
+	//}
 
 	void update(float dt){
 		if(mAnimationPlayer){
 			mAnimationPlayer->advance(dt);
 		}
-		
-		if(mAttachBone){
-			glm::mat4 boneTransf;
-			if(mAttachActor->mAnimationPlayer && mAttachActor->mAnimationPlayer->getCurrentAnimation()){
-				boneTransf = mAttachActor->mAnimationPlayer->getGlobalBoneTransform(mAttachBone->getIndex());
-			}
-			else{
-				mAttachBone->getGlobalTransform(boneTransf);
-			}
-			mTransform = mAttachActor->getTransform() * boneTransf;
 
-			if(mAttachDistance != 0.0f){
-				mTransform.moveForward( mAttachDistance );
-			}
-		}
+		ASceneActor::update(dt);
 	}
 
 	/*********************************/

@@ -43,8 +43,8 @@ void main(){
 	if(life <= 0){
 		// Emit new particle
 		outPosition.xyz = uPosition;
-		outLife = uMaxLife;
-		outVelocity = normalize(vec3(-3 + nrand(vec3(inPosition))*6,  -3 + nrand(vec3(inPosition))*6, -3 + nrand(vec3(inPosition))*6)) *uVelocity;
+		outLife = uMaxLife - nrand(vec3(inPosition*100))/2;
+		outVelocity = vec3(-1 + nrand(vec3(inPosition*100))*2,  -1 + nrand(vec3(inPosition*123))*2, -1 + nrand(vec3(inPosition*30))*2) * uVelocity;
 	}
 	else{
 		// Move the particle
