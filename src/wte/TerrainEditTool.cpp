@@ -5,8 +5,8 @@
 
 #define TD_TRACE_TAG "TerrainEditTool"
 
-TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager, wt::Scene* scene, wt::Assets* assets) 
-	: QDialog(parent), mSceneView(sceneView), ATool(toolManager), mScene(scene), mAssets(assets){
+TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager, wt::Scene* scene, wt::AResourceSystem* assets) 
+	: QDialog(parent), mSceneView(sceneView), ATool(toolManager), mScene(scene), mAssets(assets), mTerrain(NULL){
 	ui.setupUi(this);
 	setWindowFlags(Qt::Tool);
 
@@ -20,6 +20,22 @@ TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolMan
 		this, SLOT(onMouseDrag(float,float,Qt::MouseButton)));
 
 	mPhysics = mScene->getPhysics();
+}
+
+void TerrainEditTool::setTarget(wt::Terrain* terrain){
+	mTerrain = terrain;
+
+	if(terrain){
+		if(mFrameBuffer.isCreated()){
+			mFrameBuffer.destroy();
+		}
+
+		mFrameBuffer.create();
+
+		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, mTerrain->getMapTexture());
+
+		WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete framebuffer");
+	}
 }
 
 void TerrainEditTool::onSaveTexture(){
@@ -47,6 +63,11 @@ void TerrainEditTool::onSaveHeightmap(){
 }
 
 void TerrainEditTool::onResetTexture(){
+	if(!mTerrain){
+		TRACEE("Terrain object not set");
+		return;
+	}
+
 	LOGI("Resetting texture...");
 	mFrameBuffer.bind(wt::Gl::FrameBuffer::DRAW);
 
@@ -69,6 +90,11 @@ void TerrainEditTool::onResetTexture(){
 }
 
 void TerrainEditTool::onResetHeightmap(){
+	if(!mTerrain){
+		TRACEE("Terrain object not set");
+		return;
+	}
+
 	wt::Buffer<int16_t> bfr;
 
 	
@@ -99,20 +125,18 @@ void TerrainEditTool::onBrushActivated(){
 }
 
 void TerrainEditTool::onSceneInitialized(){
-	if(mTerrain){
-
-		// TODO creating it every time is a bad idea
-
-		mFrameBuffer.create();
-
-		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, mTerrain->getMapTexture());
-
-		WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete framebuffer");
-	}
+	// TODO get this from elsewhere
+	mBrushTexture = new wt::Texture2D;
+	mAssets->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
 }
 
 void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol,
 	uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode){
+	if(!mTerrain){
+		TRACEE("Terrain object not set");
+		return;
+	}
+
 
 	wt::Buffer<int16_t> samples;
 	samples.create(numRows*numCols);
@@ -177,6 +201,11 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 
 
 void TerrainEditTool::editAt(float x, float y){
+	if(!mTerrain){
+		TRACEE("Terrain object not set");
+		return;
+	}
+
 	wt::RaycastHitEvent res;
 
 	
@@ -215,7 +244,8 @@ void TerrainEditTool::editAt(float x, float y){
 				ui.materialIndex->currentIndex()==2,
 				ui.pressure->value()/100.0f);
 			mSceneView->getRenderer().render(
-				mAssets->getTextureManager()->getFromPath("$ROOT/brushes/circle_hard"),
+				/*mAssets->getTextureManager()->getFromPath("$ROOT/brushes/circle_hard"),*/
+				mBrushTexture,
 				glm::vec2(w, h),
 				(w*uv.x)-brushSize/2, (h*uv.y)-brushSize/2, brushSize, brushSize, clr);
 		

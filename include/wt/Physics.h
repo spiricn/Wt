@@ -141,71 +141,19 @@ private:
 		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize);
 
 public:
-	
-    virtual ~Physics();
+	Physics(EventManager* eventManager);
 
-    Physics(EventManager* eventManager);
+    virtual ~Physics();
 
 	uint32_t createRegion(const String& name, const glm::vec3& position, float radius);
 
-	void setTimeStep(float step){
-		mTimeAccumulator.setStep(step);
-	}
+	void setTimeStep(float step);
 
-	Sp<Buffer<PhysicsActor*>> getActorsInRegion(const glm::vec3& pos, float radius, uint32_t groups=0x00){
-		PxSphereGeometry sphere(radius);
-		PxTransform pose = PxTransform::createIdentity();
-		pxConvert(pos, pose.p);
+	Sp<Buffer<PhysicsActor*>> getActorsInRegion(const glm::vec3& pos, float radius, uint32_t groups=0x00);
 
-		const PxU32 bufferSize = 256;
-		PxShape* hitBuffer[bufferSize];
+	uint32_t generateActorId();
 
-		PxSceneQueryFilterData filterData;
-		filterData.data.setToDefault();
-		filterData.data.word0 = groups;
-
-		PxI32 hitNum = mScene->overlapMultiple(sphere, pose, hitBuffer, bufferSize, filterData);
-
-		if(hitNum == -1){
-			// TODO increase buffer size dynamically?
-			LOGW("Buffer overflow (more than %d actors contained in radius)", bufferSize);
-			return NULL;
-		}
-		else{
-			Buffer<PhysicsActor*>* bfr = new Buffer<PhysicsActor*>();
-			bfr->create(hitNum);
-			for(int32_t i=0; i<hitNum; i++){
-				if(hitBuffer[i]->getActor().userData){
-					bfr->put(
-						static_cast<PhysicsActor*>(hitBuffer[i]->getActor().userData)
-						);
-				}
-				else{
-					LOGW("No user data found for PxActor!");
-				}
-			}
-
-			return bfr;
-		}
-	}
-
-	uint32_t generateActorId(){
-		uint32_t id=mActors.size();
-		while(true){
-			if(getActorById(id) != NULL){
-				++id;
-			}
-			else{
-				break;
-			}
-		}
-		return id;
-	}
-
-	PhysicsActor* getActorById(uint32_t id){
-		ActorMap::iterator i = mActors.find(id);
-		return i == mActors.end() ? NULL : i->second;
-	}
+	PhysicsActor* getActorById(uint32_t id);
 
 	PhysicsActor* createActor(ASceneActor* sceneActor, PhysicsActor::Desc& desc);
 
@@ -213,7 +161,7 @@ public:
 
 	PxMaterial& getDefaultMaterial();
 
-	void connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout=100);
+	bool connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout=100);
 
 	PxPhysics* getSdk();
 
@@ -223,56 +171,20 @@ public:
 
 	void removeActor(PhysicsActor* actor);
 
-	//PxDistanceJoint* 
-	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0x00);
+	void createBBox(ASceneActor* actor);
 
-	bool pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0x00);
+	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0x00, bool bbox=false);
+
+	bool pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0x00, bool bbox=false);
 
 	/**********************/
 	/**** Lua bindings ****/
 	/**********************/
-	LuaObject lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter){
-		float radius;
-		glm::vec3 pos;
+	LuaObject lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter);
 
-		LuaObject res;
-		LUA_NEW_TABLE(res);
+	int32_t lua_createRegion(LuaObject luaPos, LuaObject luaRadius);
 
-		// TODO checks
-		Lua::luaConv(luaPos, pos);
-		Lua::luaConv(luaRadius, radius);
-
-		Sp<Buffer<PhysicsActor*>> actors = getActorsInRegion(pos, radius, groupFilter.IsNil() ? 0x00 : groupFilter.ToInteger() );
-
-		uint32_t actorIdx=0;
-		for(uint32_t i=0; i<actors->getCapacity(); i++){
-			ASceneActor* actor =  actors->operator[](i)->getSceneActor();
-			if(actor){
-				res.Set(++actorIdx, actor->getId());
-			}
-		}
-
-		return res;
-	}
-
-	int32_t lua_createRegion(LuaObject luaPos, LuaObject luaRadius){
-		glm::vec3 pos;
-		float radius;
-
-		if(!Lua::luaConv(luaPos, pos) || !Lua::luaConv(luaRadius, radius)){
-			LOGE("Error creating region, invalid position or radius value");
-			return -1;
-		}
-
-		return createRegion("", pos, radius);
-	}
-
-
-	void expose(LuaObject& meta){
-		meta.RegisterObjectDirect("getActorsInRegion", (Physics*)0, &Physics::lua_getActorsInRegion);
-		meta.RegisterObjectDirect("createRegion", (Physics*)0, &Physics::lua_createRegion);
-	}
-
+	void expose(LuaObject& meta);
 
 }; // </Physics>
 

@@ -25,11 +25,12 @@ private:
 	wt::Scene* mScene;
 	wt::Physics* mPhysics;
 	wt::Gl::FrameBuffer mFrameBuffer;
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
 	wt::Terrain* mTerrain;
+	wt::Texture2D* mBrushTexture;
 
 public:
-	TerrainEditTool(SceneView* scene, QWidget*, AToolManager*, wt::Scene*, wt::Assets*);
+	TerrainEditTool(SceneView* scene, QWidget*, AToolManager*, wt::Scene*, wt::AResourceSystem*);
 
 	void onToolLostFocus(){
 		ATool::onToolLostFocus();
@@ -40,6 +41,8 @@ public:
 		ATool::onToolGainFocus();
 		ui.buttonBrush->setText("Deactivate Brush");
 	}
+
+	void setTarget(wt::Terrain* terrain);
 
 private:
 	void editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode);

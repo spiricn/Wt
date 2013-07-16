@@ -95,7 +95,7 @@
    <header>vec3view.h</header>
    <container>1</container>
    <slots>
-    <signal>onValueChanged()</signal>
+    <signal>valueChanged()</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -103,7 +103,7 @@
  <connections>
   <connection>
    <sender>translation</sender>
-   <signal>onValueChanged()</signal>
+   <signal>valueChanged()</signal>
    <receiver>TransformEdit</receiver>
    <slot>onTranslationChanged()</slot>
    <hints>
@@ -119,7 +119,7 @@
   </connection>
   <connection>
    <sender>rotAxis</sender>
-   <signal>onValueChanged()</signal>
+   <signal>valueChanged()</signal>
    <receiver>TransformEdit</receiver>
    <slot>onRotAxisChanged()</slot>
    <hints>
@@ -135,13 +135,13 @@
   </connection>
   <connection>
    <sender>scle</sender>
-   <signal>onValueChanged()</signal>
+   <signal>valueChanged()</signal>
    <receiver>TransformEdit</receiver>
    <slot>onScaleChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>150</x>
-     <y>251</y>
+     <x>283</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>109</x>
@@ -156,8 +156,8 @@
    <slot>onAngleSliderChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>347</x>
-     <y>106</y>
+     <x>284</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>301</x>
@@ -172,8 +172,8 @@
    <slot>onAngleSpinboxChanged(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
-     <y>104</y>
+     <x>345</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
      <x>504</x>

@@ -50,6 +50,20 @@ public:
 	virtual int64_t seek(int64_t position);
 
 	/**
+	 * Formatted write.
+	 * Analog to fprintf.
+	 */
+	virtual int64_t print(const char* fmt, ...);
+
+	virtual void flush();
+
+	virtual bool isReadable();
+
+	virtual bool isWritable();
+
+	int64_t getLine(String& dst, char delim, uint32_t limit=0xFFFFFFFF);
+
+	/**
 	 * Read @size bytes into the destination buffer.
 	 *
 	 * @param dst Destination buffer to which the bytes are going to be written.
@@ -76,27 +90,14 @@ public:
 	 */
 	virtual int64_t seek(SeekOrigin origin, int64_t offset) = 0;
 	
-
-	/**
-	 * Formatted write.
-	 * Analog to fprintf.
-	 */
-	virtual int64_t print(const char* fmt, ...);
-
 	virtual int64_t tell() = 0;
 
 	virtual int64_t getSize() = 0;
 
 	virtual bool isOpen() = 0;
 
-	virtual bool isReadable() = 0;
-
-	virtual bool isWritable() = 0;
-
 	virtual bool isSeekable() = 0;
 
-	virtual void flush(){
-	}
 }; // </AInputStream>
 
 
@@ -104,7 +105,4 @@ public:
 }; // </wt>
 
 
-namespace std{
-	void getline(wt::AIOStream& stream, std::string& dst, char delim);
-}; // </std>
 #endif // </WT_AIOSTREAM_H;

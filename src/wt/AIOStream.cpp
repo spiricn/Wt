@@ -48,33 +48,45 @@ int64_t AIOStream::puts(const String& src){
 }
 
 int64_t AIOStream::gets(String& dst){
-	std::getline(*this, dst, '\0');
-	return dst.size();
+	return getLine(dst, '\0');
 }
 
 int64_t AIOStream::seek(int64_t position){
 	return seek(eSEEK_BEGGINING, position);
 }
 
-}; // </wt>
+bool AIOStream::isReadable(){
+	return isOpen() && getMode() == eMODE_READ;
+}
 
+bool AIOStream::isWritable(){
+	return isOpen() && getMode() == eMODE_WRITE;
+}
 
-namespace std{
-	void getline(wt::AIOStream& stream, std::string& dst, char delim){
-		while(1){
-			int16_t c = stream.get();
-			if(c < 0){
-				// Error
-				break;
-			}
-			
+void AIOStream::flush(){
+}
 
-			if((char)c == delim){
-				break;
-			}
-			else{
-				dst.push_back((char)c);
+int64_t AIOStream::getLine(String& dst, char delim, uint32_t limit){
+	char c = 0;
+	uint32_t numRead = 0;
+
+	do{
+		int16_t rc = get();
+		if(c < 0){
+			// Error
+			return -1;
+		}
+		else{
+			++numRead;
+			c = (char)rc;
+
+			if(c != delim){
+				dst.push_back(c);
 			}
 		}
-	}
-}; // </std>
+	}while(c != delim && numRead < limit);
+
+	return numRead;
+}
+
+}; // </wt>

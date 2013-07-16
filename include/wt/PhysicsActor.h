@@ -3,8 +3,10 @@
 
 using namespace physx;
 
+
 namespace wt{
 
+class ASceneActor;
 class Physics;
 
 class PhysicsActor{
@@ -15,7 +17,8 @@ public:
 		eACTOR_TYPE_NONE,
 		eSTATIC_ACTOR,
 		eDYNAMIC_ACTOR,
-		eREGION
+		eREGION,
+		eACTOR_TYPE_BBOX
 	};
 
 	enum ControlMode{

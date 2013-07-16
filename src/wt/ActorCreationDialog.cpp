@@ -9,10 +9,12 @@
 
 #define TD_TRACE_TAG "ActorCreationDialog"
 
-ActorCreationDialog::ActorCreationDialog(QWidget* parent, wt::Assets* assets) : QDialog(parent), mAssets(assets){
+ActorCreationDialog::ActorCreationDialog(QWidget* parent, wt::AResourceSystem* assets) : QDialog(parent), mAssets(assets){
     ui.setupUi(this);
 
 	mResult.ok = false;
+
+	onGeometryChanged(0);
 }
 
 void ActorCreationDialog::setModel(wt::Model* model){
@@ -34,65 +36,51 @@ void ActorCreationDialog::onModelPick(){
 	}
 }
 
+void ActorCreationDialog::onGeometryChanged(int index){
+	ui.boxGeometryGroup->setEnabled(index==2);
+	ui.sphereGeometryGroup->setEnabled(index==1);
+}
+
+
 void ActorCreationDialog::onSave(){
-	//wt::String skinName = ui.comboBoxSkin->itemData( ui.comboBoxSkin->currentIndex(), Qt::UserRole).toString().toStdString();
-	//
-	//mResult.ok = true;
-	//mResult.skin = mResult.model->getSkin(skinName);
-	//mResult.type = ui.comboBoxType->currentIndex()==0 ? wt::PhysicsActor::eSTATIC_ACTOR : wt::PhysicsActor::eDYNAMIC_ACTOR;
-	//mResult.name = ui.lineEditName->text();
-	//mResult.isControlled = true;
+	wt::String skinName = ui.comboBoxSkin->itemData( ui.comboBoxSkin->currentIndex(), Qt::UserRole).toString().toStdString();
+	
+	mResult.ok = true;
+	mResult.skin = mResult.model->getSkin(skinName);
+	mResult.type = ui.isDynamic->isChecked() ? wt::PhysicsActor::eDYNAMIC_ACTOR : wt::PhysicsActor::eSTATIC_ACTOR;
+	mResult.name = ui.lineEditName->text();
+	
+	wt::PhysicsActor::Desc& pd = mResult.physicsDesc;
 
-	//{
-	//wt::PhysicsActor::Desc& pd = mResult.physicsDesc;
+	pd.type = mResult.type;
 
-	//pd.type = mResult.type;
+	
+	pd.controlMode = wt::PhysicsActor::ePHYSICS_MODE;
 
-	//int ctrlMode = ui.comboBoxCtrlMode->currentIndex();
-	//if(ctrlMode == 0){ // not controlled
-	//	mResult.isControlled = false;
-	//}
-	//else if(ctrlMode == 1){ // physics
-	//	pd.controlMode = wt::PhysicsActor::ePHYSICS_MODE;
+	int geometry = ui.geometry->currentIndex();
 
-	//	int geometry = ui.comboBoxGeometry->currentIndex();
+	// Box geometry
+	if(geometry == 1){
+		pd.geometryType = wt::PhysicsActor::eBOX_GEOMETRY;
+			
+		pd.geometryDesc.boxGeometry.hx = ui.boxHx->value();
+		pd.geometryDesc.boxGeometry.hy = ui.boxHy->value();
+		pd.geometryDesc.boxGeometry.hz = ui.boxHz->value();
+	}
+	// Sphere geometry
+	else if(geometry == 2){
+		pd.geometryType = wt::PhysicsActor::eSPHERE_GEOMETRY;
 
-	//	if(geometry == 1){ // box
-	//		pd.geometryType = wt::PhysicsActor::eBOX_GEOMETRY;
+		pd.geometryDesc.sphereGeometry.radius = ui.sphereRadius->value();
+	}
+	// Mesh geometry
+	else if(geometry == 3){
+		pd.geometryType = wt::PhysicsActor::eMESH_GEOMETRY;
+		pd.geometryDesc.meshGeometry.model = mResult.model;
+	}
+	else{
+		pd.geometryType = wt::PhysicsActor::eGEO_TYPE_NONE;
+	}
 
-	//		std::stringstream ss(
-	//			ui.boxGeometryExtents->text().toStdString()
-	//			);
-	//		
-	//		ss >> pd.geometryDesc.boxGeometry.hx
-	//			>>  pd.geometryDesc.boxGeometry.hy
-	//			 >> pd.geometryDesc.boxGeometry.hz;
-
-	//	}
-	//	else if(geometry == 2){ // sphere
-	//		pd.geometryType = wt::PhysicsActor::eSPHERE_GEOMETRY;
-
-	//		pd.geometryDesc.sphereGeometry.radius = ui.sphereGeometryRadius->value();
-
-	//	}
-	//	else if(geometry == 3){ // mesh
-	//		pd.geometryType = wt::PhysicsActor::eMESH_GEOMETRY;
-	//		pd.geometryDesc.meshGeometry.model = mResult.model;
-	//	}
-	//	else{ // none
-	//	}
-	//}
-	//else{ // controller
-	//	int ctrlType = ui.comboBoxCtrlType->currentIndex();
-
-	//	if(ctrlType == 0){ // box
-	//		pd.controllerDesc.geometryType = wt::PhysicsActor::eBOX_CONTROLLER;
-	//	}
-	//	else{ // capsule
-	//		pd.controllerDesc.geometryType = wt::PhysicsActor::eCAPSULE_CONTROLLER;
-	//	}
-	//}
-
-	//}
-	//close();
+	close();
 }

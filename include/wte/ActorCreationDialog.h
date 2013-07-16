@@ -22,14 +22,13 @@ public:
 		wt::Model::GeometrySkin* skin;
 		wt::PhysicsActor::ActorType type;
 		wt::PhysicsActor::Desc physicsDesc;
-		bool isControlled;
 		QString name;
 	};
 
 	EditResult mResult;
 
 private:
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
     Ui::ActorCreationDialog ui;
 
 	void setModel(wt::Model* model);
@@ -39,9 +38,9 @@ private:
 	}
 
 public:
-    ActorCreationDialog(QWidget* parent, wt::Assets* assets);
+    ActorCreationDialog(QWidget* parent, wt::AResourceSystem* assets);
 
-	static EditResult edit(QWidget* parent,  wt::Assets* assets, wt::ModelledActor* actor=NULL){
+	static EditResult edit(QWidget* parent,  wt::AResourceSystem* assets, wt::ModelledActor* actor=NULL){
 		ActorCreationDialog dlg(parent, assets);
 		dlg.exec();
 
@@ -53,6 +52,8 @@ protected slots:
 	void onModelPick();
 
 	void onSave();
+	
+	void onGeometryChanged(int);
 
 }; // </ActorCreationDialog>
 

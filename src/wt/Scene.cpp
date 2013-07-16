@@ -95,6 +95,9 @@ Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
 	else if(iter->second->getActorType() == ASceneActor::eTYPE_TERRAIN){
 		mTerrainSet.erase( static_cast<Terrain*>(iter->second) );
 	}
+	else if(iter->second->getActorType() == ASceneActor::eTYPE_PARTICLE_EFFECT){
+		mParticleEffects.erase( static_cast<ParticleEffect*>(iter->second) );
+	}
 
 	delete iter->second;
 

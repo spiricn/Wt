@@ -38,8 +38,8 @@ void ModelLoader::writeNode(AIOStream* stream, SkeletonBone* bone){
 
 void ModelLoader::readNode(AIOStream* stream, Model* model, SkeletonBone* parent){
 	// name_id
-	std::string name;
-	std::getline(*stream, name, '\0');
+	String name;
+	WT_ASSERT(stream->getLine(name, '\0') > 0, "Error reading model data");
 	//LOGV("Node name: %s", name.c_str());
 
 	// transform
@@ -109,8 +109,8 @@ void ModelLoader::load(AIOStream* stream, Model* model){
 	/* calculate the total number of vertices/indices */
 	for(uint32_t i=0; i<numGeometry; i++){
 		// name_id
-		std::string name;
-		std::getline(*stream, name, '\0');
+		String name;
+		WT_ASSERT(stream->getLine(name, '\0') > 0, "Error reading model data");
 
 		// NoV
 		uint32_t nov;
@@ -138,8 +138,8 @@ void ModelLoader::load(AIOStream* stream, Model* model){
 	// geometry
 	for(uint32_t i=0; i<numGeometry; i++){
 		// name_id
-		std::string name;
-		std::getline(*stream, name, '\0');
+		String name;
+		WT_ASSERT(stream->getLine(name, '\0') > 0, "Error reading model data");
 		//LOGV("geo name_id: %s", name.c_str());
 
 		// create structure

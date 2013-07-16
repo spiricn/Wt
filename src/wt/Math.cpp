@@ -85,9 +85,23 @@ void quatToAxisAngle(const glm::quat& quat, glm::vec4& res){
 
 	float wSquared = quat.w*quat.w;
 
-	res.x = quat.x / sqrt(1-wSquared);
-	res.y = quat.y / sqrt(1-wSquared);
-	res.z = quat.z / sqrt(1-wSquared);
+
+	// First singularity (0 degrees)
+	if(wSquared == 1.0f){
+		// Any axis will provide the same result so we set it 
+		// to an arbitary one
+		res.x = 0;
+		res.y = 1;
+		res.z = 0;
+	}
+	//// Second singularity (180 degrees)
+	//else if(wSquared == 0){
+	//}
+	else{
+		res.x = quat.x / sqrt(1-wSquared);
+		res.y = quat.y / sqrt(1-wSquared);
+		res.z = quat.z / sqrt(1-wSquared);
+	}
 }
 
 }; // </math>

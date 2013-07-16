@@ -324,13 +324,15 @@ void Terrain::editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t st
 		}
 	}
 
-	physx::PxShape* shapes[1];
-	((physx::PxRigidStatic*)getPhysicsActor()->getPxActor())->getShapes(shapes, 1);
+	if(getPhysicsActor()){
+		physx::PxShape* shapes[1];
+		((physx::PxRigidStatic*)getPhysicsActor()->getPxActor())->getShapes(shapes, 1);
 
-	physx::PxHeightField* pxHeightField = shapes[0]->getGeometry().heightField().heightField;
+		physx::PxHeightField* pxHeightField = shapes[0]->getGeometry().heightField().heightField;
 
-	// edit PhysX actor
-	pxHeightField->modifySamples(startCol, startRow, desc);
+		// edit PhysX actor
+		pxHeightField->modifySamples(startCol, startRow, desc);
+	}
 
 	delete[] pxSamples;
 
@@ -358,6 +360,24 @@ Terrain::~Terrain(){
 	for(uint32_t i=0; i<mChunks.size(); i++){
 		delete mChunks[i];
 	}
+}
+
+void Terrain::getPhysicsDesc(PhysicsActor::Desc& desc){
+	desc.type = PhysicsActor::eSTATIC_ACTOR;
+
+	// TODO
+	desc.group = 0;
+
+	desc.geometryType = PhysicsActor::eHEIGHTMAP_GEOMETRY;
+
+	desc.geometryDesc.heightfieldGeometry.heightScale = getHeightScale();
+	desc.geometryDesc.heightfieldGeometry.rowScale = getRowScale();
+	desc.geometryDesc.heightfieldGeometry.colScale = getColScale();
+
+	desc.geometryDesc.heightfieldGeometry.numRows = getNumRows();
+	desc.geometryDesc.heightfieldGeometry.numCols = getNumCols();
+
+	desc.geometryDesc.heightfieldGeometry.heightmap = &getHeightmap();
 }
 
 void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){

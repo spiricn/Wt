@@ -38,7 +38,8 @@ void AnimationLoader::load(AIOStream* stream, Animation* ani){
 
 		// node_name_id
 		String name;
-		std::getline(*stream, name, '\0');
+		WT_ASSERT(stream->getLine(name, '\0') > 0, "Error reading animation data");
+
 		node->setTargetNode(name);
 
 		// num_pos_keys

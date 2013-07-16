@@ -8,43 +8,6 @@
 
 using namespace std;
 
-void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message){
-	WtEditor* thiz = static_cast<WtEditor*>(opaque);
-
-	QListWidgetItem* item = new QListWidgetItem(thiz->ui.logList);
-
-	item->setText(QString(tag) + " : " + message);
-
-	QColor color;
-
-	switch(level){
-	case eTD_LVL_VERBOSE:
-		color = QColor(127, 127, 127);
-		break;
-	case eTD_LVL_DEBUG:
-		color = QColor(255, 255, 255);
-		break;
-	case eTD_LVL_INFO:
-		color = QColor(0, 255, 0);
-		break;
-	case eTD_LVL_WARNING:
-		color = QColor(0, 255, 255);
-		break;
-	case eTD_LVL_ERROR:
-		color = QColor(255, 0, 0);
-		break;
-	}
-
-	item->setBackgroundColor(QColor(0, 0, 0));
-	item->setTextColor(color);
-
-	thiz->ui.logList->addItem(item);
-
-	
-	thiz->ui.logList->scrollToItem(item);
-	thiz->ui.logList->setCurrentItem(item);
-}
-
 WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"), mScene(new wt::Physics(new wt::EventManager), &mAssets), mAssets(wt::Assets::eFS_DIR, "D:\\Documents\\prog\\c++\\workspace\\Wt\\workspace\\"){
 	ui.setupUi(this);
@@ -89,9 +52,20 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	/* Sound */
 	addTab(new SoundManagerTab(this, &mAssets), "Sound effects");
 
+	try{
+		mScene.getPhysics()->connectToVisualDebugger(
+					"127.0.0.1", // address
+					5425, // port
+					100		// timeout
+		);
+	}
+	catch(...){
+	}
 }
 
 void WtEditor::onInitialized(){
+	loadLevel("workspace/level1.lua");
+	mWorldEdit->loadScene("workspace/scene.lua");
 }
 
 WtEditor::~WtEditor(){
@@ -184,4 +158,41 @@ void WtEditor::onSaveScene(){
 	}
 
 	mWorldEdit->saveScene(path);
+}
+
+void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message){
+	WtEditor* thiz = static_cast<WtEditor*>(opaque);
+
+	QListWidgetItem* item = new QListWidgetItem(thiz->ui.logList);
+
+	item->setText(QString(tag) + " : " + message);
+
+	QColor color;
+
+	switch(level){
+	case eTD_LVL_VERBOSE:
+		color = QColor(127, 127, 127);
+		break;
+	case eTD_LVL_DEBUG:
+		color = QColor(255, 255, 255);
+		break;
+	case eTD_LVL_INFO:
+		color = QColor(0, 255, 0);
+		break;
+	case eTD_LVL_WARNING:
+		color = QColor(255, 100, 100);
+		break;
+	case eTD_LVL_ERROR:
+		color = QColor(255, 0, 0);
+		break;
+	}
+
+	item->setBackgroundColor(QColor(0, 0, 0));
+	item->setTextColor(color);
+
+	thiz->ui.logList->addItem(item);
+
+	
+	thiz->ui.logList->scrollToItem(item);
+	thiz->ui.logList->setCurrentItem(item);
 }

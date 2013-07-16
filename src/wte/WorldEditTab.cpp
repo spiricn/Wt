@@ -30,23 +30,25 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 
 	 ui.sceneView->setScene(mScene);
 
-#if 0
-	 // terrain tool
+	// actor tool
+	 mActorEditTool = new ActorEditTool(ui.sceneView, this, this, mAssets);
+	 ui.actorEditToolDock->setWidget(mActorEditTool);
+	 mTools.push_back(mActorEditTool);
+
+	 // Terrain tool
 	 mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this, mScene, mAssets);
 	 mTerrainEditTool->setModal(false);
 	 ui.terrainToolDock->setWidget(mTerrainEditTool);
 	 mTools.push_back(mTerrainEditTool);
 
 	 //// light tool
-	 mLightTool = new LightEditTool(ui.sceneView, this);
+	/* mLightTool = new LightEditTool(ui.sceneView, this);
 	 mLightTool->setModal(false);
-	 ui.lightToolDock->setWidget(mLightTool);
+	 ui.lightToolDock->setWidget(mLightTool);*/
 
-	 // actor tool
-	 mActorEditTool = new ActorEditTool(ui.sceneView,  mGameLevel, this, this);
-	 ui.actorEditToolDock->setWidget(mActorEditTool );
-	 mTools.push_back(mActorEditTool);
 
+	
+#if 0
 	 // fog tool
 	 mFogTool = new FogTool(ui.sceneView, this);
 	 ui.fogToolDock->setWidget(mFogTool);
@@ -141,6 +143,17 @@ void WorldEditTab::loadScene(const QString& path){
 	}catch(...){
 		QMessageBox::critical(this, "Error", "Error loading scene from \"" + path + "\"");
 	}
+
+	// Find terrain
+	wt::Terrain* terrain = NULL;
+	for(wt::Scene::ActorMap::iterator iter=mScene->getActorMap().begin(); iter!=mScene->getActorMap().end(); iter++){
+		if(iter->second->getActorType() == wt::ASceneActor::eTYPE_TERRAIN){
+			terrain = static_cast<wt::Terrain*>(iter->second);
+			break;
+		}
+	}
+
+	mTerrainEditTool->setTarget(terrain);
 }
 
 void WorldEditTab::loadResources(const QString& path){
@@ -217,18 +230,26 @@ void WorldEditTab::onSave(){
 }
 
 void WorldEditTab::unloadLevel(){
-	//mGameLevel->clear();
-	//mGameLevel->getScene()->clear();
+	mScene->clear();
 }
 
 void WorldEditTab::onCreateTerrain(){
-	/*wt::TerrainDesc desc;
+	wt::TerrainDesc desc;
+	
 	
 	if(!TerrainEditDialog::editTerrain(this, mAssets, desc)){
 		return;
 	}
 
-	mScene->createTerrain(desc);
+	wt::Terrain* terrain = mScene->createTerrain();
+	try{
+		terrain->create(desc);
 
-	emit onTerrainCreated();*/
+		mTerrainEditTool->setTarget(terrain);
+
+		emit onTerrainCreated();
+	}catch(wt::Exception& e){
+		QMessageBox::critical(this, "Error", QString("Error creating terrain\n") + e.getDescription().c_str());
+	}
+
 }

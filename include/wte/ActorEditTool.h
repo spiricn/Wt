@@ -14,12 +14,17 @@ private:
 	SceneView* mSceneView;
 	wt::Scene* mScene;
 	wt::Physics* mPhysics;
+	wt::AResourceSystem* mAssets;
 
 	/*void addActor(wt::AGameActor* actor);
 
-	void selectActor(wt::AGameActor* actor);*/
+	*/
+
+	void selectActor(wt::ASceneActor* actor);
 
 	
+	wt::ASceneActor* mSelectedActor;
+
 	void updateSelectionStats();
 
 	bool mSelectingActor;
@@ -38,23 +43,23 @@ public:
 		ui.buttonBrushToggle->setText("Deactivate brush");
 	}
 
-    ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager*);
+    ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager*, wt::AResourceSystem* assets);
 
 protected slots:
 
-	/*void onSceneInitialized();
-
 	void onNewActor();
 
-	void onAnimationSelected(QString);
+	//void onSceneInitialized();
 
-	void onMouseDrag(MouseDragEvent evt);
+	//void onAnimationSelected(QString);
+
+	//void onMouseDrag(MouseDragEvent evt);
 
 	void onToggleBrush();
 
-	void onSave();
+	//void onSave();
 
-	void onAddDoodad();
+	//void onAddDoodad();
 
 	void onSelectActor();
 
@@ -64,7 +69,7 @@ protected slots:
 
 	void onRotationChanged();
 
-	void onMousePress(QMouseEvent*);*/
+	void onMousePress(QMouseEvent*);
 
 }; // </ActorEditTool>
 

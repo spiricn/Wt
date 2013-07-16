@@ -10,7 +10,8 @@ namespace wt{
 
 enum InternalGroups{
 	eIG_HEIGHTMAP = (1 << 0),
-	eIG_REGION = (1 << 1)
+	eIG_REGION = (1 << 1),
+	eIG_BBOX = (1 << 2)
 }; // </EngineGroups>
 
 const EvtType RaycastHitEvent::TYPE = "RaycastHit";
@@ -268,7 +269,7 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f) {
     LOGV("Physx successfuly initialized");
 }
 
-void Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout){
+bool Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout){
 	#ifdef PX_SUPPORT_VISUAL_DEBUGGER
 	// Physx Visual Debugger
 	if(mSdk->getPvdConnectionManager() == NULL){
@@ -280,10 +281,11 @@ void Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t 
 		PVD::PvdConnection* theConnection = PxVisualDebuggerExt::createConnection(mSdk->getPvdConnectionManager(),
 			addr.c_str(), port, timeout, PxVisualDebuggerExt::getAllConnectionFlags());
 		if(theConnection){
-			LOGI("Connected");
+			LOGV("Connected");
+			return true;
 		}
 		else{
-			WT_THROW("Connection timed out after %d ms", timeout);
+			return false;
 		}
 	}
 	#else
@@ -380,6 +382,66 @@ void Physics::update(float dt){
 	//}
 }
 
+void Physics::setTimeStep(float step){
+	mTimeAccumulator.setStep(step);
+}
+
+
+Sp<Buffer<PhysicsActor*>> Physics::getActorsInRegion(const glm::vec3& pos, float radius, uint32_t groups){
+		PxSphereGeometry sphere(radius);
+		PxTransform pose = PxTransform::createIdentity();
+		pxConvert(pos, pose.p);
+
+		const PxU32 bufferSize = 256;
+		PxShape* hitBuffer[bufferSize];
+
+		PxSceneQueryFilterData filterData;
+		filterData.data.setToDefault();
+		filterData.data.word0 = groups;
+
+		PxI32 hitNum = mScene->overlapMultiple(sphere, pose, hitBuffer, bufferSize, filterData);
+
+		if(hitNum == -1){
+			// TODO increase buffer size dynamically?
+			LOGW("Buffer overflow (more than %d actors contained in radius)", bufferSize);
+			return NULL;
+		}
+		else{
+			Buffer<PhysicsActor*>* bfr = new Buffer<PhysicsActor*>();
+			bfr->create(hitNum);
+			for(int32_t i=0; i<hitNum; i++){
+				if(hitBuffer[i]->getActor().userData){
+					bfr->put(
+						static_cast<PhysicsActor*>(hitBuffer[i]->getActor().userData)
+						);
+				}
+				else{
+					LOGW("No user data found for PxActor!");
+				}
+			}
+
+			return bfr;
+		}
+	}
+
+uint32_t Physics::generateActorId(){
+	uint32_t id=mActors.size();
+	while(true){
+		if(getActorById(id) != NULL){
+			++id;
+		}
+		else{
+			break;
+		}
+	}
+	return id;
+}
+
+PhysicsActor* Physics::getActorById(uint32_t id){
+	ActorMap::iterator i = mActors.find(id);
+	return i == mActors.end() ? NULL : i->second;
+}
+
 float Physics::getTerrainHeightAt(const glm::vec2& pos){
 	PxSceneQueryFilterData filterData;
 	filterData.data.setToDefault();
@@ -466,11 +528,19 @@ void Physics::removeActor(PhysicsActor* actor){
 	mActors.erase(actor->getId());
 }
 
-bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& result, uint32_t groups){
+
+bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& result, uint32_t groups, bool bbox){
 	PxRaycastHit hit;
 	PxSceneQueryFilterData f;
 	f.data.setToDefault();
-	f.data.word0 = groups;
+
+	
+	if(bbox){
+		f.data.word3 = eIG_BBOX;
+	}
+	else{
+		f.data.word0 = groups;
+	}
 	
 	mScene->raycastSingle(PxVec3(origin.x, origin.y, origin.z),
 		PxVec3(direction.x, direction.y, direction.z),
@@ -497,7 +567,7 @@ bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastH
 }
 
 bool Physics::pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos,
-	const glm::vec2& screenSize, RaycastHitEvent& res,  uint32_t groups){
+	const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups, bool bbox){
 
 	glm::mat4x4 modelView;
 	camera.getMatrix(modelView);
@@ -507,7 +577,7 @@ bool Physics::pick(math::Camera& camera, const math::Frustum& frustum, const glm
 		frustum.getProjMatrix()
 		);
 
-	return pick(camera.getPosition(), glm::normalize(point-camera.getPosition()), res, groups);
+	return pick(camera.getPosition(), glm::normalize(point-camera.getPosition()), res, groups, bbox);
 }
 
 
@@ -646,7 +716,7 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 
 		mScene->addActor(*pxActor);
 	}
-	else if(desc.type == PhysicsActor::eSTATIC_ACTOR){
+	else if(desc.type == PhysicsActor::eSTATIC_ACTOR || desc.type == PhysicsActor::eACTOR_TYPE_BBOX){
 		// static actor
 		Sp<PxGeometry> geometry = createGeometry(desc);
 
@@ -654,7 +724,10 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 
 		PxShape* shape = pxActor->createShape(*geometry, *mDefaultMaterial);
 
-		if(desc.geometryType == PhysicsActor::eHEIGHTMAP_GEOMETRY){
+		if(desc.type == PhysicsActor::eACTOR_TYPE_BBOX){
+			filterData.word3 = eIG_BBOX;
+		}
+		else if(desc.geometryType == PhysicsActor::eHEIGHTMAP_GEOMETRY){
 			// filter data used for heightmap only raycasts
 			filterData.word3 = eIG_HEIGHTMAP;
 		}
@@ -672,7 +745,12 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 		mScene->addActor(*pxActor);
 
 		if(sceneActor){
+			if(desc.type == PhysicsActor::eACTOR_TYPE_BBOX){
+				sceneActor->setBBox(createdActor);
+			}
+			else{
 				sceneActor->setPhysicsActor(createdActor);
+			}
 		}
 	}
 	else if(desc.type == PhysicsActor::eDYNAMIC_ACTOR){
@@ -746,6 +824,65 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 	}
 
 	return createdActor;
+}
+
+void Physics::createBBox(ASceneActor* actor){
+	PhysicsActor::Desc desc;
+
+	desc.type = PhysicsActor::eACTOR_TYPE_BBOX;
+
+	desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
+
+	desc.geometryDesc.boxGeometry.hx = 1.0f;
+	desc.geometryDesc.boxGeometry.hy = 1.0f;
+	desc.geometryDesc.boxGeometry.hz = 1.0f;
+	desc.pose = actor->getTransform();
+
+	desc.collisionMask = 0;
+
+	createActor(actor, desc);
+}
+
+LuaObject Physics::lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter){
+	float radius;
+	glm::vec3 pos;
+
+	LuaObject res;
+	LUA_NEW_TABLE(res);
+
+	// TODO checks
+	Lua::luaConv(luaPos, pos);
+	Lua::luaConv(luaRadius, radius);
+
+	Sp<Buffer<PhysicsActor*>> actors = getActorsInRegion(pos, radius, groupFilter.IsNil() ? 0x00 : groupFilter.ToInteger() );
+
+	uint32_t actorIdx=0;
+	for(uint32_t i=0; i<actors->getCapacity(); i++){
+		ASceneActor* actor =  actors->operator[](i)->getSceneActor();
+		if(actor){
+			res.Set(++actorIdx, actor->getId());
+		}
+	}
+
+	return res;
+}
+
+int32_t Physics::lua_createRegion(LuaObject luaPos, LuaObject luaRadius){
+	glm::vec3 pos;
+	float radius;
+
+	if(!Lua::luaConv(luaPos, pos) || !Lua::luaConv(luaRadius, radius)){
+		LOGE("Error creating region, invalid position or radius value");
+		return -1;
+	}
+
+	return createRegion("", pos, radius);
+}
+
+
+void Physics::expose(LuaObject& meta){
+	meta.RegisterObjectDirect("getActorsInRegion", (Physics*)0, &Physics::lua_getActorsInRegion);
+	meta.RegisterObjectDirect("createRegion", (Physics*)0, &Physics::lua_createRegion);
 }
 
 }; // </wt>

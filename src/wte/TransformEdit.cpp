@@ -54,7 +54,14 @@ void TransformEdit::onTranslationChanged(){
 }
 
 glm::vec3 TransformEdit::getScale() const{
-	return ui.scle->getValue();
+	glm::vec3 scale = ui.scle->getValue();
+
+	// Prevent invalid scale(i.e. 0 values)
+	scale.x = scale.x == 0.0f ? 0.0001f : scale.x;
+	scale.y = scale.y == 0.0f ? 0.0001f : scale.y;
+	scale.z = scale.z == 0.0f ? 0.0001f : scale.z;
+
+	return scale;
 }
 
 float TransformEdit::getRotAngle() const{
@@ -74,7 +81,10 @@ void TransformEdit::setScale(const glm::vec3& scale){
 }
 
 glm::quat TransformEdit::getRotation() const{
-	return glm::angleAxis(getRotAngle(), getRotAxis());
+	return glm::angleAxis(getRotAngle(),
+		// Normalize the axis otherwise the quaternion is going to end up invalid
+		glm::normalize(getRotAxis())
+	);
 }
 
 void TransformEdit::setRotation(const glm::quat& rot){

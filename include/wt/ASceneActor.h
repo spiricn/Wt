@@ -54,9 +54,15 @@ protected:
 	/** Scene actor may be paired with a physics actor for its physicall representation */
 	PhysicsActor* mPhysicsActor;
 
+	PhysicsActor* mBBox;
+
 	AttachPoint mAttachPoint;
 
 public:
+	void setBBox(PhysicsActor* box){
+		mBBox = box;
+	}
+
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
 
 	virtual ~ASceneActor();

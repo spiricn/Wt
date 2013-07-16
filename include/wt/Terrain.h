@@ -4,6 +4,7 @@
 
 #include "wt/TerrainChunk.h"
 #include "wt/ASceneActor.h"
+#include "wt/PhysicsActor.h"
 
 #define LOGEX(tag, bnds) LOGI("center = {%f, %f, %f},  extents = {%f, %f, %f}", \
 			bnds.getCenter().x, bnds.getCenter().y, bnds.getCenter().z, \
@@ -167,6 +168,8 @@ public:
 	Terrain(Scene* parent, uint32_t actorId, const String& name="");
 
 	~Terrain();
+
+	void getPhysicsDesc(PhysicsActor::Desc& desc);
 
 	const TerrainDesc& getDesc() const;
 

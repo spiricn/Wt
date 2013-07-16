@@ -213,12 +213,15 @@ public:
 		LOGD("Loading sounds...");
 		mSoundManager->loadAll();
 
+		LOGD("Creating resources");
 		mImageManager->createAll();
 		mTextureManager->createAll();
 		mSkyBoxManager->createAll();
 		mAnimationManager->createAll();
 		mSoundManager->createAll();
 		mModelManager->createAll();
+
+		LOGD("All assets created.");
 	}
 
 	String getRelativeURI(const String& uri){

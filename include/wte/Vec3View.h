@@ -14,45 +14,27 @@ private:
 public:
     Vec3View(QWidget* parent=NULL);
 
-	float getX() const{
-		return ui.x->value();
-	}
+	float getX() const;
 
-	float getY() const{
-		return ui.y->value();
-	}
+	float getY() const;
 
-	float getZ() const{
-		return ui.z->value();
-	}
+	float getZ() const;
 
-	void setValue(const glm::vec3& values){
-		setX(values.x);
-		setY(values.y);
-		setZ(values.z);
-	}
+	void setValue(const glm::vec3& values);
 
-	glm::vec3 getValue(){
-		return glm::vec3(getX(), getY(), getZ());
-	}
+	glm::vec3 getValue();
 
-	void setX(float x){
-		ui.x->setValue(x);
-	}
+	void setX(float x);
 
-	void setY(float y){
-		ui.y->setValue(y);
-	}
+	void setY(float y);
 
-	void setZ(float z){
-		ui.z->setValue(z);
-	}
+	void setZ(float z);
 
 protected slots:
-	void onValueChanged(double);
+	void onValueChanged();
 
 signals:
-	void onValueChanged();
+	void valueChanged();
 
 }; // </Vec3View>
 

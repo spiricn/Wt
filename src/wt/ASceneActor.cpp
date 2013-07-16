@@ -1,10 +1,11 @@
 #include "wt/stdafx.h"
 #include "wt/ASceneActor.h"
+#include "wt/PhysicsActor.h"
 
 namespace wt{
 
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
-	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type){
+	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL){
 }
 
 const ASceneActor::AttachPoint& ASceneActor::getAttachPoint() const{
@@ -74,6 +75,20 @@ const math::Transform& ASceneActor::getTransform() const{
 }
 
 void ASceneActor::update(float /*dt*/){
+	if(mBBox){
+		// TODO terribly inefficient
+		physx::PxRigidStatic* actor =  static_cast<physx::PxRigidStatic*>(mBBox->getPxActor());
+
+		physx::PxTransform pose = actor->getGlobalPose();
+
+		// TODO handle scaling
+		pose.p.x = mTransform.getPosition().x;
+		pose.p.y = mTransform.getPosition().y;
+		pose.p.z = mTransform.getPosition().z;		
+
+		actor->setGlobalPose(pose);
+	}
+
 	if(mAttachPoint.actor){
 		mAttachPoint.actor->getAttachPointTransform(mAttachPoint.pointId, mTransform);
 	}
@@ -91,8 +106,22 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 	dst.Set("name", mName.c_str());
 
 	dst.Set("type",
-			mType == eTYPE_MODELLED ? "modelled" : mType == eTYPE_TERRAIN ? "terrain" : "particle"
-		) ;
+		mType == eTYPE_MODELLED ? "modelled" : mType == eTYPE_TERRAIN ? "terrain" : "particle"
+	);
+
+	if(mBBox){
+		Lua::LuaObject luaBbox;
+		LUA_NEW_TABLE(luaBbox);
+
+		luaBbox.Set("hx", 1.0);
+		luaBbox.Set("hy", 1.0);
+		luaBbox.Set("hz", 1.0);
+
+		dst.Set("bbox", luaBbox);
+	}
+	else{
+		dst.Set("bbox", 0);
+	}
 }
 
 void ASceneActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){

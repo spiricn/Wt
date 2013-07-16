@@ -7,15 +7,28 @@ namespace wt{
 
 namespace math{
 
+
+Transform::Transform(const glm::mat4& mat) : mDirty(true){
+	setMatrix(mat);
+}
+
+Transform::Transform() : mScale(glm::vec3(1.0f, 1.0f, 1.0f)),
+	mPosition(glm::vec3(0.0f, 0.0f, 0.0f)), mDirty(true){
+		setRotation(0, 1, 0, 0);
+}
+
+Transform::Transform(const Transform& other) : mDirty(true){
+	mPosition = other.mPosition;
+	mScale = other.mScale;
+	mRotation = other.mRotation;
+}
+
 void Transform::rotate(float x, float y, float z, float dAngle){
 	mDirty = true;
 
 	mRotation = mRotation * glm::angleAxis(dAngle, x, y, z);
 }
 
-Transform::Transform(const glm::mat4& mat) : mDirty(true){
-	setMatrix(mat);
-}
 
 float Transform::getYaw() const{
 	return 0.0f;
@@ -50,17 +63,6 @@ void Transform::setMatrix(const glm::mat4& mat){
 
 	math::decomposeMatrix(mat,
 		mRotation, mPosition, mScale);
-}
-
-Transform::Transform() : mScale(glm::vec3(1.0f, 1.0f, 1.0f)),
-	mPosition(glm::vec3(0.0f, 0.0f, 0.0f)), mDirty(true){
-		setRotation(0, 1, 0, 0);
-}
-
-Transform::Transform(const Transform& other) : mDirty(true){
-	mPosition = other.mPosition;
-	mScale = other.mScale;
-	mRotation = other.mRotation;
 }
 
 const glm::quat& Transform::getQuat() const{

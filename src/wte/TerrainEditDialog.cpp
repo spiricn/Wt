@@ -6,7 +6,7 @@
 
 #define TD_TRACE_TAG "TerrainEditDialog"
 
-TerrainEditDialog::TerrainEditDialog(QWidget* parent, wt::Assets* assets) : QDialog(parent), mAssets(assets), mAccepted(false){
+TerrainEditDialog::TerrainEditDialog(QWidget* parent, wt::AResourceSystem* assets) : QDialog(parent), mAssets(assets), mAccepted(false){
     ui.setupUi(this);
 }
 

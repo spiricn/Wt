@@ -14,14 +14,14 @@ private:
 
 	wt::TerrainDesc mResult;
 
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
 
 	bool mAccepted;
 
 public:
-    TerrainEditDialog(QWidget* parent, wt::Assets* assets);
+    TerrainEditDialog(QWidget* parent, wt::AResourceSystem* assets);
 
-	static bool editTerrain(QWidget* parent, wt::Assets* assets, wt::TerrainDesc& res){
+	static bool editTerrain(QWidget* parent, wt::AResourceSystem* assets, wt::TerrainDesc& res){
 		TerrainEditDialog dlg(parent, assets);
 
 		dlg.exec();

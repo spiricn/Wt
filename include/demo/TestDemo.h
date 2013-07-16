@@ -28,6 +28,15 @@ public:
 	}
 
 	void onKeyDown(VirtualKey c){
+		if(c == KEY_z){
+
+			RaycastHitEvent res;
+			getScene()->getPhysics()->pickBoundingBox(
+				getScene()->getCamera().getPosition(),
+				getScene()->getCamera().getForwardVec(), res);
+
+			LOG("actor = %p", res.mPickedActor);
+		}
 		ADemo::onKeyDown(c);
 	}
 
@@ -46,7 +55,7 @@ public:
 		//if(0){
 			// Actor 1
 
-			{
+			/*{
 				ModelledActor* actor = getScene()->createModelledActor("lich");
 				actor->setModel(getAssets()->getModelManager()->find("lich_king"), "default");
 				actor->getAnimationPlayer()->play("attack", true);
@@ -73,27 +82,34 @@ public:
 
 				effect->attach( getScene()->findActorByName("lich"), config.Get("bone").ToString() );
 			}
-
+*/
 			//// Actor 2
-			//{
-			//	ModelledActor* actor = getScene()->createModelledActor();
-			//	actor->setModel(getAssets()->getModelManager()->find("cube"), "crate");
+			{
+				ModelledActor* actor = getScene()->createModelledActor();
+				actor->setModel(getAssets()->getModelManager()->find("cube"), "crate");
 
-			//	actor->getTransform().setPosition(4, 5, 4);
-			//	getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
+				actor->getTransform().setPosition(0, 0, 0);
+				getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
 
-			//	PhysicsActor::Desc desc;
 
-			//	desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
-			//	desc.controlMode = PhysicsActor::ePHYSICS_MODE;
-			//	desc.type = PhysicsActor::eDYNAMIC_ACTOR;
-			//	desc.geometryDesc.boxGeometry.hx = 1.0f;
-			//	desc.geometryDesc.boxGeometry.hy = 1.0f;
-			//	desc.geometryDesc.boxGeometry.hz = 1.0f;
-			//	desc.pose = actor->getTransform();
+				getScene()->getPhysics()->createBBox(actor);
 
-			//	getPhysics()->createActor(actor, desc);
-			//}
+	/*			PhysicsActor::Desc desc;
+
+				desc.type = PhysicsActor::eACTOR_TYPE_BBOX;
+
+				desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
+
+				desc.geometryDesc.boxGeometry.hx = 1.0f;
+				desc.geometryDesc.boxGeometry.hy = 1.0f;
+				desc.geometryDesc.boxGeometry.hz = 1.0f;
+				desc.pose = actor->getTransform();
+
+				desc.collisionMask = 0;
+				desc.group = 0x40000000;
+
+				getPhysics()->createActor(actor, desc);*/
+			}
 
 			//// Terrain
 			//{

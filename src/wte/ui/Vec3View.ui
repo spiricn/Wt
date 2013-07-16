@@ -70,7 +70,7 @@
    <sender>x</sender>
    <signal>valueChanged(double)</signal>
    <receiver>Vec3View</receiver>
-   <slot>onValueChanged(double)</slot>
+   <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>71</x>
@@ -86,7 +86,7 @@
    <sender>y</sender>
    <signal>valueChanged(double)</signal>
    <receiver>Vec3View</receiver>
-   <slot>onValueChanged(double)</slot>
+   <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>221</x>
@@ -102,7 +102,7 @@
    <sender>z</sender>
    <signal>valueChanged(double)</signal>
    <receiver>Vec3View</receiver>
-   <slot>onValueChanged(double)</slot>
+   <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>322</x>
@@ -116,6 +116,6 @@
   </connection>
  </connections>
  <slots>
-  <slot>onValueChanged(double)</slot>
+  <slot>onValueChanged()</slot>
  </slots>
 </ui>
