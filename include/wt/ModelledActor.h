@@ -216,6 +216,10 @@ public:
 			if(luaDesc.IsTable()){
 				deserData->phyiscs = true;
 				deserData->pxDesc.deserialize(luaDesc);
+
+				if(deserData->pxDesc.geometryType == PhysicsActor::eMESH_GEOMETRY){
+					deserData->pxDesc.geometryDesc.meshGeometry.model = mModel;
+				}
 			}
 			else{
 				deserData->phyiscs = false;

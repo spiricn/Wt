@@ -4,8 +4,22 @@
 
 namespace wt{
 
+
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
 	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL){
+}
+
+void ASceneActor::setBBox(PhysicsActor* box){
+	mBBox = box;
+}
+
+physx::PxBounds3  ASceneActor::getBounds() const{
+	if(mBBox){
+		return mBBox->getPxActor()->getWorldBounds();
+	}
+	else{
+		return physx::PxBounds3();
+	}
 }
 
 const ASceneActor::AttachPoint& ASceneActor::getAttachPoint() const{

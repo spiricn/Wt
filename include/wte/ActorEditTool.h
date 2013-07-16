@@ -9,28 +9,7 @@
 class ActorEditTool : public QDialog, public ATool{
 Q_OBJECT
 
-private:
-    Ui::ActorEditTool ui;
-	SceneView* mSceneView;
-	wt::Scene* mScene;
-	wt::Physics* mPhysics;
-	wt::AResourceSystem* mAssets;
-
-	/*void addActor(wt::AGameActor* actor);
-
-	*/
-
-	void selectActor(wt::ASceneActor* actor);
-
-	
-	wt::ASceneActor* mSelectedActor;
-
-	void updateSelectionStats();
-
-	bool mSelectingActor;
-
 public:
-
 	virtual void onToolLostFocus(){
 		ATool::onToolLostFocus();
 
@@ -45,21 +24,30 @@ public:
 
     ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager*, wt::AResourceSystem* assets);
 
+private:
+    Ui::ActorEditTool ui;
+	SceneView* mSceneView;
+	wt::Scene* mScene;
+	wt::Physics* mPhysics;
+	wt::AResourceSystem* mAssets;
+
+	void selectActor(wt::ASceneActor* actor);
+	
+	wt::ASceneActor* mSelectedActor;
+
+	void updateSelectionStats();
+
+	bool mSelectingActor;
+
 protected slots:
 
 	void onNewActor();
 
-	//void onSceneInitialized();
+	void onAnimationSelected(QString);
 
-	//void onAnimationSelected(QString);
-
-	//void onMouseDrag(MouseDragEvent evt);
+	void onMouseDrag(MouseDragEvent evt);
 
 	void onToggleBrush();
-
-	//void onSave();
-
-	//void onAddDoodad();
 
 	void onSelectActor();
 
@@ -70,6 +58,8 @@ protected slots:
 	void onRotationChanged();
 
 	void onMousePress(QMouseEvent*);
+
+	void onDeleteActor();
 
 }; // </ActorEditTool>
 

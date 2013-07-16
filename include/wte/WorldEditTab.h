@@ -37,7 +37,6 @@ private:
 	LightEditTool* mLightTool;
 	ActorEditTool* mActorEditTool;
 	FogTool* mFogTool;
-
 	wt::AResourceSystem* mAssets;
 	wt::Scene* mScene;
 
@@ -48,6 +47,8 @@ private:
 
 public:
 	WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets);
+
+	~WorldEditTab();
 
 	void requestFocus(ATool* tool){
 		for(ToolList::Iterator i=mTools.begin(); i!=mTools.end(); i++){
@@ -66,6 +67,17 @@ public:
 private:
 	void createToolbar();
 
+
+// TODO protect these
+public slots:
+	void onScreenshot();
+	
+	void onSetSkybox();
+
+	void onClearAll();
+
+	void onCreateTerrain();
+
 protected slots:
 	void onTimeout();
 
@@ -78,8 +90,6 @@ protected slots:
 	void onTreeItemActivated(void*);
 
 	void onRotSliderMoved(int);
-
-	void onSetSkybox();
 	
 	void onShowTerrainTool(bool);
 
@@ -87,14 +97,17 @@ protected slots:
 
 	void onShowLightEditor(bool);
 
-	void onScreenshot();
-
-	void onClearAll();
-
 	void onSave();
 
-	void onCreateTerrain();
+	void onToggleToolTerrain();
 
+	void onToggleToolLight();
+
+	void onToggleToolActor();
+
+	void onToggleBones();
+
+	void onToggleBoundingBoxes();
 public:
 
 	void loadResources(const QString&);

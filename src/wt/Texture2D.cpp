@@ -6,8 +6,8 @@
 
 namespace wt{
 
-void Texture2D::dump(const String& path){
-	bind();
+void Texture2D::dump(AIOStream& stream){
+		bind();
 	Buffer<uint8_t> p;
 
 	p.create(mWidth*mHeight*3);
@@ -16,10 +16,17 @@ void Texture2D::dump(const String& path){
 	Image img;
 	img.setData(mWidth, mHeight, Image::RGB, 3, (unsigned char*)p.getData());
 
-	// TODO Textrue2D should acquire this stream from elsewhere
-	FileIOStream stream(path, AIOStream::eMODE_WRITE);
 	DevilImageLoader::getSingleton().save(&stream,
 		&img);
+}
+
+void Texture2D::dump(const String& path){
+	// TODO Textrue2D should acquire this stream from elsewhere
+	FileIOStream stream(path, AIOStream::eMODE_WRITE);
+
+	dump(stream);
+
+	stream.close();
 }
 
 void Texture2D::setData(GLint width, GLint height,

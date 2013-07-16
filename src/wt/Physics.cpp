@@ -73,6 +73,101 @@ public:
 	}
 };
 
+
+
+Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f){
+    LOGV("Initializing Physx");
+
+	// Setup events
+	mEventManager = eventManager;
+
+	mEventEmitter.hook(mEventManager,
+		2,
+		RegionEvent::TYPE,
+		RaycastHitEvent::TYPE
+	);
+
+    // Initialize the SDK
+    mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocator, mDefaultErrorCallback);
+    if(mFoundation == NULL){
+        WT_THROW("Error creating PxFoundation");
+    }
+
+    mSdk = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, PxTolerancesScale());
+    if(mSdk == NULL){
+        WT_THROW("Error creating PxSdk");
+    }
+
+    // Extensions
+    if(!PxInitExtensions(*mSdk)){
+        WT_THROW("Error initializing PxExtensions");
+    }
+
+    // Dispatcher
+    mCpuDispatcher = PxDefaultCpuDispatcherCreate(1);
+    if(mCpuDispatcher == NULL){
+        WT_THROW("Error creating PxCpuDispatcher");
+    }
+
+    // Cooking
+    mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *mFoundation, PxCookingParams());
+		
+    if(mCooking == NULL){
+        WT_THROW("Error creating cooking interface");
+    }
+        
+    // Filter shader
+    mDefaultFilterShader = filterShader;
+
+    // Character controler
+    mCtrlManager = PxCreateControllerManager(*mFoundation);
+    if(mCtrlManager == NULL){
+        WT_THROW("Error creating PxCharacterController");
+    }
+
+    // Scene
+    PxSceneDesc sceneDesc(mSdk->getTolerancesScale());
+    sceneDesc.filterShader = mDefaultFilterShader;
+    sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
+    sceneDesc.cpuDispatcher = mCpuDispatcher;
+    sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS; // | PxSceneFlag::eENABLE_KINEMATIC_PAIRS | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS ;
+	sceneDesc.simulationEventCallback = new SimulationCalblack(mEventManager);;
+
+    if(!sceneDesc.isValid()){
+        WT_THROW("Invalid Px scene description");
+    }		
+
+    mScene = mSdk->createScene(sceneDesc);
+    if(mScene == NULL){
+        WT_THROW("Error creating PxScene");
+    }
+
+    // material
+    mDefaultMaterial = mSdk->createMaterial(0.5, 0.5, 0.5);
+
+    // ground plane
+    PxTransform pose = PxTransform(PxVec3(0.0f, -100.0f, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f))
+        );
+    PxRigidStatic* plane = mSdk->createRigidStatic(pose);
+    PxShape* shape = plane->createShape(PxPlaneGeometry(), *mDefaultMaterial);
+    mScene->addActor(*plane);
+
+    LOGV("Physx successfuly initialized");
+}
+
+Physics::~Physics(){
+	mCooking->release();
+	mCtrlManager->release();
+	mCpuDispatcher->release();
+	mDefaultMaterial->release();
+
+	PxCloseExtensions();
+	mScene->release();
+	mSdk->release();
+		
+	mFoundation->release();
+}
+
 PxFilterFlags Physics::filterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
 		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
 		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize){
@@ -174,99 +269,6 @@ void Physics::convertTransform(const math::Transform& src, PxTransform& dst){
 	dst.q.y = src.getQuat().y;
 	dst.q.z = src.getQuat().z;
 	dst.q.w = src.getQuat().w;
-}
-
-Physics::~Physics(){
-	mCooking->release();
-	mCtrlManager->release();
-	mCpuDispatcher->release();
-	mDefaultMaterial->release();
-
-	PxCloseExtensions();
-	mScene->release();
-	mSdk->release();
-		
-	mFoundation->release();
-}
-
-Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f) {
-    LOGV("Initializing Physx");
-
-	// Setup events
-	mEventManager = eventManager;
-
-	mEventEmitter.hook(mEventManager,
-		2,
-		RegionEvent::TYPE,
-		RaycastHitEvent::TYPE
-	);
-
-    // Initialize the SDK
-    mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocator, mDefaultErrorCallback);
-    if(mFoundation == NULL){
-        WT_THROW("Error creating PxFoundation");
-    }
-
-    mSdk = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, PxTolerancesScale());
-    if(mSdk == NULL){
-        WT_THROW("Error creating PxSdk");
-    }
-
-    // Extensions
-    if(!PxInitExtensions(*mSdk)){
-        WT_THROW("Error initializing PxExtensions");
-    }
-
-    // Dispatcher
-    mCpuDispatcher = PxDefaultCpuDispatcherCreate(1);
-    if(mCpuDispatcher == NULL){
-        WT_THROW("Error creating PxCpuDispatcher");
-    }
-
-    // Cooking
-    mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *mFoundation, PxCookingParams());
-		
-    if(mCooking == NULL){
-        WT_THROW("Error creating cooking interface");
-    }
-        
-    // Filter shader
-    mDefaultFilterShader = filterShader;
-
-    // Character controler
-    mCtrlManager = PxCreateControllerManager(*mFoundation);
-    if(mCtrlManager == NULL){
-        WT_THROW("Error creating PxCharacterController");
-    }
-
-    // Scene
-    PxSceneDesc sceneDesc(mSdk->getTolerancesScale());
-    sceneDesc.filterShader = mDefaultFilterShader;
-    sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
-    sceneDesc.cpuDispatcher = mCpuDispatcher;
-    sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS; // | PxSceneFlag::eENABLE_KINEMATIC_PAIRS | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS ;
-	sceneDesc.simulationEventCallback = new SimulationCalblack(mEventManager);;
-
-    if(!sceneDesc.isValid()){
-        WT_THROW("Invalid Px scene description");
-    }		
-
-    mScene = mSdk->createScene(sceneDesc);
-    if(mScene == NULL){
-        WT_THROW("Error creating PxScene");
-    }
-
-    // material
-    mDefaultMaterial = mSdk->createMaterial(0.5, 0.5, 0.5);
-
-    // ground plane
-    PxTransform pose = PxTransform(PxVec3(0.0f, -100.0f, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f))
-        );
-    PxRigidStatic* plane = mSdk->createRigidStatic(pose);
-    PxShape* shape = plane->createShape(PxPlaneGeometry(), *mDefaultMaterial);
-    mScene->addActor(*plane);
-
-    LOGV("Physx successfuly initialized");
 }
 
 bool Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout){
@@ -836,7 +838,8 @@ void Physics::createBBox(ASceneActor* actor){
 	desc.geometryDesc.boxGeometry.hx = 1.0f;
 	desc.geometryDesc.boxGeometry.hy = 1.0f;
 	desc.geometryDesc.boxGeometry.hz = 1.0f;
-	desc.pose = actor->getTransform();
+
+	desc.pose.setPosition( actor->getTransform().getPosition() );
 
 	desc.collisionMask = 0;
 

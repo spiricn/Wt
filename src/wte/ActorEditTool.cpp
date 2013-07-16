@@ -16,11 +16,8 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 
 	mSceneView = sceneView;
 
-	/*connect(mSceneView, SIGNAL(initialized()),
-		this, SLOT(onSceneInitialized()));
-
 	connect(mSceneView, SIGNAL(onMouseDrag(MouseDragEvent)),
-		this, SLOT(onMouseDrag(MouseDragEvent)));*/
+		this, SLOT(onMouseDrag(MouseDragEvent)));
 
 	connect(mSceneView, SIGNAL(onMouseDown(QMouseEvent*)),
 		 this, SLOT(onMousePress(QMouseEvent*)));
@@ -31,7 +28,6 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 }
 
 void ActorEditTool::onScaleChanged(){
-	//LOG("");
 	if(isToolFocused() && mSelectedActor){
 		mSelectedActor->getTransform().setScale(
 			ui.transform->getScale()
@@ -41,7 +37,6 @@ void ActorEditTool::onScaleChanged(){
 
 
 void ActorEditTool::onTranslationChanged(){
-	//LOG("");
 	if(isToolFocused() && mSelectedActor){
 		mSelectedActor->getTransform().setPosition(
 			ui.transform->getTranslation()
@@ -50,7 +45,6 @@ void ActorEditTool::onTranslationChanged(){
 }
 
 void ActorEditTool::onRotationChanged(){
-	//LOG("");
 	if(isToolFocused() && mSelectedActor){
 		mSelectedActor->getTransform().setRotation(
 			ui.transform->getRotation()
@@ -81,32 +75,12 @@ void ActorEditTool::onSelectActor(){
 	mSelectingActor = true;
 }
 
-//void ActorEditTool::onSave(){
-//	/*QString path = QFileDialog::getSaveFileName(this,
-//		"Save", "world.lua");
-//
-//	if(path.size()){
-//		mGameLevel->serialize(path.toStdString());
-//	}*/
-//}
-//
-//void ActorEditTool::onAddDoodad(){
-//	DoodadEditDialog::EditResult res = DoodadEditDialog::edit(this);
-//	if(res.ok){
-//#if 0
-//		// TODO
-//		addActor(mGameLevel->spawnDoodad(
-//			"", res.model->getPath(), res.skin.toStdString(), TheGame.scene->getCamera().getPosition()
-//			));
-//#endif
-//	}
-//}
-//
 void ActorEditTool::updateSelectionStats(){
 	if(!mSelectedActor){
 		return;
 	}
 
+	// Transform
 	glm::vec4 rot;
 	mSelectedActor->getTransform().getRotation(rot);
 
@@ -117,96 +91,103 @@ void ActorEditTool::updateSelectionStats(){
 	ui.transform->setScale( mSelectedActor->getTransform().getScale() );
 }
 
-//
-//void ActorEditTool::onMouseDrag(MouseDragEvent evt){
-//	if(!isToolFocused()){
-//		return;
-//	}
-//
-//
-//	//bool statsChanged = false;
-//
-//	//if(evt.button == Qt::LeftButton){
-//	//	if(mSelectedActor){
-//
-//	//		float smoothFactor = 0.3;
-//
-//	//		bool shiftDown = wt::AGameInput::isKeyDown(VK_LSHIFT);
-//	//		if(wt::AGameInput::isKeyDown('X')){
-//	//			if(shiftDown){
-//	//				mSelectedActor->rotate(
-//	//					1.0, 0.0, 0.0, evt.dx * smoothFactor
-//	//					);
-//	//				statsChanged  = true;
-//	//			}
-//	//			else{
-//	//				mSelectedActor->move(
-//	//					glm::vec3(1.0, 0.0, 0.0) * evt.dx * smoothFactor
-//	//					);
-//	//				statsChanged  = true;
-//	//			}
-//	//		}
-//	//		else if(wt::AGameInput::isKeyDown('Y')){
-//	//			if(shiftDown){
-//	//				mSelectedActor->rotate(
-//	//					0.0, 1.0, 0.0, evt.dx * smoothFactor
-//	//					);
-//	//				statsChanged  = true;
-//	//			}
-//	//			else{
-//	//				mSelectedActor->move(
-//	//					glm::vec3(0.0, 1.0, 0.0) * evt.dy * smoothFactor
-//	//					);
-//	//				statsChanged  = true;
-//	//			}
-//	//		}
-//	//		else if(wt::AGameInput::isKeyDown('Z')){
-//	//			if(shiftDown){
-//	//				mSelectedActor->rotate(
-//	//					0.0, 0.0, 1.0, evt.dx * smoothFactor
-//	//					);
-//	//				statsChanged  = true;
-//	//			}
-//	//			else{
-//	//				mSelectedActor->move(
-//	//					glm::vec3(0.0, 0.0, 1.0) * evt.dy * smoothFactor
-//	//					);
-//	//				statsChanged  = true;
-//	//			}
-//	//		}
-//	//		else{
-//	//			wt::RaycastHitEvent res;
-//
-//	//			if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(),
-//	//				glm::vec2(evt.x, evt.y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
-//	//					// TODO handle this better 
-//	//					if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){
-//	//						// condition checks if the hit actor isn't the selected actor (prevents the user from moving the actor to a point that's on itself)
-//	//						mSelectedActor->setPosition(
-//	//							res.mImpact);
-//	//						statsChanged  = true;
-//	//					}
-//	//			}
-//	//		}
-//	//	}
-//	//}
-//	//if(statsChanged){
-//	//	updateSelectionStats();
-//	//}
-//}
-//
-//void ActorEditTool::onSceneInitialized(){
-//	 //for(wt::EntityManager::EntityMap::iterator i=mGameLevel->getEntityManager()->getActors().begin(); i!=mGameLevel->getEntityManager()->getActors().end(); i++){
-//		// addActor(i->second);
-//	 //}
-//}
-//
-//void ActorEditTool::onAnimationSelected(QString s){
-//	//if(mSelectedActor && mSelectedActor->hasAnimation()){
-//	//	mSelectedActor->getAnimationPlayer()->play(s.toStdString(), true);
-//	//}
-//}
-//
+void ActorEditTool::onMouseDrag(MouseDragEvent evt){
+	if(!isToolFocused()){
+		return;
+	}
+
+
+	bool statsChanged = false;
+
+	if(evt.button == Qt::LeftButton){
+		if(mSelectedActor){
+
+			float smoothFactor = 0.3;
+
+			bool shiftDown = wt::AGameInput::isKeyDown(VK_LSHIFT);
+			if(wt::AGameInput::isKeyDown('X')){
+				if(shiftDown){
+					mSelectedActor->getTransform().rotate(
+						1.0, 0.0, 0.0, evt.dx * smoothFactor
+						);
+					statsChanged  = true;
+				}
+				else{
+					mSelectedActor->getTransform().translate(
+						glm::vec3(1.0, 0.0, 0.0) * evt.dx * smoothFactor
+						);
+					statsChanged  = true;
+				}
+			}
+			else if(wt::AGameInput::isKeyDown('Y')){
+				if(shiftDown){
+					mSelectedActor->getTransform().rotate(
+						0.0, 1.0, 0.0, evt.dx * smoothFactor
+						);
+					statsChanged  = true;
+				}
+				else{
+					mSelectedActor->getTransform().translate(
+						glm::vec3(0.0, 1.0, 0.0) * evt.dy * smoothFactor
+						);
+					statsChanged  = true;
+				}
+			}
+			else if(wt::AGameInput::isKeyDown('Z')){
+				if(shiftDown){
+					mSelectedActor->getTransform().rotate(
+						0.0, 0.0, 1.0, evt.dx * smoothFactor
+						);
+					statsChanged  = true;
+				}
+				else{
+					mSelectedActor->getTransform().translate(
+						glm::vec3(0.0, 0.0, 1.0) * evt.dy * smoothFactor
+						);
+					statsChanged  = true;
+				}
+			}
+			else{
+				//wt::RaycastHitEvent res;
+
+				//if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(),
+				//	glm::vec2(evt.x, evt.y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
+				//		// TODO handle this better 
+				//		if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){
+				//			// condition checks if the hit actor isn't the selected actor (prevents the user from moving the actor to a point that's on itself)
+				//			mSelectedActor->setPosition(
+				//				res.mImpact);
+				//			statsChanged  = true;
+				//		}
+				//}
+			}
+		}
+	}
+	if(statsChanged){
+		updateSelectionStats();
+	}
+}
+
+void ActorEditTool::onDeleteActor(){
+	if(mSelectedActor){
+		mScene->deleteActor(mSelectedActor);
+	}
+}
+
+void ActorEditTool::onAnimationSelected(QString s){
+	if(mSelectedActor && mSelectedActor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
+		wt::ModelledActor* actor = static_cast<wt::ModelledActor*>(mSelectedActor);
+		if(actor->hasAnimation()){
+			if(ui.comboBoxAnimation->currentIndex()){
+				actor->getAnimationPlayer()->play(s.toStdString(), true);
+			}
+			else{
+				actor->getAnimationPlayer()->play(NULL);
+			}
+		}
+	}
+}
+
 void ActorEditTool::onToggleBrush(){
 	if(isToolFocused()){
 		getToolManager()->giveupFocus(this);
@@ -230,13 +211,42 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	}
 	mScene->getCamera().lookAt(actor->getTransform().getPosition());
 
+	// We don't want this to emit a signal
+	ui.comboBoxAnimation->blockSignals(true);
 	ui.comboBoxAnimation->clear();
 
-	// TODO
-	/*for(wt::Model::AnimationMap::iterator i=actor->getModel()->getAnimations().begin(); i!=actor->getModel()->getAnimations().end(); i++){
-		ui.comboBoxAnimation->addItem(i->first.c_str());
-	}*/
+	if(actor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
+		ui.comboBoxAnimation->setEnabled(true);
+		ui.comboBoxAnimation->addItem("none");
 
+		wt::ModelledActor* modelledActor = static_cast<wt::ModelledActor*>(actor);
+
+		// Populate the animation combo box with the current actors animations
+		uint32_t index = 1;
+		int32_t activeIndex = -1;
+		for(wt::Model::AnimationMap::iterator i=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().begin(); i!=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().end(); i++){
+			ui.comboBoxAnimation->addItem(i->first.c_str());
+
+			if(modelledActor->getAnimationPlayer()->getCurrentAnimation() == i->second){
+				activeIndex = index;
+			}
+
+			++index;
+		}
+
+		ui.comboBoxAnimation->blockSignals(false);
+
+		if(activeIndex > 0){
+			ui.comboBoxAnimation->setCurrentIndex(activeIndex);
+		}
+	}
+	else{
+		ui.comboBoxAnimation->setEnabled(false);
+		ui.comboBoxAnimation->blockSignals(false);
+	}
+	
+
+	// Update tarnsform information
 	updateSelectionStats();
 }
 
@@ -270,7 +280,5 @@ void ActorEditTool::onNewActor(){
 		mPhysics->createBBox(sceneActor);
 
 		LOGI("Actor created");
-
-	//	addActor(doodad);
 	}
 }

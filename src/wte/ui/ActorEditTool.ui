@@ -14,17 +14,16 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="5" column="2" colspan="2">
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="text">
-      <string>Select actor</string>
-     </property>
-    </widget>
+   <item row="4" column="0" colspan="4">
+    <widget class="TransformEdit" name="transform" native="true"/>
    </item>
-   <item row="5" column="1">
-    <widget class="QPushButton" name="pushButton">
+   <item row="3" column="1" colspan="3">
+    <widget class="QComboBox" name="comboBoxAnimation"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QPushButton" name="buttonBrushToggle">
      <property name="text">
-      <string>New actor</string>
+      <string>Activate brush</string>
      </property>
     </widget>
    </item>
@@ -35,18 +34,26 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QPushButton" name="buttonBrushToggle">
+   <item row="5" column="1">
+    <widget class="QPushButton" name="pushButton_2">
      <property name="text">
-      <string>Activate brush</string>
+      <string>Select actor</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="3">
-    <widget class="QComboBox" name="comboBoxAnimation"/>
+   <item row="5" column="2">
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="text">
+      <string>Delete selected</string>
+     </property>
+    </widget>
    </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="TransformEdit" name="transform" native="true"/>
+   <item row="5" column="3">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>New actor</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -72,7 +79,7 @@
    <slot>onNewActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
+     <x>650</x>
      <y>229</y>
     </hint>
     <hint type="destinationlabel">
@@ -120,7 +127,7 @@
    <slot>onSelectActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
+     <x>326</x>
      <y>229</y>
     </hint>
     <hint type="destinationlabel">
@@ -177,6 +184,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onDeleteActor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>403</x>
+     <y>220</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>357</x>
+     <y>233</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onNewActor()</slot>
@@ -188,5 +211,6 @@
   <slot>onScaleChanged()</slot>
   <slot>onTranslationChanged()</slot>
   <slot>onRotationChanged()</slot>
+  <slot>onDeleteActor()</slot>
  </slots>
 </ui>

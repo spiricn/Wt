@@ -59,13 +59,13 @@ protected:
 	AttachPoint mAttachPoint;
 
 public:
-	void setBBox(PhysicsActor* box){
-		mBBox = box;
-	}
-
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
 
 	virtual ~ASceneActor();
+
+	void setBBox(PhysicsActor* box);
+
+	physx::PxBounds3 getBounds() const;
 
 	const AttachPoint& getAttachPoint() const;
 

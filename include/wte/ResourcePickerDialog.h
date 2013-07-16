@@ -25,10 +25,12 @@ public:
 	}
 
 	template<class T>
-	static T* pickResource(QWidget* parent, wt::AResourceManager<T>* manager){
+	static T* pickResource(QWidget* parent, wt::AResourceManager<T>* manager, const QString& title=""){
 		ResourcePickerDialog dlg(parent, false);
 
 		dlg.ui.treeWidget->buildTree<T>(NULL, manager);
+
+		dlg.setWindowTitle(title);
 
 		dlg.exec();
 
@@ -36,10 +38,12 @@ public:
 	}
 
 	template<class T>
-	static wt::AResourceGroup<T>* pickGroup(QWidget* parent, wt::AResourceManager<T>* manager){
+	static wt::AResourceGroup<T>* pickGroup(QWidget* parent, wt::AResourceManager<T>* manager, const QString& title=""){
 		ResourcePickerDialog dlg(parent, true);
 
 		dlg.ui.treeWidget->buildTree<T>(NULL, manager);
+
+		dlg.setWindowTitle(title);
 
 		dlg.exec();
 

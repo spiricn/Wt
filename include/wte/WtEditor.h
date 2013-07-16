@@ -40,6 +40,7 @@ private:
 	Ui::WtEditorClass ui;
 
 	QString mWorkspaceFilePath;
+	QString mScenePath;
 
 	typedef std::vector<ARsrcManagerTab*> TabList;
 
@@ -50,6 +51,8 @@ private:
 	void unloadLevel();
 
 	void loadLevel(const QString&);
+
+	void loadScene(const QString&);
 
 protected slots:
 	void onBtnSaveClick();
@@ -65,6 +68,14 @@ protected slots:
 	void onAssetsLoaded();
 	
 	void onInitialized();
+
+	void onCreateTerrain();
+
+	void onClearScene();
+
+	void onSetSkybox();
+
+	void onScreenshot();
 
 	void onReload();
 };

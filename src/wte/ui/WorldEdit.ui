@@ -15,21 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="1">
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="text">
-       <string>Save</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="3">
-     <widget class="QPushButton" name="pushButton_4">
-      <property name="text">
-       <string>Clear</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" rowspan="2" colspan="5">
+    <item row="0" column="0" rowspan="2" colspan="2">
      <widget class="QGroupBox" name="groupBox">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -47,38 +33,7 @@
       </layout>
      </widget>
     </item>
-    <item row="2" column="4">
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="text">
-       <string>Set sky box</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Screenshot</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="pushButton_5">
-      <property name="text">
-       <string>Create terrain</string>
-      </property>
-     </widget>
-    </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>21</height>
-    </rect>
-   </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -91,6 +46,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionLight_tool"/>
+   <addaction name="actionTerrain_tool"/>
+   <addaction name="actionActor_tool"/>
+   <addaction name="actionToggleBones"/>
+   <addaction name="actionToggleBoundingBoxes"/>
   </widget>
   <widget class="QDockWidget" name="terrainToolDock">
    <property name="sizePolicy">
@@ -117,8 +77,14 @@
      <verstretch>1</verstretch>
     </sizepolicy>
    </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
    <attribute name="dockWidgetArea">
-    <number>1</number>
+    <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3"/>
   </widget>
@@ -133,10 +99,35 @@
     <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_4"/>
   </widget>
+  <action name="actionLight_tool">
+   <property name="text">
+    <string>Light tool</string>
+   </property>
+  </action>
+  <action name="actionTerrain_tool">
+   <property name="text">
+    <string>Terrain tool</string>
+   </property>
+  </action>
+  <action name="actionActor_tool">
+   <property name="text">
+    <string>Actor tool</string>
+   </property>
+  </action>
+  <action name="actionToggleBones">
+   <property name="text">
+    <string>Toggle Bones</string>
+   </property>
+  </action>
+  <action name="actionToggleBoundingBoxes">
+   <property name="text">
+    <string>Toggle bounding boxes</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -149,82 +140,82 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
+   <sender>actionActor_tool</sender>
+   <signal>triggered()</signal>
    <receiver>WorldEdit</receiver>
-   <slot>onScreenshot()</slot>
+   <slot>onToggleToolActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>570</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>308</x>
-     <y>577</y>
+     <x>399</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_3</sender>
-   <signal>clicked()</signal>
+   <sender>actionLight_tool</sender>
+   <signal>triggered()</signal>
    <receiver>WorldEdit</receiver>
-   <slot>onSave()</slot>
+   <slot>onToggleToolLight()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>559</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>432</x>
-     <y>577</y>
+     <x>399</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_4</sender>
-   <signal>clicked()</signal>
+   <sender>actionTerrain_tool</sender>
+   <signal>triggered()</signal>
    <receiver>WorldEdit</receiver>
-   <slot>onClearAll()</slot>
+   <slot>onToggleToolTerrain()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>529</x>
-     <y>560</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>581</x>
-     <y>577</y>
+     <x>399</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
+   <sender>actionToggleBones</sender>
+   <signal>triggered()</signal>
    <receiver>WorldEdit</receiver>
-   <slot>onSetSkybox()</slot>
+   <slot>onToggleBones()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>558</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>719</x>
-     <y>576</y>
+     <x>399</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_5</sender>
-   <signal>clicked()</signal>
+   <sender>actionToggleBoundingBoxes</sender>
+   <signal>triggered()</signal>
    <receiver>WorldEdit</receiver>
-   <slot>onCreateTerrain()</slot>
+   <slot>onToggleBoundingBoxes()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>412</x>
-     <y>558</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>131</x>
-     <y>576</y>
+     <x>399</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
@@ -235,5 +226,10 @@
   <slot>onSave()</slot>
   <slot>onSetSkybox()</slot>
   <slot>onCreateTerrain()</slot>
+  <slot>onToggleToolLight()</slot>
+  <slot>onToggleToolTerrain()</slot>
+  <slot>onToggleToolActor()</slot>
+  <slot>onToggleBoundingBoxes()</slot>
+  <slot>onToggleBones()</slot>
  </slots>
 </ui>

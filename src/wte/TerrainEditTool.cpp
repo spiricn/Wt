@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <qmessagebox.h>
+
 #include "wte/TerrainEditTool.h"
 #include "wte/HeightmapCreateDialog.h"
 
@@ -39,32 +41,53 @@ void TerrainEditTool::setTarget(wt::Terrain* terrain){
 }
 
 void TerrainEditTool::onSaveTexture(){
-	QString path = QFileDialog::getSaveFileName(this,
-		"Save", QDir::current().path()+QString("/assets/images/terrain/terrain.tga"));
-	if(!path.isEmpty()){
-		mTerrain->getMapTexture()->dump(path.toStdString());
-		LOGI("Terrain texture saved to \"%s\"", path.toStdString().c_str());
+	QString path = mTerrain->getMapTexture()->getUri().c_str();
+
+	if(path.isEmpty()){
+		path = QFileDialog::getSaveFileName(this,
+		"Save", QDir::current().path()+"/terrain.tga");
 	}
+
+	if(QMessageBox::question(this, "Confirmation", "Save terrain texture to this location ?\n\n" + path, QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes){
+		return;
+	}
+
+	wt::StreamPtr stream = mAssets->getFileSystem()->open(path.toStdString(), wt::AIOStream::eMODE_WRITE);
+
+	mTerrain->getMapTexture()->dump( *stream.get() );
+
+	LOGI("Terrain texture saved to \"%s\"", path.toStdString().c_str());
 }
 
 void TerrainEditTool::onSaveHeightmap(){
-	QString path = QFileDialog::getSaveFileName(this,
-		"Save", QDir::current().path()+QString("/assets/terrain/terrain"));
-	if(!path.isEmpty()){
-		std::ofstream out(path.toStdString().c_str(), std::ios::binary);
+	QString path = mTerrain->getDesc().heightmapPath.c_str();
 
-		out.write((const char*)mTerrain->getHeightmap().getData(),
-			mTerrain->getHeightmap().getSize());
-
-		out.close();
-
-		LOGI("Terrain heightmap saved to \"%s\"", path.toStdString().c_str());
+	if(path.isEmpty()){
+		path = QFileDialog::getSaveFileName(this,
+		"Save", QDir::current().path()+QString("terrain.wtt"));
 	}
+
+	if(QMessageBox::question(this, "Confirmation", "Save terrain heightmap to this location ?\n\n" + path, QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes){
+		return;
+	}
+
+	std::ofstream out(path.toStdString().c_str(), std::ios::binary);
+
+	out.write((const char*)mTerrain->getHeightmap().getData(),
+		mTerrain->getHeightmap().getSize());
+
+	out.close();
+
+	LOGI("Terrain heightmap saved to \"%s\"", path.toStdString().c_str());
 }
 
 void TerrainEditTool::onResetTexture(){
 	if(!mTerrain){
 		TRACEE("Terrain object not set");
+		return;
+	}
+
+	if(QMessageBox::question(this, "Confirmation", "Reset texture ?", QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes){
 		return;
 	}
 
@@ -92,6 +115,10 @@ void TerrainEditTool::onResetTexture(){
 void TerrainEditTool::onResetHeightmap(){
 	if(!mTerrain){
 		TRACEE("Terrain object not set");
+		return;
+	}
+
+	if(QMessageBox::question(this, "Confirmation", "Reset heightmap ?", QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes){
 		return;
 	}
 

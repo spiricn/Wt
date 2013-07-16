@@ -28,15 +28,7 @@ public:
 	}
 
 	void onKeyDown(VirtualKey c){
-		if(c == KEY_z){
 
-			RaycastHitEvent res;
-			getScene()->getPhysics()->pickBoundingBox(
-				getScene()->getCamera().getPosition(),
-				getScene()->getCamera().getForwardVec(), res);
-
-			LOG("actor = %p", res.mPickedActor);
-		}
 		ADemo::onKeyDown(c);
 	}
 
@@ -51,8 +43,8 @@ public:
 
 		
 
-		if(1){
-		//if(0){
+		//if(1){
+		if(0){
 			// Actor 1
 
 			/*{
@@ -132,10 +124,9 @@ public:
 			//	getScene()->createTerrain()->create(desc);
 			//}
 
-			loader.save("saved-actors.lua");
 		}
 		else{
-			loader.load("saved-actors.lua");
+			loader.load("scene.lua");
 		}
 	}
 

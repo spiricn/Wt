@@ -65,7 +65,7 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 
 void WtEditor::onInitialized(){
 	loadLevel("workspace/level1.lua");
-	mWorldEdit->loadScene("workspace/scene.lua");
+	loadScene("workspace/scene.lua");
 }
 
 WtEditor::~WtEditor(){
@@ -139,6 +139,10 @@ void WtEditor::onOpen(){
 	loadLevel(path);
 }
 
+void WtEditor::loadScene(const QString& path){
+	mScenePath = path;
+	mWorldEdit->loadScene(path);
+}
 
 void WtEditor::onLoadScene(){
 	QString path = QFileDialog::getOpenFileName(this,
@@ -146,18 +150,22 @@ void WtEditor::onLoadScene(){
 	if(!path.size()){
 		return;
 	}
-
-	mWorldEdit->loadScene(path);
+	
+	loadScene(path);
 }
 
 void WtEditor::onSaveScene(){
-	QString path = QFileDialog::getSaveFileName(this,
-		"Save scene", "", "Scene files (*.lua)");
-	if(!path.size()){
+	//QString path = QFileDialog::getSaveFileName(this,
+	//	"Save scene", "", "Scene files (*.lua)");
+	/*if(!path.size()){
 		return;
-	}
+	}*/
 
-	mWorldEdit->saveScene(path);
+	if(QMessageBox::question(this, "Confirmation",
+		"Save current scene to \"" + mScenePath + "\" ?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes){
+
+		mWorldEdit->saveScene(mScenePath);
+	}
 }
 
 void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message){
@@ -195,4 +203,22 @@ void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel le
 	
 	thiz->ui.logList->scrollToItem(item);
 	thiz->ui.logList->setCurrentItem(item);
+}
+
+// TODO move these to WorldEdit
+
+void WtEditor::onCreateTerrain(){
+	mWorldEdit->onCreateTerrain();
+}
+
+void WtEditor::onClearScene(){
+	mWorldEdit->onClearAll();
+}
+
+void WtEditor::onSetSkybox(){
+	mWorldEdit->onSetSkybox();
+}
+
+void WtEditor::onScreenshot(){
+	mWorldEdit->onScreenshot();
 }

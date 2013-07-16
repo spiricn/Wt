@@ -57,7 +57,7 @@ void main(void){
 		}
 
 		// alpha test [always on for now]
-		if(uAlphaTest==0 || texSample.a < 0.5f && 1==0) {
+		if(uAlphaTest==0 || texSample.a < 0.3f && 1==1) {
 			discard;
 		}
 
@@ -72,10 +72,17 @@ void main(void){
 			lightColor += calculateSpotLight(uSpotLights[i]);
 		}
 
+#ifdef DEBUG_NORMALS
+	outFragColor = DISABLE( calcFog(texSample * lightColor) ) + vec4(fsNormal, 0)
+		+
+		// TODO normal has to be passed as a parameter and not uniform, as it can be altered by the bump map
+		 DISABLE(vec4(normal, 0));
+#else
 		outFragColor = calcFog(texSample * lightColor)
 		+
 		// TODO normal has to be passed as a parameter and not uniform, as it can be altered by the bump map
 		 DISABLE(vec4(normal, 0));
+#endif
 	}
 
 }

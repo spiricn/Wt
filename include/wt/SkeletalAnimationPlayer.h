@@ -29,30 +29,21 @@ private:
 	void initTransforms(SkeletonBone* bone);
 
 public:
-
-	const glm::mat4& getGlobalBoneTransform(uint32_t index) const{
-		return mGlobalTransforms[index];
-	}
-
-	SkeletalAnimation* getCurrentAnimation() const{
-		return mCurrentAnimation;
-	}
-
-	bool isLooping() const{
-		return mIsLooping;
-	}
-
-	const String& getCurrentAnimationName() const{
-		return mCurrentAnimationName;
-	}
-
 	SkeletalAnimationPlayer(Model* model);
 
 	~SkeletalAnimationPlayer();
 
+	const glm::mat4& getGlobalBoneTransform(uint32_t index) const;
+
+	SkeletalAnimation* getCurrentAnimation() const;
+
+	bool isLooping() const;
+
+	const String& getCurrentAnimationName() const;
+
 	void play(const String& name, bool loop);
 
-	void play(SkeletalAnimation* animation, bool loop);
+	void play(SkeletalAnimation* animation, bool loop=true);
 
 	void advance(float dt);
 

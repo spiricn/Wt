@@ -35,17 +35,20 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 	 ui.actorEditToolDock->setWidget(mActorEditTool);
 	 mTools.push_back(mActorEditTool);
 
+	 //ui.actorEditToolDock->setVisible(false);
+
 	 // Terrain tool
 	 mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this, mScene, mAssets);
 	 mTerrainEditTool->setModal(false);
 	 ui.terrainToolDock->setWidget(mTerrainEditTool);
 	 mTools.push_back(mTerrainEditTool);
+	 ui.terrainToolDock->setVisible(false);
 
 	 //// light tool
-	/* mLightTool = new LightEditTool(ui.sceneView, this);
+	 mLightTool = new LightEditTool(ui.sceneView, this);
 	 mLightTool->setModal(false);
-	 ui.lightToolDock->setWidget(mLightTool);*/
-
+	 ui.lightToolDock->setWidget(mLightTool);
+	 ui.lightToolDock->setVisible(false);
 
 	
 #if 0
@@ -53,6 +56,7 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 	 mFogTool = new FogTool(ui.sceneView, this);
 	 ui.fogToolDock->setWidget(mFogTool);
 #endif
+	 ui.fogToolDock->setVisible(false);
 
 	 // main loop timer
 	 connect(&mTimer, SIGNAL(timeout()),
@@ -61,6 +65,26 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 	 mTimer.start( (1.0/FPS)*1000 );
 
 	 createToolbar();
+}
+
+WorldEditTab::~WorldEditTab(){
+	// @note Not sure if this is necessary but it seems to
+	// prevent the OpenGL framebuffer error on its destruction
+	// (the context is probably deleted before the object itself)
+
+	delete mTerrainEditTool;
+}
+
+void WorldEditTab::onToggleToolTerrain(){
+	ui.terrainToolDock->setVisible( !ui.terrainToolDock->isVisible() );
+}
+
+void WorldEditTab::onToggleToolLight(){
+	ui.lightToolDock->setVisible( !ui.lightToolDock->isVisible() );
+}
+
+void WorldEditTab::onToggleToolActor(){
+	ui.actorEditToolDock->setVisible( !ui.actorEditToolDock->isVisible() );
 }
 
 void WorldEditTab::onTimeout(){
@@ -252,4 +276,18 @@ void WorldEditTab::onCreateTerrain(){
 		QMessageBox::critical(this, "Error", QString("Error creating terrain\n") + e.getDescription().c_str());
 	}
 
+}
+
+void WorldEditTab::onToggleBones(){
+	// TODO fix this
+	static bool bones = false;
+	bones = !bones;
+	ui.sceneView->getRenderer().setRenderBones(bones);
+}
+
+void WorldEditTab::onToggleBoundingBoxes(){
+	// TODO fix this
+	static bool boxes = false;
+	boxes = !boxes;
+	ui.sceneView->getRenderer().setRenderBoundingBoxes(boxes);
 }

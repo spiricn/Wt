@@ -76,6 +76,7 @@ void SceneView::initializeGL() {
 	mRenderer.init(width(), height());
 
 	mRenderer.setClearColor(wt::Color::gray());
+	mRenderer.setRenderBoundingBoxes(true);
 
 	mScene->getCamera().setPosition(glm::vec3(20, 150, 20));
 	mScene->getCamera().lookAt(glm::vec3(100, 30, 100));

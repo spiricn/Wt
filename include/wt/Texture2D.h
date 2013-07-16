@@ -52,6 +52,8 @@ public:
 		return mImage;
 	}
 
+	void dump(AIOStream& stream);
+
 	void dump(const String& path);
 
 	static void copy(Texture2D* src, Texture2D* dst){

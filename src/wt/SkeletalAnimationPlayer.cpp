@@ -87,12 +87,35 @@ void SkeletalAnimationPlayer::calculateGlobalTransforms(SkeletonBone* bone){
 	}
 }
 
+const glm::mat4& SkeletalAnimationPlayer::getGlobalBoneTransform(uint32_t index) const{
+	return mGlobalTransforms[index];
+}
+
+SkeletalAnimation* SkeletalAnimationPlayer::getCurrentAnimation() const{
+	return mCurrentAnimation;
+}
+
+bool SkeletalAnimationPlayer::isLooping() const{
+	return mIsLooping;
+}
+
+const String& SkeletalAnimationPlayer::getCurrentAnimationName() const{
+	return mCurrentAnimationName;
+}
+
 void SkeletalAnimationPlayer::play(const String& name, bool loop){
 	mCurrentAnimationName = name;
 	play(mModel->getSkeletalAnimation(name), loop);
 }
 
 void SkeletalAnimationPlayer::play(SkeletalAnimation* animation, bool loop){
+	if(!animation){
+		mCurrentAnimationName = "";
+	}
+
+	// Reset matrices
+	initTransforms(mModel->getRootBone());
+
 	mCurrentAnimation = animation;
 	mAnimationTime = 0.0f;
 	mIsLooping = loop;

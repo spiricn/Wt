@@ -196,7 +196,6 @@ public:
 	};
 
 private:
-	static const char* TAG;
 
 	struct RenderState{
 		PolygonMode polygonMode;
@@ -207,8 +206,6 @@ private:
 			culling(NONE), renderSkeletons(false){
 		}
 	};
-
-	
 
 	math::MatrixStack mMatStack;
 	Scene* mScene;
@@ -245,6 +242,8 @@ private:
 	Gl::Batch mGodrayBatch;
 
 	bool mRenderBones;
+	bool mRenderBoundingBoxes;
+
 	float mBoneWidth;
 
 	void setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog);
@@ -266,13 +265,11 @@ public:
 
 	RenderState& getRenderState();
 
-	void setRenderBones(bool r){
-		mRenderBones = r;
-	}
+	void setRenderBones(bool r);
 
-	void setBoneWidth(float width){
-		mBoneWidth = width;
-	}
+	void setBoneWidth(float width);
+
+	void setRenderBoundingBoxes(bool state);
 
 	void render(const PxBounds3& bounds, math::Camera* camera, const Color& clr);
 
@@ -282,11 +279,7 @@ public:
 
 	const math::Frustum& getFrustum() const;
 	
-	void setFOV(float angle){
-		mFrustum.setPerspectiveProj(
-			mViewPort.x, mViewPort.y, angle, mFrustum.getNearClip(), mFrustum.getFarClip()
-			);
-	}
+	void setFOV(float angle);
 
 	void setClearColor(const Color& clr);
 
@@ -297,9 +290,6 @@ public:
 	void setFaceCulling(Culling mode);
 
 	void render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color=Color::white());
-
-
-	
 
 	void render(Scene* scene, Model* model, Mesh* mesh, PassType pass);
 

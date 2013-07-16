@@ -7,12 +7,14 @@
 
 namespace wt{
 
+typedef Sp<AIOStream> StreamPtr;
+
 class AFileSystem{
 public:
 	virtual ~AFileSystem(){
 	}
 
-	virtual Sp<AIOStream> open(const String& uri, AIOStream::Mode mode) = 0;
+	virtual StreamPtr open(const String& uri, AIOStream::Mode mode) = 0;
 }; // </AFileSystem>
 
 }; // </wt>

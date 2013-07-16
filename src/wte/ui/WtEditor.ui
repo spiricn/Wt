@@ -15,35 +15,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Save</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="text">
-       <string>New</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="2">
-     <widget class="QPushButton" name="btnClear">
-      <property name="text">
-       <string>Open</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="3">
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="text">
-       <string>Reload</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="4">
+    <item row="1" column="0" colspan="2">
      <widget class="QTabWidget" name="mainTabWidget">
       <property name="acceptDrops">
        <bool>true</bool>
@@ -76,20 +48,6 @@
       </widget>
      </widget>
     </item>
-    <item row="4" column="0">
-     <widget class="QPushButton" name="pushButton_4">
-      <property name="text">
-       <string>Load scene</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QPushButton" name="pushButton_5">
-      <property name="text">
-       <string>Save scene</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -101,6 +59,32 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNewResources"/>
+    <addaction name="actionOpenResources"/>
+    <addaction name="separator"/>
+    <addaction name="actionSaveResources"/>
+    <addaction name="separator"/>
+    <addaction name="actionReloadResources"/>
+   </widget>
+   <widget class="QMenu" name="menuScene">
+    <property name="title">
+     <string>Scene</string>
+    </property>
+    <addaction name="actionLoadScene"/>
+    <addaction name="actionSaveScene"/>
+    <addaction name="separator"/>
+    <addaction name="actionClear"/>
+    <addaction name="separator"/>
+    <addaction name="actionSet_sky_box"/>
+    <addaction name="actionCreate_terrain"/>
+    <addaction name="actionScreenshot"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuScene"/>
   </widget>
   <widget class="QDockWidget" name="logDock">
    <attribute name="dockWidgetArea">
@@ -114,105 +98,236 @@
     </layout>
    </widget>
   </widget>
+  <action name="actionSaveResources">
+   <property name="icon">
+    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
+     <normaloff>:/icons/Actions-document-save-icon.png</normaloff>:/icons/Actions-document-save-icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionNewResources">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N, Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionOpenResources">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionReloadResources">
+   <property name="text">
+    <string>Reload</string>
+   </property>
+  </action>
+  <action name="actionLoadScene">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionSaveScene">
+   <property name="icon">
+    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
+     <normaloff>:/icons/Actions-document-save-icon.png</normaloff>:/icons/Actions-document-save-icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionSet_sky_box">
+   <property name="text">
+    <string>Set sky box</string>
+   </property>
+  </action>
+  <action name="actionCreate_terrain">
+   <property name="text">
+    <string>Create terrain</string>
+   </property>
+  </action>
+  <action name="actionScreenshot">
+   <property name="text">
+    <string>Screenshot</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../../../vs10/Wt/WtEditor/WtEditor.qrc"/>
+  <include location="../../../build/vs10/WtEditor/WtEditor.qrc"/>
  </resources>
  <connections>
   <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
+   <sender>actionSaveResources</sender>
+   <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
    <slot>onBtnSaveClick()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>102</x>
-     <y>328</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>117</x>
-     <y>601</y>
+     <x>305</x>
+     <y>301</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>btnClear</sender>
-   <signal>clicked()</signal>
-   <receiver>WtEditorClass</receiver>
-   <slot>onOpen()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>452</x>
-     <y>328</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>611</x>
-     <y>371</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
+   <sender>actionNewResources</sender>
+   <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
    <slot>onNew()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>328</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>363</x>
-     <y>370</y>
+     <x>305</x>
+     <y>301</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_3</sender>
-   <signal>clicked()</signal>
+   <sender>actionOpenResources</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onOpen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReloadResources</sender>
+   <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
    <slot>onReload()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>602</x>
-     <y>328</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>611</x>
-     <y>336</y>
+     <x>305</x>
+     <y>301</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_4</sender>
-   <signal>clicked()</signal>
-   <receiver>WtEditorClass</receiver>
-   <slot>onLoadScene()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>37</x>
-     <y>341</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>28</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_5</sender>
-   <signal>clicked()</signal>
+   <sender>actionSaveScene</sender>
+   <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
    <slot>onSaveScene()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>344</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>395</x>
-     <y>342</y>
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLoadScene</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onLoadScene()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSet_sky_box</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onSetSkybox()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCreate_terrain</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onCreateTerrain()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClear</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onClearScene()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionScreenshot</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onScreenshot()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
     </hint>
    </hints>
   </connection>
@@ -227,5 +342,9 @@
   <slot>onReload()</slot>
   <slot>onLoadScene()</slot>
   <slot>onSaveScene()</slot>
+  <slot>onScreenshot()</slot>
+  <slot>onCreateTerrain()</slot>
+  <slot>onClearScene()</slot>
+  <slot>onSetSkybox()</slot>
  </slots>
 </ui>

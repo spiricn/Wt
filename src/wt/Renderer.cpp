@@ -8,58 +8,9 @@
 
 namespace wt{
 
-
-void Renderer::initGodray(){
-	{ // Godray setup
-		
-		if(mGodrayFBO.isCreated()){
-			mGodrayFBO.destroy();
-		}
-
-		mGodrayFBO.create();
-
-		mGodrayFBO.bind(Gl::FrameBuffer::DRAW);
-
-		mGodrayPass1.create();
-		mGodrayPass1.bind();
-		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
-
-		float portW = mViewPort.x;
-		float portH = mViewPort.y;
-		mGodrayPass1.setData(portW, portH,
-			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
-
-		mGodrayPass2.create();
-		mGodrayPass2.bind();
-		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
-		mGodrayPass2.setData(portW, portH,
-			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
-
-		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT0, &mGodrayPass1);
-		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT1, &mGodrayPass2);
-
-		WT_ASSERT(mGodrayFBO.isComplete(), "Godray FBO incomplete");
-
-		struct vertex{
-			float x,y;
-			float s,t;
-		};
-
-		vertex vertices[] = {
-			{0, 0, 0, 0}, {portW, 0, portW, 0}, {portW, portH, portW, portH}, {0, portH, 0, portH}
-		};
-
-		uint32_t indices[4] = {0, 1, 2, 3};
-
-		mGodrayBatch.destroy();
-		mGodrayBatch.create(vertices, 4, sizeof(vertex),
-			indices, 4, sizeof(uint32_t), GL_QUADS);
-
-		// inPosition
-		mGodrayBatch.setVertexAttribute(0, 2, GL_FLOAT, offsetof(vertex, x));
-		// inTexCoord
-		mGodrayBatch.setVertexAttribute(1, 2, GL_FLOAT, offsetof(vertex, s));
-	}
+Renderer::Renderer() : mClearColor(0.5, 0, 0, 1.0f),
+	mGodrayPass1(0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(0, "", Texture2D::eRECT_TEXTURE),
+	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false){
 }
 
 void Renderer::init(uint32_t portW, uint32_t portH ){
@@ -153,6 +104,58 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 }
 
 
+void Renderer::initGodray(){
+	{ // Godray setup
+		
+		if(mGodrayFBO.isCreated()){
+			mGodrayFBO.destroy();
+		}
+
+		mGodrayFBO.create();
+
+		mGodrayFBO.bind(Gl::FrameBuffer::DRAW);
+
+		mGodrayPass1.create();
+		mGodrayPass1.bind();
+		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
+
+		float portW = mViewPort.x;
+		float portH = mViewPort.y;
+		mGodrayPass1.setData(portW, portH,
+			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
+
+		mGodrayPass2.create();
+		mGodrayPass2.bind();
+		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
+		mGodrayPass2.setData(portW, portH,
+			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
+
+		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT0, &mGodrayPass1);
+		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT1, &mGodrayPass2);
+
+		WT_ASSERT(mGodrayFBO.isComplete(), "Godray FBO incomplete");
+
+		struct vertex{
+			float x,y;
+			float s,t;
+		};
+
+		vertex vertices[] = {
+			{0, 0, 0, 0}, {portW, 0, portW, 0}, {portW, portH, portW, portH}, {0, portH, 0, portH}
+		};
+
+		uint32_t indices[4] = {0, 1, 2, 3};
+
+		mGodrayBatch.destroy();
+		mGodrayBatch.create(vertices, 4, sizeof(vertex),
+			indices, 4, sizeof(uint32_t), GL_QUADS);
+
+		// inPosition
+		mGodrayBatch.setVertexAttribute(0, 2, GL_FLOAT, offsetof(vertex, x));
+		// inTexCoord
+		mGodrayBatch.setVertexAttribute(1, 2, GL_FLOAT, offsetof(vertex, s));
+	}
+}
 
 void extractFrustum(float frustum[6][4], const glm::mat4& view, const glm::mat4& proj){
 		const float* clip = glm::value_ptr( (proj*view) );
@@ -296,12 +299,8 @@ void saveDepthTexture(Texture2D* texture, const String& path){
 	DevilImageLoader::getSingleton().save(&stream, &img);
 }
 
-math::Camera lightCamera;
-
-const char* Renderer::TAG = "Renderer";
-
 void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bone){
-	
+
 	// Use fixed pipeline
 	gl( UseProgram(0) );
 
@@ -324,6 +323,9 @@ void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bo
 	gl( MatrixMode(GL_MODELVIEW) );
 	gl( LoadMatrixf(glm::value_ptr(view*model)) );
 
+
+	GLint currentLineWidth;
+	glGetIntegerv(GL_LINE_WIDTH, &currentLineWidth);
 
 	gl( LineWidth(mBoneWidth) );
 
@@ -349,6 +351,25 @@ void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bo
 
 	gl( Enable(GL_DEPTH_TEST) );
 	
+	gl( LineWidth(currentLineWidth) );
+}
+
+void Renderer::setRenderBones(bool r){
+	mRenderBones = r;
+}
+
+void Renderer::setBoneWidth(float width){
+	mBoneWidth = width;
+}
+
+void Renderer::setRenderBoundingBoxes(bool state){
+	mRenderBoundingBoxes = state;
+}
+	
+void Renderer::setFOV(float angle){
+	mFrustum.setPerspectiveProj(
+		mViewPort.x, mViewPort.y, angle, mFrustum.getNearClip(), mFrustum.getFarClip()
+	);
 }
 
 void Renderer::setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog){
@@ -439,11 +460,6 @@ void Renderer::setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog){
 	#undef setVal
 }
 
-Renderer::Renderer() : mClearColor(0.5, 0, 0, 1.0f),
-	mGodrayPass1(0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(0, "", Texture2D::eRECT_TEXTURE),
-	mRenderBones(false), mBoneWidth(3.0f){
-}
-
 Renderer::RenderState& Renderer::getRenderState(){
 	return mRenderState;
 }
@@ -468,7 +484,8 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_LINE) );
 	gl( Color4f(clr.mRed, clr.mGreen, clr.mBlue, clr.mAlpha) );
-	gl( Begin(GL_QUADS) );
+
+	glBegin(GL_QUADS);
 		// bottom
 		glVertex3f( center.x - extents.x, center.y - extents.y, center.z - extents.z);
 		glVertex3f( center.x - extents.x, center.y - extents.y, center.z + extents.z);
@@ -482,7 +499,7 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 		glVertex3f( center.x + extents.x, center.y + extents.y, center.z - extents.z);
 	gl( End() );
 
-	gl( Begin(GL_LINES) );
+	glBegin(GL_LINES);
 		glVertex3f( center.x - extents.x, center.y - extents.y, center.z - extents.z);
 		glVertex3f( center.x - extents.x, center.y + extents.y, center.z - extents.z);
 
@@ -495,6 +512,7 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 		glVertex3f( center.x - extents.x, center.y - extents.y, center.z + extents.z);
 		glVertex3f( center.x - extents.x, center.y + extents.y, center.z + extents.z);
 	gl( End() );
+
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 }
 
@@ -655,16 +673,12 @@ void Renderer::render(Scene& scene, const ModelledActor* actor, PassType pass){
 
 		//mBasicShader.setNormalMap( i->normalMap );
 
-		if(material->getBlend()){
-			gl( Enable(GL_BLEND) );
-			gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
-			//glDepthMask(1);
-		}
-		else{
-			gl( Disable(GL_BLEND) );
-			//glDepthMask(0);
-		}
-		
+#if 0
+		// TODO This might be the solotution but we're not quite there yet (depth peeling ?)
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+#endif
+
 		// basically no effect on FPS
 		i->geometry->render();
 	}
@@ -825,13 +839,21 @@ void Renderer::render(Scene& scene, PassType pass){
 		render(scene, *iter, pass);
 	}
 
-	/*if(mRenderBones){
-		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-			if(i->second->getModel() && i->second->getModel()->getSkeleton()){
-				render(&scene, i->second, i->second->getModel()->getSkeleton());
+	// Skeleton bones
+	if(mRenderBones){
+		for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
+			if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
+				render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
 			}
 		}
-	}*/
+	}
+
+	// Bounding boxes
+	if(mRenderBoundingBoxes){
+		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+			render(i->second->getBounds(), &scene.getCamera(), Color::green());
+		}
+	}
 }
 
 void Renderer::render(Scene& scene, RenderTarget* target){
