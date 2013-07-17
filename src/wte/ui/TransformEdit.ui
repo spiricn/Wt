@@ -58,30 +58,7 @@
        </widget>
       </item>
       <item row="2" column="1" colspan="2">
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="title">
-         <string/>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QSlider" name="angleSlider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="rotAngle">
-           <property name="maximum">
-            <double>360.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
+       <widget class="SlidedSpinboxWidget" name="rotationAngle" native="true"/>
       </item>
      </layout>
     </widget>
@@ -93,6 +70,15 @@
    <class>Vec3View</class>
    <extends>QWidget</extends>
    <header>vec3view.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>SlidedSpinboxWidget</class>
+   <extends>QWidget</extends>
+   <header>slidedspinboxwidget.h</header>
    <container>1</container>
    <slots>
     <signal>valueChanged()</signal>
@@ -150,34 +136,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>angleSlider</sender>
-   <signal>valueChanged(int)</signal>
+   <sender>rotationAngle</sender>
+   <signal>valueChanged()</signal>
    <receiver>TransformEdit</receiver>
-   <slot>onAngleSliderChanged(int)</slot>
+   <slot>onRotAngleChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
-     <y>108</y>
+     <x>202</x>
+     <y>95</y>
     </hint>
     <hint type="destinationlabel">
-     <x>301</x>
+     <x>215</x>
      <y>1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rotAngle</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>TransformEdit</receiver>
-   <slot>onAngleSpinboxChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>345</x>
-     <y>109</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>504</x>
-     <y>101</y>
     </hint>
    </hints>
   </connection>

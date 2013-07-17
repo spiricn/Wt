@@ -61,6 +61,8 @@ protected slots:
 
 	void onDeleteActor();
 
+	void onBBoxGeometryChanged();
+
 }; // </ActorEditTool>
 
 #endif

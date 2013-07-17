@@ -65,6 +65,13 @@ public:
 
 	void setBBox(PhysicsActor* box);
 
+	/**
+	 * Updates the bounding box physics actor with the new dimensons
+	 *
+	 * @param bounds - New bounding box dimensions (halfX, halfY, haflZ)
+	 */
+	void setBounds(const glm::vec3& bounds);
+
 	physx::PxBounds3 getBounds() const;
 
 	const AttachPoint& getAttachPoint() const;

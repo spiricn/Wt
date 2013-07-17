@@ -25,10 +25,13 @@ TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolMan
 }
 
 void TerrainEditTool::setTarget(wt::Terrain* terrain){
+	// TODO upon terrain loading scene target texture probably needs to be reloaded
+
 	mTerrain = terrain;
 
 	if(terrain){
 		if(mFrameBuffer.isCreated()){
+			mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, (GLuint)0, GL_TEXTURE_2D);
 			mFrameBuffer.destroy();
 		}
 
@@ -37,6 +40,10 @@ void TerrainEditTool::setTarget(wt::Terrain* terrain){
 		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, mTerrain->getMapTexture());
 
 		WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete framebuffer");
+
+		mTerrain->getMapTexture()->generateMipmap();
+
+		mFrameBuffer.unbind(wt::Gl::FrameBuffer::DRAW);
 	}
 }
 
@@ -106,10 +113,8 @@ void TerrainEditTool::onResetTexture(){
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	tex->bind();
 
-	glGenerateMipmap(GL_TEXTURE_2D);
-
+	tex->generateMipmap();
 }
 
 void TerrainEditTool::onResetHeightmap(){
@@ -256,6 +261,7 @@ void TerrainEditTool::editAt(float x, float y){
 
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH_TEST);
+
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
@@ -270,6 +276,7 @@ void TerrainEditTool::editAt(float x, float y){
 				ui.materialIndex->currentIndex()==1,
 				ui.materialIndex->currentIndex()==2,
 				ui.pressure->value()/100.0f);
+
 			mSceneView->getRenderer().render(
 				/*mAssets->getTextureManager()->getFromPath("$ROOT/brushes/circle_hard"),*/
 				mBrushTexture,
@@ -280,9 +287,10 @@ void TerrainEditTool::editAt(float x, float y){
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
 			//mTerrain.getMapTexture()->dump("test.jpg");
-			glGenerateMipmap(GL_TEXTURE_2D);
 
 			mFrameBuffer.unbind(wt::Gl::FrameBuffer::DRAW);
+
+			tex->generateMipmap();
 		}
 		else{
 

@@ -158,6 +158,8 @@ void WorldEditTab::saveScene(const QString& path){
 }
 
 void WorldEditTab::loadScene(const QString& path){
+	mScene->clear();
+
 	wt::SceneLoader loader(mScene, mAssets);
 
 	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_READ);

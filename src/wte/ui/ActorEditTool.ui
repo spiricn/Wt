@@ -20,13 +20,6 @@
    <item row="3" column="1" colspan="3">
     <widget class="QComboBox" name="comboBoxAnimation"/>
    </item>
-   <item row="5" column="0">
-    <widget class="QPushButton" name="buttonBrushToggle">
-     <property name="text">
-      <string>Activate brush</string>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
@@ -34,26 +27,36 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="text">
-      <string>Select actor</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="2">
+   <item row="6" column="2">
     <widget class="QPushButton" name="pushButton_3">
      <property name="text">
       <string>Delete selected</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="3">
+   <item row="5" column="2">
     <widget class="QPushButton" name="pushButton">
      <property name="text">
       <string>New actor</string>
      </property>
     </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="text">
+      <string>Select actor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="3">
+    <widget class="QPushButton" name="buttonBrushToggle">
+     <property name="text">
+      <string>Activate brush</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" rowspan="2" colspan="2">
+    <widget class="Vec3View" name="boundingBoxView" native="true"/>
    </item>
   </layout>
  </widget>
@@ -69,6 +72,15 @@
     <signal>translationChanged()</signal>
    </slots>
   </customwidget>
+  <customwidget>
+   <class>Vec3View</class>
+   <extends>QWidget</extends>
+   <header>vec3view.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -79,8 +91,8 @@
    <slot>onNewActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>229</y>
+     <x>488</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
      <x>490</x>
@@ -111,7 +123,7 @@
    <slot>onToggleBrush()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
+     <x>574</x>
      <y>229</y>
     </hint>
     <hint type="destinationlabel">
@@ -127,8 +139,8 @@
    <slot>onSelectActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>229</y>
+     <x>650</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -200,6 +212,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>boundingBoxView</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onBBoxGeometryChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>271</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>175</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onNewActor()</slot>
@@ -212,5 +240,6 @@
   <slot>onTranslationChanged()</slot>
   <slot>onRotationChanged()</slot>
   <slot>onDeleteActor()</slot>
+  <slot>onBBoxGeometryChanged()</slot>
  </slots>
 </ui>

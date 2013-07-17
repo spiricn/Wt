@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SlidedSpinbox</class>
+ <widget class="QWidget" name="SlidedSpinbox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>310</width>
+    <height>58</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QSlider" name="slider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="spinbox"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>SlidedSpinbox</receiver>
+   <slot>onSliderChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>115</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>149</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinbox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SlidedSpinbox</receiver>
+   <slot>onSpinboxChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>281</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>2</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onSliderChanged(int)</slot>
+  <slot>onSpinboxChanged(double)</slot>
+ </slots>
+</ui>

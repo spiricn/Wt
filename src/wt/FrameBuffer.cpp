@@ -28,27 +28,23 @@ void FrameBuffer::addAttachment(GLenum attachment, const RenderBuffer& target){
 		attachment, GL_RENDERBUFFER, target.getHandle()) );
 }
 
-void FrameBuffer::addAttachment(GLenum attachment, GLuint texture){
-	WT_ASSERT(mIsCreated, "Framebuffer not initialized");
-
-	gl( BindTexture(GL_TEXTURE_RECTANGLE, texture) );
-
-	gl( FramebufferTexture2D(GL_DRAW_FRAMEBUFFER,
-		attachment, GL_TEXTURE_RECTANGLE,
-		texture, 0) );
-
-}
-
-void FrameBuffer::addAttachment(GLenum attachment, const Texture2D* target){
+void FrameBuffer::addAttachment(GLenum attachment, GLuint texture, GLenum textureType){
 	WT_ASSERT(mIsCreated, "Framebuffer not initialized");
 
 	bind(DRAW);
 
-	target->bind();
+	// TODO not sure if binding it here is necessary
+	if(texture != 0){
+		gl( BindTexture(textureType, texture) );
+	}
 
 	gl( FramebufferTexture2D(GL_DRAW_FRAMEBUFFER,
-		attachment, target->getType(),
-		target->getTexHandle(), 0) );
+		attachment, textureType,
+		texture, 0) );
+}
+
+void FrameBuffer::addAttachment(GLenum attachment, const Texture2D* target){
+	addAttachment(attachment, target->getTexHandle(), target->getType());
 }
 
 void FrameBuffer::bind(Mode mode){

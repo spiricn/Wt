@@ -11,9 +11,17 @@ ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const Strin
 
 void ASceneActor::setBBox(PhysicsActor* box){
 	mBBox = box;
+	PxShape* shape;
 }
 
-physx::PxBounds3  ASceneActor::getBounds() const{
+void ASceneActor::setBounds(const glm::vec3& bounds){
+	if(mBBox){
+		PxRigidActor* actor = (PxRigidActor*)mBBox->getPxActor();
+		PxTransform tf = actor->getGlobalPose();
+	}
+}
+
+physx::PxBounds3 ASceneActor::getBounds() const{
 	if(mBBox){
 		return mBBox->getPxActor()->getWorldBounds();
 	}

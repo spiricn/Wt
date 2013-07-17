@@ -673,10 +673,14 @@ void Renderer::render(Scene& scene, const ModelledActor* actor, PassType pass){
 
 		//mBasicShader.setNormalMap( i->normalMap );
 
-#if 0
 		// TODO This might be the solotution but we're not quite there yet (depth peeling ?)
+#if 0
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+#else
+		glEnable(GL_BLEND);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+			GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 #endif
 
 		// basically no effect on FPS

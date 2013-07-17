@@ -104,6 +104,19 @@ void WtEditor::onAssetsLoaded(){
 
 void WtEditor::onReload(){
 	mAssets.reload();
+	mWorldEdit->loadScene(mScenePath);
+}
+
+void WtEditor::onSaveSceneAs(){
+	QString path = QFileDialog::getSaveFileName(this,
+		"Save scene", "", "Scene files (*.lua)");
+	if(!path.size()){
+		return;
+	}
+
+
+	mScenePath = path;
+	mWorldEdit->saveScene(mScenePath);
 }
 
 void WtEditor::onBtnSaveClick(){
@@ -126,7 +139,6 @@ void WtEditor::onNew(){
 
 	mWorkspaceFilePath = path;
 }
-
 
 void WtEditor::onOpen(){
 	QString path = QFileDialog::getOpenFileName(this,
@@ -155,12 +167,6 @@ void WtEditor::onLoadScene(){
 }
 
 void WtEditor::onSaveScene(){
-	//QString path = QFileDialog::getSaveFileName(this,
-	//	"Save scene", "", "Scene files (*.lua)");
-	/*if(!path.size()){
-		return;
-	}*/
-
 	if(QMessageBox::question(this, "Confirmation",
 		"Save current scene to \"" + mScenePath + "\" ?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes){
 

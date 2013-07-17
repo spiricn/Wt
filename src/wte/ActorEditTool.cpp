@@ -25,6 +25,8 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 
 	mScene = sceneView->getScene();
 	mPhysics = mScene->getPhysics();
+
+	selectActor(NULL);
 }
 
 void ActorEditTool::onScaleChanged(){
@@ -60,7 +62,7 @@ void ActorEditTool::onMousePress(QMouseEvent* evt){
 	if((evt->button() == Qt::LeftButton && mSelectingActor) || evt->button() == Qt::MiddleButton ){
 		wt::RaycastHitEvent res;
 		
-		if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(), glm::vec2(evt->x(), evt->y()), glm::vec2(mSceneView->width(), mSceneView->height()), res, 0, true)){
+		if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(), glm::vec2(evt->x(), evt->y()), glm::vec2(mSceneView->width(), mSceneView->height()), res, 0, wt::Physics::ePICK_BOUNDING_BOXES)){
 			selectActor(res.mPickedActor->getSceneActor());
 		}
 	}
@@ -88,7 +90,12 @@ void ActorEditTool::updateSelectionStats(){
 
 	ui.transform->setTranslation( mSelectedActor->getTransform().getPosition() );
 
-	ui.transform->setScale( mSelectedActor->getTransform().getScale() );
+	ui.transform->setScale( mSelectedActor->getTransform().getScale() );	
+
+	ui.boundingBoxView->setValue(
+		glm::vec3(mSelectedActor->getBounds().getDimensions().x,
+		mSelectedActor->getBounds().getDimensions().y,
+		mSelectedActor->getBounds().getDimensions().z));
 }
 
 void ActorEditTool::onMouseDrag(MouseDragEvent evt){
@@ -148,24 +155,28 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 				}
 			}
 			else{
-				//wt::RaycastHitEvent res;
+				wt::RaycastHitEvent res;
 
-				//if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(),
-				//	glm::vec2(evt.x, evt.y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
-				//		// TODO handle this better 
-				//		if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){
-				//			// condition checks if the hit actor isn't the selected actor (prevents the user from moving the actor to a point that's on itself)
-				//			mSelectedActor->setPosition(
-				//				res.mImpact);
-				//			statsChanged  = true;
-				//		}
-				//}
+				if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(),
+					glm::vec2(evt.x, evt.y), glm::vec2(mSceneView->width(), mSceneView->height()), res, 0, wt::Physics::ePICK_TERRAIN)){
+						// TODO handle this better 
+						if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){
+							// condition checks if the hit actor isn't the selected actor (prevents the user from moving the actor to a point that's on itself)
+							mSelectedActor->getTransform().setPosition(
+								res.mImpact);
+							statsChanged  = true;
+						}
+				}
 			}
 		}
 	}
+
 	if(statsChanged){
 		updateSelectionStats();
 	}
+}
+
+void ActorEditTool::onBBoxGeometryChanged(){
 }
 
 void ActorEditTool::onDeleteActor(){
@@ -199,6 +210,13 @@ void ActorEditTool::onToggleBrush(){
 
 void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	mSelectedActor = actor;
+
+	ui.transform->setEnabled(actor!=NULL);
+
+	if(!actor){
+		return;
+	}
+
 
 	wt::Scene& scene = *mScene;
 

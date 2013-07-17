@@ -135,14 +135,14 @@ public:
 		for(AResourceManager<T>::ResourceMap::iterator i=AResourceManager<T>::mResources.begin();
 			i!=AResourceManager<T>::mResources.end(); i++){
 				if(!i->second->isResourceLoaded() && mLoader != NULL){
-					// TODO acquire stream from elsewhere
-					//FileIOStream stream(i->second->getUri(), AIOStream::eMODE_READ);
-					Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(i->second->getUri(), AIOStream::eMODE_READ);
+					if(i->second->getUri().size()){
+						Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(i->second->getUri(), AIOStream::eMODE_READ);
 
-					try{
-						load(stream, i->second);
-					}catch(...){
-						LOGE("Error loading resource from uri \"%s\"", i->second->getUri().c_str());
+						try{
+							load(stream, i->second);
+						}catch(...){
+							LOGE("Error loading resource from uri \"%s\"", i->second->getUri().c_str());
+						}
 					}
 				}
 		}

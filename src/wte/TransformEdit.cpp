@@ -8,25 +8,16 @@
 
 TransformEdit::TransformEdit(QWidget* parent) : QWidget(parent){
     ui.setupUi(this);
+
+	ui.rotationAngle->setMinValue(0.0);
+	ui.rotationAngle->setMaxValue(360.0);
+	ui.rotationAngle->setValue(0.0);
 }
 
-void TransformEdit::onAngleSliderChanged(int value){
-	float angle = (value/100.0f)*360.0f;
-	if(angle != mRotAngle){
-		mRotAngle = angle;
-		ui.rotAngle->setValue( angle);
-
-		emit rotationChanged();
-	}
-}
-
-
-void TransformEdit::onAngleSpinboxChanged(double value){
-	if(value != mRotAngle){
-		mRotAngle = value;
-
-		ui.angleSlider->setValue( value/360.0f * 100 );
-
+void TransformEdit::onRotAngleChanged(){
+	double val = ui.rotationAngle->getValue();
+	if(val != mRotAngle){
+		mRotAngle = val;
 		emit rotationChanged();
 	}
 }
@@ -65,7 +56,8 @@ glm::vec3 TransformEdit::getScale() const{
 }
 
 float TransformEdit::getRotAngle() const{
-	return ui.rotAngle->value();
+	//return ui.rotAngle->value();
+	return mRotAngle;
 }
 
 glm::vec3 TransformEdit::getRotAxis() const{
@@ -100,8 +92,7 @@ void TransformEdit::setTranslation(const glm::vec3& translation){
 }
 
 void TransformEdit::setRotation(const glm::vec3& axis, float angle){
-	ui.rotAngle->setValue(angle);
-	ui.angleSlider->setValue( (angle/360.0f) * 100.0f);
+	ui.rotationAngle->setValue(angle);
 
 	ui.rotAxis->setValue(axis);
 }

@@ -78,6 +78,8 @@ protected slots:
 	void onScreenshot();
 
 	void onReload();
+
+	void onSaveSceneAs();
 };
 
 #endif // WTEDITOR_H

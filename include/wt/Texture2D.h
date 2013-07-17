@@ -52,6 +52,8 @@ public:
 		return mImage;
 	}
 
+	void generateMipmap();
+
 	void dump(AIOStream& stream);
 
 	void dump(const String& path);

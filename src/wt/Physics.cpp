@@ -531,16 +531,21 @@ void Physics::removeActor(PhysicsActor* actor){
 }
 
 
-bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& result, uint32_t groups, bool bbox){
+bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& result, uint32_t groups, PickFlag flags){
 	PxRaycastHit hit;
 	PxSceneQueryFilterData f;
 	f.data.setToDefault();
 
 	
-	if(bbox){
-		f.data.word3 = eIG_BBOX;
+	if(flags & ePICK_BOUNDING_BOXES){
+		f.data.word3 |= eIG_BBOX;
 	}
-	else{
+
+	if(flags & ePICK_TERRAIN){
+		f.data.word3 |= eIG_HEIGHTMAP;
+	}
+
+	if(flags & ePICK_ACTORS){
 		f.data.word0 = groups;
 	}
 	
@@ -569,7 +574,7 @@ bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastH
 }
 
 bool Physics::pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos,
-	const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups, bool bbox){
+	const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups, PickFlag flags){
 
 	glm::mat4x4 modelView;
 	camera.getMatrix(modelView);
@@ -579,7 +584,7 @@ bool Physics::pick(math::Camera& camera, const math::Frustum& frustum, const glm
 		frustum.getProjMatrix()
 		);
 
-	return pick(camera.getPosition(), glm::normalize(point-camera.getPosition()), res, groups, bbox);
+	return pick(camera.getPosition(), glm::normalize(point-camera.getPosition()), res, groups, flags);
 }
 
 
@@ -886,6 +891,10 @@ int32_t Physics::lua_createRegion(LuaObject luaPos, LuaObject luaRadius){
 void Physics::expose(LuaObject& meta){
 	meta.RegisterObjectDirect("getActorsInRegion", (Physics*)0, &Physics::lua_getActorsInRegion);
 	meta.RegisterObjectDirect("createRegion", (Physics*)0, &Physics::lua_createRegion);
+}
+
+Physics::PickFlag operator|(Physics::PickFlag a, Physics::PickFlag b){
+	return static_cast<Physics::PickFlag>( static_cast<int>(a) | static_cast<int>(b) );
 }
 
 }; // </wt>

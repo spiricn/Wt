@@ -39,9 +39,7 @@ public:
 	void setRotation(const glm::quat& rot);
 
 protected slots:
-	void onAngleSliderChanged(int);
-
-	void onAngleSpinboxChanged(double);
+	void onRotAngleChanged();
 
 	void onRotAxisChanged();
 

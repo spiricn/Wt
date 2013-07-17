@@ -88,15 +88,15 @@ Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
 	if(iter->second->getPhysicsActor()){
 		mPhysics->removeActor( iter->second->getPhysicsActor() );
 	}
-	
+
 	if(iter->second->getActorType() == ASceneActor::eTYPE_MODELLED){
-		mModelledActors.erase( static_cast<ModelledActor*>(iter->second) );
+		WT_ASSERT(mModelledActors.erase( static_cast<ModelledActor*>(iter->second ) ) == 1, "Error erasing actor");
 	}
 	else if(iter->second->getActorType() == ASceneActor::eTYPE_TERRAIN){
-		mTerrainSet.erase( static_cast<Terrain*>(iter->second) );
+		WT_ASSERT(mTerrainSet.erase( static_cast<Terrain*>(iter->second) ) == 1, "Error erasing actor");
 	}
 	else if(iter->second->getActorType() == ASceneActor::eTYPE_PARTICLE_EFFECT){
-		mParticleEffects.erase( static_cast<ParticleEffect*>(iter->second) );
+		WT_ASSERT(mParticleEffects.erase( static_cast<ParticleEffect*>(iter->second) ), "Error erasing actor");
 	}
 
 	delete iter->second;
@@ -106,12 +106,11 @@ Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
 
 void Scene::clear(){
 	setSkyBox(NULL);
+	
+	ActorMap::iterator iter = mActors.begin();
 
-	for(ActorMap::iterator i=mActors.begin(); i!=mActors.end(); i++){
-		i = eraseActor(i);
-		if(i == mActors.end()){
-			break;
-		}
+	while(iter != mActors.end()){
+		eraseActor(iter++);
 	}
 	
 	mDefaultCamera = math::Camera();

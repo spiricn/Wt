@@ -173,9 +173,16 @@ public:
 
 	void createBBox(ASceneActor* actor);
 
-	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0x00, bool bbox=false);
+	enum PickFlag{
+		ePICK_TERRAIN = 1 << 1,
+		ePICK_BOUNDING_BOXES = 1 << 2,
+		ePICK_ACTORS = 1 << 3
 
-	bool pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0x00, bool bbox=false);
+	}; // </PickFlags>
+
+	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0x00, PickFlag flags=ePICK_ACTORS);
+
+	bool pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0x00, PickFlag flags=ePICK_ACTORS);
 
 	/**********************/
 	/**** Lua bindings ****/
@@ -187,6 +194,8 @@ public:
 	void expose(LuaObject& meta);
 
 }; // </Physics>
+
+Physics::PickFlag operator|(Physics::PickFlag a, Physics::PickFlag b);
 
 }; // </wt>
 

@@ -20,6 +20,11 @@ void Texture2D::dump(AIOStream& stream){
 		&img);
 }
 
+void Texture2D::generateMipmap(){
+	bind();
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
 void Texture2D::dump(const String& path){
 	// TODO Textrue2D should acquire this stream from elsewhere
 	FileIOStream stream(path, AIOStream::eMODE_WRITE);

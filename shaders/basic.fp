@@ -57,7 +57,7 @@ void main(void){
 		}
 
 		// alpha test [always on for now]
-		if(uAlphaTest==0 || texSample.a < 0.3f && 1==1) {
+		if(uAlphaTest==0 || texSample.a < 0.3f && 1==0) {
 			discard;
 		}
 

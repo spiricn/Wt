@@ -35,7 +35,7 @@ public:
 
 	void addAttachment(GLenum attachment, const Texture2D* target);
 
-	void addAttachment(GLenum attachment, GLuint texture);
+	void addAttachment(GLenum attachment, GLuint texture, GLenum textureType);
 
 	bool isCreated() const{
 		return mIsCreated;
