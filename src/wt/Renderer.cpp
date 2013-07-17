@@ -2,6 +2,7 @@
 
 #include "wt/Renderer.h"
 #include "wt/DevilImageLoader.h"
+#include "wt/RenderBuffer.h"
 
 #define TD_TRACE_TAG "Renderer"
 
@@ -14,6 +15,8 @@ Renderer::Renderer() : mClearColor(0.5, 0, 0, 1.0f),
 }
 
 void Renderer::init(uint32_t portW, uint32_t portH ){
+	WT_ASSERT(portW > 0 && portH > 0, "Invalid viewport size (%d x %d)", portW, portH);
+
 	LOGV("Initializing...");
 
 	LOGV("GL_VERSION = %s", glGetString(GL_VERSION));
@@ -94,11 +97,9 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	setClearColor(Color(0.3, 0.3, 0.3));
 
 
-#if 0
-	// TODO move to encoded header file
-	FileIOStream stream("assets/brushes/images/circle_soft.png", AIOStream::eMODE_READ);
+	// TODO acquire this from elsewhere
+	FileIOStream stream("d:\\Documents\\prog\\c++\\workspace\\Wt\\rsrc\\godray_sun.png", AIOStream::eMODE_READ);
 	TextureLoader::getSingleton().load(&stream, &mGodraySunTexture);
-#endif
 
 	LOGV("Initialized OK");
 }
@@ -109,7 +110,13 @@ void Renderer::initGodray(){
 		
 		if(mGodrayFBO.isCreated()){
 			mGodrayFBO.destroy();
+
+			mGodrayDepthBuffer.destroy();
 		}
+
+		// Depth buffer
+		mGodrayDepthBuffer.create();
+		mGodrayDepthBuffer.setStorage(GL_DEPTH_COMPONENT, mViewPort.x, mViewPort.y);
 
 		mGodrayFBO.create();
 
@@ -132,6 +139,7 @@ void Renderer::initGodray(){
 
 		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT0, &mGodrayPass1);
 		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT1, &mGodrayPass2);
+		mGodrayFBO.addAttachment(GL_DEPTH_ATTACHMENT, mGodrayDepthBuffer);
 
 		WT_ASSERT(mGodrayFBO.isComplete(), "Godray FBO incomplete");
 
@@ -682,6 +690,10 @@ void Renderer::render(Scene& scene, const ModelledActor* actor, PassType pass){
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
 			GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 #endif
+		if(pass != eNORMAL_PASS){
+			glDisable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
+		}
 
 		// basically no effect on FPS
 		i->geometry->render();
@@ -770,25 +782,6 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 	gl( DepthMask(true) );
 }
 
-void Renderer::getGodRayParams(GodRayParams& dst){
-	dst = mGodRayParams;
-}
-
-void Renderer::setGodRayParams(const GodRayParams& src){
-	mGodRayParams = src;
-
-	mGodRayShader.use();
-
-#if 0
-	mGodRayShader.setUniformVal("uExposure", mGodRayParams.mExposure);
-	mGodRayShader.setUniformVal("uDecay", mGodRayParams.mDecay);
-	mGodRayShader.setUniformVal("uDensity", mGodRayParams.mDensity);
-	mGodRayShader.setUniformVal("uWeight", mGodRayParams.mWeight);
-	mGodRayShader.setUniformVal("uNumSamples", mGodRayParams.mNumSamples);
-	mGodraySunShader.setUniformVal("uSunSize", mGodRayParams.mSunSize);
-#endif
-}
-
 void Renderer::render(Scene& scene, PassType pass){
 	// OpenGL state
 	mNumRenderedTerrainNodes = 0;
@@ -836,26 +829,28 @@ void Renderer::render(Scene& scene, PassType pass){
 		if(sky != NULL){
 			render(scene, sky);
 		}
-	}
 
-	// Particles
-	for(Scene::ParticleEffectSet::const_iterator iter=scene.getParticleEffects().cbegin(); iter!=scene.getParticleEffects().cend(); iter++){
-		render(scene, *iter, pass);
-	}
+		// Particles
+		for(Scene::ParticleEffectSet::const_iterator iter=scene.getParticleEffects().cbegin(); iter!=scene.getParticleEffects().cend(); iter++){
+			render(scene, *iter, pass);
+		}
 
-	// Skeleton bones
-	if(mRenderBones){
-		for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
-			if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
-				render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
+		// Skeleton bones
+		if(mRenderBones){
+			for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
+				if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
+					render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
+				}
 			}
 		}
-	}
 
-	// Bounding boxes
-	if(mRenderBoundingBoxes){
-		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-			render(i->second->getBounds(), &scene.getCamera(), Color::green());
+		// Bounding boxes
+		if(mRenderBoundingBoxes){
+			glDisable(GL_DEPTH_TEST);
+			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+				render(i->second->getBounds(), &scene.getCamera(), i->second->getBoundingBoxColor());
+			}
+			glEnable(GL_DEPTH_TEST);
 		}
 	}
 }
@@ -865,58 +860,81 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 	glm::mat4 modelview;
 	scene.getCamera().getMatrix(modelview, true);
+
+	#if 0
+	mGodRayShader.use();
+	mGodRayShader.setUniformVal("uExposure", mGodRayParams.mExposure);
+	mGodRayShader.setUniformVal("uDecay", mGodRayParams.mDecay);
+	mGodRayShader.setUniformVal("uDensity", mGodRayParams.mDensity);
+	mGodRayShader.setUniformVal("uWeight", mGodRayParams.mWeight);
+	mGodRayShader.setUniformVal("uNumSamples", mGodRayParams.mNumSamples);
+	mGodraySunShader.setUniformVal("uSunSize", mGodRayParams.mSunSize);
+	#endif
+
+	Scene::GodRayParams godrayParams;
+	scene.getGodRayParams(godrayParams);
 	
 	glm::vec4 viewport(0, 0, mViewPort.x, mViewPort.y);
-	glm::vec3 sunScreenPos = glm::project(mGodRayParams.mSunPos, modelview, mFrustum.getProjMatrix(), viewport);
+	glm::vec3 sunScreenPos = glm::project(godrayParams.sourcePosition, modelview, mFrustum.getProjMatrix(), viewport);
 	bool sunVisible = sunScreenPos.x >= 0.0f && sunScreenPos.y >= 0.0f && sunScreenPos.x <= mViewPort.x && sunScreenPos.y <= mViewPort.y;
 
-	if(mGodRayParams.mIsEnabled){ 
+	if(godrayParams.enabled){ 
 		// pass 1 (render scene without textures/lighting)
 		mGodrayFBO.bind(Gl::FrameBuffer::DRAW);
 
 		const GLenum pass1Buffers[] = {GL_COLOR_ATTACHMENT0};
 		gl( DrawBuffers(1, pass1Buffers) );
 
-		setClearColor(mGodRayParams.mRayColor);
+		setClearColor(godrayParams.rayColor);
 		gl( Clear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT) );
 
 		// draw sun
 		gl( Enable(GL_BLEND) );
 		gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
+		gl( BlendEquation(GL_FUNC_ADD) );
+		//gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
+
 		gl( Enable(GL_POINT_SPRITE) );
 		gl( Enable(GL_PROGRAM_POINT_SIZE) );
 
 		mGodraySunShader.use();
+		glColor3f(1, 0, 0);
 		//glm::mat4 sunViewMat;
 		//scene.getCamera().getMatrix(sunViewMat, 1);
-		mGodraySunShader.setUniformVal("uModelMat", glm::translate(mGodRayParams.mSunPos));
+		mGodraySunShader.setUniformVal("uModelMat", glm::translate(godrayParams.sourcePosition));
 		mGodraySunShader.setUniformVal("uViewMat", modelview);
 		mGodraySunShader.setUniformVal("uProjMat", mFrustum.getProjMatrix());
-		mGodraySunShader.setUniformVal("uSunSize", mGodRayParams.mSunSize);
+		mGodraySunShader.setUniformVal("uSunSize", godrayParams.sourceSize);
 		mGodraySunShader.setUniformVal("uPlanetTexture", 0);
+		mGodraySunShader.setUniformVal("uSourceColor", godrayParams.sourceColor);
 
 		gl( ActiveTexture(GL_TEXTURE0) );
-		mGodraySunTexture.bind();
+		if(godrayParams.sourceTexture){
+			godrayParams.sourceTexture->bind();
+		}
+		else{
+			mGodraySunTexture.bind();
+		}
 
-		gl( Color4f(mGodRayParams.mSunColor.mRed, 
-			mGodRayParams.mSunColor.mGreen,
-			mGodRayParams.mSunColor.mBlue,
-			mGodRayParams.mSunColor.mAlpha
+		gl( Color4f(godrayParams.sourceColor.mRed, 
+			godrayParams.sourceColor.mGreen,
+			godrayParams.sourceColor.mBlue,
+			godrayParams.sourceColor.mAlpha
 			) );
 
 		mSunBatch.render();
-
-		
-		//mSunBatch.render();
 
 		gl( Disable(GL_BLEND) );
 
 		// render the entire scene (without textures and lighting)
 		gl( Enable(GL_CULL_FACE) );
 		render(scene, eGODRAY_PASS);
+
+
+		//mGodrayPass1.dump("pass1.bmp");
 	}
 
-	if(mGodRayParams.mIsEnabled){ 
+	if(godrayParams.enabled){ 
 		// pass 2 (do the 2D post processing effect)
 
 		const GLenum pass2Buffers[] = {GL_COLOR_ATTACHMENT1};
@@ -939,6 +957,9 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		gl( Disable(GL_DEPTH_TEST) );
 		gl( Disable(GL_CULL_FACE) );
 		mGodrayBatch.render();
+
+
+		//mGodrayPass2.dump("pass2.bmp");
 	}
 	
 
@@ -967,7 +988,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		render(scene, eNORMAL_PASS);
 	}
 
-	if(mGodRayParams.mIsEnabled){
+	if(godrayParams.enabled){
 		// pass 4 (apply post processing effect)
 
 		mRectShader.use();

@@ -13,6 +13,7 @@
 #include "wte/ActorEditTool.h"
 #include "wte/FogTool.h"
 #include "wte/TerrainEditDialog.h"
+#include "wte/GodrayTool.h"
 
 #include <wt/SFSound.h>
 #include <wt/SceneLoader.h>
@@ -50,6 +51,9 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 	 ui.lightToolDock->setWidget(mLightTool);
 	 ui.lightToolDock->setVisible(false);
 
+
+	 GodrayTool* godTool = new GodrayTool(this, mScene, mAssets);
+	 ui.godrayToolDock->setWidget(godTool);	 
 	
 #if 0
 	 // fog tool

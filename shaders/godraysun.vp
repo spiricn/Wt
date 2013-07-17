@@ -8,7 +8,7 @@ uniform mat4 uProjMat;
 uniform float uSunSize;
 
 void main(){
-	gl_PointSize = uSunSize + 20;
+	gl_PointSize = uSunSize;
 
 	gl_Position = (uProjMat * (uViewMat*uModelMat)) * inPosition;
 }

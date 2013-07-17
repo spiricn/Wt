@@ -13,46 +13,8 @@
   <property name="windowTitle">
    <string>Light editor</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-   </property>
-   <item row="0" column="0">
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="text">
-      <string>Color</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Ambient intesity</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QSlider" name="ambientIntensitySlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Diffuse intensity</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QSlider" name="diffuseItensitySlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="5" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Point lights</string>
@@ -70,33 +32,66 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="4" column="1">
+    <widget class="QSlider" name="diffuseItensitySlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Diffuse intensity</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <widget class="QPushButton" name="pushButton">
      <property name="text">
       <string>Set direction from camera</string>
      </property>
     </widget>
    </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Ambient intesity</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QSlider" name="ambientIntensitySlider">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Color</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" rowspan="2">
+    <widget class="ColorEditWidget" name="color" native="true"/>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorEditWidget</class>
+   <extends>QWidget</extends>
+   <header>ColorEditWidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>pushButton_3</sender>
-   <signal>clicked()</signal>
-   <receiver>LightEditor</receiver>
-   <slot>onColorClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>58</x>
-     <y>15</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>144</x>
-     <y>17</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>ambientIntensitySlider</sender>
    <signal>valueChanged(int)</signal>
@@ -104,8 +99,8 @@
    <slot>onAmbientIntensityChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>54</y>
+     <x>273</x>
+     <y>62</y>
     </hint>
     <hint type="destinationlabel">
      <x>265</x>
@@ -121,7 +116,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>250</x>
-     <y>74</y>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>284</x>
@@ -136,12 +131,28 @@
    <slot>onSetDirection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>187</x>
-     <y>12</y>
+     <x>139</x>
+     <y>27</y>
     </hint>
     <hint type="destinationlabel">
      <x>184</x>
      <y>4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>color</sender>
+   <signal>valueChanged()</signal>
+   <receiver>LightEditor</receiver>
+   <slot>onColorChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>13</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>48</x>
+     <y>1</y>
     </hint>
    </hints>
   </connection>
@@ -151,5 +162,6 @@
   <slot>onAmbientIntensityChanged(int)</slot>
   <slot>onDiffuseIntensityChanged(int)</slot>
   <slot>onSetDirection()</slot>
+  <slot>onColorChanged()</slot>
  </slots>
 </ui>

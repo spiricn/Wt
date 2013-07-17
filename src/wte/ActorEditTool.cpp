@@ -111,7 +111,12 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 
 			float smoothFactor = 0.3;
 
+
+			// TODO these are platform dependent
 			bool shiftDown = wt::AGameInput::isKeyDown(VK_LSHIFT);
+
+			bool altDown = wt::AGameInput::isKeyDown(VK_LMENU);
+
 			if(wt::AGameInput::isKeyDown('X')){
 				if(shiftDown){
 					mSelectedActor->getTransform().rotate(
@@ -125,6 +130,11 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 						);
 					statsChanged  = true;
 				}
+			}
+			else if(wt::AGameInput::isKeyDown('F')){
+				glm::vec3 scale = mSelectedActor->getTransform().getScale();
+				scale += glm::vec3(1, 1, 1) * evt.dy * 0.01f;
+				mSelectedActor->getTransform().setScale(scale);
 			}
 			else if(wt::AGameInput::isKeyDown('Y')){
 				if(shiftDown){
@@ -154,7 +164,7 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 					statsChanged  = true;
 				}
 			}
-			else{
+			else if(altDown){
 				wt::RaycastHitEvent res;
 
 				if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(),
@@ -209,6 +219,10 @@ void ActorEditTool::onToggleBrush(){
 }
 
 void ActorEditTool::selectActor(wt::ASceneActor* actor){
+	if(mSelectedActor){
+		mSelectedActor->setBoundingBoxColor(wt::Color::green());
+	}
+
 	mSelectedActor = actor;
 
 	ui.transform->setEnabled(actor!=NULL);
@@ -217,6 +231,7 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 		return;
 	}
 
+	mSelectedActor->setBoundingBoxColor(wt::Color::red());
 
 	wt::Scene& scene = *mScene;
 

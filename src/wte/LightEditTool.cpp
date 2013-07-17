@@ -23,6 +23,10 @@ LightEditTool::LightEditTool(SceneView* scene, QWidget* parent) : QDialog(parent
 		this, SLOT(onAssetsLoaded()));
 }
 
+void LightEditTool::onColorChanged(){
+	mScene->getDirectionalLight().mColor = ui.color->getColor();
+}
+
 void LightEditTool::onSetDirection(){
 	mScene->getDirectionalLight().mDirection = mScene->getCamera().getForwardVec();
 }

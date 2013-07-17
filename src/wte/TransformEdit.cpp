@@ -23,29 +23,38 @@ void TransformEdit::onRotAngleChanged(){
 }
 
 void TransformEdit::onRotAxisChanged(){
-	if(mRotAxis != ui.rotAxis->getValue()){
-		mRotAxis = ui.rotAxis->getValue();
+	glm::vec3 axis;
+	ui.rotAxis->getValue(axis);
+
+	if(mRotAxis != axis){
+		mRotAxis = axis;
 		emit rotationChanged();
 	}
 }
 
 void TransformEdit::onScaleChanged(){
-	if(mScale != ui.scle->getValue()){
-		mScale = ui.scle->getValue();
+	glm::vec3 scale;
+	ui.scle->getValue(scale);
+
+	if(mScale != scale){
+		mScale = scale;
 		emit scaleChanged();
 	}
 }
 
 void TransformEdit::onTranslationChanged(){
-	if(mTranslation != ui.translation->getValue()){
-		mTranslation = ui.translation->getValue();
+	glm::vec3 translation;
+	ui.translation->getValue(translation);
+
+	if(mTranslation != translation){
+		mTranslation = translation;
 		emit translationChanged();
 	}
-	
 }
 
 glm::vec3 TransformEdit::getScale() const{
-	glm::vec3 scale = ui.scle->getValue();
+	glm::vec3 scale;
+	ui.scle->getValue(scale);
 
 	// Prevent invalid scale(i.e. 0 values)
 	scale.x = scale.x == 0.0f ? 0.0001f : scale.x;
@@ -61,11 +70,15 @@ float TransformEdit::getRotAngle() const{
 }
 
 glm::vec3 TransformEdit::getRotAxis() const{
-	return ui.rotAxis->getValue();
+	glm::vec3 res;
+	ui.rotAxis->getValue(res);
+	return res;
 }
 
 glm::vec3 TransformEdit::getTranslation() const{
-	return ui.translation->getValue();
+	glm::vec3 res;
+	ui.translation->getValue(res);
+	return res;
 }
 
 void TransformEdit::setScale(const glm::vec3& scale){

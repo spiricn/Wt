@@ -17,6 +17,11 @@ void SlidedSpinboxWidget::onSpinboxChanged(double val){
 	}
 }
 
+void SlidedSpinboxWidget::setValueRange(double min, double max){
+	setMinValue(min);
+	setMaxValue(max);
+}
+
 double SlidedSpinboxWidget::getRange() const{
 	return mMaxValue - mMinValue;
 }
@@ -59,4 +64,10 @@ double SlidedSpinboxWidget::getValue() const{
 }
 
 void SlidedSpinboxWidget::setValue(double value){
+	if(mValue != value){
+		mValue = value;
+
+		ui.spinbox->setValue(value);
+		ui.slider->setValue( getPercentage()*100 );
+	}
 }

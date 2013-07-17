@@ -58,8 +58,15 @@ protected:
 
 	AttachPoint mAttachPoint;
 
+	/** Color of the bounding box for this object (used mainly for debugging) */
+	Color mBoundingBoxColor;
+
 public:
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
+
+	void setBoundingBoxColor(const Color& color);
+
+	const Color& getBoundingBoxColor() const;
 
 	virtual ~ASceneActor();
 

@@ -21,6 +21,7 @@
 #include "wt/Font.h"
 #include "wt/SkeletalAnimationPlayer.h"
 #include "wt/RenderTarget.h"
+#include "wt/RenderBuffer.h"
 #include "wt/ParticleEffect.h"
 
 namespace wt{
@@ -177,24 +178,6 @@ public:
 		NONE
 	};
 
-	struct GodRayParams{
-		glm::vec3 mSunPos;
-		Color mSunColor;
-		Color mRayColor;
-		float mSunSize;
-		float mExposure;
-		float mDecay;
-		float mDensity;
-		float mWeight;
-		int mNumSamples;
-		bool mIsEnabled;
-
-		GodRayParams() : mSunPos(glm::vec3(0.347047, 0.283466, 0.893994)*1000.0f), mSunColor(Color::white()),
-			mRayColor(Color(0.1, 0.1, 0.1, 1.0)), mSunSize(30.0f),  mExposure(0.0034f),
-			mDecay(1.0f), mDensity(0.84f), mWeight(5.65f), mNumSamples(100), mIsEnabled(false){
-		}
-	};
-
 private:
 
 	struct RenderState{
@@ -211,7 +194,6 @@ private:
 	Scene* mScene;
 	math::Frustum mFrustum;
 	Color mClearColor;
-	GodRayParams mGodRayParams;
 
 	// Shaders
 	ParticleShader mParticleShader;
@@ -238,6 +220,7 @@ private:
 	Texture2D mGodraySunTexture;
 	Texture2D mShadowMap, mGodrayPass1, mGodrayPass2;
 	Gl::FrameBuffer mShadowFBO, mGodrayFBO;
+	Gl::RenderBuffer mGodrayDepthBuffer;
 
 	Gl::Batch mGodrayBatch;
 
@@ -293,11 +276,6 @@ public:
 
 	void render(Scene* scene, Model* model, Mesh* mesh, PassType pass);
 
-	void getGodRayParams(GodRayParams& dst);
-
-	void setGodRayParams(const GodRayParams& src);
-
-	
 	/** Render all passes of the scene to the given render target
 	 *
 	 * @param target	Destination target to which the scene will be rendered.

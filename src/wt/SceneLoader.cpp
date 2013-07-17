@@ -84,6 +84,49 @@ void SceneLoader::load(AIOStream& stream){
 	if(table.Get("skybox").IsString()){
 		mScene->setSkyBox( mAssets->getSkyBoxManager()->getFromPath(table.Get("skybox").ToString()) );
 	}
+
+	// Godrays
+	if(table.Get("godrays").IsTable()){
+		Scene::GodRayParams params;
+		mScene->getGodRayParams(params);
+
+		LuaObject& godray = table.Get("godrays");
+
+		// Source 
+		Lua::luaConv(godray.Get("src.clr"), params.sourceColor);
+
+		// Source position
+		Lua::luaConv(godray.Get("src.pos"), params.sourcePosition);
+
+		// Enabled
+		Lua::luaConv(godray.Get("enabled"), params.enabled);
+
+		// Exposure
+		Lua::luaConv(godray.Get("exposure"), params.exposure);
+
+	 	// Source size
+		Lua::luaConv(godray.Get("src.size"), params.sourceSize);
+
+		// Decay
+		Lua::luaConv(godray.Get("decay"), params.decay);
+
+		// Density
+		Lua::luaConv(godray.Get("density"), params.density);
+
+		// Weight
+		Lua::luaConv(godray.Get("weight"), params.weight);
+
+		// Sample number
+		Lua::luaConv(godray.Get("sampleNumber"), params.sampleNumber);
+
+		// Texture
+		String texPath;
+		Lua::luaConv(godray.Get("src.texture"), texPath);
+		params.sourceTexture = mAssets->getTextureManager()->getFromPath(texPath);
+	}
+
+	// Camera
+	// TODO
 }
 
 void SceneLoader::save(AIOStream& stream){
@@ -119,6 +162,65 @@ void SceneLoader::save(AIOStream& stream){
 
 	sceneTable.Set("directionalLight", dirLight);
 
+
+	// Godrays
+	{
+		// Params
+		Scene::GodRayParams params;
+		mScene->getGodRayParams(params);
+		LuaObject luaGodrays;
+		LUA_NEW_TABLE(luaGodrays);
+
+		// Ray color
+		LuaObject luaRayColor;
+		LUA_NEW_TABLE(luaRayColor);
+
+		Lua::luaConv(params.rayColor, luaRayColor);
+		luaGodrays.Set("rayColor", luaRayColor);
+
+		// Source color
+		LuaObject luaSourceColor;
+		LUA_NEW_TABLE(luaSourceColor);
+
+		Lua::luaConv(params.sourceColor, luaSourceColor);
+		luaGodrays.Set("src.clr", luaSourceColor);
+
+		// Source position
+		LuaObject luaSourcePosition;
+		LUA_NEW_TABLE(luaSourcePosition);
+
+		Lua::luaConv(params.sourcePosition, luaSourcePosition);
+		luaGodrays.Set("src.pos", luaSourcePosition);
+
+		// Enabled
+		luaGodrays.Set("enabled", params.enabled);
+
+		// Exposure
+		luaGodrays.Set("exposure", params.exposure);
+
+	 	// Source size
+		luaGodrays.Set("src.size", params.sourceSize);
+
+		// Decay
+		luaGodrays.Set("decay", params.decay);
+
+		// Density
+		luaGodrays.Set("density", params.density);
+
+		// Weight
+		luaGodrays.Set("weight", params.weight);
+
+		// Sample number
+		luaGodrays.Set("sampleNumber", params.sampleNumber);
+
+		// Texture
+		luaGodrays.Set("src.texture", params.sourceTexture->getPath().c_str());
+
+		sceneTable.Set("godrays", luaGodrays);
+	}
+
+	// Camera
+	// TODO
 
 	stream.print("SCENE = \n");
 	Lua::serializeTable(sceneTable, stream);

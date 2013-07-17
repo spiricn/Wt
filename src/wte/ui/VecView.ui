@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Vec3View</class>
- <widget class="QWidget" name="Vec3View">
+ <class>VecEditWidget</class>
+ <widget class="QWidget" name="VecEditWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -59,6 +59,9 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="w"/>
+      </item>
      </layout>
     </widget>
    </item>
@@ -69,7 +72,7 @@
   <connection>
    <sender>x</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>Vec3View</receiver>
+   <receiver>VecEditWidget</receiver>
    <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -85,12 +88,12 @@
   <connection>
    <sender>y</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>Vec3View</receiver>
+   <receiver>VecEditWidget</receiver>
    <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>27</y>
+     <x>196</x>
+     <y>38</y>
     </hint>
     <hint type="destinationlabel">
      <x>253</x>
@@ -101,16 +104,32 @@
   <connection>
    <sender>z</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>Vec3View</receiver>
+   <receiver>VecEditWidget</receiver>
    <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>36</y>
+     <x>288</x>
+     <y>38</y>
     </hint>
     <hint type="destinationlabel">
      <x>362</x>
      <y>54</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>w</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>VecEditWidget</receiver>
+   <slot>onValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>365</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>395</x>
+     <y>4</y>
     </hint>
    </hints>
   </connection>

@@ -21,6 +21,9 @@ void Image::fromFrameBuffer(Image::Format fmt){
 	GLint width = viewport[2];
 	GLint height = viewport[3];
 
+	WT_ASSERT(math::isPowerOfTwo(width) && math::isPowerOfTwo(height),
+		"Frame buffer width and height must be a power of two otherwise glReadPixels will fail");
+
 	glReadBuffer(GL_FRONT);
 
 	GLbyte* data=new GLbyte[ width*height*3 ];

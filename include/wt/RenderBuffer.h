@@ -6,11 +6,6 @@ namespace wt{
 namespace Gl{
 
 class RenderBuffer{
-private:
-	GLuint mHandle;
-	GLenum mFormat;
-	uint32_t mWidth, mHeight;
-
 public:
 	RenderBuffer();
 
@@ -29,6 +24,11 @@ public:
 	static void unbind();
 
 	void destroy();
+private:
+	GLuint mHandle;
+	GLenum mFormat;
+	uint32_t mWidth, mHeight;
+	bool mCreated;
 
 }; // </RenderBuffer>
 

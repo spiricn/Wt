@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GodrayTool</class>
+ <widget class="QWidget" name="GodrayTool">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Source position:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Sample number:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Weight:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Source texture:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Source color:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Exposure:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Density:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Decay:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Source size:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Ray color:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="2">
+    <widget class="SlidedSpinboxWidget" name="exposure" native="true"/>
+   </item>
+   <item row="9" column="1" colspan="2">
+    <widget class="ColorEditWidget" name="sourceColor" native="true"/>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="SlidedSpinboxWidget" name="density" native="true"/>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="SlidedSpinboxWidget" name="sampleNumber" native="true"/>
+   </item>
+   <item row="10" column="1" colspan="2">
+    <widget class="ColorEditWidget" name="rayColor" native="true"/>
+   </item>
+   <item row="7" column="1" colspan="2">
+    <widget class="VecEditWidget" name="sourcePosition" native="true"/>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="SlidedSpinboxWidget" name="size" native="true"/>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLineEdit" name="sourceTexture"/>
+   </item>
+   <item row="8" column="2">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="SlidedSpinboxWidget" name="decay" native="true"/>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <widget class="SlidedSpinboxWidget" name="weight" native="true"/>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QCheckBox" name="enabled">
+     <property name="text">
+      <string>Enabled</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VecEditWidget</class>
+   <extends>QWidget</extends>
+   <header>veceditwidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>ColorEditWidget</class>
+   <extends>QWidget</extends>
+   <header>coloreditwidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>SlidedSpinboxWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">slidedspinboxwidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>size</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>129</x>
+     <y>36</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>161</x>
+     <y>1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exposure</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>186</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>350</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>decay</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>320</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>density</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>102</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>80</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>weight</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>152</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>75</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sampleNumber</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>197</x>
+     <y>168</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>318</x>
+     <y>178</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sourcePosition</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>117</x>
+     <y>192</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>84</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sourceColor</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>160</x>
+     <y>257</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>126</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rayColor</sender>
+   <signal>valueChanged()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onPickTexture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>386</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>enabled</sender>
+   <signal>clicked()</signal>
+   <receiver>GodrayTool</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>80</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onParamChanged()</slot>
+  <slot>onPickTexture()</slot>
+ </slots>
+</ui>

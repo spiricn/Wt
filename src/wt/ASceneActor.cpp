@@ -6,7 +6,15 @@ namespace wt{
 
 
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
-	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL){
+	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL), mBoundingBoxColor(Color::green()){
+}
+
+void ASceneActor::setBoundingBoxColor(const Color& color){
+	mBoundingBoxColor = color;
+}
+
+const Color& ASceneActor::getBoundingBoxColor() const{
+	return mBoundingBoxColor;
 }
 
 void ASceneActor::setBBox(PhysicsActor* box){

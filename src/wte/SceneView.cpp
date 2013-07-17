@@ -73,7 +73,8 @@ void SceneView::initializeGL() {
 			(const char*)glewGetErrorString(r));
 	}
 
-	mRenderer.init(width(), height());
+	//mRenderer.init(width(), height());
+	mRenderer.init(1920, 1080);
 
 	mRenderer.setClearColor(wt::Color::gray());
 	mRenderer.setRenderBoundingBoxes(true);
@@ -90,7 +91,7 @@ void SceneView::grabInput(bool state){
 
 void SceneView::resizeGL(int w, int h) {
 	makeCurrent();
-	mRenderer.setViewPort(w, h);
+	mRenderer.setViewPort(1920, 1080);
 }
 
 void SceneView::paintGL(){

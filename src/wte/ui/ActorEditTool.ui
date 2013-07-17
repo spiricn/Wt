@@ -56,7 +56,7 @@
     </widget>
    </item>
    <item row="5" column="0" rowspan="2" colspan="2">
-    <widget class="Vec3View" name="boundingBoxView" native="true"/>
+    <widget class="VecEditWidget" name="boundingBoxView" native="true"/>
    </item>
   </layout>
  </widget>
@@ -73,9 +73,9 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>Vec3View</class>
+   <class>VecEditWidget</class>
    <extends>QWidget</extends>
-   <header>vec3view.h</header>
+   <header>VecEditWidget.h</header>
    <container>1</container>
    <slots>
     <signal>valueChanged()</signal>

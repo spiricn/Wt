@@ -33,6 +33,8 @@ protected slots:
 
 	void onSetDirection();
 
+	void onColorChanged();
+
 }; // </LightEditTOol>
 
 #endif // </WTE_LIGHTEDITTOOL_H>

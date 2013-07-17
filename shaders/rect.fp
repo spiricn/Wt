@@ -5,7 +5,7 @@ in vec2 fsTexCoord;
 out vec4 outFragColor;
 
 // WARNING CHANGED FROM samplerRect to sampler2D for compability reason, probably broken
-uniform sampler2D uRectImage;
+uniform samplerRect uRectImage;
 
 void main(){
  	outFragColor = texture(uRectImage, fsTexCoord);

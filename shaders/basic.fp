@@ -42,7 +42,9 @@ vec3 CalcBumpedNormal(){
 
 void main(void){
 	if(uPassType != eNORMAL_PASS){
-		outFragColor = vec4(1, 0, 0, 0);
+		// Consider sampling the texture anyway so that we can discard some pixels
+		// that would otherwise block the godrays
+		outFragColor = vec4(0, 0, 0, 0);
 	}
 	else{
 		vec4 texSample = texture(uSampler, fsTexCoords);

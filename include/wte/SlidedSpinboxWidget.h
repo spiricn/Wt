@@ -22,6 +22,8 @@ public:
 
 	void setMinValue(double value);
 
+	void setValueRange(double min, double max);
+
 	void setValue(double value);
 
 	double getPercentage() const;

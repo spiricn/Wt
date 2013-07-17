@@ -16,6 +16,13 @@ void Scene::addSpotLight(const SpotLight& light){
 	mSpotLights[mNumSpotLights++] = light;
 }
 
+void Scene::getGodRayParams(GodRayParams& dst){
+	dst = mGodrayParams;
+}
+
+void Scene::setGodRayParams(const GodRayParams& src){
+	mGodrayParams = src;
+}
 
 SpotLight& Scene::getSpotLight(uint32_t index){
 	return mSpotLights[index];

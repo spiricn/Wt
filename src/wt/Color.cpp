@@ -19,6 +19,12 @@ void Color::set(float r, float g, float b, float a){
 	mAlpha=a;
 }
 
+Color::Color(const glm::vec3& clr) : mRed(clr.r), mGreen(clr.g), mBlue(clr.b), mAlpha(1.0f){
+}
+
+Color::Color(const glm::vec4& clr)  : mRed(clr.r), mGreen(clr.g), mBlue(clr.b), mAlpha(clr.a){
+}
+
 Color Color::transparent(){
 	return Color(0, 0, 0, 0);
 }
@@ -133,5 +139,20 @@ Color Color::blue(){
 	return Color(0.0f, 0.0f, 1.0f);
 }
 
+glm::vec3 Color::asVec3() const{
+	return glm::vec3(mRed, mGreen, mBlue);
+}
+
+glm::vec4 Color::asVec4() const{
+	return glm::vec4(mRed, mGreen, mBlue, mAlpha);
+}
+
+bool operator==(const Color& a, const Color& b){
+	return a.mRed == b.mRed && a.mGreen == b.mGreen && a.mBlue == b.mBlue && a.mAlpha && b.mAlpha;
+}
+
+bool operator!=(const Color& a, const Color& b){
+	return !(a == b);
+}
 
 }; // </wt>

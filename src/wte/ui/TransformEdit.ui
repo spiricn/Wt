@@ -21,13 +21,13 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="1" colspan="2">
-       <widget class="Vec3View" name="translation" native="true"/>
+       <widget class="VecEditWidget" name="translation" native="true"/>
       </item>
       <item row="4" column="1" colspan="2">
-       <widget class="Vec3View" name="rotAxis" native="true"/>
+       <widget class="VecEditWidget" name="rotAxis" native="true"/>
       </item>
       <item row="5" column="1" colspan="2">
-       <widget class="Vec3View" name="scle" native="true"/>
+       <widget class="VecEditWidget" name="scle" native="true"/>
       </item>
       <item row="5" column="0">
        <widget class="QLabel" name="label_4">
@@ -67,9 +67,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Vec3View</class>
+   <class>VecEditWidget</class>
    <extends>QWidget</extends>
-   <header>vec3view.h</header>
+   <header>VecEditWidget.h</header>
    <container>1</container>
    <slots>
     <signal>valueChanged()</signal>

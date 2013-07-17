@@ -39,6 +39,26 @@ public:
 
 	typedef std::set<Terrain*> TerrainSet;
 
+	
+	struct GodRayParams{
+		Texture2D* sourceTexture;
+		glm::vec3 sourcePosition;
+		Color sourceColor;
+		Color rayColor;
+		float sourceSize;
+		float exposure;
+		float decay;
+		float density;
+		float weight;
+		uint32_t sampleNumber;
+		bool enabled;
+		
+		GodRayParams() : sourcePosition(glm::vec3(0.347047, 0.283466, 0.893994)*1000.0f), sourceColor(Color::white()),
+			rayColor(Color(0.1, 0.1, 0.1, 1.0)), sourceSize(30.0f),  exposure(0.0034f),
+			decay(1.0f), density(0.84f), weight(5.65f), sampleNumber(100), enabled(false), sourceTexture(NULL){
+		}
+	}; // </GodRayParams>
+
 protected:
 	const ModelledActorSet& getModelledActors() const{
 		return mModelledActors;
@@ -86,6 +106,8 @@ private:
 
 	uint32_t generateActorId();
 
+	GodRayParams mGodrayParams;
+
 public:
 	Scene(Physics* physics, Assets* assets);
 
@@ -98,6 +120,10 @@ public:
 	Physics* getPhysics() const;
 
 	void deleteActor(ASceneActor* actor);
+
+	void getGodRayParams(GodRayParams& dst);
+
+	void setGodRayParams(const GodRayParams& src);
 
 	Fog& getFog();
 

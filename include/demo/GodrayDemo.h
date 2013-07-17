@@ -39,15 +39,15 @@ public:
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-		Renderer::GodRayParams p;
-		getRenderer()->getGodRayParams(p);
-		p.mSunPos = glm::vec3(-0.385030, 0.453779, -0.803640)*1000.0f;
-		p.mIsEnabled = false;
-		p.mSunSize = 30.0f;
+		//Renderer::GodRayParams p;
+		//getRenderer()->getGodRayParams(p);
+		//p.mSunPos = glm::vec3(-0.385030, 0.453779, -0.803640)*1000.0f;
+		//p.mIsEnabled = false;
+		//p.mSunSize = 30.0f;
 
-		p.mIsEnabled = true;
+		//p.mIsEnabled = true;
 
-		getRenderer()->setGodRayParams(p);
+		//getRenderer()->setGodRayParams(p);
 	}
 };
 
