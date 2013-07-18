@@ -54,8 +54,8 @@ public:
 		bool enabled;
 		
 		GodRayParams() : sourcePosition(glm::vec3(0.347047, 0.283466, 0.893994)*1000.0f), sourceColor(Color::white()),
-			rayColor(Color(0.1, 0.1, 0.1, 1.0)), sourceSize(30.0f),  exposure(0.0034f),
-			decay(1.0f), density(0.84f), weight(5.65f), sampleNumber(100), enabled(false), sourceTexture(NULL){
+			rayColor(Color(0.1, 0.1, 0.1, 1.0)), sourceSize(30.0f),  exposure(0.009f),
+			decay(1.0f), density(0.84f), weight(3.1f), sampleNumber(100), enabled(false), sourceTexture(NULL){
 		}
 	}; // </GodRayParams>
 

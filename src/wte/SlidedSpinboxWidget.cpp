@@ -17,6 +17,14 @@ void SlidedSpinboxWidget::onSpinboxChanged(double val){
 	}
 }
 
+void SlidedSpinboxWidget::setDecimals(qint32 decimals){
+	ui.spinbox->setDecimals(decimals);
+}
+
+void SlidedSpinboxWidget::setSingleStep(double step){
+	ui.spinbox->setSingleStep(step);
+}
+
 void SlidedSpinboxWidget::setValueRange(double min, double max){
 	setMinValue(min);
 	setMaxValue(max);

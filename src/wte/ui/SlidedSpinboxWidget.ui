@@ -34,8 +34,14 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QSlider" name="slider">
+        <property name="maximum">
+         <number>100</number>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBothSides</enum>
         </property>
        </widget>
       </item>

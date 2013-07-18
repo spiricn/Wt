@@ -184,6 +184,9 @@ void WorldEditTab::loadScene(const QString& path){
 	}
 
 	mTerrainEditTool->setTarget(terrain);
+
+
+	emit sceneLoaded();
 }
 
 void WorldEditTab::loadResources(const QString& path){

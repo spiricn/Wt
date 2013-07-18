@@ -30,6 +30,10 @@ public:
 
 	double getRange() const;
 
+	void setDecimals(qint32 decimals);
+
+	void setSingleStep(double step);
+
 protected slots:
 
 	void onSpinboxChanged(double);

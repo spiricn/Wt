@@ -91,7 +91,7 @@ void SceneView::grabInput(bool state){
 
 void SceneView::resizeGL(int w, int h) {
 	makeCurrent();
-	mRenderer.setViewPort(1920, 1080);
+	mRenderer.setViewPort(w, h);
 }
 
 void SceneView::paintGL(){

@@ -18,11 +18,17 @@ protected slots:
 
 	void onPickTexture();
 
+	void onAssetsLoaded();
+
+	void onReset();
+
 private:
     Ui::GodrayTool ui;
 	wt::Scene* mScene;
 	wt::AResourceSystem* mAssets;
 	bool mInitializing;
+
+	void loadParams();
 }; // </GodrayTool>
 
 #endif // </WTE_GODRAYTOOL_H>

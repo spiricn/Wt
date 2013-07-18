@@ -861,15 +861,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	glm::mat4 modelview;
 	scene.getCamera().getMatrix(modelview, true);
 
-	#if 0
-	mGodRayShader.use();
-	mGodRayShader.setUniformVal("uExposure", mGodRayParams.mExposure);
-	mGodRayShader.setUniformVal("uDecay", mGodRayParams.mDecay);
-	mGodRayShader.setUniformVal("uDensity", mGodRayParams.mDensity);
-	mGodRayShader.setUniformVal("uWeight", mGodRayParams.mWeight);
-	mGodRayShader.setUniformVal("uNumSamples", mGodRayParams.mNumSamples);
-	mGodraySunShader.setUniformVal("uSunSize", mGodRayParams.mSunSize);
-	#endif
+
 
 	Scene::GodRayParams godrayParams;
 	scene.getGodRayParams(godrayParams);
@@ -908,6 +900,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		mGodraySunShader.setUniformVal("uPlanetTexture", 0);
 		mGodraySunShader.setUniformVal("uSourceColor", godrayParams.sourceColor);
 
+
 		gl( ActiveTexture(GL_TEXTURE0) );
 		if(godrayParams.sourceTexture){
 			godrayParams.sourceTexture->bind();
@@ -945,6 +938,13 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		// pass 1 result texture
 		gl( ActiveTexture(GL_TEXTURE0) );
 		mGodrayPass1.bind();
+
+		mGodRayShader.use();
+		mGodRayShader.setUniformVal("uExposure", godrayParams.exposure);
+		mGodRayShader.setUniformVal("uDecay", godrayParams.decay);
+		mGodRayShader.setUniformVal("uDensity", godrayParams.density);
+		mGodRayShader.setUniformVal("uWeight", godrayParams.weight);
+		mGodRayShader.setUniformVal("uNumSamples", (int)godrayParams.sampleNumber);
 
 		mGodRayShader.setUniformVal("uRectImage", 0);
 		mGodRayShader.setUniformVal("uLightPositionOnScreen", glm::vec2(sunScreenPos.x, sunScreenPos.y));

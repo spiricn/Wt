@@ -123,10 +123,23 @@ void SceneLoader::load(AIOStream& stream){
 		String texPath;
 		Lua::luaConv(godray.Get("src.texture"), texPath);
 		params.sourceTexture = mAssets->getTextureManager()->getFromPath(texPath);
+
+		mScene->setGodRayParams(params);
 	}
 
 	// Camera
-	// TODO
+	LuaPlus::LuaObject& cameraTable = table.Get("camera");
+	if(cameraTable.IsTable()){
+		// Position
+		glm::vec3 pos;
+		Lua::luaConv(cameraTable.Get("pos"), pos);
+		mScene->getCamera().setPosition(pos);
+
+		// Rotation
+		glm::quat rot;
+		Lua::luaConv(cameraTable.Get("rot"), rot);
+		mScene->getCamera().setRotation(rot);
+	}
 }
 
 void SceneLoader::save(AIOStream& stream){
@@ -214,13 +227,37 @@ void SceneLoader::save(AIOStream& stream){
 		luaGodrays.Set("sampleNumber", params.sampleNumber);
 
 		// Texture
-		luaGodrays.Set("src.texture", params.sourceTexture->getPath().c_str());
+		if(params.sourceTexture){
+			luaGodrays.Set("src.texture", params.sourceTexture->getPath().c_str());
+		}
+		else{
+			luaGodrays.Set("src.texture", 0);
+		}
 
 		sceneTable.Set("godrays", luaGodrays);
 	}
 
 	// Camera
-	// TODO
+	{
+		Lua::LuaObject cameraTable;
+		LUA_NEW_TABLE(cameraTable);
+
+		// Rotation
+		Lua::LuaObject luaRot;
+		LUA_NEW_TABLE(luaRot);
+		glm::quat rot;
+		mScene->getCamera().getRotation(rot);
+		Lua::luaConv(rot, luaRot);
+		cameraTable.Set("rot", luaRot);
+
+		// Position
+		Lua::LuaObject pos;
+		LUA_NEW_TABLE(pos);
+		Lua::luaConv(mScene->getCamera().getPosition(), pos);
+		cameraTable.Set("pos", pos);
+
+		sceneTable.Set("camera", cameraTable);
+	}
 
 	stream.print("SCENE = \n");
 	Lua::serializeTable(sceneTable, stream);
