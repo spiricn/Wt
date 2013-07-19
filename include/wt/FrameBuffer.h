@@ -9,7 +9,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 class RenderBuffer;
 
@@ -56,7 +56,7 @@ public:
 }; // </FrameBuffer>
 
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>
 

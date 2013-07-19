@@ -5,18 +5,19 @@
 #include "wt/Color.h"
 #include "wt/GLBatch.h"
 #include "wt/GLShaderProgram.h"
+#include "wt/GLQuery.h"
 
 namespace wt{
 
 
-class ParticleRenderShader : public Gl::ShaderProgram{
+class ParticleRenderShader : public gl::ShaderProgram{
 public:
 	void create();
 
 	void setModelViewProj(const glm::mat4& modelView, const glm::mat4& proj);
 }; 
 
-class ParticleCalculationShader : public Gl::ShaderProgram{
+class ParticleCalculationShader : public gl::ShaderProgram{
 public:
 	enum Attribute{
 		eATTR_TYPE = 0,
@@ -34,6 +35,8 @@ public:
 class ParticleEffect;
 
 class ParticleLayer{
+friend class ParticleEffect;
+
 public:
 #pragma pack(push)
 #pragma pack(1)
@@ -103,15 +106,15 @@ public:
 		EffectDesc();
 	};
 
-	ParticleLayer(ParticleEffect* parent);
-
 	~ParticleLayer();
 
 	ParticleEffect* getParent() const;
 
 	const EffectDesc& getDesc() const;
 
-	void create(const EffectDesc& desc);
+	const String& getName() const;
+
+	void setDesc(const EffectDesc& desc);
 
 	void update();
 
@@ -119,15 +122,31 @@ public:
 
 	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst);
 
-	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src);
+protected:
+	/** Can only be instantiated as a part of ParticleEffect object */
+	ParticleLayer(ParticleEffect* parent, const String& name, const EffectDesc&);
+
+	ParticleLayer(ParticleEffect* parent, const String& name, AResourceSystem* assets, const LuaPlus::LuaObject& src);
+
+	/** For renaming purposes */
+	void setName(const String& name);
+
 private:
+	void create(const EffectDesc& desc);
+
+	void create(AResourceSystem* assets, const LuaPlus::LuaObject& src);
+
 	ParticleEffect* mParent;
 	uint8_t mCurrBatch;
-	Gl::Batch mBatches[2];
+	gl::Batch mBatches[2];
 	Texture2D* mParticleTexture;
 	uint32_t mPrimittivesWritten;
 	EffectDesc mDesc;
-	GLuint mQuery;
+	gl::Query mQuery;
+	String mName;
+
+	/** Copy constructor disabled */
+	ParticleLayer(const ParticleLayer&);
 }; // </ParticleLayer>
 
 }; // </wt>

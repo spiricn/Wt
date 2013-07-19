@@ -114,7 +114,7 @@ public:
 private:
 	GeoList mGeometry;
 	SkeletonBone* mRootBone;
-	Gl::Batch mBatch;
+	gl::Batch mBatch;
 	uint32_t mVertexOffset, mIndexOffset;
 	uint32_t mNumVertices, mNumIndices;
 	String generateMeshName();
@@ -165,7 +165,7 @@ public:
 		mSkins.erase( mSkins.find(skin->getName()) );
 	}
 
-	Gl::Batch& getBatch();
+	gl::Batch& getBatch();
 
 	uint32_t getNumVertices() const;
 

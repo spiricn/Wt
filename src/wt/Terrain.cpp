@@ -49,7 +49,7 @@ TerrainNode::ChunkList& Terrain::getChunks(){
 	return mChunks;
 }
 
-Gl::Batch& Terrain::getBatch(){
+gl::Batch& Terrain::getBatch(){
 	return mBatch;
 }
 
@@ -310,7 +310,7 @@ void Terrain::editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t st
 	desc.samples.stride = sizeof(physx::PxHeightFieldSample);
 
 
-	TerrainChunk::Vertex* vertices = (TerrainChunk::Vertex*)mBatch.getVertexBuffer().map(Gl::Buffer::eREAD_WRITE);
+	TerrainChunk::Vertex* vertices = (TerrainChunk::Vertex*)mBatch.getVertexBuffer().map(gl::Buffer::eREAD_WRITE);
 
 	for(uint32_t row=0; row<numRows; row++){
 		for(uint32_t col=0; col<numCols; col++){

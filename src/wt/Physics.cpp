@@ -497,18 +497,18 @@ PxTriangleMesh* Physics::cook(PxBoundedData& vertices, PxBoundedData& indices){
     return res;
 }
 
-PxTriangleMesh* Physics::cook(Gl::Batch& src){
+PxTriangleMesh* Physics::cook(gl::Batch& src){
 	WT_ASSERT(
 		src.isGenerated(), "Can not cook ungenerated batch");
 	PxBoundedData vertices;
 
-	vertices.data = src.getVertexBuffer().map(Gl::Buffer::eREAD_ONLY);
+	vertices.data = src.getVertexBuffer().map(gl::Buffer::eREAD_ONLY);
     vertices.count = src.getNumVertices();
     vertices.stride = src.getVertexSize();
 
 	PxBoundedData indices;
 
-	indices.data = src.getIndexBuffer().map(Gl::Buffer::eREAD_ONLY);
+	indices.data = src.getIndexBuffer().map(gl::Buffer::eREAD_ONLY);
     indices.count = src.getNumIndices()/3;
     indices.stride = 3*src.getIndexSize();
 

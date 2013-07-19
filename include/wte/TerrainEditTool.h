@@ -24,7 +24,7 @@ private:
 	SceneView* mSceneView;
 	wt::Scene* mScene;
 	wt::Physics* mPhysics;
-	wt::Gl::FrameBuffer mFrameBuffer;
+	wt::gl::FrameBuffer mFrameBuffer;
 	wt::AResourceSystem* mAssets;
 	wt::Terrain* mTerrain;
 	wt::Texture2D* mBrushTexture;

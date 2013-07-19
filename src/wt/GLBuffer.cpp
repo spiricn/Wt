@@ -7,7 +7,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 Buffer::Buffer(GLenum buffer_type): mType(buffer_type), mGenerated(false),
 	mIsBufferMapped(false), mSize(0){

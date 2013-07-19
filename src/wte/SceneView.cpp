@@ -113,7 +113,7 @@ void SceneView::resizeGL(int w, int h) {
 }
 
 void SceneView::paintGL(){
-	//wt::Gl::FrameBuffer::unbind(wt::Gl::FrameBuffer::DRAW);
+	//wt::gl::FrameBuffer::unbind(wt::gl::FrameBuffer::DRAW);
 	//static const GLenum defaultBfrs[] = {GL_BACK};
 	//glDrawBuffers(1, defaultBfrs);
 

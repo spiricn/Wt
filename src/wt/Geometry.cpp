@@ -22,7 +22,7 @@ const Geometry::IndexBuffer& Geometry::getIndices() const{
 	return mIndices;
 }
 
-Geometry::Geometry(const String& name, Gl::Batch* batch, const Gl::SubBatch& subBatch, const VertexBuffer& vertices,
+Geometry::Geometry(const String& name, gl::Batch* batch, const gl::SubBatch& subBatch, const VertexBuffer& vertices,
 	const IndexBuffer& indices) : mName(name), mBatch(batch), mSubBatch(subBatch){
 
 	vertices.copy(mVertices);
@@ -45,7 +45,7 @@ void Geometry::render(){
 	mBatch->render(mSubBatch);
 }
 
-const Gl::SubBatch& Geometry::getSubBatch() const{
+const gl::SubBatch& Geometry::getSubBatch() const{
 	return mSubBatch;
 }
 

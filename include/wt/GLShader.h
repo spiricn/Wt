@@ -11,7 +11,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 class Shader{
 private:
@@ -100,7 +100,7 @@ public:
 
  }; // </GLShader>
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>
 #endif

@@ -27,7 +27,7 @@
 namespace wt{
 
 
-class SkyboxShader : public wt::Gl::ShaderProgram{
+class SkyboxShader : public wt::gl::ShaderProgram{
 public:
 	void create(){
 		createFromFiles("shaders/skybox.vp", "shaders/skybox.fp");
@@ -39,7 +39,7 @@ public:
 	}
 };
 
-class TerrainShader : public wt::Gl::ShaderProgram{
+class TerrainShader : public wt::gl::ShaderProgram{
 public:
 	void create(){
 		createFromFiles("shaders\\terrain.vp",
@@ -86,7 +86,7 @@ public:
 
 };
 
-class BasicShader : public wt::Gl::ShaderProgram{
+class BasicShader : public wt::gl::ShaderProgram{
 public:
 	BasicShader(){
 	}
@@ -139,7 +139,7 @@ public:
 };
 
 
-class GodRayShader : public Gl::ShaderProgram{
+class GodRayShader : public gl::ShaderProgram{
 public:
 	void create(){
 		createFromFiles("shaders/godray.vp", "shaders/godray.fp");
@@ -151,7 +151,7 @@ public:
 	}
 }; // </GodRayShader>
 
-class RectShader : public Gl::ShaderProgram{
+class RectShader : public gl::ShaderProgram{
 public:
 	void create(){
 		createFromFiles("shaders/rect.vp", "shaders/rect.fp");
@@ -204,9 +204,9 @@ private:
 	SkyboxShader mSkyShader;
 	GodRayShader mGodRayShader;
 	RectShader mRectShader;
-	Gl::ShaderProgram mGodraySunShader;
+	gl::ShaderProgram mGodraySunShader;
 
-	Gl::Batch mFontBatch, mSunBatch;
+	gl::Batch mFontBatch, mSunBatch;
 
 	GLuint mFontTexture;
 	RenderState mRenderState;
@@ -216,24 +216,24 @@ private:
 	Texture2D mInvalidTex;
 	Material mDefaultMaterial;
 
-	Gl::Batch mCubeBatch;
+	gl::Batch mCubeBatch;
 
 	// Shadows
 	Texture2D mGodraySunTexture;
 	Texture2D mShadowMap, mGodrayPass1, mGodrayPass2;
-	Gl::FrameBuffer mShadowFBO, mGodrayFBO;
-	Gl::RenderBuffer mGodrayDepthBuffer;
+	gl::FrameBuffer mShadowFBO, mGodrayFBO;
+	gl::RenderBuffer mGodrayDepthBuffer;
 
-	Gl::Batch mGodrayBatch;
+	gl::Batch mGodrayBatch;
 
 	bool mRenderBones;
 	bool mRenderBoundingBoxes;
 
 	float mBoneWidth;
 
-	void setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog);
+	void setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog);
 
-	void setShaderMaterialUniforms(Material* material, Gl::ShaderProgram& prog);
+	void setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog);
 
 	uint32_t mNumRenderedTerrainNodes;
 

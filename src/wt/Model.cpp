@@ -57,7 +57,7 @@ Model::GeometrySkin* Model::createSkin(const String& name){
 	return res;
 }
 
-Gl::Batch& Model::getBatch(){
+gl::Batch& Model::getBatch(){
 	return mBatch;
 }
 
@@ -112,7 +112,7 @@ Geometry* Model::addGeometry(const String& name, const Geometry::VertexBuffer& v
 	}
 
 	Geometry* geo = new Geometry(geoName, &mBatch,
-		Gl::SubBatch(minIndex, maxIndex, mIndexOffset, indices.getCapacity()),
+		gl::SubBatch(minIndex, maxIndex, mIndexOffset, indices.getCapacity()),
 		vertices, indices
 		);
 

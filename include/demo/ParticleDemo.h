@@ -54,58 +54,37 @@ public:
 
 		SceneLoader loader(getScene(), getAssets());
 		
-		// Create particle emitters
+	// Create particle emitters
 
-		//if(0){
-		if(1){
+
+		if(0){
+		//if(1){
 			loader.load("scene-particles.lua");
 		}
 		else{
-			// rain
+
+			//// Actor
+			//ModelledActor* actor = getScene()->createModelledActor("lich");
+			//actor->setModel(getAssets()->getModelManager()->find("lich_king"), "default");
+			//actor->getAnimationPlayer()->play("attack", true);
+			//actor->getAnimationPlayer()->setSpeed(0.3);
+			//actor->getTransform().setScale(1.5, 2, 1.5);
+			//getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
+
+			getScene()->getCamera().setPosition(glm::vec3(3, 3, 3));
+
+			// Effect
+			ParticleEffect* effect;
 			{
-				ParticleEffect* effect = getScene()->createParticleEffect();
-				ParticleLayer::EffectDesc desc;
+				effect = getScene()->createParticleEffect();
+		
+				effect->getTransform().setPosition(0, 5, 0);
 
-				LuaObject cfg = config.Get("cfg1");
+				effect->createLayer("main", getAssets(), config.Get("cfg1"));
 
-				Lua::luaConv(cfg.Get("vel.local"), desc.localVelocity);
-				Lua::luaConv(cfg.Get("vel.rnd"), desc.randomVelocity);
-				Lua::luaConv(cfg.Get("emissionVol"), desc.emissionVolume);
-				Lua::luaConv(cfg.Get("life.min"), desc.minLife);
-				Lua::luaConv(cfg.Get("life.max"), desc.maxLife);
-				Lua::luaConv(cfg.Get("size.min"), desc.minSize);
-				Lua::luaConv(cfg.Get("size.max"), desc.maxSize);
-				Lua::luaConv(cfg.Get("size.grow"), desc.sizeGrow);
-				Lua::luaConv(cfg.Get("emissionRate"), desc.emissionRate);
-				Lua::luaConv(cfg.Get("particleNum"), desc.particleNumber);
-
-				String texturePath;
-				Lua::luaConv(cfg.Get("texture"), texturePath);
-				desc.texture = getAssets()->getTextureManager()->getFromPath(texturePath);
-
-				effect->getTransform().setPosition(200, 20, 269);
-
-				effect->addLayer()->create(desc);
-
-
-		/*		cfg = config.Get("cfg2");
-
-				Lua::luaConv(cfg.Get("vel.local"), desc.localVelocity);
-				Lua::luaConv(cfg.Get("vel.rnd"), desc.randomVelocity);
-				Lua::luaConv(cfg.Get("emissionVol"), desc.emissionVolume);
-				Lua::luaConv(cfg.Get("life.min"), desc.minLife);
-				Lua::luaConv(cfg.Get("life.max"), desc.maxLife);
-				Lua::luaConv(cfg.Get("size.min"), desc.minSize);
-				Lua::luaConv(cfg.Get("size.max"), desc.maxSize);
-				Lua::luaConv(cfg.Get("size.grow"), desc.sizeGrow);
-				Lua::luaConv(cfg.Get("emissionRate"), desc.emissionRate);
-				Lua::luaConv(cfg.Get("particleNum"), desc.particleNumber);
-				effect->addLayer()->create(desc);*/
 			}
 
-			// explosion
-			{
-			}
+			//effect->attach( getScene()->findActorByName("lich"), config.Get("bone").ToString() );
 
 			loader.save("scene-particles.lua");
 		}

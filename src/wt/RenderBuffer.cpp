@@ -7,7 +7,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 RenderBuffer::RenderBuffer() : mCreated(false), mWidth(0), mHeight(0), mHandle(0){
 }
@@ -61,6 +61,6 @@ void RenderBuffer::destroy(){
 	mFormat = 0;
 }
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>

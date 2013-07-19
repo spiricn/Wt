@@ -7,7 +7,7 @@
 
 namespace wt{
 	
-namespace Gl{
+namespace gl{
 
 class Buffer;
 
@@ -32,7 +32,7 @@ private:
 	bool mCreated;
 }; // </TransformFeedback>
 
-}; // </Gl>
+}; // </gl>
 
 
 }; // </wt>

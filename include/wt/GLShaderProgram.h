@@ -11,7 +11,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 class ShaderProgram{
 private:

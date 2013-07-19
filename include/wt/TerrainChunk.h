@@ -26,7 +26,7 @@ public:
 	#pragma pack(pop)
 
 private:
-	Gl::Batch				mBatch;
+	gl::Batch				mBatch;
 	uint32_t					mNumTriangles, mNumVertices, mNumXVertices, mNumZVertices;
 	float					mDepth, mWidth, mMinHeight, mMaxHeight; // bounding box
 	HeightMap				mHeightMap;
@@ -61,7 +61,7 @@ public:
 
 	~TerrainChunk();
 
-	Gl::Batch& getBatch(){
+	gl::Batch& getBatch(){
 		return mBatch;
 	}
 

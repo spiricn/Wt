@@ -14,9 +14,9 @@ namespace wt{
 
 namespace Gui{
 
-using namespace Gl;
+using namespace gl;
 
-class FontShader : public wt::Gl::ShaderProgram{
+class FontShader : public wt::gl::ShaderProgram{
 public:
 	enum Attribs{
 		VERTEX=0,
@@ -41,7 +41,7 @@ private:
 	glm::mat4x4 mProjMat;
 	Texture2D* mTargetTex;
 	FontShader mFontShader;
-	Gl::Batch mFontBatch;
+	gl::Batch mFontBatch;
 
 protected:
 	void create(){

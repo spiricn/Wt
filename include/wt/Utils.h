@@ -6,7 +6,7 @@ namespace wt{
 // <forward declaration>
 class Color;
 
-namespace Gl{
+namespace gl{
 	class Batch;
 }
 
@@ -37,7 +37,7 @@ namespace Utils{
 
 	String getCurrentTime(const String& format="%H-%M-%S-%d-%b-%Y");
 
-	void makeGrid(Gl::Batch& batch, float dx, float dz, uint32_t x, uint32_t z);
+	void makeGrid(gl::Batch& batch, float dx, float dz, uint32_t x, uint32_t z);
 
 	void readFile(const String& path, String& dst);
 
@@ -45,7 +45,7 @@ namespace Utils{
 
 	void renderAxis(const glm::mat4x4& modelView, const glm::mat4x4& projection);
 
-	void makeCube(Gl::Batch& batch, float rad=1, GLuint posStream=0, GLuint texStream=1, GLuint normalStream=2);
+	void makeCube(gl::Batch& batch, float rad=1, GLuint posStream=0, GLuint texStream=1, GLuint normalStream=2);
 
 	void renderGrid(const glm::mat4x4& modelView, const glm::mat4x4& projection);
 

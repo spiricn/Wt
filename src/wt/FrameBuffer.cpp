@@ -8,7 +8,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 FrameBuffer::FrameBuffer() : mHandle(0), mIsCreated(false){
 }
@@ -89,6 +89,6 @@ void FrameBuffer::destroy(){
 }
 
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>

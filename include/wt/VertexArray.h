@@ -3,7 +3,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 class VertexArray{
 private:
@@ -25,7 +25,7 @@ public:
 
 }; // </VertexArray>
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>
 

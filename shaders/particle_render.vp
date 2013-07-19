@@ -2,13 +2,13 @@
 
 #pragma include shaders/noise3D.glsl
 
+// Inputs
 in float inType;
 in vec3 inPosition;
 in float inLife;
 in vec3 inVelocity;
 in float inSize;
 in float inMaxLife;
-
 
 // Fragment shader output
 out vec4 fsColor;
@@ -19,24 +19,30 @@ uniform mat4 uModelViewMat;
 uniform mat4 uProjMat;
 uniform float uSizeGrow;
 
+// TODO get this as a uniform ?
 #define MAX_COLOR_ANIMATION 4
 
 uniform vec4 uColorAnimation[MAX_COLOR_ANIMATION];
 
 void main(){
+	// Particle life factor (ranges from 0 to 1 as the particle grows older)
 	float a = (inMaxLife-inLife) / (inMaxLife );
 
-	// Animate size
+	// Animate particle size
+	// TODO do the projection dynamically
 	gl_PointSize = ( inSize  + a*uSizeGrow*inSize) * 1280/length(uCamPos.xyz-inPosition.xyz);
 
-	// TODO animate color
+	// Animate particle color
 
+	// Time delta between each color of the animation
+	float dt = 1.0 / ( MAX_COLOR_ANIMATION - 1);
 
-	// 0 - dt   dt - 2*dt   2*dt - 3*dt
-	float dt = 1.0 / MAX_COLOR_ANIMATION;
+	// Since the delta is fixed, starting color index can be calculated
 	int keyIdx = int(floor(a/dt));
-	
+
+	// Interpolate between the current and the next color
 	fsColor = mix(uColorAnimation[keyIdx], uColorAnimation[ (keyIdx+1) % MAX_COLOR_ANIMATION], (a-(keyIdx*dt)) / dt);
 
+	// Final particle position
 	gl_Position = (uProjMat*uModelViewMat) * vec4(inPosition, 1.0);
 }

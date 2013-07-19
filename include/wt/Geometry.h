@@ -78,14 +78,14 @@ public:
 	typedef Buffer<uint32_t> IndexBuffer;
 private:
 	String mName;
-	Gl::Batch* mBatch;
-	Gl::SubBatch mSubBatch;
+	gl::Batch* mBatch;
+	gl::SubBatch mSubBatch;
 	VertexBuffer mVertices;
 	IndexBuffer mIndices;
 
 public:
 
-	Gl::Batch* getBatch(){
+	gl::Batch* getBatch(){
 		return mBatch;
 	}
 
@@ -97,7 +97,7 @@ public:
 
 	const IndexBuffer& getIndices() const;
 
-	Geometry(const String& name, Gl::Batch* batch, const Gl::SubBatch& subBatch, const VertexBuffer& vertices,
+	Geometry(const String& name, gl::Batch* batch, const gl::SubBatch& subBatch, const VertexBuffer& vertices,
 		const IndexBuffer& indices);
 
 	const String& getName() const;
@@ -108,7 +108,7 @@ public:
 
 	void render();
 
-	const Gl::SubBatch& getSubBatch() const;
+	const gl::SubBatch& getSubBatch() const;
 };
 
 }; // </wt>

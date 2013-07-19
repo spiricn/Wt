@@ -7,7 +7,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 VertexArray::VertexArray() : mIsGenerated(false){
 }
@@ -50,6 +50,6 @@ void VertexArray::destroy(){
 	}
 }
 
-} // </Gl>
+} // </gl>
 
 } // </wt>

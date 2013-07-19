@@ -32,7 +32,7 @@ protected:
 	ChunkList mChunks;
 	uint32_t mSize;
 	physx::PxBounds3 mBounds;
-	Gl::Batch* mBatch;
+	gl::Batch* mBatch;
 
 	void calcBounds(){
 		mBounds.setEmpty();
@@ -41,7 +41,7 @@ protected:
 		}
 	}
 
-	TerrainNode(TerrainNode* parent=NULL, uint32_t idx=0, Gl::Batch* geoBatch=NULL) : mParent(parent),
+	TerrainNode(TerrainNode* parent=NULL, uint32_t idx=0, gl::Batch* geoBatch=NULL) : mParent(parent),
 		mChildren(NULL), mIndex(idx), mSize(0), mBatch(geoBatch){
 
 		if(parent != NULL){
@@ -155,7 +155,7 @@ WT_DISALLOW_COPY(Terrain);
 private:
 	TerrainNode::ChunkList mChunks;
 	TextureArray* mTerrainTextures;
-	Gl::Batch mBatch;
+	gl::Batch mBatch;
 	uint32_t mNumTriangles, mNumVertices, mNumXVertices, mNumZVertices;
 	float mDepth, mWidth, mMinHeight, mMaxHeight; // bounding box
 	float mHeightScale, mColumnScale, mRowScale;
@@ -209,7 +209,7 @@ public:
 
 	TerrainNode::ChunkList& getChunks();
 
-	Gl::Batch& getBatch();
+	gl::Batch& getBatch();
 
 	void calculateNormals(TerrainChunk::Vertex* vertices, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols);
 

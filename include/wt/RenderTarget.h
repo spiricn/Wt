@@ -11,7 +11,7 @@ class RenderTarget{
 private:
 	GLenum mBuffers[GL_MAX_DRAW_BUFFERS];
 	uint32_t mNumBuffers;
-	Gl::FrameBuffer mFrameBuffer;
+	gl::FrameBuffer mFrameBuffer;
 
 public:
 	RenderTarget() : mNumBuffers(0){
@@ -22,17 +22,17 @@ public:
 		mBuffers[mNumBuffers++] = buffer;
 	}
 
-	Gl::FrameBuffer& getFrameBuffer(){
+	gl::FrameBuffer& getFrameBuffer(){
 		return mFrameBuffer;
 	}
 
 	void bind(){
-		mFrameBuffer.bind(wt::Gl::FrameBuffer::DRAW);
+		mFrameBuffer.bind(wt::gl::FrameBuffer::DRAW);
 		glDrawBuffers(mNumBuffers, mBuffers);
 	}
 
 	void unbind(){
-		mFrameBuffer.unbind(wt::Gl::FrameBuffer::DRAW);
+		mFrameBuffer.unbind(wt::gl::FrameBuffer::DRAW);
 	}
 }; // </RenderTarget>
 

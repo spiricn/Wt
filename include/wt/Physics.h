@@ -134,7 +134,7 @@ private:
 
 	PxTriangleMesh* cook(PxBoundedData& vertices, PxBoundedData& indices);
 
-    PxTriangleMesh* cook(Gl::Batch& src);
+    PxTriangleMesh* cook(gl::Batch& src);
 
 	static PxFilterFlags filterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
 		PxFilterObjectAttributes attributes1, PxFilterData filterData1,

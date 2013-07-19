@@ -47,7 +47,7 @@ private:
 		GLfloat x,y,z;
 	} Vertex;
 
-	Gl::Batch mBatch;
+	gl::Batch mBatch;
 	GLuint mTexture;
 	math::Transform mTransform;
 	ImageLink mPosX, mNegX, mPosY, mNegY, mPosZ, mNegZ;
@@ -94,7 +94,7 @@ public:
 
 	void deserialize(const LuaPlus::LuaObject& src);
 
-	Gl::Batch& getBatch();
+	gl::Batch& getBatch();
 };
 
 

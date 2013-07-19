@@ -5,7 +5,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 class Buffer{
 public:
@@ -53,7 +53,7 @@ public:
 
 }; // </GLBuffer>
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>
 

@@ -9,7 +9,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 void ShaderProgram::create(){
 	mProgHandle = glCreateProgram();
@@ -301,6 +301,6 @@ void ShaderProgram::use(){
 	glUseProgram(mProgHandle);
 }
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>

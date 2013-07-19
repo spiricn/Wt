@@ -170,7 +170,7 @@ void Renderer::initGodray(){
 
 		mGodrayFBO.create();
 
-		mGodrayFBO.bind(Gl::FrameBuffer::DRAW);
+		mGodrayFBO.bind(gl::FrameBuffer::DRAW);
 
 		mGodrayPass1.create();
 		mGodrayPass1.bind();
@@ -433,7 +433,7 @@ void Renderer::setFOV(float angle){
 	);
 }
 
-void Renderer::setShaderLightUniforms(Scene* scene, Gl::ShaderProgram& prog){
+void Renderer::setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog){
 	/* TODO setting light/fog uniforms this way is highly inneficient
 		a mechanism of Renderer notification has to be devised
 		(dirty flag, event emiting etc..)
@@ -558,7 +558,7 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 		glVertex3f( center.x - extents.x, center.y + extents.y, center.z + extents.z);
 		glVertex3f( center.x + extents.x, center.y + extents.y, center.z + extents.z);
 		glVertex3f( center.x + extents.x, center.y + extents.y, center.z - extents.z);
-	gl( End() );
+	glEnd();
 
 	glBegin(GL_LINES);
 		glVertex3f( center.x - extents.x, center.y - extents.y, center.z - extents.z);
@@ -572,7 +572,7 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 
 		glVertex3f( center.x - extents.x, center.y - extents.y, center.z + extents.z);
 		glVertex3f( center.x - extents.x, center.y + extents.y, center.z + extents.z);
-	gl( End() );
+	glEnd();
 
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 }
@@ -678,7 +678,7 @@ void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float 
 	glEnd();
 }
 
-void Renderer::setShaderMaterialUniforms(Material* material, Gl::ShaderProgram& prog){
+void Renderer::setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog){
 #ifndef MATERIALS_DISABLED
 	prog.setUniformVal("uMaterial.ambientColor", material->getAmbient());
 	prog.setUniformVal("uMaterial.diffuseColor", material->getDiffuse());
@@ -784,7 +784,7 @@ void Renderer::render(Scene& scene, const Terrain* terrain, PassType pass){
 	// Render terrain
 	mTerrainShader.use();
 
-	Gl::ShaderUniform<int>(&mTerrainShader, "uPassType") = pass;
+	gl::ShaderUniform<int>(&mTerrainShader, "uPassType") = pass;
 
 	setShaderLightUniforms(&scene, mTerrainShader);
 	setShaderMaterialUniforms(&mDefaultMaterial, mTerrainShader);
@@ -810,8 +810,8 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 	ParticleEffect* effect = const_cast<ParticleEffect*>(e);
 
 	{
-		for(ParticleEffect::LayerList::iterator i=effect->mLayers.begin(); i!=effect->mLayers.end(); i++){
-			ParticleLayer* layer = *i;
+		for(ParticleEffect::LayerMap::iterator i=effect->getLayerMap().begin(); i!=effect->getLayerMap().end(); i++){
+			ParticleLayer* layer = i->second;
 
 			// Update particles (TODO move this elsewhere)
 			mParticleCalcShader.use();
@@ -882,8 +882,8 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 	
 
 	{
-		for(ParticleEffect::LayerList::iterator i=effect->mLayers.begin(); i!=effect->mLayers.end(); i++){
-			ParticleLayer* layer = *i;
+		for(ParticleEffect::LayerMap::iterator i=effect->getLayerMap().begin(); i!=effect->getLayerMap().end(); i++){
+			ParticleLayer* layer = i->second;
 
 			glm::mat4 view;
 			scene.getCamera().getMatrix(view);
@@ -927,7 +927,7 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 	////LOG("Primitives written %d (to buffer %d)", effect->mPrimittivesWritten, effect->mCurrBatch);
 	//for(int k=0; k<2; k++){
 	//	LOG("-------\nBuffer %d", k);
-	//	ParticleEffect::Particle* particles = (ParticleEffect::Particle*)effect->mBatches[k].getVertexBuffer().map(Gl::Buffer::eREAD_WRITE);
+	//	ParticleEffect::Particle* particles = (ParticleEffect::Particle*)effect->mBatches[k].getVertexBuffer().map(gl::Buffer::eREAD_WRITE);
 
 	//	for(int i=0; i<effect->getDesc().maxNumber; i++){
 	//		ParticleEffect::Particle& particle = particles[i];
@@ -1034,7 +1034,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 	if(godrayParams.enabled){ 
 		// pass 1 (render scene without textures/lighting)
-		mGodrayFBO.bind(Gl::FrameBuffer::DRAW);
+		mGodrayFBO.bind(gl::FrameBuffer::DRAW);
 
 		const GLenum pass1Buffers[] = {GL_COLOR_ATTACHMENT0};
 		gl( DrawBuffers(1, pass1Buffers) );
@@ -1129,7 +1129,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		// pass 3
 		if(!target){
 			// Default framebuffer
-			Gl::FrameBuffer::unbind(Gl::FrameBuffer::DRAW);
+			gl::FrameBuffer::unbind(gl::FrameBuffer::DRAW);
 
 			 GLint doubleBuffered; 
 			gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );

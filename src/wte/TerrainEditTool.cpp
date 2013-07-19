@@ -43,7 +43,7 @@ void TerrainEditTool::setTarget(wt::Terrain* terrain){
 
 		mTerrain->getMapTexture()->generateMipmap();
 
-		mFrameBuffer.unbind(wt::Gl::FrameBuffer::DRAW);
+		mFrameBuffer.unbind(wt::gl::FrameBuffer::DRAW);
 	}
 }
 
@@ -99,7 +99,7 @@ void TerrainEditTool::onResetTexture(){
 	}
 
 	LOGI("Resetting texture...");
-	mFrameBuffer.bind(wt::Gl::FrameBuffer::DRAW);
+	mFrameBuffer.bind(wt::gl::FrameBuffer::DRAW);
 
 	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 	glDrawBuffers(1, bfrMap);
@@ -252,7 +252,7 @@ void TerrainEditTool::editAt(float x, float y){
 					mTerrain->getNumCols()*mTerrain->getColScale());
 
 
-			mFrameBuffer.bind(wt::Gl::FrameBuffer::DRAW);
+			mFrameBuffer.bind(wt::gl::FrameBuffer::DRAW);
 
 			static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 			glDrawBuffers(1, bfrMap);
@@ -288,7 +288,7 @@ void TerrainEditTool::editAt(float x, float y){
 			glEnable(GL_CULL_FACE);
 			//mTerrain.getMapTexture()->dump("test.jpg");
 
-			mFrameBuffer.unbind(wt::Gl::FrameBuffer::DRAW);
+			mFrameBuffer.unbind(wt::gl::FrameBuffer::DRAW);
 
 			tex->generateMipmap();
 		}
@@ -301,9 +301,9 @@ void TerrainEditTool::editAt(float x, float y){
 
 
 			
-			wt::Gl::Batch& batch = mTerrain->getBatch();
+			wt::gl::Batch& batch = mTerrain->getBatch();
 			
-			//wt::TerrainChunk::Vertex* vertices = (wt::TerrainChunk::Vertex*)batch.getVertexBuffer().map(wt::Gl::Buffer::eREAD_WRITE);
+			//wt::TerrainChunk::Vertex* vertices = (wt::TerrainChunk::Vertex*)batch.getVertexBuffer().map(wt::gl::Buffer::eREAD_WRITE);
 
 			uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
 

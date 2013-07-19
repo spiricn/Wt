@@ -133,7 +133,7 @@ void WorldEditTab::onScreenshot(){
 	try{
 		/*ui.sceneView->getRenderer().saveScreenshot(path.toStdString());*/
 		wt::Image img;
-		wt::Gl::FrameBuffer::unbind(wt::Gl::FrameBuffer::READ);
+		wt::gl::FrameBuffer::unbind(wt::gl::FrameBuffer::READ);
 		img.fromFrameBuffer(wt::Image::RGB);
 
 		mAssets->getImageManager()->save(path.toStdString(), &img);

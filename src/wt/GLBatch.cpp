@@ -9,7 +9,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 
 void Batch::bind(){
@@ -269,6 +269,6 @@ void Batch::render(Buffer* feedBackBuffer, const GLvoid* indices, uint32_t numIn
 	}
 }
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>

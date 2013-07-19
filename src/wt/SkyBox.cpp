@@ -48,7 +48,7 @@ void SkyBox::deserialize(const LuaPlus::LuaObject& table){
 		);
 }
 
-Gl::Batch& SkyBox::getBatch(){
+gl::Batch& SkyBox::getBatch(){
 	return mBatch;
 }
 

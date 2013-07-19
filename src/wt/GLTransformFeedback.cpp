@@ -9,7 +9,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 TransformFeedback::TransformFeedback() : mCreated(false), mHandle(0){
 	WT_ASSERT(glewIsSupported("GL_ARB_transform_feedback2"),
@@ -56,6 +56,6 @@ void TransformFeedback::unbind(){
 	gl( BindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0) );
 }
 
-}; // </Gl>
+}; // </gl>
 
 }; // <wt>

@@ -90,7 +90,7 @@ String getCurrentTime(const String& format){
 	return bfr;
 }
 
-void makeGrid(Gl::Batch& batch, float dx, float dz, uint32_t x, uint32_t z){
+void makeGrid(gl::Batch& batch, float dx, float dz, uint32_t x, uint32_t z){
 	float mWidth =(x-1)+(x-1)*dx;
 	float mDepth =(z-1)+(z-1)*dz;
 
@@ -198,7 +198,7 @@ void renderAxis(const glm::mat4x4& modelView, const glm::mat4x4& projection){
 	/*glEnable(GL_DEPTH_TEST);*/
 }
 
-void makeCube(Gl::Batch& batch, float rad, GLuint posStream, GLuint texStream, GLuint normalStream){
+void makeCube(gl::Batch& batch, float rad, GLuint posStream, GLuint texStream, GLuint normalStream){
 	// 24 vertices, x,y,z, nx,ny, s,t
 	const float vertices[] = {
 		// Cube bottom
@@ -268,7 +268,7 @@ void makeCube(Gl::Batch& batch, float rad, GLuint posStream, GLuint texStream, G
 
 void renderGrid(const glm::mat4x4& modelView, const glm::mat4x4& projection){
 	static bool batchInitialized=false;
-	static Gl::Batch batch;
+	static gl::Batch batch;
 
 	if(!batchInitialized){
 		makeGrid(batch, 2.0f, 2.0f, 15, 15);

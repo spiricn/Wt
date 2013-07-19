@@ -5,7 +5,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 /* forward declarations */
 class Buffer;
@@ -82,7 +82,7 @@ public:
 
 };
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>
 #endif

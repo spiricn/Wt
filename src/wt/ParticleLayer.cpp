@@ -4,8 +4,24 @@
 
 namespace wt{
 
-ParticleLayer::ParticleLayer(ParticleEffect* parent) : mPrimittivesWritten(0), mQuery(0), mParent(parent){
-	
+
+ParticleLayer::ParticleLayer(ParticleEffect* parent, const String& name, const EffectDesc& desc) : mParent(parent), mName(name), mPrimittivesWritten(0){
+	create(desc);
+}
+
+ParticleLayer::ParticleLayer(ParticleEffect* parent, const String& name, AResourceSystem* assets, const LuaPlus::LuaObject& src) : mParent(parent), mName(name), mPrimittivesWritten(0){
+	create(assets, src);
+}
+
+ParticleLayer::~ParticleLayer(){
+}
+
+void ParticleLayer::setName(const String& name){
+	mName = name;
+}
+
+const String& ParticleLayer::getName() const{
+	return mName;
 }
 
 ParticleEffect* ParticleLayer::getParent() const{
@@ -18,13 +34,7 @@ void ParticleLayer::render(){
 	}
 }
 
-ParticleLayer::~ParticleLayer(){
-	glDeleteQueries(1, &mQuery);
-}
-
 void ParticleLayer::create(const EffectDesc& desc){
-	glGenQueries(1, &mQuery);
-
 	mDesc = desc;
 	glEnable(GL_POINT_SPRITE);
 	glEnable(GL_PROGRAM_POINT_SIZE);
@@ -74,15 +84,13 @@ void ParticleLayer::create(const EffectDesc& desc){
 }
 
 void ParticleLayer::update(){
-	glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mQuery);
+	mQuery.begin(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 
 	mBatches[mCurrBatch].render( &mBatches[(mCurrBatch+1)%2].getVertexBuffer(), NULL, 0, 0, mPrimittivesWritten);
 	mCurrBatch = (mCurrBatch+1)%2;
 
-	glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
-
 	 //Query the number of primitives written in the transform buffer.
-	glGetQueryObjectuiv(mQuery, GL_QUERY_RESULT, &mPrimittivesWritten);
+	mQuery.getResult(&mPrimittivesWritten);
 }
 
 const ParticleLayer::EffectDesc& ParticleLayer::getDesc() const{
@@ -106,7 +114,7 @@ ParticleLayer::EffectDesc::EffectDesc() :
 }
 
 void ParticleCalculationShader::create(){
-	Gl::ShaderProgram::createFromFiles("shaders/particle.vp", "", "shaders/particle_gp.vp");
+	gl::ShaderProgram::createFromFiles("shaders/particle.vp", "", "shaders/particle_gp.vp");
 
 	bindAttribLocation(eATTR_TYPE, "inType");
 	bindAttribLocation(eATTR_POSITION, "inPosition");
@@ -129,7 +137,7 @@ void ParticleRenderShader::setModelViewProj(const glm::mat4& modelView, const gl
 
 
 void ParticleRenderShader::create(){
-	Gl::ShaderProgram::createFromFiles("shaders/particle_render.vp", "shaders/particle.fp");
+	gl::ShaderProgram::createFromFiles("shaders/particle_render.vp", "shaders/particle.fp");
 
 	bindAttribLocation(ParticleCalculationShader::eATTR_TYPE, "inType");
 	bindAttribLocation(ParticleCalculationShader::eATTR_POSITION, "inPosition");
@@ -198,26 +206,28 @@ void ParticleLayer::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst){
 	dst.Set("color.anim", colorAni);
 }
 
-void ParticleLayer::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src){
-	Lua::luaConv(src.Get("vel.local"), mDesc.localVelocity);
-	Lua::luaConv(src.Get("vel.rnd"), mDesc.randomVelocity);
-	Lua::luaConv(src.Get("emissionVol"), mDesc.emissionVolume);
-	Lua::luaConv(src.Get("life.min"), mDesc.minLife);
-	Lua::luaConv(src.Get("life.max"), mDesc.maxLife);
-	Lua::luaConv(src.Get("size.min"), mDesc.minSize);
-	Lua::luaConv(src.Get("size.max"), mDesc.maxSize);
-	Lua::luaConv(src.Get("size.grow"), mDesc.sizeGrow);
-	Lua::luaConv(src.Get("emissionRate"), mDesc.emissionRate);
-	Lua::luaConv(src.Get("particleNum"), mDesc.particleNumber);
+void ParticleLayer::create(AResourceSystem* assets, const LuaPlus::LuaObject& src){
+	EffectDesc desc;
+
+	Lua::luaConv(src.Get("vel.local"), desc.localVelocity);
+	Lua::luaConv(src.Get("vel.rnd"), desc.randomVelocity);
+	Lua::luaConv(src.Get("emissionVol"), desc.emissionVolume);
+	Lua::luaConv(src.Get("life.min"), desc.minLife);
+	Lua::luaConv(src.Get("life.max"), desc.maxLife);
+	Lua::luaConv(src.Get("size.min"), desc.minSize);
+	Lua::luaConv(src.Get("size.max"), desc.maxSize);
+	Lua::luaConv(src.Get("size.grow"), desc.sizeGrow);
+	Lua::luaConv(src.Get("emissionRate"), desc.emissionRate);
+	Lua::luaConv(src.Get("particleNum"), desc.particleNumber);
 
 	String texPath;
 	LuaObject luaTexPath = src.Get("texture");
 	if(luaTexPath.IsString()){
 		Lua::luaConv(luaTexPath, texPath);
-		mDesc.texture = assets->getTextureManager()->getFromPath(texPath);
+		desc.texture = assets->getTextureManager()->getFromPath(texPath);
 	}
 
-	if(!luaTexPath.IsString() || !mDesc.texture){
+	if(!desc.texture){
 		WT_THROW("Error deserializing particle effect - unable to find texture uri=\"%s\"", texPath.c_str());
 	}
 
@@ -225,8 +235,10 @@ void ParticleLayer::deserialize(AResourceSystem* assets, const LuaPlus::LuaObjec
 	for(uint32_t i=0; i<EffectDesc::kMAX_COLORS; i++){
 		LuaObject& colorAnim = src.Get("color.anim");
 
-		Lua::luaConv(colorAnim.Get(i+1), mDesc.colorAnimation[i]);
+		Lua::luaConv(colorAnim.Get(i+1), desc.colorAnimation[i]);
 	}
+
+	create(desc);
 }
 
 }; // </wt>

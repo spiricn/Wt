@@ -9,7 +9,7 @@
 
 namespace wt{
 
-class SkyDomeShader : public Gl::ShaderProgram{
+class SkyDomeShader : public gl::ShaderProgram{
 public:
 	enum Streams{
 		VERTEX = 0,
@@ -63,8 +63,8 @@ private:
 	float mDayTime, mDayLength, mDomeScale;
 	glm::vec3 mSunPos;
 
-	Gl::Batch mPlanetBatch;
-	Gl::ShaderProgram mPlanetShader;
+	gl::Batch mPlanetBatch;
+	gl::ShaderProgram mPlanetShader;
 	glm::vec4 mDayDesc;
 
 public:

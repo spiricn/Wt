@@ -3,7 +3,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 class RenderBuffer{
 public:
@@ -33,7 +33,7 @@ private:
 }; // </RenderBuffer>
 
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>
 

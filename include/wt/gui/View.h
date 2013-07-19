@@ -13,7 +13,7 @@ namespace wt{
 
 namespace Gui{
 
-using namespace Gl;
+using namespace gl;
 
 class UIWindow;
 

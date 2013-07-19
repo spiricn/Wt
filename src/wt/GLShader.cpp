@@ -9,7 +9,7 @@
 
 namespace wt{
 
-namespace Gl{
+namespace gl{
 
 void Shader::destroy(){
 	glDeleteShader(mHandle);
@@ -78,6 +78,6 @@ String Shader::getLog(){
 	return log;
 }
 
-}; // </Gl>
+}; // </gl>
 
 }; // </wt>
