@@ -30,7 +30,7 @@ private:
 	float mFps;
 	float mUpdateFrequency;
 	uint32_t mNumFrames;
-	static const int kMAX_VALUES = 10;
+	static const int kMAX_VALUES = 1;
 	float mFpsValues[kMAX_VALUES];
 	uint32_t mCurrentValue;
 	

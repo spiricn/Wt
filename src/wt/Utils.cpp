@@ -128,9 +128,11 @@ void makeGrid(Gl::Batch& batch, float dx, float dz, uint32_t x, uint32_t z){
 	}
 		
 
-	batch.create(vertices, mNumVertices, 3*sizeof(float),
+	batch.create(
+		GL_QUADS,
+		vertices, mNumVertices, 3*sizeof(float),
 		indices, numQuads*4, sizeof(GLuint),
-		GL_QUADS, GL_UNSIGNED_INT);
+		GL_UNSIGNED_INT);
 
 	batch.setVertexAttribute(0, 3, GL_FLOAT, 0);
 
@@ -248,9 +250,11 @@ void makeCube(Gl::Batch& batch, float rad, GLuint posStream, GLuint texStream, G
 		20,21,22,23
 	};
 
-	batch.create(vertices, 24, 8*sizeof(float),
-				indices, 24, sizeof(GLushort),
-				GL_QUADS, GL_UNSIGNED_SHORT);
+	batch.create(
+			GL_QUADS,
+			vertices, 24, 8*sizeof(float),
+			indices, 24, sizeof(GLushort),
+			GL_UNSIGNED_SHORT);
 
 	// Position
 	batch.setVertexAttribute(posStream, 3, GL_FLOAT, 0);

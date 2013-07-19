@@ -44,7 +44,35 @@ Image::Format convertFormat(int format){
 	}
 }
 
-void DevilImageLoader::save(AIOStream* stream, Image* image){
+void DevilImageLoader::save(const String& path, const Image* image){
+	ILuint handle = ilGenImage();
+
+	ilBindImage(handle);
+
+	ILint format = image->getFormat();
+
+	ilTexImage(image->getWidth(),
+		image->getHeigth(),
+		1,
+		image->getNumComponents(),
+		format,
+		IL_UNSIGNED_BYTE,
+		(void*)image->getData()
+		);
+
+	ilEnable(IL_FILE_OVERWRITE);
+	ilSave(IL_TYPE_UNKNOWN, path.c_str());
+
+
+	ILenum rc =  ilGetError();
+	if(rc!=IL_NO_ERROR){
+		WT_THROW("Error saving image to file");
+	}
+
+	ilDeleteImage(handle);
+}
+
+void DevilImageLoader::save(AIOStream* stream, Image* image, int outFormat){
 	WT_ASSERT(stream->isWritable(), "Error saving image, stream not writable");
 
 	ILuint handle = ilGenImage();
@@ -71,8 +99,11 @@ void DevilImageLoader::save(AIOStream* stream, Image* image){
 
 	ILubyte* lump = new ILubyte[kMAX_SIZE];
 
-	//Buffer<
-	ILuint bytesWritten = ilSaveL(IL_BMP, lump, kMAX_SIZE);
+	ILuint bytesWritten = ilSaveL(outFormat, lump, kMAX_SIZE);
+
+	//ilEnable(IL_ORIGIN_SET);
+	//ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
+	
 
 	ILenum rc =  ilGetError();
 	if(rc!=IL_NO_ERROR){
@@ -87,6 +118,10 @@ void DevilImageLoader::save(AIOStream* stream, Image* image){
 #endif
 
 	ilDeleteImage(handle);
+}
+
+void DevilImageLoader::save(AIOStream* stream, Image* image){
+	save(stream, image, IL_BMP);
 }
 
 void DevilImageLoader::load(AIOStream* stream, Image* image){
@@ -130,6 +165,7 @@ void DevilImageLoader::load(AIOStream* stream, Image* image){
 	Image::Format format =  (Image::Format)ilGetInteger(IL_IMAGE_FORMAT);
 
 	int numComponents = ilGetInteger(IL_IMAGE_CHANNELS);
+
 
 	image->setData(w, h, format, numComponents,
 		data);

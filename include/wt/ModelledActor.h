@@ -15,14 +15,6 @@ private:
 	Model* mModel;
 	Model::GeometrySkin* mSkin;
 	SkeletalAnimationPlayer* mAnimationPlayer;
-	/*ModelledActor* mAttachActor;
-	float mAttachDistance;*/
-
-	/*struct AttachPoint{
-		math::Transform transform;
-		SkeletonBone* bone;
-		ASceneActor* actor;
-	};*/
 
 public:
 	struct DeserializationData{
@@ -172,8 +164,6 @@ public:
 			dst.Set("physics", physicsActor);
 
 			const_cast<PhysicsActor::Desc&>(getPhysicsActor()->getDesc()).serialize(physicsActor);
-
-			LOG("%f", dst.Get("physics").Get("geo.hx").ToNumber());
 		}
 		else{
 			dst.Set("physics", 0);

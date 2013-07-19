@@ -156,9 +156,12 @@ void Terrain::create(const TerrainDesc& desc){
 
 	calculateNormals(vertices, 0, 0, numRows, numCols);
 
-	mBatch.create(	vertices, mNumVertices, sizeof(TerrainChunk::Vertex),
-					0, 0, sizeof(GLuint),
-					GL_TRIANGLES, GL_UNSIGNED_INT);
+	mBatch.create(
+		GL_TRIANGLES,
+		vertices, mNumVertices, sizeof(TerrainChunk::Vertex),
+		0, 0, sizeof(GLuint),
+		GL_UNSIGNED_INT
+	);
 
 	// position
 	mBatch.setVertexAttribute(0, 3, GL_FLOAT, offsetof(TerrainChunk::Vertex, x));

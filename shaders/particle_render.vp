@@ -1,0 +1,42 @@
+#version 130
+
+#pragma include shaders/noise3D.glsl
+
+in float inType;
+in vec3 inPosition;
+in float inLife;
+in vec3 inVelocity;
+in float inSize;
+in float inMaxLife;
+
+
+// Fragment shader output
+out vec4 fsColor;
+
+// Uniforms
+uniform vec3 uCamPos;
+uniform mat4 uModelViewMat;
+uniform mat4 uProjMat;
+uniform float uSizeGrow;
+
+#define MAX_COLOR_ANIMATION 4
+
+uniform vec4 uColorAnimation[MAX_COLOR_ANIMATION];
+
+void main(){
+	float a = (inMaxLife-inLife) / (inMaxLife );
+
+	// Animate size
+	gl_PointSize = ( inSize  + a*uSizeGrow*inSize) * 1280/length(uCamPos.xyz-inPosition.xyz);
+
+	// TODO animate color
+
+
+	// 0 - dt   dt - 2*dt   2*dt - 3*dt
+	float dt = 1.0 / MAX_COLOR_ANIMATION;
+	int keyIdx = int(floor(a/dt));
+	
+	fsColor = mix(uColorAnimation[keyIdx], uColorAnimation[ (keyIdx+1) % MAX_COLOR_ANIMATION], (a-(keyIdx*dt)) / dt);
+
+	gl_Position = (uProjMat*uModelViewMat) * vec4(inPosition, 1.0);
+}

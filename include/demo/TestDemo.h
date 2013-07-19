@@ -127,13 +127,6 @@ public:
 		else{
 			loader.load("scene.lua");
 		}
-
-		Scene::GodRayParams params;
-		getScene()->getGodRayParams(params);
-
-		params.mIsEnabled = true;
-
-		getScene()->setGodRayParams(params);
 	}
 
 	String getConfigFile() const{

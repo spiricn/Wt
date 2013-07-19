@@ -45,21 +45,30 @@ void main(void){
 		// Consider sampling the texture anyway so that we can discard some pixels
 		// that would otherwise block the godrays
 		outFragColor = vec4(0, 0, 0, 0);
+
+		vec4 texSample = texture(uSampler, fsTexCoords);
+
+		// alpha test [always on for now]
+		if(texSample.a < 0.5f){
+			discard;
+		}
 	}
 	else{
 		vec4 texSample = texture(uSampler, fsTexCoords);
+
+		//texSample.rgb = (texSample.rgb / texSample.a);
 		
 		vec3 normal;
 
 		if(uUseNormalMap==1){
-			normal = CalcBumpedNormal();
+			normal = CalcBumpedNormal(); 
 		}
 		else{
 			normal = normalize(fsNormal);
 		}
 
 		// alpha test [always on for now]
-		if(uAlphaTest==0 || texSample.a < 0.3f && 1==0) {
+		if(texSample.a < 0.5f) {
 			discard;
 		}
 
@@ -74,17 +83,23 @@ void main(void){
 			lightColor += calculateSpotLight(uSpotLights[i]);
 		}
 
-#ifdef DEBUG_NORMALS
+#ifdef DEBUG_NORMALS 
 	outFragColor = DISABLE( calcFog(texSample * lightColor) ) + vec4(fsNormal, 0)
 		+
-		// TODO normal has to be passed as a parameter and not uniform, as it can be altered by the bump map
+		// TODO normal has to be passed as a p	arameter and not uniform, as it can be altered by the bump map
 		 DISABLE(vec4(normal, 0));
 #else
-		outFragColor = calcFog(texSample * lightColor)
-		+
+
+		outFragColor = calcFog(texSample * lightColor);
+		
 		// TODO normal has to be passed as a parameter and not uniform, as it can be altered by the bump map
-		 DISABLE(vec4(normal, 0));
+		 
 #endif
+
+		// Lighting calculations were messing with the alpha so this was the temporary solution
+		outFragColor.a = texSample.a;
+
+
 	}
 
 }

@@ -37,7 +37,6 @@ GodrayTool::GodrayTool(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* a
 }
 
 void GodrayTool::loadParams(){
-	TRACEI("");
 	mInitializing = true;
 
 	wt::Scene::GodRayParams params;
@@ -69,7 +68,6 @@ void GodrayTool::onParamChanged(){
 		return;
 	}
 
-	TRACEI("");
 	wt::Scene::GodRayParams params;
 
 	mScene->getGodRayParams(params);

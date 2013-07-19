@@ -105,9 +105,12 @@ void TerrainChunk::loadHeightmap(std::ifstream& inFile, uint32_t stride, uint32_
 		}
 	}
 
-	mBatch.create(	vertices, mNumVertices, sizeof(TerrainChunk::Vertex),
-					indices, mNumTriangles*3, sizeof(GLuint),
-					GL_TRIANGLES, GL_UNSIGNED_INT);
+	mBatch.create(
+			GL_TRIANGLES,
+			vertices, mNumVertices, sizeof(TerrainChunk::Vertex),
+			indices, mNumTriangles*3, sizeof(GLuint),
+			GL_UNSIGNED_INT
+	);
 
 	delete[] vertices;
 	delete[] indices;

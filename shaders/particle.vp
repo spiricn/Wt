@@ -2,77 +2,27 @@
 
 #pragma include shaders/noise3D.glsl
 
+in float inType;
 in vec3 inPosition;
-in vec3 inColor;
 in float inLife;
 in vec3 inVelocity;
+in float inSize;
+in float inMaxLife;
 
-// Transform feedback
-out vec3 outPosition;
-out vec3 outColor;
-out float outLife;
-out vec3 outVelocity;
-
-// Fragment shader
-out vec4 fsColor;
-
-uniform mat4 uModelViewMat;
-uniform mat4 uProjMat;
-uniform vec3 uCamPos;
-uniform vec3 uPosition;
-uniform float uDt;
-uniform int uSeed;
-
-// Effect specific uniforms
-uniform float uMaxLife;
-uniform vec4 uColor;
-uniform float uSize;
-uniform float uVelocity;
+// Geometry shader outputs
+out float gType;
+out vec3 gPosition;
+out float gLife;
+out vec3 gVelocity;
+out float gSize;
+out float gMaxLife;
 
 void main(){
-	seed = uSeed;
-
-	// TODO calculate dynamically
-	gl_PointSize = uSize * 1280/length(uCamPos.xyz-inPosition.xyz);
-
-	float life = inLife;
-
-	life = life - uDt;
-
-	// Is the particle dead?
-	if(life <= 0){
-		// Emit new particle
-		outPosition.xyz = uPosition;
-		outLife = uMaxLife - nrand(vec3(inPosition*100))/2;
-		outVelocity = vec3(-1 + nrand(vec3(inPosition*100))*2,  -1 + nrand(vec3(inPosition*123))*2, -1 + nrand(vec3(inPosition*30))*2) * uVelocity;
-	}
-	else{
-		// Move the particle
-		outPosition.xyz = inPosition + inVelocity * uDt;
-		outLife = life;
-		outVelocity = inVelocity;
-	}
-
-	// Constant color for now
-	outColor = uColor.rgb;
-
-	float fadeTime = uMaxLife/4.0;
-
-	// Fade in
-	if(life <= uMaxLife/4){
-		fsColor.a = life/fadeTime;
-	}
-	// Fade out
-	else if(life >= uMaxLife*3/4){
-		fsColor.a = 1.0 - ((life-(uMaxLife*3/4))/fadeTime);
-	}
-	// Normal
-	else{
-		fsColor.a = 1.0;
-	}
-
-	// Just pass it to the fragmnet shader
-	fsColor.rgb = outColor;
-	
-	gl_Position = (uProjMat*uModelViewMat) * vec4(outPosition, 1.0);
+	// Just pass everything to the geometry shader
+	gType = inType;
+	gPosition = inPosition;
+	gLife = inLife;
+	gVelocity = inVelocity;
+	gSize = inSize;
+	gMaxLife = inMaxLife;
 }

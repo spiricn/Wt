@@ -211,9 +211,10 @@ public:
 
 
 		mFontBatch.create(
+			GL_TRIANGLES,
 			points, numPoints, sizeof(Point),
 			indices, numPoints, sizeof(uint32_t),
-			GL_TRIANGLES, GL_UNSIGNED_INT
+			GL_UNSIGNED_INT
 			);
 
 		mFontShader.use();

@@ -57,6 +57,11 @@ void SceneLoader::load(AIOStream& stream){
 
 			mScene->getPhysics()->createActor(terrain, desc);
 		}
+		else if(!type.compare("particle")){
+			ParticleEffect* effect = mScene->createParticleEffect();
+
+			effect->deserialize(mAssets, actorDesc, NULL);
+		}
 		else{
 			TRACEW("Invalid actor type (%s), skipping table..", type.c_str());
 			continue;
@@ -92,8 +97,11 @@ void SceneLoader::load(AIOStream& stream){
 
 		LuaObject& godray = table.Get("godrays");
 
-		// Source 
+		// Source color
 		Lua::luaConv(godray.Get("src.clr"), params.sourceColor);
+		
+		// Ray color
+		Lua::luaConv(godray.Get("rayColor"), params.rayColor);
 
 		// Source position
 		Lua::luaConv(godray.Get("src.pos"), params.sourcePosition);

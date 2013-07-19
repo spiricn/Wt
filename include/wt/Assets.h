@@ -299,4 +299,7 @@ public:
 
 }; // </wt>
 
+
+#define TD_TRACE_TAG ""
+
 #endif

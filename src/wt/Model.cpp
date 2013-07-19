@@ -192,9 +192,12 @@ void Model::createHwBuffers(GLuint positionStreamIdx,
 
 
 	/* allocate a hardware buffer */
-	mBatch.create(NULL, mNumVertices, sizeof(Geometry::Vertex),
-			NULL, mNumIndices, sizeof(GLuint),
-				GL_TRIANGLES, GL_UNSIGNED_INT);
+	mBatch.create(
+		GL_TRIANGLES,
+		NULL, mNumVertices, sizeof(Geometry::Vertex),
+		NULL, mNumIndices, sizeof(GLuint),
+		GL_UNSIGNED_INT
+	);
 
 	/* position stream */
 	mBatch.setVertexAttribute(positionStreamIdx, 3, GL_FLOAT, offsetof(Geometry::Vertex, x));

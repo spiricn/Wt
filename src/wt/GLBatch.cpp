@@ -139,8 +139,10 @@ void Batch::unmapVertexBuffer(){
 }
 
 void Batch::destroy(){
-	delete mIndexBuffer;
-	mIndexBuffer=NULL;
+	if(mIndexBuffer){
+		delete mIndexBuffer;
+		mIndexBuffer=NULL;
+	}
 
 	delete mVertexBuffer;
 	mVertexBuffer=NULL;
@@ -151,39 +153,52 @@ void Batch::destroy(){
 	mIsInitialized=false;
 }
 
-void Batch::create(	const void* vertices,	size_t num_vertices, size_t vertex_size,
-					const void* indices,	size_t num_indices,  size_t index_size,
-					GLenum primitive_type,	GLenum index_type){
-
-	//WT_ASSERT(!mIsInitialized, "Batch already initialized");
-
+void Batch::create(GLenum primitiveType, const void* vertices, uint32_t numVertices, uint32_t vertexSize, const void* indices, uint32_t numIndices, uint32_t indexSize, GLenum indexType){
 	if(!mIsInitialized){
-		mIndexBuffer = new Buffer(GL_ELEMENT_ARRAY_BUFFER);
-		mVertexBuffer = new Buffer(GL_ARRAY_BUFFER);
+		// Vertex array (encapsulates batch state)
 		mVertexArray = new VertexArray;
-
-		// Initialize buffers
-		mIndexBuffer->create();
-		mVertexBuffer->create();
 		mVertexArray->create();
+
+		// Vertex buffer
+		mVertexBuffer = new Buffer(GL_ARRAY_BUFFER);
+		mVertexBuffer->create();
+
+		if(numIndices){
+			mIndexBuffer = new Buffer(GL_ELEMENT_ARRAY_BUFFER);
+			mIndexBuffer->create();
+		}
+		else{
+			// Not indexed
+			mIndexBuffer = NULL;
+		}
+
 		mIsInitialized = true;
 	}
 
 	// Setup members
-	mPrimitive=primitive_type; mIndexType=index_type;
-	mNumVertices=num_vertices; mNumIndices=num_indices;
-	mVertexSize=vertex_size; mIndexSize=index_size;
+	mPrimitive=primitiveType;
+	mIndexType=indexType;
+	mNumVertices=numVertices;
+	mNumIndices=numIndices;
+	mVertexSize=vertexSize;
+	mIndexSize=indexSize;
 
 	// Copy vertex data
-	mVertexBuffer->setData(vertices, num_vertices*vertex_size);
+	mVertexBuffer->setData(vertices, numVertices*vertexSize);
 
 	// Copy index data
-	mIndexBuffer->setData(indices, num_indices*index_size);
+	if(mIndexBuffer){
+		mIndexBuffer->setData(indices, numIndices*indexSize);
+	}
 
 	// Initialize vertex array
 	mVertexArray->bind();
-		mVertexBuffer->bind();
+
+	mVertexBuffer->bind();
+	if(mIndexBuffer){
 		mIndexBuffer->bind();
+	}
+
 	mVertexArray->unbind();
 }
 
@@ -200,31 +215,57 @@ void Batch::setVertexAttribute(GLuint attrib_index, GLint component_number, GLen
 	mVertexArray->unbind();
 }
 
-void Batch::render(Buffer* feedBackBuffer, const GLvoid* indices, uint32_t numIndices){
+void Batch::render(Buffer* feedBackBuffer, const GLvoid* indices, uint32_t numIndices, uint32_t startElem, uint32_t numElems){
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	uint32_t idcs;
 	mVertexArray->bind();
+
 	if(indices){
 		idcs=numIndices;
-		mIndexBuffer->unbind();
+		if(mIndexBuffer){
+			mIndexBuffer->unbind();
+		}
 	}
-	else{
+	else if(mIndexBuffer){
 		idcs=mNumIndices;
 		mIndexBuffer->bind();
 	}
 
+//	
+//		static GLuint primitivesWritten = 0;
+//static GLuint query = 0;
+
+	//if(!query){
+	//	glGenQueries(1, &query);
+	//}
+	//
+
 	if(feedBackBuffer){
-		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedBackBuffer->getHandle());
-		glBeginTransformFeedback(mPrimitive);
+			//glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, query);
+
+		gl( BindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedBackBuffer->getHandle()) );
+		gl( BeginTransformFeedback(mPrimitive) );
 	}
 
 	
-	glDrawElements(mPrimitive, idcs, mIndexType, static_cast<const GLvoid*>(indices)
-		);
+	if(indices || mIndexBuffer){
+		gl( DrawElements(mPrimitive, idcs, mIndexType, static_cast<const GLvoid*>(indices)) );
+	}
+	else{
+		gl( DrawArrays(mPrimitive, numElems ? startElem : 0 , numElems ? numElems : mNumVertices) );//primitivesWritten? primitivesWritten : ) );
+
+		//if(feedBackBuffer){
+		//	glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+		//	// Query the number of primitives written in the transform buffer.
+		//	primitivesWritten = 0;
+		//	glGetQueryObjectuiv(query, GL_QUERY_RESULT, &primitivesWritten );
+		//	LOG("%d", primitivesWritten);
+		//}
+	}
 
 	if(feedBackBuffer){
-		glEndTransformFeedback();
+		gl( EndTransformFeedback() );
 	}
 }
 

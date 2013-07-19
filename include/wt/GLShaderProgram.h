@@ -21,6 +21,7 @@ private:
 	String mLogs, mLog;
 	GLuint mProgHandle;
 	bool mHasGeometryShader;
+	bool mHasFragmentShader;
 
 	void create();
 
@@ -32,7 +33,7 @@ private:
 
 public:
 	ShaderProgram() : mVertexShader(GL_VERTEX_SHADER),
-		mFragmentShader(GL_FRAGMENT_SHADER), mGeometryShader(GL_GEOMETRY_SHADER), mHasGeometryShader(false){
+		mFragmentShader(GL_FRAGMENT_SHADER), mGeometryShader(GL_GEOMETRY_SHADER), mHasGeometryShader(false), mHasFragmentShader(false){
 	}
 
 	~ShaderProgram(){

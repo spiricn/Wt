@@ -196,7 +196,9 @@ private:
 	Color mClearColor;
 
 	// Shaders
-	ParticleShader mParticleShader;
+	ParticleCalculationShader mParticleCalcShader;
+	ParticleRenderShader mParticleRenderShader;
+
 	BasicShader mBasicShader;
 	TerrainShader mTerrainShader;
 	SkyboxShader mSkyShader;

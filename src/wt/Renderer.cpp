@@ -3,11 +3,50 @@
 #include "wt/Renderer.h"
 #include "wt/DevilImageLoader.h"
 #include "wt/RenderBuffer.h"
+#include "wt/Singleton.h"
 
 #define TD_TRACE_TAG "Renderer"
 
 
+
 namespace wt{
+
+
+class DependencyChecker : public Singleton<DependencyChecker>{
+private:
+	static const char* kDEPENDENCIES;
+public:
+
+	void check(){
+		std::stringstream ss(kDEPENDENCIES);
+
+		LOGV("Checking dependencies...");
+
+		while(ss.good()){
+			String s;
+
+			ss >> s;
+			if(!s.size()){
+				continue;
+			}
+
+			bool supported = glewIsSupported(s.c_str()) ;
+
+			if(supported){
+				LOGV("%s ... OK", s.c_str());
+			}
+			else{
+				LOGE("%s ... MISSING", s.c_str());
+			}
+		}
+
+		LOGV("Dependencies checked...");
+	}
+	
+}; // </DependencyChecker>
+
+
+const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_sprite GL_ARB_fragment_program GL_ARB_vertex_program";
 
 Renderer::Renderer() : mClearColor(0.5, 0, 0, 1.0f),
 	mGodrayPass1(0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(0, "", Texture2D::eRECT_TEXTURE),
@@ -22,6 +61,7 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	LOGV("GL_VERSION = %s", glGetString(GL_VERSION));
 	LOGV("GL_VENDOR = %s", glGetString(GL_VENDOR));
 	LOGV("GL_RENDERER = %s", glGetString(GL_RENDERER));
+	LOGV("GL_SHADING_LANGUAGE_VERSION = %s", glGetString( GL_SHADING_LANGUAGE_VERSION ));
 
 	mMatStack.pushIdentity();
 
@@ -34,6 +74,10 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	setPolygoneMode(FILL);
 
 	GLenum r = glewInit();
+	
+	DependencyChecker::getSingleton().check();
+
+	//WT_ASSERT( glewIsSupported("GL_VERSION_3_3"), "Unsupported version of OpenGL");
 
 	LOGV("Initializing glew");
 	if(r != GLEW_OK){
@@ -51,8 +95,10 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	mGodRayShader.create();
 	LOGV("Compiling rect..");
 	mRectShader.create();
-	LOGV("Compiling particle..");
-	mParticleShader.create();
+	LOGV("Compiling particle render..");
+	mParticleRenderShader.create();
+	LOGV("Compiling particle calculation..");
+	mParticleCalcShader.create();
 
 	mGodraySunShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
 	mGodraySunShader.bindAttribLocation(0, "inPosition");
@@ -90,8 +136,12 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 		// godray sun
 		float vertices[] = {0,0,0};
 		uint32_t indices[] = {0};
-		mSunBatch.create(vertices, 1, sizeof(float)*3,
-			indices, 1, sizeof(uint32_t), GL_POINTS);
+		mSunBatch.create(
+			GL_POINTS,
+			vertices, 1, sizeof(float)*3,
+			indices, 1, sizeof(uint32_t)
+		);
+
 		mSunBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
 	}
 	setClearColor(Color(0.3, 0.3, 0.3));
@@ -155,8 +205,11 @@ void Renderer::initGodray(){
 		uint32_t indices[4] = {0, 1, 2, 3};
 
 		mGodrayBatch.destroy();
-		mGodrayBatch.create(vertices, 4, sizeof(vertex),
-			indices, 4, sizeof(uint32_t), GL_QUADS);
+		mGodrayBatch.create(
+			GL_QUADS,
+			vertices, 4, sizeof(vertex),
+			indices, 4, sizeof(uint32_t)
+		);
 
 		// inPosition
 		mGodrayBatch.setVertexAttribute(0, 2, GL_FLOAT, offsetof(vertex, x));
@@ -686,14 +739,21 @@ void Renderer::render(Scene& scene, const ModelledActor* actor, PassType pass){
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 #else
-		glEnable(GL_BLEND);
+		/*glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-			GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			GL_ONE, GL_ONE_MINUS_SRC_ALPHA);*/
+	/*	glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);*/
 #endif
-		if(pass != eNORMAL_PASS){
+		glDisable(GL_BLEND);
+		//glEnable(GL_BLEND);
+		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		//glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
+	/*	if(pass != eNORMAL_PASS){
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
-		}
+		}*/
 
 		// basically no effect on FPS
 		i->geometry->render();
@@ -746,38 +806,140 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 	}
 
 	// TODO fix this
+
 	ParticleEffect* effect = const_cast<ParticleEffect*>(e);
 
-	// Setup OpenGL
-	gl( Enable(GL_BLEND) );
-	gl( BlendEquation(GL_FUNC_ADD) );
-	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
-	gl( DepthMask(false) );
+	{
+		for(ParticleEffect::LayerList::iterator i=effect->mLayers.begin(); i!=effect->mLayers.end(); i++){
+			ParticleLayer* layer = *i;
+
+			// Update particles (TODO move this elsewhere)
+			mParticleCalcShader.use();
+
+			// Upload uniforms
+			mParticleCalcShader.setUniformVal("uPosition", effect->getTransform().getPosition());
+			mParticleCalcShader.setUniformVal("uDt", effect->getTimeDelta());
+			mParticleCalcShader.setUniformVal("uSeed", math::random(0, 200));
+
+			mParticleCalcShader.setUniformVal("uMaxLife", layer->getDesc().maxLife);
+			mParticleCalcShader.setUniformVal("uMinLife", layer->getDesc().minLife);
+
+			mParticleCalcShader.setUniformVal("uMaxSize", layer->getDesc().maxSize);
+			mParticleCalcShader.setUniformVal("uMinSize", layer->getDesc().minSize);
+
+			mParticleCalcShader.setUniformVal("uLocalVelocity", layer->getDesc().localVelocity);
+			mParticleCalcShader.setUniformVal("uRandomVelocity", layer->getDesc().randomVelocity);
+
+			mParticleCalcShader.setUniformVal("uEmissionRate", layer->getDesc().emissionRate);
+
+			mParticleCalcShader.setUniformVal("uEmissionVolume", layer->getDesc().emissionVolume);
+
+			
+
+			static Texture2D* rndTex = NULL;
+			static bool flag = false;
+			if(!flag){
+				flag = true;
+
+				rndTex = new Texture2D;
+				rndTex->create();
+
+				const uint32_t w = 200;
+				const uint32_t h = 200;
+
+				float* data = new float[w*h*3];
+
+				for(int i=0; i<w*h*3; i++){
+					data[i] = math::random();
+				}
+
+				LOG("CREATE TEXTURE");
+				rndTex->setData(w, h, GL_RGB, GL_RGB, (const GLbyte*)data, GL_FLOAT);
+
+				rndTex->dump("rnd-dump.bmp");
+
+				delete[] data;
+			}
 
 
-	mParticleShader.use();
+			gl( ActiveTexture(GL_TEXTURE0) );
+			rndTex->bind();
 
-	glm::mat4 view;
-	scene.getCamera().getMatrix(view);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
 
-	// Upload uniforms
-	mParticleShader.setUniformVal("uPosition", effect->getTransform().getPosition());
-	mParticleShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
-	mParticleShader.setUniformVal("uMaxLife", effect->getDesc().life);
-	mParticleShader.setUniformVal("uSize", effect->getDesc().size);
-	mParticleShader.setUniformVal("uVelocity", effect->getDesc().velocity);
-	mParticleShader.setUniformVal("uColor", effect->getDesc().color);
-	mParticleShader.setUniformVal("uDt", effect->getTimeDelta());
-	mParticleShader.setUniformVal("uParticleTexture", 0);
-	mParticleShader.setModelViewProj(view, getFrustum().getProjMatrix());
-	mParticleShader.setUniformVal("uSeed", math::random(0, 1000));
+			mParticleCalcShader.setUniformVal("uRandomTexture", 0);
 
-	// Texture
-	gl( ActiveTexture(GL_TEXTURE0) );
-	effect->getDesc().texture->bind();
+			// WARNING: do NOT enable this sooner, it may cause some serious problems..
+			glEnable(GL_RASTERIZER_DISCARD);
+			layer->update();
+			glDisable(GL_RASTERIZER_DISCARD);
+		}
 
-	// Render the particles
-	effect->render();
+	}
+	
+
+	{
+		for(ParticleEffect::LayerList::iterator i=effect->mLayers.begin(); i!=effect->mLayers.end(); i++){
+			ParticleLayer* layer = *i;
+
+			glm::mat4 view;
+			scene.getCamera().getMatrix(view);
+
+			// Render particles
+
+			mParticleRenderShader.use();
+			mParticleRenderShader.setUniformVal("uParticleTexture", 0);
+			mParticleRenderShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
+			mParticleRenderShader.setUniformVal("uSizeGrow", layer->getDesc().sizeGrow);
+			mParticleRenderShader.setModelViewProj(view, getFrustum().getProjMatrix());
+
+			for(int i=0; i<ParticleLayer::EffectDesc::kMAX_COLORS; i++){
+				char name[64];
+				sprintf(name, "uColorAnimation[%d]", i);
+				mParticleRenderShader.setUniformVal(name, layer->getDesc().colorAnimation[i]);
+			}
+		
+
+			// Setup OpenGL
+			gl( Enable(GL_BLEND) );
+			gl( BlendEquation(GL_FUNC_ADD) );
+			gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
+			gl( DepthMask(false) );
+
+
+			// Texture
+			gl( ActiveTexture(GL_TEXTURE0) );
+			if(layer->getDesc().texture){
+				layer->getDesc().texture->bind();
+			}
+			else{
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+
+			layer->render();
+		}
+	}
+
+	////LOG("####################");
+	////LOG("Primitives written %d (to buffer %d)", effect->mPrimittivesWritten, effect->mCurrBatch);
+	//for(int k=0; k<2; k++){
+	//	LOG("-------\nBuffer %d", k);
+	//	ParticleEffect::Particle* particles = (ParticleEffect::Particle*)effect->mBatches[k].getVertexBuffer().map(Gl::Buffer::eREAD_WRITE);
+
+	//	for(int i=0; i<effect->getDesc().maxNumber; i++){
+	//		ParticleEffect::Particle& particle = particles[i];
+	//		int dummy = 3;
+	//		dummy += 4;
+	//	}
+
+	//	LOG("max life = %f       size=%f", particles[1].maxLife, particles[1].size);
+
+
+	//	effect->mBatches[k].getVertexBuffer().unmap();
+	//}
 
 	gl( DepthMask(true) );
 }

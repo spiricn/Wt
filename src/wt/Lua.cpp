@@ -136,7 +136,7 @@ bool luaConv(const Color& src, LuaObject& dst){
 }
 
 bool luaConv(const LuaObject& src, Color& dst){
-	if(!luaConv(src.Get(1), dst.mRed) || 
+	if(!src.IsTable() || !luaConv(src.Get(1), dst.mRed) || 
 		!luaConv(src.Get(2), dst.mGreen) || 
 		!luaConv(src.Get(3), dst.mBlue) ||
 		!luaConv(src.Get(4), dst.mAlpha)){

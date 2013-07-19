@@ -37,7 +37,7 @@
 #include "demo/ADemo.h"
 
 #define WORK_DIR "d:/documents/prog/c++/workspace/wt/"
-#define LOG_FILE_PATH "demo-log.html"
+#define LOG_FILE_PATH "demo-log.txt"
 #define INIT_SCRIPT_FILE "assets/ManagerConfig.lua"
 
 namespace wt{

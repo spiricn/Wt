@@ -62,9 +62,11 @@ public:
 
 	bool isGenerated() const;
 
-	void create(const void* vertices, size_t num_vertices, size_t vertex_size,
-				const void* indices,	size_t num_indices,  size_t index_size,
-				GLenum primitive_type=GL_TRIANGLES, GLenum index_type=GL_UNSIGNED_INT);
+	void create(
+		GLenum primitiveType,
+		const void* vertices, uint32_t numVertices, uint32_t vertexSize,
+		const void* indices=NULL, uint32_t numIndices=0, uint32_t indexSize=0, GLenum indexType=GL_UNSIGNED_INT);
+
 
 	void destroy();
 
@@ -72,11 +74,12 @@ public:
 
 	void setVertexAttribute(GLuint attrib_index, GLint component_number, GLenum component_type, GLuint component_offset);
 
-	void render(Buffer* feedBackBuffer=NULL, const GLvoid* indices=NULL, uint32_t numIndices=0);
+	void render(Buffer* feedBackBuffer=NULL, const GLvoid* indices=NULL, uint32_t numIndices=0, uint32_t startElem=0, uint32_t numElems=0);
 
 	void renderRange(uint32_t startIndex, uint32_t endIndex, uint32_t numPrimitives);
 
 	void render(const SubBatch& batch);
+
 };
 
 }; // </Gl>

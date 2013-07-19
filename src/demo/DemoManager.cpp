@@ -102,7 +102,7 @@ void DemoManager::initialize(){
 	WT_ASSERT(mLogFile != NULL, "Error openning log file");
 
 	td_setFileOutput(mLogFile);
-	td_setFileOutputType(eTD_FILE_HTML);
+	td_setFileOutputType(eTD_FILE_PLAIN_TEXT);
 
 	LOG("New log session %s", wt::Utils::getCurrentTime("%H:%M:%S %d/%b/%Y").c_str());
 

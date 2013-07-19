@@ -1,0 +1,133 @@
+#version 330
+//
+layout(points) in;
+layout(points) out;
+layout(max_vertices=2) out;
+
+//#pragma include shaders/noise3D.glsl
+
+// Input from the vertex shader
+in float gType[];
+in vec3 gPosition[];
+in float gLife[];
+in vec3 gVelocity[];
+in float gSize[];
+in float gMaxLife[];
+
+// Transform feedback output
+out float outType;
+out vec3 outPosition;
+out float outLife;
+out vec3 outVelocity;
+out float outSize;
+out float outMaxLife;
+
+// Emittor position
+uniform vec3 uPosition;
+
+// Time delta since the last update
+uniform float uDt;
+
+// Random number seed
+uniform int uSeed;
+
+// Life
+uniform float uMaxLife;
+uniform float uMinLife;
+
+// Size
+uniform float uMaxSize;
+uniform float uMinSize;
+
+// Velocity
+uniform vec3 uLocalVelocity;
+uniform vec3 uRandomVelocity;
+
+uniform float uEmissionRate;
+uniform vec3 uEmissionVolume;
+
+uniform sampler2D uRandomTexture;
+
+int seed;
+
+#define TYPE_EMITTER 1.0f
+
+#define TYPE_PARTICLE 0.0f
+
+float seedx, seedy;
+
+vec3 randomSample(){
+	vec3 sample = texture(uRandomTexture, vec2(seedx, seedy)).xyz;
+	seedx = sample.x * sample.y;
+	seedy = sample.y * sample.z;
+
+	return sample;
+}
+
+
+void main(){
+	seedx = uSeed * 150 * gLife[0];
+	seedy = uSeed* 200 * gLife[0];
+
+
+	float life = gLife[0];
+
+	life = life - uDt ;
+	
+
+	// Is the particle emitter? 
+	if(gType[0] == TYPE_EMITTER){
+		// Update emitter
+		outType = TYPE_EMITTER;
+		if(life <= 0.0){
+			outLife = 1.0 / uEmissionRate;
+		}
+		else{
+			outLife = life;
+		}
+
+		EmitVertex();
+		EndPrimitive();
+
+		// TODO depending on the time passed (dt) we might
+		// need to emit more than one particle (e.g. if dt == 1 and emission rate is 4 we need to emit 4 particles, not one)
+
+		// Emit a new particle if the emiter died
+		if(life <= 0.0){
+			// Get 3 random numbers for misc usage
+			vec3 r = randomSample();
+
+			outType = TYPE_PARTICLE;
+
+			// Calculate starting position
+			outPosition = uPosition + ( -uEmissionVolume + 2*randomSample()*uEmissionVolume );
+
+			// Randomize life (between min and max)
+			outLife = uMinLife + (uMaxLife-uMinLife)*r.x;
+			outMaxLife = outLife;
+
+			// Randomize velocity
+			
+			outVelocity = uLocalVelocity + (-uRandomVelocity + 2*randomSample()*uRandomVelocity);
+			
+			// Randomize size
+			outSize = uMinSize + (uMaxSize-uMinSize)*r.y;
+
+			EmitVertex();
+			EndPrimitive();
+		}
+
+	}
+	// Update the particle if its not dead
+	else if(life > 0){
+		outPosition.xyz = gPosition[0] + gVelocity[0] * uDt;
+		outLife = life;
+		outVelocity = gVelocity[0];
+		outType = gType[0];
+		outSize = gSize[0];
+		outMaxLife = gMaxLife[0];		
+
+		EmitVertex();
+		EndPrimitive();
+	}
+}

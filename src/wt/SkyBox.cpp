@@ -134,9 +134,13 @@ void SkyBox::create(){
 		//neg_x
 		0,4,7,3};
 
-	mBatch.create(	vertices, 8, sizeof(Vertex),
-					indices, 24, sizeof(GLubyte),
-					GL_QUADS, GL_UNSIGNED_BYTE);
+	mBatch.create(
+		GL_QUADS,
+		vertices, 8, sizeof(Vertex),
+		indices, 24, sizeof(GLubyte),
+		GL_UNSIGNED_BYTE
+	);
+
 	mBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
 
 }

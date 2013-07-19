@@ -9,27 +9,45 @@
 #include "wte/SceneView.h"
 
 SceneView::SceneView(QWidget* parent) : QGLWidget(parent), mTimer(this), mInputGrabbed(false),
-	mIsLooking(false), mScene(NULL){
+	mIsLooking(false), mScene(NULL), mFocused(false){
 	connect(&mTimer, SIGNAL(timeout()),
 		this, SLOT(onUpdateTimeout()));
 
 	//mTimer.start(16);
 	setFocusPolicy(Qt::StrongFocus);
+
+	installEventFilter(this);
 }
 
+void SceneView::focusInEvent(QFocusEvent*){
+}
+
+bool SceneView::eventFilter(QObject *object, QEvent *event){
+	if(event->type() == QEvent::FocusOut){
+		mFocused = false;
+	}
+	else if(event->type() == QEvent::FocusIn){
+		mFocused = true;
+	}
+
+	return false;
+}
+
+
 void SceneView::update(float dt){
-	glm::vec3 disp
-		(
-		wt::AGameInput::isKeyDown('A') ? 1.0f : wt::AGameInput::isKeyDown('D') ? -1.0f : 0.0f,
-		wt::AGameInput::isKeyDown(32) ? 1.0f : wt::AGameInput::isKeyDown('C') ? -1.0f : 0.0f,
-		wt::AGameInput::isKeyDown('W') ? 1.0f : wt::AGameInput::isKeyDown('S') ? -1.0f : 0.0f
-		);
+	if(mFocused){
+		// Camera movement
+		glm::vec3 disp(
+			wt::AGameInput::isKeyDown('A') ? 1.0f : wt::AGameInput::isKeyDown('D') ? -1.0f : 0.0f,
+			wt::AGameInput::isKeyDown(32) ? 1.0f : wt::AGameInput::isKeyDown('C') ? -1.0f : 0.0f,
+			wt::AGameInput::isKeyDown('W') ? 1.0f : wt::AGameInput::isKeyDown('S') ? -1.0f : 0.0f
+			);
 
-	
+		float speed = 50;
 
-	float speed = 50;
+		mScene->getCamera().move(disp*speed*dt);
+	}
 
-	mScene->getCamera().move(disp*speed*dt);
 	repaint();
 }
 

@@ -22,7 +22,11 @@ void ShaderProgram::detach(Shader& shader){
 void ShaderProgram::destroy(){
 	glUseProgram(0);
 	detach(mVertexShader);
-	detach(mFragmentShader);
+
+	if(mHasFragmentShader){
+		detach(mFragmentShader);
+	}
+
 	if(mHasGeometryShader){
 		detach(mGeometryShader);
 	}
@@ -34,7 +38,11 @@ void ShaderProgram::createFromSources(const String& vertexSource, const String& 
 	create();
 
 	mVertexShader.createFromSource(vertexSource);
-	mFragmentShader.createFromSource(fragmentSource);
+
+	if(fragmentSource.size() != 0){
+		mFragmentShader.createFromSource(fragmentSource);
+		mHasFragmentShader = true;
+	}
 
 	if(geometrySource.size() != 0){
 		mGeometryShader.createFromSource(geometrySource);
@@ -42,11 +50,15 @@ void ShaderProgram::createFromSources(const String& vertexSource, const String& 
 	}
 
 	try{
+		// Vertex shader
 		mVertexShader.compile();
-		mFragmentShader.compile();
-
 		attach(mVertexShader);
-		attach(mFragmentShader);
+
+		// Fragment shader
+		if(mHasFragmentShader){
+			mFragmentShader.compile();
+			attach(mFragmentShader);
+		}
 
 		if(mHasGeometryShader){
 			mGeometryShader.compile();
@@ -56,7 +68,7 @@ void ShaderProgram::createFromSources(const String& vertexSource, const String& 
 		if(mVertexShader.hasLog()){
 			LOGW("GLShaderProgram", "Vertex shader compiled with warnings:\n%s", mVertexShader.getLog().c_str());
 		}
-		if(mFragmentShader.hasLog()){
+		if(mHasFragmentShader && mFragmentShader.hasLog()){
 			LOGW("GLShaderProgram", "Fragment shader compiled with warnings:\n%s", mFragmentShader.getLog().c_str());
 		}
 		if(mHasGeometryShader && mGeometryShader.hasLog()){
@@ -69,7 +81,7 @@ void ShaderProgram::createFromSources(const String& vertexSource, const String& 
 		if(mVertexShader.hasLog()){
 			msg << "\nVertex shader error:\n" << mVertexShader.getLog().c_str();
 		}
-		if(mFragmentShader.hasLog()){
+		if(mHasFragmentShader && mFragmentShader.hasLog()){
 			msg << "\nFragment shader error:\n" << mFragmentShader.getLog().c_str();
 		}
 		if(mHasGeometryShader && mGeometryShader.hasLog()){
@@ -103,7 +115,7 @@ void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
 
 void ShaderProgram::createFromFiles(const String& vertexPath, const String& fragmentPath,  const String& geometryPath){
 	String vertexSource, fragmentSource, geometrySource;
-	String vertexProcessed, fragmentProcessed;
+	String vertexProcessed, fragmentProcessed, geometryProcessed;
 
 	// Read vertex source into a buffer and preprocess it
 	Utils::readFile(vertexPath, vertexSource);
@@ -118,23 +130,34 @@ void ShaderProgram::createFromFiles(const String& vertexPath, const String& frag
 	}
 
 	// Read fragment source into a buffer and preprocess it
-	Utils::readFile(fragmentPath, fragmentSource);
-	Shader::preprocess(fragmentSource, fragmentProcessed);
-	{
-		// Dump it for debugging purposes
-		std::stringstream ss;
-		ss << fragmentPath << ".preprocessed_tmp";
-		std::ofstream out(ss.str().c_str());
-		out << fragmentProcessed;
-		out.close();
+	if(fragmentPath.size() != 0){
+		Utils::readFile(fragmentPath, fragmentSource);
+		Shader::preprocess(fragmentSource, fragmentProcessed);
+		{
+			// Dump it for debugging purposes
+			std::stringstream ss;
+			ss << fragmentPath << ".preprocessed_tmp";
+			std::ofstream out(ss.str().c_str());
+			out << fragmentProcessed;
+			out.close();
+		}
 	}
 
-	// Read geometry source into a buffer
+	// Read geometry source into a buffer and preprocess it
 	if(geometryPath.size() != 0){
 		Utils::readFile(geometryPath, geometrySource);
+		Shader::preprocess(geometrySource, geometryProcessed);
+		{
+			// Dump it for debugging purposes
+			std::stringstream ss;
+			ss << geometryPath << ".preprocessed_tmp";
+			std::ofstream out(ss.str().c_str());
+			out << geometryProcessed;
+			out.close();
+		}
 	}
 
-	createFromSources(vertexProcessed, fragmentProcessed, geometrySource);
+	createFromSources(vertexProcessed, fragmentProcessed, geometryProcessed);
 }
 
 bool ShaderProgram::isLinked(){

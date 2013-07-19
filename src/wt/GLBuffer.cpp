@@ -58,7 +58,6 @@ void Buffer::getSubData(uint32_t offset, void* dst, uint32_t size) const{
 	glGetBufferSubData(mType, offset, size, dst);
 }
 	
-
 void Buffer::unbind() const{
 	glBindBuffer(mType, 0);
 }

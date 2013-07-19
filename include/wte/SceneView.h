@@ -67,6 +67,10 @@ signals:
 	void onMouseDrag(MouseDragEvent evt);
 
 protected:
+	virtual void focusInEvent( QFocusEvent* );
+
+	bool eventFilter(QObject *object, QEvent *event);
+
 	void initializeGL();
 
     void resizeGL(int w, int h);
@@ -83,6 +87,9 @@ protected:
 
 protected slots:
 	void onUpdateTimeout();
+
+private:
+	bool mFocused;
 
 }; // </SceneView>
 
