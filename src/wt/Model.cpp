@@ -74,7 +74,6 @@ void Model::setSize(uint32_t numVertices, uint32_t numIndices){
 	mNumIndices = numIndices;
 }
 
-
 void Model::removeGeometry(const String& name){
 	GeoList::iterator geometry = mGeometry.end();
 
@@ -146,7 +145,7 @@ Model::GeoList& Model::getGeometry(){
 	return mGeometry;
 }
 
-Model::Model(ResourceHandle handle, const String& name) : AResource(handle, name),
+Model::Model(AResourceManager<Model>* manager, ResourceHandle handle, const String& name) : AResource(manager, handle, name),
 	mRootBone(NULL),  mVertexOffset(0), mIndexOffset(0){
 }
 

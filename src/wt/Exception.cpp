@@ -4,7 +4,6 @@
 
 #define TD_TRACE_TAG "Exception"
 
-#pragma message "what the fuck"
 namespace wt{
 
 Exception::Exception(const char* functionName, const char* fileName, long lineNumber, const char* descFmt, ...) 

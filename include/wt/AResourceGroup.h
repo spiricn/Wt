@@ -272,9 +272,12 @@ public:
 		// iterate through the table
 		for (LuaPlus::LuaTableIterator it( content ); it; it.Next()){
 			// get object name & type
+			if(!it.GetKey().IsString() || !it.GetValue().IsTable() || !it.GetValue().Get("type").IsString()){
+				WT_THROW("Invalid resource table");
+			}
+
 			const char* name = it.GetKey().ToString();
 			const char* type = it.GetValue().Get("type").ToString();
-
 		
 			// create & deserialize a child group or resource
 			if(strcmp("GROUP", type)==0){

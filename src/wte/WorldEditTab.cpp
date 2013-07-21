@@ -6,6 +6,7 @@
 #include <qprocess.h>
 #include <qmessagebox.h>
 
+#include "wte/MainGLWidget.h"
 #include "wte/WorldEditTab.h"
 #include "wte/ResourcePickerDialog.h"
 #include "wte/TerrainEditTool.h"
@@ -26,9 +27,6 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 	 ui.setupUi(this);
 
 	 // Scene setup
-	 connect(ui.sceneView, SIGNAL(initialized()),
-		 this, SLOT(onGLContextCreated()));
-
 	 ui.sceneView->setScene(mScene);
 
 	// actor tool
@@ -131,7 +129,7 @@ void WorldEditTab::onScreenshot(){
 		"Save", QDir::current().path()+QString("/screenshots/") + QString(name.c_str()));
 
 	try{
-		/*ui.sceneView->getRenderer().saveScreenshot(path.toStdString());*/
+		/*ui.sceneView->getRenderer()->saveScreenshot(path.toStdString());*/
 		wt::Image img;
 		wt::gl::FrameBuffer::unbind(wt::gl::FrameBuffer::READ);
 		img.fromFrameBuffer(wt::Image::RGB);
@@ -190,6 +188,9 @@ void WorldEditTab::loadScene(const QString& path){
 }
 
 void WorldEditTab::loadResources(const QString& path){
+
+	ui.sceneView->makeCurrent();
+
 	LuaPlus::LuaStateOwner state;
 	state->DoFile(path.toStdString().c_str());
 
@@ -206,7 +207,6 @@ void WorldEditTab::loadResources(const QString& path){
 }
 
 void WorldEditTab::onGLContextCreated(){
-	emit initialized();
 }
 
 void WorldEditTab::onSetSkybox(){
@@ -291,12 +291,12 @@ void WorldEditTab::onToggleBones(){
 	// TODO fix this
 	static bool bones = false;
 	bones = !bones;
-	ui.sceneView->getRenderer().setRenderBones(bones);
+	ui.sceneView->getRenderer()->setRenderBones(bones);
 }
 
 void WorldEditTab::onToggleBoundingBoxes(){
 	// TODO fix this
 	static bool boxes = false;
 	boxes = !boxes;
-	ui.sceneView->getRenderer().setRenderBoundingBoxes(boxes);
+	ui.sceneView->getRenderer()->setRenderBoundingBoxes(boxes);
 }

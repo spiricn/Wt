@@ -26,44 +26,6 @@ void ParticleEffect::update(float dt){
 	ASceneActor::update(dt);
 }
 
-ParticleLayer* ParticleEffect::createLayer(const String& name, const ParticleLayer::EffectDesc& desc){
-	WT_ASSERT(getLayer(name) == NULL, "Layer named \"%s\" already exists for particle effect");
-
-	ParticleLayer* layer = new ParticleLayer(this, name, desc);
-
-	mLayers.insert(std::make_pair(name, layer));
-
-	return layer;
-	
-}
-
-ParticleLayer* ParticleEffect::createLayer(const String& name, AResourceSystem* assets, const LuaPlus::LuaObject& src){
-	WT_ASSERT(getLayer(name) == NULL, "Layer named \"%s\" already exists for particle effect");
-
-	ParticleLayer* layer = new ParticleLayer(this, name, assets, src);
-
-	mLayers.insert(std::make_pair(name, layer));
-
-	return layer;
-}
-
-ParticleLayer* ParticleEffect::getLayer(const String& name){
-	LayerMap::iterator iter =  mLayers.find(name);
-	return iter == mLayers.end() ? NULL : iter->second;
-}
-
-void ParticleEffect::deleteLayer(const String& name){
-	ParticleLayer* layer = getLayer(name) ;
-	WT_ASSERT(layer != NULL, "No layer named \"%s\"", name.c_str());
-
-	deleteLayer(layer);
-}
-
-void ParticleEffect::deleteLayer(ParticleLayer* layer){
-	mLayers.erase(layer->getName());
-	delete layer;
-}
-
 void ParticleEffect::render(){
 }
 
@@ -74,35 +36,33 @@ float ParticleEffect::getTimeDelta() const{
 void ParticleEffect::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque){
 	ASceneActor::serialize(assets, dst);
 
-	LuaObject layersTable;
-	LUA_NEW_TABLE(layersTable);
+	dst.Set("effect", mEffectResource->getPath().c_str());
+}
 
-	uint32_t layerIndex = 0;
-	for(LayerMap::iterator iter=mLayers.begin(); iter!=mLayers.end(); iter++){
-		ParticleLayer* layer = iter->second;
+void ParticleEffect::create(ParticleEffectResource* rsrc){
+	for(ParticleEffectResource::LayerMap::iterator iter=rsrc->getLayerMap().begin(); iter!=rsrc->getLayerMap().end(); iter++){
+		// Create layer instances
+		ParticleLayer* layer = new ParticleLayer(this, iter->first, iter->second);
 
-		LuaObject layerTable;
-		LUA_NEW_TABLE(layerTable);
-
-		layer->serialize(assets, layerTable);
-		
-		layersTable.Set(iter->first.c_str(), layerTable);
+		mLayers.insert(std::make_pair(iter->first, layer));
 	}
 
-	dst.Set("layers", layersTable);
+	mEffectResource = rsrc;
 }
 
 void ParticleEffect::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
 	ASceneActor::deserialize(assets, src);
 
-	for(LuaTableIterator iter(src.Get("layers")); iter; iter.Next()){
-		// TODO checks
-		LuaObject& layerTable = iter.GetValue();
+	ParticleEffectResource* rsrc = NULL;
 
-		const char* layerName = iter.GetKey().ToString();
-		
-		createLayer(layerName, assets, layerTable);
+	String effectUri;
+	if(Lua::luaConv(src.Get("effect"), effectUri)){
+		rsrc = assets->getParticleResourceManager()->getFromPath(effectUri);
 	}
+	
+	WT_ASSERT(rsrc, "ParticleEffectResource not found");
+
+	create(rsrc);	
 }
 
 }; // </wt>

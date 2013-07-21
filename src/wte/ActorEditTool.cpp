@@ -62,7 +62,7 @@ void ActorEditTool::onMousePress(QMouseEvent* evt){
 	if((evt->button() == Qt::LeftButton && mSelectingActor) || evt->button() == Qt::MiddleButton ){
 		wt::RaycastHitEvent res;
 		
-		if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(), glm::vec2(evt->x(), evt->y()), glm::vec2(mSceneView->width(), mSceneView->height()), res, 0, wt::Physics::ePICK_BOUNDING_BOXES)){
+		if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer()->getFrustum(), glm::vec2(evt->x(), evt->y()), glm::vec2(mSceneView->width(), mSceneView->height()), res, 0, wt::Physics::ePICK_BOUNDING_BOXES)){
 			selectActor(res.mPickedActor->getSceneActor());
 		}
 	}
@@ -167,7 +167,7 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 			else if(altDown){
 				wt::RaycastHitEvent res;
 
-				if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer().getFrustum(),
+				if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer()->getFrustum(),
 					glm::vec2(evt.x, evt.y), glm::vec2(mSceneView->width(), mSceneView->height()), res, 0, wt::Physics::ePICK_TERRAIN)){
 						// TODO handle this better 
 						if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){

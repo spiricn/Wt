@@ -134,7 +134,7 @@ protected:
 public:
 	FontAtlas mAtlas;
 
-	Font(ResourceHandle handle=0, const std::string& name="") : AResource(handle, name){
+	Font(AResourceManager<Font>* manager, ResourceHandle handle=0, const std::string& name="") : AResource(manager, handle, name){
 		mTexture.create();
 	}
 

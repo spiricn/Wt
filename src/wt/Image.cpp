@@ -7,8 +7,8 @@
 
 namespace wt{
 
-Image::Image(ResourceHandle handle, const String& name) : mData(NULL),
-	mWidth(0), mHeigth(0), mFormat(INVALID), mBufferSize(0), mNumComponents(0),AResource(handle, name){
+Image::Image(AResourceManager<Image>* manager, ResourceHandle handle, const String& name) : mData(NULL),
+	mWidth(0), mHeigth(0), mFormat(INVALID), mBufferSize(0), mNumComponents(0), AResource(manager, handle, name){
 }
 
 Image::~Image(){

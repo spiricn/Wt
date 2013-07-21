@@ -18,7 +18,7 @@ public:
 		return mSoundBuffer;
 	}
 	
-	SFSoundBuffer(ResourceHandle handle=0, const String& name="") : ASoundBuffer(handle, name){
+	SFSoundBuffer(AResourceManager<ASoundBuffer>* manager=NULL, ResourceHandle handle=0, const String& name="") : ASoundBuffer(manager, handle, name){
 	}
 
 }; // </ASoundBuffer>
@@ -103,7 +103,7 @@ private:
 		ResourceHandle handle = newHandle();
 
 		// Allcoate the resource & store it
-		ASoundBuffer* rsrc = new SFSoundBuffer(handle, resourceName);
+		ASoundBuffer* rsrc = new SFSoundBuffer(this, handle, resourceName);
 		mResources[handle] = rsrc;
 		rsrc->setGroup(parent);
 		return rsrc;

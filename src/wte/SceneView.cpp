@@ -6,20 +6,29 @@
 #include <wt/FrameBuffer.h>
 #include <wt/AGameInput.h>
 
+#include "wte/MainGLWidget.h"
 #include "wte/SceneView.h"
 
 SceneView::SceneView(QWidget* parent) : QGLWidget(parent), mTimer(this), mInputGrabbed(false),
-	mIsLooking(false), mScene(NULL), mFocused(false){
-	connect(&mTimer, SIGNAL(timeout()),
-		this, SLOT(onUpdateTimeout()));
+	mIsLooking(false), mScene(NULL), mFocused(false), mRenderer(NULL){
 
-	//mTimer.start(16);
 	setFocusPolicy(Qt::StrongFocus);
 
 	installEventFilter(this);
+
+	mRenderer = new wt::Renderer;
 }
 
-void SceneView::focusInEvent(QFocusEvent*){
+wt::Renderer* SceneView::getRenderer(){
+	return mRenderer;
+}
+
+void SceneView::setScene(wt::Scene* scene){
+	mScene = scene;
+}
+
+wt::Scene* SceneView::getScene(){
+	return mScene;
 }
 
 bool SceneView::eventFilter(QObject *object, QEvent *event){
@@ -79,9 +88,6 @@ void SceneView::keyPressEvent(QKeyEvent* evt){
 #endif
 }
 
-void SceneView::onUpdateTimeout(){
-}
-
 void SceneView::initializeGL() {
     makeCurrent();
 
@@ -91,34 +97,31 @@ void SceneView::initializeGL() {
 			(const char*)glewGetErrorString(r));
 	}
 
-	//mRenderer.init(width(), height());
-	mRenderer.init(1920, 1080);
+	mRenderer->init(640, 480);
 
-	mRenderer.setClearColor(wt::Color::gray());
-	mRenderer.setRenderBoundingBoxes(true);
+	mRenderer->setClearColor(wt::Color::gray());
+	mRenderer->setRenderBoundingBoxes(true);
 
-	mScene->getCamera().setPosition(glm::vec3(20, 150, 20));
-	mScene->getCamera().lookAt(glm::vec3(100, 30, 100));
 
 	emit initialized();
 }
 
 void SceneView::grabInput(bool state){
-	
 }
 
 void SceneView::resizeGL(int w, int h) {
 	makeCurrent();
-	mRenderer.setViewPort(w, h);
+	if(mRenderer){
+		
+		mRenderer->setViewPort(w <= 0 ? 1 : w, h <= 0 ? 1 : h);
+	}	
 }
 
 void SceneView::paintGL(){
-	//wt::gl::FrameBuffer::unbind(wt::gl::FrameBuffer::DRAW);
-	//static const GLenum defaultBfrs[] = {GL_BACK};
-	//glDrawBuffers(1, defaultBfrs);
-
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	mRenderer.render(*mScene);
+	if(mRenderer && mScene){
+		makeCurrent();
+		mRenderer->render(*mScene);
+	}
 }
 
 void SceneView::mouseMoveEvent(QMouseEvent* evt){
@@ -127,9 +130,10 @@ void SceneView::mouseMoveEvent(QMouseEvent* evt){
 		float dy = evt->y()-height()/2.0f;
 		QCursor::setPos(mapToGlobal(QPoint(width()/2, height()/2)));
 
-
-		mScene->getCamera().yaw(-dx);
-		mScene->getCamera().pitch(dy);
+		if(mScene){
+			mScene->getCamera().yaw(-dx);
+			mScene->getCamera().pitch(dy);
+		}
 	}
 
 	float dx = evt->x() - mLastX;

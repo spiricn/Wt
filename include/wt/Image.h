@@ -31,7 +31,7 @@ private:
 
 public:
 
-	Image(ResourceHandle handle=0, const std::string& name="");
+	Image(AResourceManager<Image>* manager=NULL, ResourceHandle handle=0, const std::string& name="");
 
 	~Image();
 

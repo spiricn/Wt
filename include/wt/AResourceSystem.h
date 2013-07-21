@@ -12,7 +12,7 @@ class Model;
 class SkyBox;
 class Animation;
 class Texture2D;
-
+class ParticleEffectResource;
 class AFileSystem;
 class ASoundBuffer;
 
@@ -39,6 +39,8 @@ public:
 	virtual AResourceManager<Animation>* getAnimationManager() = 0;
 
 	virtual AResourceManager<ASoundBuffer>* getSoundManager() = 0;
+
+	virtual AResourceManager<ParticleEffectResource>* getParticleResourceManager() = 0;
 
 	virtual void unloadAll() = 0;
 

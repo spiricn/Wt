@@ -7,6 +7,7 @@
 #include <qsettings.h>
 #include <wt/ImageManager.h>
 #include <wt/DevilImageLoader.h>
+#include <wt/Renderer.h>
 #include <Wt/Assets.h>
 
 #include "wte/ImageManagerTab.h"
@@ -17,6 +18,7 @@
 #include "wte/SoundManagerTab.h"
 #include "wte/WorldEditTab.h"
 #include "wte/SceneView.h"
+#include "wte/MainGLWidget.h"
 
 #include "ui_WtEditor.h"
 
@@ -30,11 +32,13 @@ public:
 	 static void logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message);
 
 private:
-	
+	MainGLWidget* mMainGLWidget;
+
 	wt::Assets mAssets;
 	WorldEditTab* mWorldEdit;
 	QSettings* mSettings;
 
+	wt::Renderer mRenderer;
 	wt::Scene mScene;
 
 	Ui::WtEditorClass ui;
@@ -67,7 +71,7 @@ protected slots:
 
 	void onAssetsLoaded();
 	
-	void onInitialized();
+	void onOpenGLContextCreated();
 
 	void onCreateTerrain();
 

@@ -6,6 +6,7 @@
 #include "wt/GLBatch.h"
 #include "wt/GLShaderProgram.h"
 #include "wt/GLQuery.h"
+#include "wt/ParticleLayerResource.h"
 
 namespace wt{
 
@@ -62,59 +63,13 @@ public:
 	};
 #pragma pack(pop)
 
-	struct EffectDesc{
-		static const uint32_t kMAX_COLORS = 4;
-
-		/** Starting velocity each particle is given on emission */
-		glm::vec3 localVelocity;
-
-		/**
-		 * Randomization velocity factor. Each particle's velocity is randomized at its emssion with
-		 * this vector:
-		 *	vec3 initialVelocity = localVelocity + ( -randomVelocity + 2 * rand() * randomVelocity )
-		 */
-		glm::vec3 randomVelocity;
-
-		/**
-		 * Bounding volume of the particle emission
-		 * Each particle is given a starting point at its emission
-		 * vec3 initialPosition = emitterPosition + ( -emissionVolume + 2 * rand() * emissionVolume )
-		 */
-		glm::vec3 emissionVolume;
-
-		/** Minimum and maximum life each particle can have (random number between these two) */
-		float minLife, maxLife;
-
-		/** Minimum and maximum size each particle can have */
-		float minSize, maxSize;
-
-		/** Size grow factor. During its lifetime a particle can grow/shrink acording to this paramtere */
-		float sizeGrow;
-
-		/** How many particles are emitted per second */
-		float emissionRate;
-
-		/** Maximum number of particles emitted at one time */
-		uint32_t particleNumber;
-
-		/** Texture used for the particles */
-		Texture2D* texture;
-
-		/** Color animation of a single particle. During its lifetime the particle will cycle through all these colors */
-		Color colorAnimation[kMAX_COLORS];
-
-		EffectDesc();
-	};
-
 	~ParticleLayer();
 
 	ParticleEffect* getParent() const;
 
-	const EffectDesc& getDesc() const;
-
 	const String& getName() const;
 
-	void setDesc(const EffectDesc& desc);
+	ParticleLayerResource* getLayerResource() const;
 
 	void update();
 
@@ -124,24 +79,20 @@ public:
 
 protected:
 	/** Can only be instantiated as a part of ParticleEffect object */
-	ParticleLayer(ParticleEffect* parent, const String& name, const EffectDesc&);
-
-	ParticleLayer(ParticleEffect* parent, const String& name, AResourceSystem* assets, const LuaPlus::LuaObject& src);
+	ParticleLayer(ParticleEffect* parent, const String& name, ParticleLayerResource* layerRsrc);
 
 	/** For renaming purposes */
 	void setName(const String& name);
 
 private:
-	void create(const EffectDesc& desc);
-
-	void create(AResourceSystem* assets, const LuaPlus::LuaObject& src);
+	void create(ParticleLayerResource* desc);
 
 	ParticleEffect* mParent;
 	uint8_t mCurrBatch;
 	gl::Batch mBatches[2];
 	Texture2D* mParticleTexture;
 	uint32_t mPrimittivesWritten;
-	EffectDesc mDesc;
+	ParticleLayerResource* mLayerRsrc;
 	gl::Query mQuery;
 	String mName;
 

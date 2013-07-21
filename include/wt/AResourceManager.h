@@ -69,7 +69,7 @@ protected:
 		ResourceHandle handle = newHandle();
 
 		// Allcoate the resource & store it
-		T* rsrc = new T(handle, resourceName);
+		T* rsrc = new T(this, handle, resourceName);
 		mResources[handle] = rsrc;
 		rsrc->setGroup(parent);
 
@@ -79,6 +79,7 @@ protected:
 	ResourceHandle newHandle(){
 		return mHandleCount++;
 	}
+
 public:
 
 	AResourceSystem* getResourceSystem(){

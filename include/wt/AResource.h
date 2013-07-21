@@ -11,6 +11,9 @@
 template<typename T>
 class AResourceGroup;
 
+template<typename T>
+class AResourceManager;
+
 namespace wt{
 
 typedef unsigned long ResourceHandle;
@@ -50,6 +53,8 @@ public:
 	}
 }; // </ResourceLink>
 
+class AResourceSystem;
+
 template<class T>
 class AResource : public Lua::ASerializable{
 public:
@@ -64,8 +69,8 @@ protected:
 	String mUri;
 	ResourceHandle mHandle;
 	AResourceGroup<T>* mGroup;
-	
 	ResourceState mState;
+	AResourceManager<T>* mManager;
 
 
 private:
@@ -74,6 +79,10 @@ private:
 public:
 	const String& getUri() const{
 		return mUri;
+	}
+
+	AResourceManager<T>* getManager() const{
+		return mManager;
 	}
 
 	void setResourceState(ResourceState state){
@@ -105,11 +114,11 @@ public:
 		return ResourceLink<T>(this, getPath());
 	}
 
-	AResource() : mName(""), mHandle(0), mGroup(NULL), mUri(""), mState(eUNLOADED){
+	AResource() : mName(""), mHandle(0), mGroup(NULL), mUri(""), mState(eUNLOADED), mManager(NULL){
 	}
 
-	AResource(ResourceHandle handle,
-			const String& name) : mName(name), mHandle(handle), mState(eUNLOADED){
+	AResource(AResourceManager<T>* manager, ResourceHandle handle,
+			const String& name) : mName(name), mHandle(handle), mState(eUNLOADED), mManager(manager){
 	}
 
 	ResourceState getResourceState() const{

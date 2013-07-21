@@ -38,8 +38,8 @@ protected:
 	}
 
 public:
-	Texture2D(ResourceHandle handle=0, const std::string& name="", Type type=eTEXTURE_2D) :
-	  AResource(handle, name), Texture(type), mWidth(0),
+	Texture2D(AResourceManager<Texture2D>* manager=NULL, ResourceHandle handle=0, const std::string& name="", Type type=eTEXTURE_2D) :
+	  AResource(manager, handle, name), Texture(type), mWidth(0),
 		  mHeight(0), mFormat(0), mInternalFormat(0){
 	}
 

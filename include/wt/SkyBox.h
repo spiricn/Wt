@@ -54,7 +54,7 @@ private:
 
 public:
 
-	SkyBox(ResourceHandle handle=0, const std::string& name="");
+	SkyBox(AResourceManager<SkyBox>* manager=NULL, ResourceHandle handle=0, const std::string& name="");
 
 	~SkyBox();
 

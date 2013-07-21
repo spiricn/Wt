@@ -7,7 +7,7 @@
 
 namespace wt{
 
-SkyBox::SkyBox(ResourceHandle handle, const std::string& name) : AResource(handle, name){
+SkyBox::SkyBox(AResourceManager<SkyBox>* manager, ResourceHandle handle, const std::string& name) : AResource(manager, handle, name){
 	mTransform.setScale(1000, 1000, 1000);
 }
 

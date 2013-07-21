@@ -33,7 +33,7 @@ private:
 public:
 	NodeAnimationList mNodeAnimations;
 
-	Animation(ResourceHandle handle=0, const String& name="") : AResource(handle, name),
+	Animation(AResourceManager<Animation>* manager=NULL, ResourceHandle handle=0, const String& name="") : AResource(manager, handle, name),
 		mDuration(0.0f){
 	}
 

@@ -24,6 +24,7 @@
 #include "wt/AFileSystem.h"
 #include "wt/LocalFileSystem.h"
 #include "wt/AResourceSystem.h"
+#include "wt/ParticleEffectResource.h"
 #include "wt/ZipFileSystem.h"
 
 #define TD_TRACE_TAG "Assets"
@@ -42,6 +43,7 @@ private:
 	AnimationManager* mAnimationManager;
 	AResourceManager<ASoundBuffer>* mSoundManager;
 	AFileSystem* mFileSystem;
+	ParticleEffectResourceManager* mParticleManager;
 
 	template<class T>
 	void serialize(AResourceManager<T>* manager, const String& name, Lua::LuaObject& table){
@@ -67,8 +69,11 @@ private:
 
 		Lua::LuaObject mngrTable = table.Get(name.c_str());
 
-		WT_ASSERT(mngrTable.IsTable(),
-			"Error deserializing manager - invalid manager sub-table \"%s\"", name.c_str());
+
+		if(!mngrTable.IsTable()){
+			LOGW("Manager table \"%s\" not found - skipping deserialization", name.c_str());
+			return;
+		}
 
 		manager->deserialize(mngrTable.Get("$ROOT"));
 	}
@@ -80,6 +85,7 @@ private:
 		deserialize(mAnimationManager, "ANIMATION_MANAGER", assets);
 		deserialize(mModelManager, "MODEL_MANAGER", assets);
 		deserialize(mSoundManager, "SOUND_MANAGER", assets);
+		deserialize(mParticleManager, "PARTICLE_MANAGER", assets);
 	}
 
 	String mRootDir;
@@ -107,6 +113,7 @@ public:
 		mModelManager = new ModelManager(this);
 		mSkyBoxManager = new SkyBoxManager(this);
 		mSoundManager = new SFSoundManager(this);
+		mParticleManager = new ParticleEffectResourceManager(this);
 
 		// TODO remvoe singleton
 		mFontManager = &FontManager::getSingleton();
@@ -117,6 +124,7 @@ public:
 		mModelManager->setLoader( &ModelLoader::getSingleton() );
 		mAnimationManager->setLoader( &AnimationLoader::getSingleton() );
 		mSoundManager->setLoader( &SFSoundLoader::getSingleton() );
+		mParticleManager->setLoader( NULL );
 	}
 
 	AFileSystem* getFileSystem(){
@@ -125,6 +133,10 @@ public:
 
 	ImageManager* getImageManager(){
 		return mImageManager;
+	}
+
+	AResourceManager<ParticleEffectResource>* getParticleResourceManager(){
+		return mParticleManager;
 	}
 
 	TextureManager* getTextureManager(){
@@ -183,6 +195,7 @@ public:
 
 	void unloadAll(){
 		LOGD("Unloading assets..");
+
 		mImageManager->destroy();
 		mTextureManager->destroy();
 		mSkyBoxManager->destroy();
@@ -190,36 +203,42 @@ public:
 		mModelManager->destroy();
 		mSoundManager->destroy();
 		mFontManager->destroy();
+		mParticleManager->destroy();
 
 		LOGD("Done..");
 	}
 
 	void reload(){
-		LOGD("Loading images ...");
+		LOGD("Loading images . . .");
 		mImageManager->loadAll();
 
-		LOGD("Loading textures ...");
+		LOGD("Loading textures . . .");
 		mTextureManager->loadAll();
 
-		LOGD("Loading skyboxes ...");
+		LOGD("Loading skyboxes . . .");
 		mSkyBoxManager->loadAll();
 
-		LOGD("Loading animations ...");
+		LOGD("Loading animations . . .");
 		mAnimationManager->loadAll();
 
-		LOGD("Loading models ...");
+		LOGD("Loading models . . .");
 		mModelManager->loadAll();
 
-		LOGD("Loading sounds...");
+		LOGD("Loading sounds . . .");
 		mSoundManager->loadAll();
 
+		LOGD("Loading particles . . .");
+		mParticleManager->loadAll();
+
 		LOGD("Creating resources");
+
 		mImageManager->createAll();
 		mTextureManager->createAll();
 		mSkyBoxManager->createAll();
 		mAnimationManager->createAll();
 		mSoundManager->createAll();
 		mModelManager->createAll();
+		mParticleManager->createAll();
 
 		LOGD("All assets created.");
 	}
@@ -269,6 +288,8 @@ public:
 			assets);
 		serialize(mSoundManager, "SOUND_MANAGER", 
 			assets);
+		serialize(mParticleManager, "PARTICLE_MANAGER",
+			assets);
 	}
 
 	void serialize(const String& path){
@@ -293,6 +314,7 @@ public:
 		delete mAnimationManager;
 		delete mSoundManager;
 		delete mFileSystem;
+		delete mParticleManager;
 	}
 
 }; // </Assets>

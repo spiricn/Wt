@@ -7,7 +7,7 @@ namespace wt{
 
 class ASoundBuffer : public AResource<ASoundBuffer>{
 public:
-	ASoundBuffer(ResourceHandle handle=0, const String& name="") : AResource(handle, name){
+	ASoundBuffer(AResourceManager<ASoundBuffer>* manager=NULL, ResourceHandle handle=0, const String& name="") : AResource(manager, handle, name){
 	}
 };
 

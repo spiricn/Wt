@@ -10,6 +10,7 @@
 #include "wt/ASceneActor.h"
 #include "wt/GLTransformFeedback.h"
 #include "wt/ParticleLayer.h"
+#include "wt/ParticleEffectResource.h"
 
 namespace wt{
 
@@ -23,24 +24,14 @@ public:
 
 	~ParticleEffect();
 
-	ParticleLayer* createLayer(const String& name, const ParticleLayer::EffectDesc& desc);
-
-	ParticleLayer* createLayer(const String& name, AResourceSystem* assets, const LuaPlus::LuaObject& src);
-
-	void deleteLayer(const String& name);
-
-	void deleteLayer(ParticleLayer* layer);
-
-	ParticleLayer* getLayer(const String& name);
-
 	void update(float dt);
 
 	void render();
 
 	float getTimeDelta() const;
-	
-	float mTimeDelta;	
 
+	void create(ParticleEffectResource* rsrc);
+	
 	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
 
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque);
@@ -49,6 +40,10 @@ private:
 	typedef std::map<String, ParticleLayer*> LayerMap;
 
 	LayerMap mLayers;
+
+	float mTimeDelta;
+
+	ParticleEffectResource* mEffectResource;
 
 protected:
 	LayerMap& getLayerMap();

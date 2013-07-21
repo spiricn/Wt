@@ -49,7 +49,7 @@ public:
 const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_sprite GL_ARB_fragment_program GL_ARB_vertex_program";
 
 Renderer::Renderer() : mClearColor(0.5, 0, 0, 1.0f),
-	mGodrayPass1(0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(0, "", Texture2D::eRECT_TEXTURE),
+	mGodrayPass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(NULL, 0, "", Texture2D::eRECT_TEXTURE),
 	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false){
 }
 
@@ -821,18 +821,18 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 			mParticleCalcShader.setUniformVal("uDt", effect->getTimeDelta());
 			mParticleCalcShader.setUniformVal("uSeed", math::random(0, 200));
 
-			mParticleCalcShader.setUniformVal("uMaxLife", layer->getDesc().maxLife);
-			mParticleCalcShader.setUniformVal("uMinLife", layer->getDesc().minLife);
+			mParticleCalcShader.setUniformVal("uMaxLife", layer->getLayerResource()->getDesc().maxLife);
+			mParticleCalcShader.setUniformVal("uMinLife", layer->getLayerResource()->getDesc().minLife);
 
-			mParticleCalcShader.setUniformVal("uMaxSize", layer->getDesc().maxSize);
-			mParticleCalcShader.setUniformVal("uMinSize", layer->getDesc().minSize);
+			mParticleCalcShader.setUniformVal("uMaxSize", layer->getLayerResource()->getDesc().maxSize);
+			mParticleCalcShader.setUniformVal("uMinSize", layer->getLayerResource()->getDesc().minSize);
 
-			mParticleCalcShader.setUniformVal("uLocalVelocity", layer->getDesc().localVelocity);
-			mParticleCalcShader.setUniformVal("uRandomVelocity", layer->getDesc().randomVelocity);
+			mParticleCalcShader.setUniformVal("uLocalVelocity", layer->getLayerResource()->getDesc().localVelocity);
+			mParticleCalcShader.setUniformVal("uRandomVelocity", layer->getLayerResource()->getDesc().randomVelocity);
 
-			mParticleCalcShader.setUniformVal("uEmissionRate", layer->getDesc().emissionRate);
+			mParticleCalcShader.setUniformVal("uEmissionRate", layer->getLayerResource()->getDesc().emissionRate);
 
-			mParticleCalcShader.setUniformVal("uEmissionVolume", layer->getDesc().emissionVolume);
+			mParticleCalcShader.setUniformVal("uEmissionVolume", layer->getLayerResource()->getDesc().emissionVolume);
 
 			
 
@@ -893,13 +893,13 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 			mParticleRenderShader.use();
 			mParticleRenderShader.setUniformVal("uParticleTexture", 0);
 			mParticleRenderShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
-			mParticleRenderShader.setUniformVal("uSizeGrow", layer->getDesc().sizeGrow);
+			mParticleRenderShader.setUniformVal("uSizeGrow", layer->getLayerResource()->getDesc().sizeGrow);
 			mParticleRenderShader.setModelViewProj(view, getFrustum().getProjMatrix());
 
-			for(int i=0; i<ParticleLayer::EffectDesc::kMAX_COLORS; i++){
+			for(int i=0; i<ParticleLayerResource::LayerDesc::kMAX_COLORS; i++){
 				char name[64];
 				sprintf(name, "uColorAnimation[%d]", i);
-				mParticleRenderShader.setUniformVal(name, layer->getDesc().colorAnimation[i]);
+				mParticleRenderShader.setUniformVal(name, layer->getLayerResource()->getDesc().colorAnimation[i]);
 			}
 		
 
@@ -912,8 +912,8 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 
 			// Texture
 			gl( ActiveTexture(GL_TEXTURE0) );
-			if(layer->getDesc().texture){
-				layer->getDesc().texture->bind();
+			if(layer->getLayerResource()->getDesc().texture){
+				layer->getLayerResource()->getDesc().texture->bind();
 			}
 			else{
 				glBindTexture(GL_TEXTURE_2D, 0);
@@ -1143,8 +1143,9 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 			target->bind();
 		}
 
+
 		gl( Clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) );
-		//setClearColor(Color::red());
+		
 		gl( Enable(GL_CULL_FACE) );
 		gl( Disable(GL_BLEND) );
 		render(scene, eNORMAL_PASS);

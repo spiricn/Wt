@@ -26,11 +26,18 @@ struct World{
 	wt::Physics* physics;	
 };
 
+
+class WtEditor;
+
 class WorldEditTab : public QMainWindow, public AToolManager{
 	Q_OBJECT;
-private:
+
+friend class WtEditor;
+
+protected:
 	Ui::WorldEdit ui;
 
+private:
 	wt::ASceneActor* mSelectedActor;
 	wt::math::Camera mCamera;
 	TerrainEditTool* mTerrainEditTool;

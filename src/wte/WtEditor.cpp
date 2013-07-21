@@ -3,8 +3,11 @@
 #include <wt/Utils.h>
 
 #include "wte/ModelImporterTab.h"
-
+#include "wte/ParticleManagerTab.h"
 #include "wte/WtEditor.h"
+
+
+#define TD_TRACE_TAG "WtEditor"
 
 using namespace std;
 
@@ -12,16 +15,14 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"), mScene(new wt::Physics(new wt::EventManager), &mAssets), mAssets(wt::Assets::eFS_DIR, "D:\\Documents\\prog\\c++\\workspace\\Wt\\workspace\\"){
 	ui.setupUi(this);
 
-	//mGameLevel = new wt::GameLevel(&mAssets, &mScene, &mEntityManager);
-
 	td_setCallbackFnc(logCallback, this);
 
 	// World edit tab
 	mWorldEdit = new WorldEditTab(this, &mScene, &mAssets);
 	ui.mainTabWidget->addTab(mWorldEdit, "World edit");
 
-	connect(mWorldEdit, SIGNAL(initialized()),
-		this, SLOT(onInitialized()));
+	connect(mWorldEdit->ui.sceneView, SIGNAL(initialized()),
+		this, SLOT(onOpenGLContextCreated()));
 
 	connect(mWorldEdit, SIGNAL(assetsLoaded()),
 		this, SLOT(onAssetsLoaded()));
@@ -31,7 +32,6 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	ui.mainTabWidget->addTab(importer, "Model importer");
 	
 	ui.mainTabWidget->setCurrentWidget(mWorldEdit);
-	//ui.mainTabWidget->setCurrentWidget(importer);
 
 	/* MANAGERS TAB */
 	/* Image */
@@ -52,6 +52,8 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	/* Sound */
 	addTab(new SoundManagerTab(this, &mAssets), "Sound effects");
 
+	addTab(new ParticleManagerTab(this, &mAssets), "Particle manager");
+
 	try{
 		mScene.getPhysics()->connectToVisualDebugger(
 					"127.0.0.1", // address
@@ -63,10 +65,15 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	}
 }
 
-void WtEditor::onInitialized(){
+void WtEditor::onOpenGLContextCreated(){
+	LOG("OpenGL context created");
+
 	loadLevel("workspace/level1.lua");
 	loadScene("workspace/scene.lua");
+
+	showMaximized();
 }
+
 
 WtEditor::~WtEditor(){
 }
@@ -92,14 +99,10 @@ void WtEditor::addTab(ARsrcManagerTab* tab, const QString& name){
 	mTabs.push_back(tab);
 }
 
-void WtEditor::onAssetsLoaded(){
-		
+void WtEditor::onAssetsLoaded(){	
 	for(TabList::iterator i=mTabs.begin(); i!=mTabs.end(); i++){
 		(*i)->refreshAll();
 	}
-
-
-	showMaximized();
 }
 
 void WtEditor::onReload(){

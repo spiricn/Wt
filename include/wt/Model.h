@@ -123,7 +123,7 @@ private:
 	TextureManager* mTextureManager;
 	AnimationManager* mAnimationManager;
 public:
-	Model(ResourceHandle handle=0, const String& name="");
+	Model(AResourceManager<Model>* manager=NULL, ResourceHandle handle=0, const String& name="");
 
 	~Model();
 

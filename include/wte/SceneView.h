@@ -25,32 +25,15 @@ struct MouseDragEvent{
 
 class SceneView : public QGLWidget{
 	Q_OBJECT;
-
-private:
-	bool mInputGrabbed;
-	wt::Scene* mScene;
-	wt::Renderer mRenderer;
-	QTimer mTimer;
-	bool mIsLooking;
-	Qt::MouseButton mMouseClicked;
-
-	float mLastX, mLastY;
-
 public:
 
 	SceneView(QWidget *parent);
 
-	wt::Renderer& getRenderer(){
-		return mRenderer;
-	}
+	wt::Renderer* getRenderer();
 
-	void setScene(wt::Scene* scene){
-		mScene = scene;
-	}
+	void setScene(wt::Scene* scene);
 
-	wt::Scene* getScene(){
-		return mScene;
-	}
+	wt::Scene* getScene();
 
 	void grabInput(bool state);
 
@@ -67,8 +50,6 @@ signals:
 	void onMouseDrag(MouseDragEvent evt);
 
 protected:
-	virtual void focusInEvent( QFocusEvent* );
-
 	bool eventFilter(QObject *object, QEvent *event);
 
 	void initializeGL();
@@ -85,11 +66,15 @@ protected:
 
 	void keyPressEvent(QKeyEvent * evt);
 
-protected slots:
-	void onUpdateTimeout();
-
 private:
 	bool mFocused;
+	bool mInputGrabbed;
+	wt::Scene* mScene;
+	wt::Renderer* mRenderer;
+	QTimer mTimer;
+	bool mIsLooking;
+	Qt::MouseButton mMouseClicked;
+	float mLastX, mLastY;
 
 }; // </SceneView>
 
