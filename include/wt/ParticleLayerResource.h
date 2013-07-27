@@ -57,6 +57,10 @@ public:
 		/** Color animation of a single particle. During its lifetime the particle will cycle through all these colors */
 		Color colorAnimation[kMAX_COLORS];
 
+		glm::mat4 transform;
+
+		bool simulateInWorldSpace;
+
 		LayerDesc();
 	};
 

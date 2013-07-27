@@ -36,6 +36,10 @@ public:
 
 		getCameraControl()->handle(dt, getManager()->getInput());
 
+
+		ParticleEffect* e =  (ParticleEffect*)getScene()->findActorByName("ef");
+		e->getTransform().rotate(1, 0, 0, 90*dt);
+
 	}
 
 	void onKeyDown(VirtualKey code){
@@ -55,15 +59,18 @@ public:
 
 		ParticleEffectResource* effect;
 
-		if(0){
+		if(1){
 			// Create a particle effect
-			effect = getAssets()->getParticleResourceManager()->create("effect");
+			effect = getAssets()->getParticleResourceManager()->create("effect3");
 
 			ParticleLayerResource::LayerDesc desc;
-			desc.texture = getAssets()->getTextureManager()->find("ember");
+			desc.texture = getAssets()->getTextureManager()->find("ember1");
+			math::Transform tf;
+			tf.setRotation(1, 0, 0, 90);
+			tf.getMatrix(desc.transform);
 			effect->createLayer("layer", desc);
-
-			getAssets()->serialize("workspace/level2.lua");
+			
+			//getAssets()->serialize("workspace/level2.lua");
 		}
 		else{
 			// Acquire particle effect
@@ -73,7 +80,7 @@ public:
 
 		ParticleEffect* e;
 
-		e = getScene()->createParticleEffect();
+		e = getScene()->createParticleEffect("ef");
 		e->create(effect);
 		e->getTransform().translate(0, 0, 0);
 

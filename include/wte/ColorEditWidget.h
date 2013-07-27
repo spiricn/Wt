@@ -5,6 +5,8 @@
 
 #include <wt/Color.h>
 
+class QColorDialog;
+
 class ColorEditWidget : public QWidget{
 Q_OBJECT
 public:
@@ -12,13 +14,15 @@ public:
 
 	wt::Color getColor() const;
 
-	void setColor(wt::Color& color);
+	void setColor(const wt::Color& color);
 
 protected slots:
 
 	void onPickColor();
 
 	void onValueChanged();
+
+	void onColorPicked(const QColor&);
 
 signals:
 	void valueChanged();
@@ -27,6 +31,8 @@ private:
     Ui::ColorEditWidget ui;
 
 	wt::Color mColor;
+
+	QColorDialog* mColorDialog;
 
 }; // </ColorEditWidget>
 

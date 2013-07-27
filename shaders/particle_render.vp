@@ -15,9 +15,11 @@ out vec4 fsColor;
 
 // Uniforms
 uniform vec3 uCamPos;
+uniform mat4 uModelMat;
 uniform mat4 uModelViewMat;
 uniform mat4 uProjMat;
 uniform float uSizeGrow;
+uniform int uWorldSpaceSim;
 
 // TODO get this as a uniform ?
 #define MAX_COLOR_ANIMATION 4
@@ -28,9 +30,18 @@ void main(){
 	// Particle life factor (ranges from 0 to 1 as the particle grows older)
 	float a = (inMaxLife-inLife) / (inMaxLife );
 
+	vec3 worldPos;
+
+	if(uWorldSpaceSim == 1){
+		worldPos = inPosition;
+	}
+	else{
+		worldPos = (uModelMat*vec4(inPosition, 1.0)).xyz;
+	}
+	
 	// Animate particle size
 	// TODO do the projection dynamically
-	gl_PointSize = ( inSize  + a*uSizeGrow*inSize) * 1280/length(uCamPos.xyz-inPosition.xyz);
+	gl_PointSize = ( inSize  + a*uSizeGrow*inSize) * ( 1280/length(uCamPos.xyz-worldPos) );
 
 	// Animate particle color
 
@@ -44,5 +55,10 @@ void main(){
 	fsColor = mix(uColorAnimation[keyIdx], uColorAnimation[ (keyIdx+1) % MAX_COLOR_ANIMATION], (a-(keyIdx*dt)) / dt);
 
 	// Final particle position
-	gl_Position = (uProjMat*uModelViewMat) * vec4(inPosition, 1.0);
+	if(uWorldSpaceSim == 1){
+		gl_Position = (uProjMat*uModelViewMat) * vec4(inPosition, 1.0);
+	}
+	else{
+		gl_Position = (uProjMat*(uModelViewMat*uModelMat)) * vec4(inPosition, 1.0);
+	}
 }

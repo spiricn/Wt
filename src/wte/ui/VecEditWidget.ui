@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>58</height>
+    <width>282</width>
+    <height>40</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,55 +15,53 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string/>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="spacing">
+      <number>0</number>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QDoubleSpinBox" name="x">
-        <property name="minimum">
-         <double>-10000.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>99999.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="y">
-        <property name="minimum">
-         <double>-10000.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10000.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="z">
-        <property name="minimum">
-         <double>-10000.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10000.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QDoubleSpinBox" name="w"/>
-      </item>
-     </layout>
-    </widget>
+     <item>
+      <widget class="QDoubleSpinBox" name="z">
+       <property name="minimum">
+        <double>-10000.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="y">
+       <property name="minimum">
+        <double>-10000.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="x">
+       <property name="minimum">
+        <double>-10000.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>99999.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="w"/>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -76,8 +74,8 @@
    <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>27</y>
+     <x>222</x>
+     <y>29</y>
     </hint>
     <hint type="destinationlabel">
      <x>113</x>
@@ -92,12 +90,12 @@
    <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>27</y>
+     <x>151</x>
+     <y>29</y>
     </hint>
     <hint type="destinationlabel">
      <x>253</x>
-     <y>-3</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -108,12 +106,28 @@
    <slot>onValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>36</y>
+     <x>80</x>
+     <y>29</y>
     </hint>
     <hint type="destinationlabel">
-     <x>362</x>
-     <y>54</y>
+     <x>281</x>
+     <y>39</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>w</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>VecEditWidget</receiver>
+   <slot>onValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>271</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>39</y>
     </hint>
    </hints>
   </connection>

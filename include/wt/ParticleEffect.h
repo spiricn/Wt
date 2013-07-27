@@ -36,6 +36,8 @@ public:
 
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque);
 
+	ParticleEffectResource* getEffectResource() const;
+
 private:
 	typedef std::map<String, ParticleLayer*> LayerMap;
 

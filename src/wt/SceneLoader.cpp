@@ -61,6 +61,8 @@ void SceneLoader::load(AIOStream& stream){
 			ParticleEffect* effect = mScene->createParticleEffect();
 
 			effect->deserialize(mAssets, actorDesc, NULL);
+
+			mScene->getPhysics()->createBBox(effect);
 		}
 		else{
 			TRACEW("Invalid actor type (%s), skipping table..", type.c_str());

@@ -805,6 +805,9 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 		return;
 	}
 
+	glm::mat4 modelMat;
+	e->getTransform().getMatrix(modelMat);
+
 	// TODO fix this
 
 	ParticleEffect* effect = const_cast<ParticleEffect*>(e);
@@ -817,7 +820,7 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 			mParticleCalcShader.use();
 
 			// Upload uniforms
-			mParticleCalcShader.setUniformVal("uPosition", effect->getTransform().getPosition());
+			//mParticleCalcShader.setUniformVal("uPosition", effect->getTransform().getPosition());
 			mParticleCalcShader.setUniformVal("uDt", effect->getTimeDelta());
 			mParticleCalcShader.setUniformVal("uSeed", math::random(0, 200));
 
@@ -834,6 +837,11 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 
 			mParticleCalcShader.setUniformVal("uEmissionVolume", layer->getLayerResource()->getDesc().emissionVolume);
 
+			mParticleCalcShader.setUniformVal("uWorldSpaceSim", layer->getLayerResource()->getDesc().simulateInWorldSpace);
+
+			if(layer->getLayerResource()->getDesc().simulateInWorldSpace){
+				mParticleCalcShader.setUniformVal("uModelMat", modelMat*layer->getLayerResource()->getDesc().transform);
+			}
 			
 
 			static Texture2D* rndTex = NULL;
@@ -853,10 +861,9 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 					data[i] = math::random();
 				}
 
-				LOG("CREATE TEXTURE");
 				rndTex->setData(w, h, GL_RGB, GL_RGB, (const GLbyte*)data, GL_FLOAT);
 
-				rndTex->dump("rnd-dump.bmp");
+				//rndTex->dump("rnd-dump.bmp");
 
 				delete[] data;
 			}
@@ -892,6 +899,12 @@ void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
 
 			mParticleRenderShader.use();
 			mParticleRenderShader.setUniformVal("uParticleTexture", 0);
+			mParticleRenderShader.setUniformVal("uWorldSpaceSim", layer->getLayerResource()->getDesc().simulateInWorldSpace);
+
+			if(!layer->getLayerResource()->getDesc().simulateInWorldSpace){
+				mParticleRenderShader.setUniformVal("uModelMat", modelMat*layer->getLayerResource()->getDesc().transform);
+			}
+
 			mParticleRenderShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
 			mParticleRenderShader.setUniformVal("uSizeGrow", layer->getLayerResource()->getDesc().sizeGrow);
 			mParticleRenderShader.setModelViewProj(view, getFrustum().getProjMatrix());

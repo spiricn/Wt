@@ -148,7 +148,7 @@ glm::vec4 Color::asVec4() const{
 }
 
 bool operator==(const Color& a, const Color& b){
-	return a.mRed == b.mRed && a.mGreen == b.mGreen && a.mBlue == b.mBlue && a.mAlpha && b.mAlpha;
+	return a.mRed == b.mRed && a.mGreen == b.mGreen && a.mBlue == b.mBlue && a.mAlpha == b.mAlpha;
 }
 
 bool operator!=(const Color& a, const Color& b){

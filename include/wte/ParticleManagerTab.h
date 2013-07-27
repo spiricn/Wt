@@ -16,16 +16,13 @@ private:
 public:
     ParticleManagerTab(QWidget* parent, wt::Assets* assets);
 
-	void destroyAll(){
-		ARsrcManagerTab::destroyAll<wt::ParticleEffectResource>();
-	}
+	void destroyAll();
 
-	void refreshAll(){
-		ui.treeWidget->buildTree<wt::ParticleEffectResource>(NULL, getAssets()->getParticleResourceManager());
-	}
+	void refreshAll();
 
-private:
-	wt::Scene mScene;
+	void onCtxMenuCreateResource(RTWItem* item);
+
+	void onTreeItemActivated(RTWItem* item);
 
 protected slots:
 

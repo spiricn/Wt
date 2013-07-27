@@ -26,6 +26,8 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 	mScene = sceneView->getScene();
 	mPhysics = mScene->getPhysics();
 
+	mParticleEditDialog = new ParticleEditDialog(this, NULL);
+
 	selectActor(NULL);
 }
 
@@ -68,13 +70,23 @@ void ActorEditTool::onMousePress(QMouseEvent* evt){
 	}
 }
 
-
 void ActorEditTool::onSelectActor(){
 	if(!isToolFocused()){
 		return;
 	}
 
 	mSelectingActor = true;
+}
+
+void ActorEditTool::onEditParticleEffect(){
+	if(!isToolFocused() || !mSelectedActor || mSelectedActor->getActorType() != wt::ASceneActor::eTYPE_PARTICLE_EFFECT){
+		return;
+	}
+
+	wt::ParticleEffect* e = static_cast<wt::ParticleEffect*>(mSelectedActor);
+	mParticleEditDialog->setEffect(e->getEffectResource());
+
+	mParticleEditDialog->show();
 }
 
 void ActorEditTool::updateSelectionStats(){
@@ -92,10 +104,12 @@ void ActorEditTool::updateSelectionStats(){
 
 	ui.transform->setScale( mSelectedActor->getTransform().getScale() );	
 
+#if 0
 	ui.boundingBoxView->setValue(
 		glm::vec3(mSelectedActor->getBounds().getDimensions().x,
 		mSelectedActor->getBounds().getDimensions().y,
 		mSelectedActor->getBounds().getDimensions().z));
+#endif
 }
 
 void ActorEditTool::onMouseDrag(MouseDragEvent evt){
@@ -272,9 +286,13 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 		if(activeIndex > 0){
 			ui.comboBoxAnimation->setCurrentIndex(activeIndex);
 		}
+
+		ui.stackedWidget->setCurrentIndex(0);
+	}
+	else if(actor->getActorType() == wt::ASceneActor::eTYPE_PARTICLE_EFFECT){
+		ui.stackedWidget->setCurrentIndex(1);
 	}
 	else{
-		ui.comboBoxAnimation->setEnabled(false);
 		ui.comboBoxAnimation->blockSignals(false);
 	}
 	
@@ -287,31 +305,43 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 void ActorEditTool::onNewActor(){
 	ActorCreationDialog::EditResult res = ActorCreationDialog::edit(this, mAssets);
 
+	wt::ASceneActor* sceneActor = NULL;
+
 	if(res.ok){
-		wt::ModelledActor* sceneActor;
+		if(res.type == wt::ASceneActor::eTYPE_MODELLED){
+			wt::ModelledActor* actor = mScene->createModelledActor(res.name.toStdString());
 
-		// Create scene actor
-		sceneActor = mScene->createModelledActor(res.name.toStdString());
+			actor->setModel(res.modelledActor.model, res.modelledActor.skin->getName());
 
-		sceneActor->setModel(res.model, res.skin->getName());
-
-		sceneActor->getTransform().setPosition(
-			mScene->getCamera().getPosition() + mScene->getCamera().getForwardVec()*10.0f);
-
-		// Create physics actor
-		if(res.physicsDesc.geometryType != wt::PhysicsActor::eGEO_TYPE_NONE){
-			// Initial transform
-			res.physicsDesc.pose.setPosition( sceneActor->getTransform().getPosition() );
-			try{
-				mPhysics->createActor(sceneActor, res.physicsDesc);
-			}catch(wt::Exception& e){
-				QMessageBox::critical(this, "Error", 
-					QString("Error creating physics actor\n\n") + e.getDescription().c_str());
+			// Create physics actor
+			if(res.modelledActor.physicsDesc.geometryType != wt::PhysicsActor::eGEO_TYPE_NONE){
+				// Initial transform
+				res.modelledActor.physicsDesc.pose.setPosition( actor->getTransform().getPosition() );
+				try{
+					mPhysics->createActor(actor, res.modelledActor.physicsDesc);
+				}catch(wt::Exception& e){
+					QMessageBox::critical(this, "Error", 
+						QString("Error creating physics actor\n\n") + e.getDescription().c_str());
+				}
 			}
+
+			sceneActor = actor;
+		}
+		else if(res.type == wt::ASceneActor::eTYPE_PARTICLE_EFFECT){
+			wt::ParticleEffect* actor;
+
+			actor = mScene->createParticleEffect(res.name.toStdString());
+
+			actor->create(res.particleEffect.effect);
+
+			sceneActor = actor;
 		}
 
-		mPhysics->createBBox(sceneActor);
+		if(sceneActor){
+			sceneActor->getTransform().setPosition(
+				mScene->getCamera().getPosition() + mScene->getCamera().getForwardVec()*10.0f);
 
-		LOGI("Actor created");
+			mPhysics->createBBox(sceneActor);
+		}
 	}
 }

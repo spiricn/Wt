@@ -120,7 +120,7 @@ ParticleLayerResource* ParticleEffectResource::createLayer(const String& name, A
 	}
 
 	if(!desc.texture){
-		WT_THROW("Error deserializing particle effect - unable to find texture uri=\"%s\"", texPath.c_str());
+		LOGW("Texture not found for particle layer");
 	}
 
 	

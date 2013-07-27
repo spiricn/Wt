@@ -6,6 +6,8 @@
 #include "wte/SceneView.h"
 #include "wte/ATool.h"
 
+#include <wte/ParticleEditDialog.h>
+
 class ActorEditTool : public QDialog, public ATool{
 Q_OBJECT
 
@@ -31,6 +33,8 @@ private:
 	wt::Physics* mPhysics;
 	wt::AResourceSystem* mAssets;
 
+	ParticleEditDialog* mParticleEditDialog;
+
 	void selectActor(wt::ASceneActor* actor);
 	
 	wt::ASceneActor* mSelectedActor;
@@ -54,6 +58,8 @@ protected slots:
 	void onScaleChanged();
 
 	void onTranslationChanged();
+
+	void onEditParticleEffect();
 
 	void onRotationChanged();
 

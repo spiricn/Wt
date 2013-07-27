@@ -20,6 +20,10 @@ ParticleEffect::LayerMap& ParticleEffect::getLayerMap(){
 	return mLayers;
 }
 
+ParticleEffectResource* ParticleEffect::getEffectResource() const{
+	return mEffectResource;
+}
+
 void ParticleEffect::update(float dt){
 	mTimeDelta = dt;
 

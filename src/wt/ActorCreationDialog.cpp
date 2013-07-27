@@ -18,7 +18,7 @@ ActorCreationDialog::ActorCreationDialog(QWidget* parent, wt::AResourceSystem* a
 }
 
 void ActorCreationDialog::setModel(wt::Model* model){
-	mResult.model = model;
+	mResult.modelledActor.model = model;
 
 	ui.lineEditModel->setText( model->getPath().c_str() );
 
@@ -26,6 +26,18 @@ void ActorCreationDialog::setModel(wt::Model* model){
 	for(wt::Model::SkinMap::iterator i=model->getSkins().begin(); i!=model->getSkins().end(); i++){
 		ui.comboBoxSkin->addItem(
 			i->first.c_str(), QVariant(i->first.c_str()));
+	}
+}
+
+void ActorCreationDialog::onActorTypeChanged(int type){
+	ui.stackedWidget->setCurrentIndex(type == 0 ? 1 : 0);
+}
+
+void ActorCreationDialog::onParticlePick(){
+	wt::ParticleEffectResource* effect = ResourcePickerDialog::pickResource<wt::ParticleEffectResource>(this, mAssets->getParticleResourceManager());
+	if(effect){
+		ui.particleEffect->setText(effect->getPath().c_str());
+		mResult.particleEffect.effect = effect;
 	}
 }
 
@@ -43,44 +55,57 @@ void ActorCreationDialog::onGeometryChanged(int index){
 
 
 void ActorCreationDialog::onSave(){
-	wt::String skinName = ui.comboBoxSkin->itemData( ui.comboBoxSkin->currentIndex(), Qt::UserRole).toString().toStdString();
-	
-	mResult.ok = true;
-	mResult.skin = mResult.model->getSkin(skinName);
-	mResult.type = ui.isDynamic->isChecked() ? wt::PhysicsActor::eDYNAMIC_ACTOR : wt::PhysicsActor::eSTATIC_ACTOR;
+	int actorType = ui.actorType->currentIndex();
+
 	mResult.name = ui.lineEditName->text();
+
+	// Modelled actor
+	if(actorType == 0){
+		mResult.type = wt::ASceneActor::eTYPE_MODELLED;
+		wt::String skinName = ui.comboBoxSkin->itemData( ui.comboBoxSkin->currentIndex(), Qt::UserRole).toString().toStdString();
 	
-	wt::PhysicsActor::Desc& pd = mResult.physicsDesc;
+		mResult.ok = true;
+		mResult.modelledActor.skin = mResult.modelledActor.model->getSkin(skinName);
+		mResult.modelledActor.type = ui.isDynamic->isChecked() ? wt::PhysicsActor::eDYNAMIC_ACTOR : wt::PhysicsActor::eSTATIC_ACTOR;
+	
+		wt::PhysicsActor::Desc& pd = mResult.modelledActor.physicsDesc;
 
-	pd.type = mResult.type;
+		pd.type = mResult.modelledActor.type;
 
 	
-	pd.controlMode = wt::PhysicsActor::ePHYSICS_MODE;
+		pd.controlMode = wt::PhysicsActor::ePHYSICS_MODE;
 
-	int geometry = ui.geometry->currentIndex();
+		int geometry = ui.geometry->currentIndex();
 
-	// Box geometry
-	if(geometry == 1){
-		pd.geometryType = wt::PhysicsActor::eBOX_GEOMETRY;
+		// Box geometry
+		if(geometry == 1){
+			pd.geometryType = wt::PhysicsActor::eBOX_GEOMETRY;
 			
-		pd.geometryDesc.boxGeometry.hx = ui.boxHx->value();
-		pd.geometryDesc.boxGeometry.hy = ui.boxHy->value();
-		pd.geometryDesc.boxGeometry.hz = ui.boxHz->value();
-	}
-	// Sphere geometry
-	else if(geometry == 2){
-		pd.geometryType = wt::PhysicsActor::eSPHERE_GEOMETRY;
+			pd.geometryDesc.boxGeometry.hx = ui.boxHx->value();
+			pd.geometryDesc.boxGeometry.hy = ui.boxHy->value();
+			pd.geometryDesc.boxGeometry.hz = ui.boxHz->value();
+		}
+		// Sphere geometry
+		else if(geometry == 2){
+			pd.geometryType = wt::PhysicsActor::eSPHERE_GEOMETRY;
 
-		pd.geometryDesc.sphereGeometry.radius = ui.sphereRadius->value();
+			pd.geometryDesc.sphereGeometry.radius = ui.sphereRadius->value();
+		}
+		// Mesh geometry
+		else if(geometry == 3){
+			pd.geometryType = wt::PhysicsActor::eMESH_GEOMETRY;
+			pd.geometryDesc.meshGeometry.model = mResult.modelledActor.model;
+		}
+		else{
+			pd.geometryType = wt::PhysicsActor::eGEO_TYPE_NONE;
+		}
 	}
-	// Mesh geometry
-	else if(geometry == 3){
-		pd.geometryType = wt::PhysicsActor::eMESH_GEOMETRY;
-		pd.geometryDesc.meshGeometry.model = mResult.model;
+	// Particle effect
+	else if(actorType == 1){
+		mResult.type = wt::ASceneActor::eTYPE_PARTICLE_EFFECT;
+		mResult.ok = true;
 	}
-	else{
-		pd.geometryType = wt::PhysicsActor::eGEO_TYPE_NONE;
-	}
+	
 
 	close();
 }

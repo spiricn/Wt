@@ -30,15 +30,21 @@ public:
 	}
 
 	~SimpleTreeWidget(){
+		clearItems();
+	}
+
+	void* getSelectedItem(){
+		return mItems[currentItem()->data(0, Qt::UserRole).toInt()]->userData;
+	}
+
+	void clearItems(){
 		for(ItemMap::iterator i=mItems.begin(); i!=mItems.end(); i++){
 			delete i->second;
 		}
 
 		mItems.clear();
-	}
 
-	void* getSelectedItem(){
-		return mItems[currentItem()->data(0, Qt::UserRole).toInt()]->userData;
+		clear();
 	}
 
 	void addItem(const QString& text, void* userData){

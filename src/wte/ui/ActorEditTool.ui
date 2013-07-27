@@ -6,57 +6,129 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
-    <height>239</height>
+    <width>390</width>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="4" column="0" colspan="4">
-    <widget class="TransformEdit" name="transform" native="true"/>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="modelledActor">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Modelled actor properties</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Animation</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBoxAnimation"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_2">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Particle effect properties</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="pushButton_4">
+            <property name="text">
+             <string>Edit particle effect</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
-   <item row="3" column="1" colspan="3">
-    <widget class="QComboBox" name="comboBoxAnimation"/>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Animation</string>
+   <item>
+    <widget class="TransformEdit" name="transform" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
      </property>
     </widget>
    </item>
-   <item row="6" column="2">
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="text">
-      <string>Delete selected</string>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>20</number>
      </property>
-    </widget>
-   </item>
-   <item row="5" column="2">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>New actor</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="3">
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="text">
-      <string>Select actor</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="3">
-    <widget class="QPushButton" name="buttonBrushToggle">
-     <property name="text">
-      <string>Activate brush</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" rowspan="2" colspan="2">
-    <widget class="VecEditWidget" name="boundingBoxView" native="true"/>
+     <item>
+      <widget class="QPushButton" name="buttonBrushToggle">
+       <property name="text">
+        <string>Activate brush</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>Select actor</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>New actor</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="text">
+        <string>Delete selected</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -72,15 +144,6 @@
     <signal>translationChanged()</signal>
    </slots>
   </customwidget>
-  <customwidget>
-   <class>VecEditWidget</class>
-   <extends>QWidget</extends>
-   <header>VecEditWidget.h</header>
-   <container>1</container>
-   <slots>
-    <signal>valueChanged()</signal>
-   </slots>
-  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -91,8 +154,8 @@
    <slot>onNewActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>488</x>
-     <y>200</y>
+     <x>277</x>
+     <y>445</y>
     </hint>
     <hint type="destinationlabel">
      <x>490</x>
@@ -107,8 +170,8 @@
    <slot>onAnimationSelected(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>580</x>
-     <y>28</y>
+     <x>360</x>
+     <y>61</y>
     </hint>
     <hint type="destinationlabel">
      <x>89</x>
@@ -123,8 +186,8 @@
    <slot>onToggleBrush()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>574</x>
-     <y>229</y>
+     <x>87</x>
+     <y>445</y>
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
@@ -139,8 +202,8 @@
    <slot>onSelectActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>200</y>
+     <x>182</x>
+     <y>445</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -155,8 +218,8 @@
    <slot>onRotationChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>201</x>
-     <y>90</y>
+     <x>210</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
      <x>141</x>
@@ -171,8 +234,8 @@
    <slot>onScaleChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>362</x>
-     <y>105</y>
+     <x>371</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>258</x>
@@ -187,8 +250,8 @@
    <slot>onTranslationChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>445</x>
-     <y>89</y>
+     <x>380</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
      <x>548</x>
@@ -203,8 +266,8 @@
    <slot>onDeleteActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>220</y>
+     <x>379</x>
+     <y>445</y>
     </hint>
     <hint type="destinationlabel">
      <x>357</x>
@@ -213,18 +276,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>boundingBoxView</sender>
-   <signal>valueChanged()</signal>
+   <sender>pushButton_4</sender>
+   <signal>clicked()</signal>
    <receiver>ActorEditTool</receiver>
-   <slot>onBBoxGeometryChanged()</slot>
+   <slot>onEditParticleEffect()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>271</x>
-     <y>189</y>
+     <x>86</x>
+     <y>51</y>
     </hint>
     <hint type="destinationlabel">
-     <x>299</x>
-     <y>175</y>
+     <x>14</x>
+     <y>7</y>
     </hint>
    </hints>
   </connection>
@@ -241,5 +304,6 @@
   <slot>onRotationChanged()</slot>
   <slot>onDeleteActor()</slot>
   <slot>onBBoxGeometryChanged()</slot>
+  <slot>onEditParticleEffect()</slot>
  </slots>
 </ui>

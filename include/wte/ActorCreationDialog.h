@@ -17,30 +17,29 @@ Q_OBJECT
 
 public:
 	struct EditResult{
-		bool ok;
-		wt::Model* model;
-		wt::Model::GeometrySkin* skin;
-		wt::PhysicsActor::ActorType type;
-		wt::PhysicsActor::Desc physicsDesc;
+		wt::ASceneActor::ActorType type;
 		QString name;
+
+		bool ok;
+
+		struct {
+			wt::Model* model;
+			wt::Model::GeometrySkin* skin;
+			wt::PhysicsActor::ActorType type;
+			wt::PhysicsActor::Desc physicsDesc;
+		} modelledActor;
+
+		struct{
+			wt::ParticleEffectResource* effect;
+		} particleEffect;
 	};
 
 	EditResult mResult;
 
-private:
-	wt::AResourceSystem* mAssets;
-    Ui::ActorCreationDialog ui;
-
-	void setModel(wt::Model* model);
-
-	void updateTabs(){
-		//int ctrl = ui.comboBoxCtrlMode->currentIndex();
-	}
-
 public:
     ActorCreationDialog(QWidget* parent, wt::AResourceSystem* assets);
 
-	static EditResult edit(QWidget* parent,  wt::AResourceSystem* assets, wt::ModelledActor* actor=NULL){
+	static EditResult edit(QWidget* parent,  wt::AResourceSystem* assets, wt::ASceneActor* actor=NULL){
 		ActorCreationDialog dlg(parent, assets);
 		dlg.exec();
 
@@ -48,12 +47,21 @@ public:
 	}
 
 protected slots:
+	void onSave();
 
 	void onModelPick();
 
-	void onSave();
-	
 	void onGeometryChanged(int);
+
+	void onParticlePick();
+
+	void onActorTypeChanged(int);
+
+private:
+	wt::AResourceSystem* mAssets;
+    Ui::ActorCreationDialog ui;
+
+	void setModel(wt::Model* model);
 
 }; // </ActorCreationDialog>
 

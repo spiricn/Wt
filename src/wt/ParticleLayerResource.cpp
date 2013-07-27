@@ -32,10 +32,11 @@ ParticleLayerResource::LayerDesc::LayerDesc() :
 	randomVelocity(0, 0, 0),
 	emissionVolume(0, 0, 0),
 	minLife(4), maxLife(4),
-	minSize(10), maxSize(10),
+	minSize(0.1), maxSize(2),
 	sizeGrow(0),
 	emissionRate(10),
 	particleNumber(200),
+	simulateInWorldSpace(false),
 	texture(NULL){
 		colorAnimation[0] = Color(1, 1, 1, 0);
 		colorAnimation[1] = Color::white();

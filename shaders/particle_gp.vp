@@ -20,9 +20,6 @@ out vec3 outVelocity;
 out float outSize;
 out float outMaxLife;
 
-// Emittor position
-uniform vec3 uPosition;
-
 // Time delta since the last update
 uniform float uDt;
 
@@ -45,6 +42,10 @@ uniform float uEmissionRate;
 uniform vec3 uEmissionVolume;
 
 uniform sampler2D uRandomTexture;
+
+uniform mat4 uModelMat;
+
+uniform int uWorldSpaceSim;
 
 int seed;
 
@@ -98,7 +99,15 @@ void main(){
 			outType = TYPE_PARTICLE;
 
 			// Calculate starting position
-			outPosition = uPosition + ( -uEmissionVolume + 2*randomSample()*uEmissionVolume );
+			vec3 positionOffset = ( -uEmissionVolume + 2*randomSample()*uEmissionVolume );
+
+
+			if(uWorldSpaceSim == 1){
+				outPosition = (uModelMat * vec4(outPosition, 1.0)).xyz;
+			}
+			else{
+				outPosition = positionOffset;
+			}
 
 			// Randomize life (between min and max)
 			outLife = uMinLife + (uMaxLife-uMinLife)*r.x;
