@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>523</width>
-    <height>420</height>
+    <width>535</width>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,8 +24,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>503</width>
-        <height>400</height>
+        <width>515</width>
+        <height>625</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
@@ -56,13 +56,30 @@
           <string>Layer edit</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="10" column="1" colspan="2">
+          <item row="9" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Texture</string>
+            </property>
+           </widget>
+          </item>
+          <item row="11" column="1" colspan="2">
            <widget class="ColorEditWidget" name="color2" native="true"/>
           </item>
-          <item row="9" column="1" colspan="2">
+          <item row="10" column="1" colspan="2">
            <widget class="ColorEditWidget" name="color1" native="true"/>
           </item>
-          <item row="9" column="0">
+          <item row="12" column="1" colspan="2">
+           <widget class="ColorEditWidget" name="color3" native="true"/>
+          </item>
+          <item row="9" column="2">
+           <widget class="QPushButton" name="pushButton_3">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
              <string>Color 1</string>
@@ -76,7 +93,7 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="0">
+          <item row="12" column="0">
            <widget class="QLabel" name="label_11">
             <property name="text">
              <string>Color 3</string>
@@ -90,42 +107,35 @@
             </property>
            </widget>
           </item>
-          <item row="12" column="0">
+          <item row="13" column="0">
            <widget class="QLabel" name="label_12">
             <property name="text">
              <string>Color 4</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
+          <item row="7" column="0">
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>Size grow</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
              <string>Emission volume</string>
             </property>
            </widget>
           </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>Texture</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
+          <item row="8" column="1">
            <widget class="QSpinBox" name="particleNum">
             <property name="enabled">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="7" column="1">
            <widget class="QDoubleSpinBox" name="sizeGrow">
             <property name="minimum">
              <double>-100.000000000000000</double>
@@ -138,57 +148,57 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
              <string>Size (minimum, maximum)</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>Life (minimum, maximum)</string>
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
+          <item row="9" column="1">
            <widget class="QLineEdit" name="texture"/>
           </item>
-          <item row="8" column="2">
-           <widget class="QPushButton" name="pushButton_3">
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="0">
+          <item row="11" column="0">
            <widget class="QLabel" name="label_10">
             <property name="text">
              <string>Color 2</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
+          <item row="8" column="0">
            <widget class="QLabel" name="label_7">
             <property name="text">
              <string>Particle number limit</string>
             </property>
            </widget>
           </item>
-          <item row="11" column="1" colspan="2">
-           <widget class="ColorEditWidget" name="color3" native="true"/>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Emission rate</string>
+            </property>
+           </widget>
           </item>
-          <item row="12" column="1" colspan="2">
+          <item row="3" column="1">
+           <widget class="QDoubleSpinBox" name="emissionRate"/>
+          </item>
+          <item row="13" column="1" colspan="2">
            <widget class="ColorEditWidget" name="color4" native="true"/>
           </item>
-          <item row="5" column="1">
+          <item row="6" column="1">
            <widget class="VecEditWidget" name="size" native="true"/>
           </item>
-          <item row="4" column="1">
+          <item row="5" column="1">
            <widget class="VecEditWidget" name="life" native="true"/>
           </item>
-          <item row="3" column="1" colspan="2">
+          <item row="4" column="1" colspan="2">
            <widget class="VecEditWidget" name="emissionVol" native="true"/>
           </item>
           <item row="1" column="1" colspan="2">
@@ -197,15 +207,12 @@
           <item row="0" column="1" colspan="2">
            <widget class="VecEditWidget" name="localVel" native="true"/>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_13">
+          <item row="2" column="1" colspan="2">
+           <widget class="QCheckBox" name="worldSpaceSim">
             <property name="text">
-             <string>Emission rate</string>
+             <string>Simulate in world space</string>
             </property>
            </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QDoubleSpinBox" name="emissionRate"/>
           </item>
          </layout>
         </widget>
@@ -264,8 +271,8 @@
    <slot>onNewLayer()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>328</y>
+     <x>60</x>
+     <y>625</y>
     </hint>
     <hint type="destinationlabel">
      <x>74</x>
@@ -280,8 +287,8 @@
    <slot>onDeleteLayer()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>328</y>
+     <x>186</x>
+     <y>625</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
@@ -296,8 +303,8 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>44</y>
+     <x>505</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -312,8 +319,8 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>507</x>
-     <y>63</y>
+     <x>505</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>366</x>
@@ -328,8 +335,8 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>590</x>
-     <y>108</y>
+     <x>505</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
      <x>452</x>
@@ -344,8 +351,8 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>509</x>
-     <y>127</y>
+     <x>424</x>
+     <y>284</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -360,8 +367,8 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>443</x>
-     <y>150</y>
+     <x>424</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
@@ -376,8 +383,8 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>509</x>
-     <y>174</y>
+     <x>424</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
@@ -392,8 +399,8 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>509</x>
-     <y>200</y>
+     <x>424</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>193</x>
@@ -408,11 +415,11 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>509</x>
-     <y>227</y>
+     <x>424</x>
+     <y>413</y>
     </hint>
     <hint type="destinationlabel">
-     <x>555</x>
+     <x>534</x>
      <y>263</y>
     </hint>
    </hints>
@@ -424,11 +431,11 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>592</x>
-     <y>255</y>
+     <x>505</x>
+     <y>465</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
+     <x>534</x>
      <y>321</y>
     </hint>
    </hints>
@@ -440,11 +447,11 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>592</x>
-     <y>301</y>
+     <x>505</x>
+     <y>565</y>
     </hint>
     <hint type="destinationlabel">
-     <x>553</x>
+     <x>534</x>
      <y>322</y>
     </hint>
    </hints>
@@ -456,11 +463,11 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>466</x>
-     <y>324</y>
+     <x>505</x>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
-     <x>547</x>
+     <x>534</x>
      <y>322</y>
     </hint>
    </hints>
@@ -472,11 +479,11 @@
    <slot>onPickTexture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>591</x>
-     <y>227</y>
+     <x>505</x>
+     <y>415</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
+     <x>534</x>
      <y>221</y>
     </hint>
    </hints>
@@ -488,11 +495,11 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>487</x>
-     <y>89</y>
+     <x>424</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
-     <x>607</x>
+     <x>534</x>
      <y>5</y>
     </hint>
    </hints>
@@ -504,12 +511,28 @@
    <slot>onParamChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>593</x>
-     <y>278</y>
+     <x>505</x>
+     <y>515</y>
     </hint>
     <hint type="destinationlabel">
-     <x>607</x>
+     <x>534</x>
      <y>322</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>worldSpaceSim</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ParticleEditDialog</receiver>
+   <slot>onParamChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>389</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>201</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>

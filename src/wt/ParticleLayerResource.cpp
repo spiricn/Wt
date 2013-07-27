@@ -36,7 +36,7 @@ ParticleLayerResource::LayerDesc::LayerDesc() :
 	sizeGrow(0),
 	emissionRate(10),
 	particleNumber(200),
-	simulateInWorldSpace(false),
+	simulateInWorldSpace(true),
 	texture(NULL){
 		colorAnimation[0] = Color(1, 1, 1, 0);
 		colorAnimation[1] = Color::white();

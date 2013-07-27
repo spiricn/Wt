@@ -57,6 +57,8 @@ void ParticleEffectResource::serialize(LuaPlus::LuaObject& effectTable){
 
 		dst.Set("particleNum", mDesc.particleNumber);
 
+		dst.Set("worldSpaceSim", mDesc.simulateInWorldSpace);
+
 		if(mDesc.texture){
 			dst.Set("texture", mDesc.texture->getPath().c_str());
 		}
@@ -111,6 +113,7 @@ ParticleLayerResource* ParticleEffectResource::createLayer(const String& name, A
 	Lua::luaConv(src.Get("size.grow"), desc.sizeGrow);
 	Lua::luaConv(src.Get("emissionRate"), desc.emissionRate);
 	Lua::luaConv(src.Get("particleNum"), desc.particleNumber);
+	Lua::luaConv(src.Get("worldSpaceSim"), desc.simulateInWorldSpace);
 
 	String texPath;
 	LuaObject luaTexPath = src.Get("texture");

@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>380</width>
+    <width>396</width>
     <height>41</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_4">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -21,38 +21,43 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="VecEditWidget" name="color" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>3</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::WinPanel</enum>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pickButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-     <property name="text">
-      <string>...</string>
-     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="margin">
+       <number>3</number>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="ColorDisplayWidget" name="color" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>3</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>VecEditWidget</class>
+   <class>ColorDisplayWidget</class>
    <extends>QWidget</extends>
-   <header>veceditwidget.h</header>
+   <header>colordisplaywidget.h</header>
    <container>1</container>
    <slots>
-    <signal>valueChanged()</signal>
+    <signal>clicked()</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -60,33 +65,17 @@
  <connections>
   <connection>
    <sender>color</sender>
-   <signal>valueChanged()</signal>
-   <receiver>ColorEditWidget</receiver>
-   <slot>onValueChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>137</x>
-     <y>26</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>184</x>
-     <y>3</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pickButton</sender>
    <signal>clicked()</signal>
    <receiver>ColorEditWidget</receiver>
    <slot>onPickColor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>274</x>
-     <y>25</y>
+     <x>139</x>
+     <y>23</y>
     </hint>
     <hint type="destinationlabel">
-     <x>296</x>
-     <y>0</y>
+     <x>199</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>

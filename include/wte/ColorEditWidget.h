@@ -20,8 +20,6 @@ protected slots:
 
 	void onPickColor();
 
-	void onValueChanged();
-
 	void onColorPicked(const QColor&);
 
 signals:

@@ -59,14 +59,20 @@ void ParticleEditDialog::loadLayer(wt::ParticleLayerResource* layer){
 	ui.color3->setColor( desc.colorAnimation[2] );
 	ui.color4->setColor( desc.colorAnimation[3] );
 
+	ui.worldSpaceSim->setChecked(desc.simulateInWorldSpace);
+	
 	mLoadingLayer = false;
 }
+
+#include <qcolordialog.h>
 
 void ParticleEditDialog::onParamChanged(){
 	if(mLoadingLayer || !mCurrentLayer){
 		return;
 	}
 
+	//QColorDialog::QColorShow
+	
 	wt::ParticleLayerResource::LayerDesc& desc = mCurrentLayer->getDesc();
 
 	ui.localVel->getValue(desc.localVelocity);
@@ -84,6 +90,8 @@ void ParticleEditDialog::onParamChanged(){
 	desc.colorAnimation[1] = ui.color2->getColor();
 	desc.colorAnimation[2] = ui.color3->getColor();
 	desc.colorAnimation[3] = ui.color4->getColor();
+
+	desc.simulateInWorldSpace = ui.worldSpaceSim->isChecked();
 }
 
 void ParticleEditDialog::setEffect(wt::ParticleEffectResource* effect){

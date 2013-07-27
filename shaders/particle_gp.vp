@@ -101,9 +101,8 @@ void main(){
 			// Calculate starting position
 			vec3 positionOffset = ( -uEmissionVolume + 2*randomSample()*uEmissionVolume );
 
-
 			if(uWorldSpaceSim == 1){
-				outPosition = (uModelMat * vec4(outPosition, 1.0)).xyz;
+				outPosition = (uModelMat * vec4(positionOffset, 1.0)).xyz;
 			}
 			else{
 				outPosition = positionOffset;
@@ -114,8 +113,20 @@ void main(){
 			outMaxLife = outLife;
 
 			// Randomize velocity
+			vec3 velOffset = (-uRandomVelocity + 2*randomSample()*uRandomVelocity);
+
+			if(uWorldSpaceSim == 1){
+				mat4 rotationMat = uModelMat;
+				rotationMat[3][0] = 0;
+				rotationMat[3][1] = 0;
+				rotationMat[3][2] = 0;
+
+				outVelocity = (rotationMat*vec4(uLocalVelocity + velOffset, 1.0)).xyz;
+			}
+			else{
+				outVelocity = uLocalVelocity + velOffset;
+			}
 			
-			outVelocity = uLocalVelocity + (-uRandomVelocity + 2*randomSample()*uRandomVelocity);
 			
 			// Randomize size
 			outSize = uMinSize + (uMaxSize-uMinSize)*r.y;
@@ -128,6 +139,7 @@ void main(){
 	// Update the particle if its not dead
 	else if(life > 0){
 		outPosition.xyz = gPosition[0] + gVelocity[0] * uDt;
+
 		outLife = life;
 		outVelocity = gVelocity[0];
 		outType = gType[0];
