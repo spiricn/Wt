@@ -23,7 +23,7 @@
 
 using namespace wt;
 
-#if 1
+#if 0
 
 #if defined(WT_DEMO_NO_CONSOLE) && defined(WIN32)
 	#pragma comment(linker, "/SUBSYSTEM:windows")
@@ -83,19 +83,41 @@ int main(){
 #else
 
 
-#include "wt/exception.h"
+#include "wt/lua/State.h"
 
-#include <wt/FileIOStream.h>
-#include <wt/Sp.h>
+int cnt = 0;
+class TestClass1 : public lua::Object<TestClass1>{
+public:
+	
+	int mcnt;
+	TestClass1(){
+		mcnt = ++cnt;
+	}
 
-#include <wt/ZipFileSystem.h>
-#include <wt/LocalFileSystem.h>
+	void test(const char* info){
+		LOG("TEST CLASS 1 : id = %d (info=%s)", mcnt, info);
+	}
 
+	void generateMetaTable(LuaObject& table){
+		expose("test", &TestClass1::test);
+	}
 
+};
 
-
+extern "C"{
+	 #include <src/lualib.h>
+}
+//#include "src/lua.h"
 int main(){
+	lua::State state;
 
+	TestClass1 obj;
+	LuaObject luaObj = state.box(obj);
+	state->GetGlobals().Set("Obj", luaObj);
+
+	lua::ScriptPtr s =  state.createScript("test_script.lua");
+	LOG("%d", s->getState().Get("Obj").IsNil());
+	
 }
 
 #endif

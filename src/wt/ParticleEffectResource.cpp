@@ -75,7 +75,7 @@ void ParticleEffectResource::serialize(LuaPlus::LuaObject& effectTable){
 
 			Lua::luaConv(mDesc.colorAnimation[i], color);
 
-			colorAni.Set(i, color);
+			colorAni.Set(i+1, color);
 		}
 
 		dst.Set("color.anim", colorAni);
