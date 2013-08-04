@@ -7,62 +7,54 @@
 #include "wt/lua/Script.h"
 #include "wt/lua/Object.h"
 
-namespace wt{
+#define TD_TRACE_TAG "LuaState"
 
-namespace lua{
+namespace wt{
 
 using namespace LuaPlus;
 
+namespace lua{
 
 typedef Sp<Script> ScriptPtr;
 
 class State{
 public:
-	State() : mState(true /*init standard library*/){
-	}
 
-	ScriptPtr createScript(const char* scriptFile){
-		ScriptPtr script = new Script(this);
-		script->getState().AssignNewTable(mState);
+	/*mGlobalState->DoString(
+			"package.path = package.path .. \";d:/Documents/Programiranje/C++/Projekti/wt/assets/scripts/?.lua\"\n"
+			);*/
 
-		script->getState().Set("__index", mState->GetGlobal("_G"));
-		script->getState().SetMetaTable(script->getState());
+	State(bool registerLogging=true);
 
-		mState->DoFile(scriptFile, script->getState());
+	ScriptPtr createScript(const char* scriptFile);
 
-		return script;
-	}
+	void assignTable(LuaObject& obj);
 
-	void assignTable(LuaObject& obj){
-		obj.AssignNewTable(mState);
-	}
+	LuaObject newTable();
 
 	template<class T>
-	LuaObject box(Object<T>& instance, const char* name){
-		LuaObject obj = box(instance);
-		mState->GetGlobals().Set(name, obj);
-	}
-
-	template<class T>
-	LuaObject box(Object<T>& instance){
+	LuaObject box(T& instance){
 		MetaInfo* mi = instance.getMetaInfo();
 
 		if(mi->meta == NULL){
 			mi->meta = new LuaObject;
 			mi->meta->AssignNewTable(mState);
-			instance.generateMetaTable(*mi->meta);
+			instance.generateMetaTable();
+
 			mi->meta->SetObject("__index", *mi->meta);
 		}
 
-		LuaObject obj = mState->BoxPointer(&instance);
-		obj.SetMetaTable(*mi->meta);
+		LuaObject luaObj = mState->BoxPointer(&instance);
+		luaObj.SetMetaTable(*mi->meta);
 
-		return obj;
+		return luaObj;
 	}
 
-	LuaStateOwner& operator->(){
-		return mState;
-	}
+	String getErrorString();
+
+	LuaStateOwner& getStateOwner();
+
+	LuaObject getGlobals();
 
 private:
 	LuaStateOwner mState;
@@ -73,5 +65,6 @@ private:
 
 }; // </wt>
 
+#define TD_TRACE_TAG ""
 
 #endif // </WT_LUASTATE_H>

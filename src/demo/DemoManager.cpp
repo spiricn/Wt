@@ -108,7 +108,7 @@ void DemoManager::initialize(){
 
 	LOG("Setting working directory \"%s\"", WORK_DIR);
 
-	mEventManager = new EventManager;
+	mEventManager = new EventManager(&mLuaState);
 
 	// game input
 	mInput = new SDLGameInput;

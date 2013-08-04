@@ -41,25 +41,33 @@ EventManager::InternalEventReg::InternalEventReg() : ARegisteredEvent(eEVENT_INT
 }
 
 void EventManager::InternalEventReg::queueFromScript(LuaObject& data){
-	LOGE("InternalEvent", "Internal events can not be queued from script");
+	TRACEE("Internal events can not be queued from script");
 }
 
-EventManager::EventManager(){
+EventManager::EventManager(lua::State* luaState) : mLuaState(luaState){
 }
 
 EventManager::~EventManager(){
 	mScriptListeners.clear();
 }
 
-void EventManager::addScriptListener(const EvtType& eventType, LuaObject& callback){
+bool EventManager::addScriptListener(const char* eventType, LuaObject callback){
 	if(!isRegistered(eventType)){
-		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
-			eventType.c_str()
-			);
+		TRACEE("Trying to register a listener for an unregistered event type \"%s\"",
+			eventType
+		);
+		return false;
+	}
+
+	if(!callback.IsFunction()){
+		TRACEE("Invalid callback function object (got %s instead of function)", callback.TypeName());
+		return false;
 	}
 
 	mScriptListeners.insert( std::pair<EvtType,
 		ScriptEventListener*>(eventType, new ScriptEventListener(callback)) );
+
+	return true;
 }
 
 inline bool EventManager::isRegistered(const EvtType& type){
@@ -109,7 +117,7 @@ void EventManager::registerInternalEvent(const EvtType& eventType){
 	registerEvent(eventType, new InternalEventReg);
 }
 
-void EventManager::registerScriptEvent(const EvtType& eventType){
+void EventManager::registerScriptEvent(const char* eventType){
 	registerEvent(eventType, new ScriptEventReg(this, eventType) );
 }
 
@@ -165,7 +173,7 @@ void EventManager::unregisterListener(EventListener* listener, const EvtType& ev
 }
 
 void EventManager::queueEvent(EvtPtr evt){
-	mMutex.lock();
+	//mMutex.lock();
 
 	if(!isRegistered(evt->getType())){
 		WT_THROW(
@@ -177,13 +185,16 @@ void EventManager::queueEvent(EvtPtr evt){
 		mEventList.push_back(evt); // add the event to back of the list
 	}
 
-	mMutex.unlock();
+	//mMutex.unlock();
 }
 
 /** process active queue by popping from front of the list (FIFO) untill the time constraint runs out
 	we do not use a iterator because the list size might change during the processing (one event adds another one to the queue) */
 void EventManager::tick(){
-	mMutex.lock();
+	// TODO Will cause deadlock if an event handler queues another event
+	// Should probably use concurrent queue for this instead
+
+	//mMutex.lock();
 
 	/* Using a counter to prevent recursive event adition (i.e. notification of one event causes another to be queued) */
 	uint32_t maxEvents = mEventList.size();
@@ -241,36 +252,27 @@ void EventManager::tick(){
 		mEventList.pop_front();
 	}
 
-	mMutex.unlock();
+	//mMutex.unlock();
 }
 
-
-void EventManager::lua_addScriptListener(const char* eventType, LuaObject callback){
-	addScriptListener(eventType, callback);
-}
-
-void EventManager::lua_queueEvent(const char* type, LuaObject data){
+void EventManager::queueEvent(const char* type, LuaObject data){
 	if(!isRegistered(type)){
-		LOGE("Trying to queue an unregistered event of type \"%s\"", type);
+		TRACEE("Trying to queue an unregistered event of type \"%s\"", type);
+		return;
 	}
-	else{
-		mRegisteredEvents.find(type)->second->queueFromScript(data);
-	}
+	
+	mRegisteredEvents.find(type)->second->queueFromScript(data);
 }
 
-void EventManager::lua_registerScriptEvent(const char* type){
-	registerScriptEvent(type);
-}
 
-void EventManager::expose(LuaObject& meta){
-	meta.RegisterObjectDirect("addScriptListener",
-		(EventManager*)0, &EventManager::lua_addScriptListener);
+void EventManager::generateMetaTable(){
+	expose("addScriptListener", &EventManager::addScriptListener);
 
-	meta.RegisterObjectDirect("queueEvent",
-		(EventManager*)0, &EventManager::lua_queueEvent);
+	expose("registerScriptEvent", &EventManager::registerScriptEvent);
 
-	meta.RegisterObjectDirect("registerEvent",
-		(EventManager*)0, &EventManager::lua_registerScriptEvent);
+	// Removing ambiguity
+	typedef void (EventManager::*a)(const char*, LuaObject);
+	expose("queueEvent", (a)(&EventManager::queueEvent));
 }
 
 }; // </wt>

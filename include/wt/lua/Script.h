@@ -15,20 +15,16 @@ class Script{
 friend class State;
 
 public:
-	LuaObject& getState(){
-		return mState;
-	}
+	LuaObject& getState();
 
-	const LuaObject& getState() const{
-		return mState;
-	}
+	const LuaObject& getState() const;
 
-	void doFile(const String& path){
-	}
+	State* getParent() const;
+
+	~Script();
 
 protected:
-	Script(State* parent) : mParent(parent){
-	}
+	Script(State* parent);
 
 private:
 	LuaObject mState;

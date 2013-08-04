@@ -89,6 +89,7 @@ public:
 	AResourceManager(AResourceSystem* assets) : mHandleCount(0), mLoader(NULL), mResourceSystem(assets){
 		AResourceGroup<T>::setResourceAllocator(this);
 		AResourceGroup<T>::setName("$ROOT");
+		AResourceGroup<T>::setResourceSystem(mResourceSystem);
 	}
 
 	ResourceIterator getResourceIterator(){

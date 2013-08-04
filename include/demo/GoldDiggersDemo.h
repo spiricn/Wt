@@ -14,7 +14,7 @@ protected:
 	}
 
 	void deserialize(LuaObject& src){
-		Lua::luaConv(src, time);
+		lua::luaConv(src, time);
 	}
 
 public:
@@ -67,57 +67,57 @@ public:
 	}
 
 	void onStart(const LuaObject& cfg){
-		getCameraControl()->setCamera(&getScene()->getCamera());
-		mEventTable.init(this, getEventManager());
-		getEventManager()->registerInternalEvent(OnGameUpdateEvent::TYPE);
+		//getCameraControl()->setCamera(&getScene()->getCamera());
+		//mEventTable.init(this, getEventManager());
+		//getEventManager()->registerInternalEvent(OnGameUpdateEvent::TYPE);
 	
-		LuaStateManager::getSingleton().registerObject(
-			getScene(), // instance
-			LuaStateManager::getSingleton().exposeObject(getScene(), "SceneMetaTable"), // meta
-			"Scene" // object name
-		);
+		//LuaStateManager::getSingleton().registerObject(
+		//	getScene(), // instance
+		//	LuaStateManager::getSingleton().exposeObject(getScene(), "SceneMetaTable"), // meta
+		//	"Scene" // object name
+		//);
 
-		LuaStateManager::getSingleton().registerObject(
-			getEventManager(), // instance
-			LuaStateManager::getSingleton().exposeObject(getEventManager(), "EventManagerMetaTable"), // meta
-			"EventManager" // object name
-		);
+		////LuaStateManager::getSingleton().registerObject(
+		////	getEventManager(), // instance
+		////	LuaStateManager::getSingleton().exposeObject(getEventManager(), "EventManagerMetaTable"), // meta
+		////	"EventManager" // object name
+		////);
 
-		LuaStateManager::getSingleton().registerObject(
-			getPhysics(), // instance
-			LuaStateManager::getSingleton().exposeObject(getPhysics(), "PhysicsMetaTable"), // meta
-			"Physics" // object name
-		);
-		
-		mSoundSystem = new SFSoundSystem((SFSoundManager*)getAssets()->getSoundManager());
+		//LuaStateManager::getSingleton().registerObject(
+		//	getPhysics(), // instance
+		//	LuaStateManager::getSingleton().exposeObject(getPhysics(), "PhysicsMetaTable"), // meta
+		//	"Physics" // object name
+		//);
+		//
+		//mSoundSystem = new SFSoundSystem((SFSoundManager*)getAssets()->getSoundManager());
 
-		LuaStateManager::getSingleton().registerObject(
-			mSoundSystem, // instance
-			LuaStateManager::getSingleton().exposeObject(mSoundSystem, "SoundMetaTable"), // meta
-			"Sound" // object name
-		);
-
-
-		/*try{
-			LuaStateManager::getSingleton().doFile("lua/vec3.lua");
-		}catch(Exception& e){
-			LOGE("Demo", e.getFullDescription().c_str());
-			stopDemo();
-		}*/
+		//LuaStateManager::getSingleton().registerObject(
+		//	mSoundSystem, // instance
+		//	LuaStateManager::getSingleton().exposeObject(mSoundSystem, "SoundMetaTable"), // meta
+		//	"Sound" // object name
+		//);
 
 
-		getUi().setGridSize(10, 20);
-		getUi().setDefaultScaleMode(Gui::View::eGRID);
+		///*try{
+		//	LuaStateManager::getSingleton().doFile("lua/vec3.lua");
+		//}catch(Exception& e){
+		//	LOGE("Demo", e.getFullDescription().c_str());
+		//	stopDemo();
+		//}*/
 
-		
-		try{
-			LuaStateManager::getSingleton().doFile("assets/demo/GoldDiggersDemo/game.lua");
-		}catch(Exception& e){
-			LOGE("Demo", e.getFullDescription().c_str());
-			system("pause");
-		}
 
-		//getRenderer()->setRenderBones(true);
+		//getUi().setGridSize(10, 20);
+		//getUi().setDefaultScaleMode(Gui::View::eGRID);
+
+		//
+		//try{
+		//	LuaStateManager::getSingleton().doFile("assets/demo/GoldDiggersDemo/game.lua");
+		//}catch(Exception& e){
+		//	LOGE("Demo", e.getFullDescription().c_str());
+		//	system("pause");
+		//}
+
+		////getRenderer()->setRenderBones(true);
 	}
 
 	void onTargetLost(){

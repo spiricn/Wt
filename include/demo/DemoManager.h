@@ -29,7 +29,6 @@
 #include "wt/Assets.h"
 #include "wt/SDLGameWindow.h"
 #include "wt/SDLGameInput.h"
-#include "wt/LuaStateManager.h"
 #include "wt/Font.h"
 #include "wt/net/Socket.h"
 #include "wt/Lua.h"
@@ -62,12 +61,16 @@ private:
 	FILE* mLogFile;
 	ADemo* mActiveDemo;
 	String mStartupDemo;
+	lua::State mLuaState;
 
 public:
 	DemoManager();
 
 	~DemoManager();
 
+	lua::State* getLuaState(){
+		return &mLuaState;
+	}
 
 	AGameWindow* getWindow() const;
 

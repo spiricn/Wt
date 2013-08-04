@@ -2,17 +2,17 @@
 
 #include "wt/ParticleEffectResource.h"
 #include "wt/ParticleLayerResource.h"
+#include "wt/Lua.h"
 
 namespace wt{
 
 ParticleEffectResource::ParticleEffectResource(AResourceManager<ParticleEffectResource>* manager, ResourceHandle handle, const String& name) : AResource(manager, handle, name){
 }
 
-void ParticleEffectResource::serialize(LuaPlus::LuaObject& effectTable){
-	AResource::serialize(effectTable);
+void ParticleEffectResource::serialize(lua::State* luaState, LuaPlus::LuaObject& effectTable){
+	AResource::serialize(luaState, effectTable);
 
-	LuaObject layerTable;
-	LUA_NEW_TABLE(layerTable);
+	LuaObject layerTable = luaState->newTable();
 	effectTable.Set("layers", layerTable);
 
 	for(LayerMap::iterator iter=mLayers.begin(); iter!=mLayers.end(); iter++){
@@ -20,29 +20,25 @@ void ParticleEffectResource::serialize(LuaPlus::LuaObject& effectTable){
 		// TODO change name
 		const ParticleLayerResource::LayerDesc& mDesc = iter->second->getDesc();
 
-		LuaObject dst;
-		LUA_NEW_TABLE(dst);
+		LuaObject dst = luaState->newTable();
 		layerTable.Set(iter->first.c_str(), dst);
 
 		// Local velocity
-		LuaObject velLocal;
-		LUA_NEW_TABLE(velLocal);
+		LuaObject velLocal = luaState->newTable();
 
-		Lua::luaConv(mDesc.localVelocity, velLocal);
+		lua::luaConv(mDesc.localVelocity, velLocal);
 		dst.Set("vel.local", velLocal);
 
 		// Random velocity
-		LuaObject velRnd;
-		LUA_NEW_TABLE(velRnd);
+		LuaObject velRnd = luaState->newTable();
 
-		Lua::luaConv(mDesc.randomVelocity, velRnd);
+		lua::luaConv(mDesc.randomVelocity, velRnd);
 		dst.Set("vel.rnd", velRnd);
 
 		// emissionVol
-		LuaObject emissionVol;
-		LUA_NEW_TABLE(emissionVol);
+		LuaObject emissionVol = luaState->newTable();
 
-		Lua::luaConv(mDesc.emissionVolume, emissionVol);
+		lua::luaConv(mDesc.emissionVolume, emissionVol);
 		dst.Set("emissionVol", emissionVol);
 
 
@@ -66,14 +62,12 @@ void ParticleEffectResource::serialize(LuaPlus::LuaObject& effectTable){
 			dst.Set("texture", 0);
 		}
 
-		LuaObject colorAni;
-		LUA_NEW_TABLE(colorAni);
+		LuaObject colorAni = luaState->newTable();
 
 		for(uint32_t i=0; i<mDesc.kMAX_COLORS; i++){
-			LuaObject color;
-			LUA_NEW_TABLE(color);
+			LuaObject color = luaState->newTable();
 
-			Lua::luaConv(mDesc.colorAnimation[i], color);
+			lua::luaConv(mDesc.colorAnimation[i], color);
 
 			colorAni.Set(i+1, color);
 		}
@@ -103,22 +97,22 @@ ParticleLayerResource* ParticleEffectResource::createLayer(const String& name, A
 	
 	ParticleLayerResource::LayerDesc desc;
 
-	Lua::luaConv(src.Get("vel.local"), desc.localVelocity);
-	Lua::luaConv(src.Get("vel.rnd"), desc.randomVelocity);
-	Lua::luaConv(src.Get("emissionVol"), desc.emissionVolume);
-	Lua::luaConv(src.Get("life.min"), desc.minLife);
-	Lua::luaConv(src.Get("life.max"), desc.maxLife);
-	Lua::luaConv(src.Get("size.min"), desc.minSize);
-	Lua::luaConv(src.Get("size.max"), desc.maxSize);
-	Lua::luaConv(src.Get("size.grow"), desc.sizeGrow);
-	Lua::luaConv(src.Get("emissionRate"), desc.emissionRate);
-	Lua::luaConv(src.Get("particleNum"), desc.particleNumber);
-	Lua::luaConv(src.Get("worldSpaceSim"), desc.simulateInWorldSpace);
+	lua::luaConv(src.Get("vel.local"), desc.localVelocity);
+	lua::luaConv(src.Get("vel.rnd"), desc.randomVelocity);
+	lua::luaConv(src.Get("emissionVol"), desc.emissionVolume);
+	lua::luaConv(src.Get("life.min"), desc.minLife);
+	lua::luaConv(src.Get("life.max"), desc.maxLife);
+	lua::luaConv(src.Get("size.min"), desc.minSize);
+	lua::luaConv(src.Get("size.max"), desc.maxSize);
+	lua::luaConv(src.Get("size.grow"), desc.sizeGrow);
+	lua::luaConv(src.Get("emissionRate"), desc.emissionRate);
+	lua::luaConv(src.Get("particleNum"), desc.particleNumber);
+	lua::luaConv(src.Get("worldSpaceSim"), desc.simulateInWorldSpace);
 
 	String texPath;
 	LuaObject luaTexPath = src.Get("texture");
 	if(luaTexPath.IsString()){
-		Lua::luaConv(luaTexPath, texPath);
+		lua::luaConv(luaTexPath, texPath);
 		desc.texture = assets->getTextureManager()->getFromPath(texPath);
 	}
 
@@ -130,7 +124,7 @@ ParticleLayerResource* ParticleEffectResource::createLayer(const String& name, A
 	for(uint32_t i=0; i<ParticleLayerResource::LayerDesc::kMAX_COLORS; i++){
 		LuaObject& colorAnim = src.Get("color.anim");
 
-		Lua::luaConv(colorAnim.Get(i+1), desc.colorAnimation[i]);
+		lua::luaConv(colorAnim.Get(i+1), desc.colorAnimation[i]);
 	}
 
 	layer->getDesc() = desc;
@@ -161,7 +155,7 @@ ParticleEffectResource::LayerMap& ParticleEffectResource::getLayerMap(){
 	return mLayers;
 }
 
-void ParticleEffectResource::deserialize(const LuaPlus::LuaObject& src){
+void ParticleEffectResource::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
 	for(LuaTableIterator iter(src.Get("layers")); iter; iter.Next()){
 		// TODO checks
 		LuaObject& layerTable = iter.GetValue();

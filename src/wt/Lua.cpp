@@ -9,7 +9,7 @@
 
 namespace wt{
 
-namespace Lua{
+namespace lua{
 
 
 using namespace LuaPlus;

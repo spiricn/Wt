@@ -198,7 +198,7 @@ SkyBox* Scene::getSkyBox(){
 
 void Scene::lua_setLightDir(LuaObject obj){
 	if(obj.Get("direction").IsTable()){
-		if(!Lua::luaConv(obj.Get("direction"), mDirectionalLight.mDirection)){
+		if(!lua::luaConv(obj.Get("direction"), mDirectionalLight.mDirection)){
 			// TODO handle
 		}
 	}
@@ -247,7 +247,7 @@ void Scene::lua_setActorPosition(uint32_t actorId, LuaObject luaPos){
 	}
 
 	glm::vec3 pos;
-	if(Lua::luaConv(luaPos, pos)){
+	if(lua::luaConv(luaPos, pos)){
 		if(actor->getPhysicsActor() && actor->getPhysicsActor()->isControlled()){
 			PxExtendedVec3 pxPos;
 			pxConvert(pos, pxPos);
@@ -281,7 +281,7 @@ void Scene::lua_attachActor(uint32_t id1, uint32_t id2, const char* boneName){
 
 void Scene::lua_cameraLookAt(LuaObject luaPos){
 	glm::vec3 pos;
-	if(Lua::luaConv(luaPos, pos)){
+	if(lua::luaConv(luaPos, pos)){
 		mCamera->lookAt(pos);
 	}
 	else{
@@ -292,7 +292,7 @@ void Scene::lua_cameraLookAt(LuaObject luaPos){
 
 void Scene::lua_setActorFacing(uint32_t actorId, LuaObject luaFacing){
 	glm::vec3 facing;
-	Lua::luaConv(luaFacing, facing);
+	lua::luaConv(luaFacing, facing);
 
 	SceneActor* actor = getActorById(actorId);
 	if(actor == NULL){
@@ -312,7 +312,7 @@ void Scene::lua_createActorController(uint32_t actorId, LuaObject physicsGroup, 
 
 	PhysicsActor::Desc desc;
 
-	if(!Lua::luaConv(physicsGroup, desc.group)){
+	if(!lua::luaConv(physicsGroup, desc.group)){
 		desc.group = 0;
 	}
 	
@@ -326,8 +326,8 @@ void Scene::lua_createActorController(uint32_t actorId, LuaObject physicsGroup, 
 		desc.controllerDesc.geometryDesc.capsuleController.radius = 1;
 	}
 	else{
-		Lua::luaConv(ctrlDesc.Get("radius"), desc.controllerDesc.geometryDesc.capsuleController.radius);
-		Lua::luaConv(ctrlDesc.Get("height"), desc.controllerDesc.geometryDesc.capsuleController.height);
+		lua::luaConv(ctrlDesc.Get("radius"), desc.controllerDesc.geometryDesc.capsuleController.radius);
+		lua::luaConv(ctrlDesc.Get("height"), desc.controllerDesc.geometryDesc.capsuleController.height);
 	}
 
 	desc.pose = actor->getTransform();
@@ -378,7 +378,7 @@ void Scene::lua_moveActor(uint32_t actorId, LuaObject luaDisp, float dt){
 	PxVec3 pxDisp;
 	glm::vec3 disp;
 
-	Lua::luaConv(luaDisp, disp);
+	lua::luaConv(luaDisp, disp);
 	pxConvert(disp, pxDisp);
 
 	// These allow customization of filtering and control >> what the character is colliding with. << ( bullshit ? )
@@ -426,8 +426,8 @@ LuaObject Scene::lua_getActorFacing(uint32_t actorId){
 
 	actor->getTransform().getFacing(forward, up);
 
-	Lua::luaConv(forward, luaForward);
-	Lua::luaConv(up, luaUp);
+	lua::luaConv(forward, luaForward);
+	lua::luaConv(up, luaUp);
 	
 	luaFacing.Set("forward", luaForward);
 	luaFacing.Set("up", luaUp);
@@ -448,7 +448,7 @@ LuaObject Scene::lua_getActorTransform(uint32_t actorId){
 	LuaObject luaPosition;
 	LUA_NEW_TABLE(luaPosition);
 
-	Lua::luaConv(actor->getTransform().getPosition(), luaPosition);
+	lua::luaConv(actor->getTransform().getPosition(), luaPosition);
 
 	luaTransform.Set("position", luaPosition);
 	

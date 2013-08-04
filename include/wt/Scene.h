@@ -27,7 +27,7 @@ class Renderer;
 
 
 
-class Scene : public ALuaObject{
+class Scene{
 friend class Renderer;
 
 public:

@@ -101,7 +101,7 @@ public:
 
 }; // </ActorEnteredRegionEvent>
 
-class Physics : public ALuaObject{
+class Physics{
 private:
     const String TAG;
 

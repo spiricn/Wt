@@ -69,14 +69,14 @@ Color Color::fromHSV(float h, float s, float v){
 	return color;
 }
 
-void Color::serialize(LuaPlus::LuaObject& dst){
+void Color::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 	dst.SetNumber("r", mRed);
 	dst.SetNumber("g", mGreen);
 	dst.SetNumber("b", mBlue);
 	dst.SetNumber("a", mAlpha);
 }
 
-void Color::deserialize(const LuaPlus::LuaObject& src){
+void Color::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
 	#ifdef WT_CHECKED
 	WT_ASSERT(
 		src.Get("r").IsNumber() &&

@@ -1,7 +1,6 @@
 #include "wt/stdafx.h"
 #include "wt/SkyBox.h"
 #include "wt/ImageManager.h"
-#include "wt/LuaStateManager.h"
 
 #define TD_TRACE_TAG "SkyBox"
 
@@ -20,11 +19,11 @@ void SkyBox::bind(){
 	glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture);
 }
 
-void SkyBox::serialize(LuaPlus::LuaObject& dst){
-	AResource::serialize(dst);
+void SkyBox::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+	AResource::serialize(luaState, dst);
 
-	Lua::LuaObject map;
-	LUA_NEW_TABLE(map);
+	lua::LuaObject map = luaState->newTable();
+
 	dst.Set("map", map);
 
 	map.Set("pos_x", mPosX.getPath().c_str());
@@ -37,7 +36,7 @@ void SkyBox::serialize(LuaPlus::LuaObject& dst){
 	map.Set("neg_z", mNegZ.getPath().c_str());
 }
 
-void SkyBox::deserialize(const LuaPlus::LuaObject& table){
+void SkyBox::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 	setImages(
 		mImageManager->getFromPath(table.Get("map").Get("pos_x").ToString()),
 		mImageManager->getFromPath(table.Get("map").Get("neg_x").ToString()),

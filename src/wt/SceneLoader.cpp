@@ -12,7 +12,7 @@ void SceneLoader::load(AIOStream& stream){
 	LuaStateOwner state;
 
 	try{
-		Lua::doStream(state, stream);
+		lua::doStream(state, stream);
 	}catch(...){
 		WT_THROW("Error loading scene - error in executing script from stream");
 	}
@@ -27,7 +27,7 @@ void SceneLoader::load(AIOStream& stream){
 		LuaObject& actorDesc = iter.GetValue();
 
 		String type;
-		if(!Lua::luaConv(actorDesc.Get("type"), type)){
+		if(!lua::luaConv(actorDesc.Get("type"), type)){
 			TRACEW("Invalid actor table (type field missing), skipping table..");
 			continue;
 		}
@@ -75,14 +75,14 @@ void SceneLoader::load(AIOStream& stream){
 	// lights
 	LuaObject dirLight = table.Get("directionalLight");
 	if(dirLight.IsTable()){
-		mScene->getDirectionalLight().deserialize( dirLight );
+		mScene->getDirectionalLight().deserialize(mAssets->getLuastate(), dirLight);
 	}
 
 	LuaObject pointLights = table.Get("pointLights");
 	if(pointLights.IsTable()){
 		for(LuaPlus::LuaTableIterator iter(pointLights); iter; iter.Next()){
 			PointLight pointLight;
-			pointLight.deserialize(iter.GetValue());
+			pointLight.deserialize(mAssets->getLuastate(), iter.GetValue());
 			mScene->addPointLight(pointLight);
 		}
 	}
@@ -100,38 +100,38 @@ void SceneLoader::load(AIOStream& stream){
 		LuaObject& godray = table.Get("godrays");
 
 		// Source color
-		Lua::luaConv(godray.Get("src.clr"), params.sourceColor);
+		lua::luaConv(godray.Get("src.clr"), params.sourceColor);
 		
 		// Ray color
-		Lua::luaConv(godray.Get("rayColor"), params.rayColor);
+		lua::luaConv(godray.Get("rayColor"), params.rayColor);
 
 		// Source position
-		Lua::luaConv(godray.Get("src.pos"), params.sourcePosition);
+		lua::luaConv(godray.Get("src.pos"), params.sourcePosition);
 
 		// Enabled
-		Lua::luaConv(godray.Get("enabled"), params.enabled);
+		lua::luaConv(godray.Get("enabled"), params.enabled);
 
 		// Exposure
-		Lua::luaConv(godray.Get("exposure"), params.exposure);
+		lua::luaConv(godray.Get("exposure"), params.exposure);
 
 	 	// Source size
-		Lua::luaConv(godray.Get("src.size"), params.sourceSize);
+		lua::luaConv(godray.Get("src.size"), params.sourceSize);
 
 		// Decay
-		Lua::luaConv(godray.Get("decay"), params.decay);
+		lua::luaConv(godray.Get("decay"), params.decay);
 
 		// Density
-		Lua::luaConv(godray.Get("density"), params.density);
+		lua::luaConv(godray.Get("density"), params.density);
 
 		// Weight
-		Lua::luaConv(godray.Get("weight"), params.weight);
+		lua::luaConv(godray.Get("weight"), params.weight);
 
 		// Sample number
-		Lua::luaConv(godray.Get("sampleNumber"), params.sampleNumber);
+		lua::luaConv(godray.Get("sampleNumber"), params.sampleNumber);
 
 		// Texture
 		String texPath;
-		Lua::luaConv(godray.Get("src.texture"), texPath);
+		lua::luaConv(godray.Get("src.texture"), texPath);
 		params.sourceTexture = mAssets->getTextureManager()->getFromPath(texPath);
 
 		mScene->setGodRayParams(params);
@@ -142,29 +142,26 @@ void SceneLoader::load(AIOStream& stream){
 	if(cameraTable.IsTable()){
 		// Position
 		glm::vec3 pos;
-		Lua::luaConv(cameraTable.Get("pos"), pos);
+		lua::luaConv(cameraTable.Get("pos"), pos);
 		mScene->getCamera().setPosition(pos);
 
 		// Rotation
 		glm::quat rot;
-		Lua::luaConv(cameraTable.Get("rot"), rot);
+		lua::luaConv(cameraTable.Get("rot"), rot);
 		mScene->getCamera().setRotation(rot);
 	}
 }
 
 void SceneLoader::save(AIOStream& stream){
-	LuaObject sceneTable;
-	LUA_NEW_TABLE(sceneTable);
+	LuaObject sceneTable = mAssets->getLuastate()->newTable();
 
 	// Actor serialization
-	LuaPlus::LuaObject actors;
-	LUA_NEW_TABLE(actors);
+	LuaPlus::LuaObject actors = mAssets->getLuastate()->newTable();
 	sceneTable.Set("ACTORS", actors);
 
 	uint32_t actorCount = 0;
 	for(Scene::ActorMap::iterator iter=mScene->getActorMap().begin(); iter!=mScene->getActorMap().end(); iter++){
-		LuaPlus::LuaObject actorTable;
-		LUA_NEW_TABLE(actorTable);
+		LuaPlus::LuaObject actorTable = mAssets->getLuastate()->newTable();
 
 		iter->second->serialize(mAssets, actorTable);
 
@@ -178,10 +175,9 @@ void SceneLoader::save(AIOStream& stream){
 
 
 	// Lighting
-	LuaObject dirLight;
-	LUA_NEW_TABLE(dirLight);
+	LuaObject dirLight = mAssets->getLuastate()->newTable();
 
-	mScene->getDirectionalLight().serialize( dirLight );
+	mScene->getDirectionalLight().serialize(mAssets->getLuastate(), dirLight );
 
 	sceneTable.Set("directionalLight", dirLight);
 
@@ -191,28 +187,24 @@ void SceneLoader::save(AIOStream& stream){
 		// Params
 		Scene::GodRayParams params;
 		mScene->getGodRayParams(params);
-		LuaObject luaGodrays;
-		LUA_NEW_TABLE(luaGodrays);
+		LuaObject luaGodrays = mAssets->getLuastate()->newTable();
 
 		// Ray color
-		LuaObject luaRayColor;
-		LUA_NEW_TABLE(luaRayColor);
+		LuaObject luaRayColor = mAssets->getLuastate()->newTable();
 
-		Lua::luaConv(params.rayColor, luaRayColor);
+		lua::luaConv(params.rayColor, luaRayColor);
 		luaGodrays.Set("rayColor", luaRayColor);
 
 		// Source color
-		LuaObject luaSourceColor;
-		LUA_NEW_TABLE(luaSourceColor);
+		LuaObject luaSourceColor = mAssets->getLuastate()->newTable();
 
-		Lua::luaConv(params.sourceColor, luaSourceColor);
+		lua::luaConv(params.sourceColor, luaSourceColor);
 		luaGodrays.Set("src.clr", luaSourceColor);
 
 		// Source position
-		LuaObject luaSourcePosition;
-		LUA_NEW_TABLE(luaSourcePosition);
+		LuaObject luaSourcePosition = mAssets->getLuastate()->newTable();
 
-		Lua::luaConv(params.sourcePosition, luaSourcePosition);
+		lua::luaConv(params.sourcePosition, luaSourcePosition);
 		luaGodrays.Set("src.pos", luaSourcePosition);
 
 		// Enabled
@@ -249,28 +241,25 @@ void SceneLoader::save(AIOStream& stream){
 
 	// Camera
 	{
-		Lua::LuaObject cameraTable;
-		LUA_NEW_TABLE(cameraTable);
+		lua::LuaObject cameraTable = mAssets->getLuastate()->newTable();
 
 		// Rotation
-		Lua::LuaObject luaRot;
-		LUA_NEW_TABLE(luaRot);
+		lua::LuaObject luaRot = mAssets->getLuastate()->newTable();
 		glm::quat rot;
 		mScene->getCamera().getRotation(rot);
-		Lua::luaConv(rot, luaRot);
+		lua::luaConv(rot, luaRot);
 		cameraTable.Set("rot", luaRot);
 
 		// Position
-		Lua::LuaObject pos;
-		LUA_NEW_TABLE(pos);
-		Lua::luaConv(mScene->getCamera().getPosition(), pos);
+		lua::LuaObject pos = mAssets->getLuastate()->newTable();
+		lua::luaConv(mScene->getCamera().getPosition(), pos);
 		cameraTable.Set("pos", pos);
 
 		sceneTable.Set("camera", cameraTable);
 	}
 
 	stream.print("SCENE = \n");
-	Lua::serializeTable(sceneTable, stream);
+	lua::serializeTable(sceneTable, stream);
 	stream.print("\n");
 }
 

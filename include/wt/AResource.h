@@ -56,7 +56,7 @@ public:
 class AResourceSystem;
 
 template<class T>
-class AResource : public Lua::ASerializable{
+class AResource : public lua::ASerializable{
 public:
 	enum ResourceState{
 		eUNLOADED,
@@ -144,14 +144,14 @@ public:
 	virtual void destroy(){
 	}
 
-	virtual void serialize(LuaPlus::LuaObject& dst){
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 		dst.Set("type", "RESOURCE");
 		if(!mUri.empty()){
 			dst.Set("uri", mUri.c_str());
 		}
 	}
 
-	virtual void deserialize(const LuaPlus::LuaObject& table){
+	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 		if(table.Get("uri").IsString()){
 			mUri = table.Get("uri").ToString();
 		}

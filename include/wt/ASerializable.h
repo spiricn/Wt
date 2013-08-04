@@ -3,13 +3,17 @@
 
 namespace wt{
 
-namespace Lua{
+namespace lua{
+	class State;
+};
+
+namespace lua{
 
 class ASerializable{
 public:
-	virtual void serialize(LuaPlus::LuaObject& dst)=0;
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst)=0;
 
-	virtual void deserialize(const LuaPlus::LuaObject& src)=0;
+	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src)=0;
 }; // </Serializable>
 
 } // </Lua>

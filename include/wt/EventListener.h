@@ -5,10 +5,11 @@
 #include "wt/stdafx.h"
 
 #include "wt/Event.h"
-#include "wt/LuaStateManager.h"
 #include "wt/Sp.h"
 
 namespace wt{
+
+#define TD_TRACE_TAG "EventListener"
 
 class EventListener{
 public:
@@ -39,7 +40,7 @@ public:
 		try{
 			res = func(evtData);
 		}catch(LuaException e){
-			LOGE("ScriptEventListener", "Script callback function error: \"%s\"", 
+			TRACEE("Script callback function error: \"%s\"", 
 				e.GetErrorMessage());
 		}
 

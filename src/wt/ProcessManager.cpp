@@ -18,6 +18,7 @@ void ProcessManager::upate(float dt){
 	while(procIter != procEnd){
 		ProcPtr proc = *procIter;
 
+		//LOG("%d %d", proc->isAlive(), proc->getPid());
 		if(proc->isAlive()){
 #if 0
 			StopWatch procTime;

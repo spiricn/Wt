@@ -5,7 +5,7 @@
 
 namespace wt{
 
-class ALight : public Lua::ASerializable{
+class ALight : public lua::ASerializable{
 public:
 	bool mActive;
 	Color mColor;
@@ -19,11 +19,10 @@ public:
 	virtual ~ALight(){
 	}
 
-	virtual void serialize(LuaPlus::LuaObject& dst){
-		LuaObject luaColor;
-		LUA_NEW_TABLE(luaColor);
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+		LuaObject luaColor = luaState->newTable();
 
-		Lua::luaConv(mColor, luaColor);
+		lua::luaConv(mColor, luaColor);
 		dst.Set("color", luaColor);
 
 		dst.Set("ambientIntensity", mAmbientIntesity);
@@ -31,22 +30,22 @@ public:
 		dst.Set("diffuseIntensity", mDiffuseItensity);
 	}
 
-	virtual void deserialize(const LuaPlus::LuaObject& src){
+	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
 		WT_ASSERT(src.IsTable()
 			&& src.Get("ambientIntensity").IsNumber()
 			&& src.Get("diffuseIntensity").IsNumber()
 			&& src.Get("color").IsTable(),
 			"Invalid light lua table");
 
-		if(!Lua::luaConv(src.Get("color"), mColor)){
+		if(!lua::luaConv(src.Get("color"), mColor)){
 			// TODO handle
 		}
 
-		if(!Lua::luaConv(src.Get("ambientIntensity"), mAmbientIntesity)){
+		if(!lua::luaConv(src.Get("ambientIntensity"), mAmbientIntesity)){
 			// TODO handle
 		}
 
-		if(!Lua::luaConv(src.Get("diffuseIntensity"), mDiffuseItensity)){
+		if(!lua::luaConv(src.Get("diffuseIntensity"), mDiffuseItensity)){
 			// TODO handle
 		}
 	}
@@ -62,21 +61,20 @@ public:
 		mDirection(dir){
 	}
 
-	void deserialize(const LuaPlus::LuaObject& src){
-		ALight::deserialize(src);
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
+		ALight::deserialize(luaState, src);
 
-		if(!Lua::luaConv(src.Get("direction"), mDirection)){
+		if(!lua::luaConv(src.Get("direction"), mDirection)){
 			// TODO handle
 		}	
 	}
 
-	void serialize(LuaPlus::LuaObject& dst){
-		ALight::serialize(dst);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+		ALight::serialize(luaState, dst);
 
-		LuaObject luaDir;
-		LUA_NEW_TABLE(luaDir);
+		LuaObject luaDir = luaState->newTable();
 
-		Lua::luaConv(mDirection, luaDir);
+		lua::luaConv(mDirection, luaDir);
 		dst.Set("direction", luaDir);
 	}
 }; // </DirectionalLight>
@@ -98,26 +96,25 @@ public:
 			mAttenuation.exponential = 0.0f;
 	}
 
-	void deserialize(const LuaPlus::LuaObject& src){
-		ALight::deserialize(src);
-		if(!Lua::luaConv(src.Get("position"), mPosition)){
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
+		ALight::deserialize(luaState, src);
+		if(!lua::luaConv(src.Get("position"), mPosition)){
 			// TODO handle
 		}
 
-		Lua::luaConv(src.Get("attenConstat"), mAttenuation.constant);
+		lua::luaConv(src.Get("attenConstat"), mAttenuation.constant);
 
-		Lua::luaConv(src.Get("attenLinear"), mAttenuation.linear);
+		lua::luaConv(src.Get("attenLinear"), mAttenuation.linear);
 
-		Lua::luaConv(src.Get("attenExponential"), mAttenuation.exponential);
+		lua::luaConv(src.Get("attenExponential"), mAttenuation.exponential);
 	}
 
-	void serialize(LuaPlus::LuaObject& dst){
-		ALight::serialize(dst);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+		ALight::serialize(luaState, dst);
 
-		LuaObject luaPos;
-		LUA_NEW_TABLE(luaPos);
+		LuaObject luaPos = luaState->newTable();
 
-		Lua::luaConv(mPosition, luaPos);
+		lua::luaConv(mPosition, luaPos);
 		dst.Set("position", luaPos);
 
 		dst.Set("attenConstat", mAttenuation.constant);

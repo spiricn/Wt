@@ -35,7 +35,7 @@ public:
 
 		for(LuaTableIterator iter(src); iter; iter.Next()){
 			String track;
-			if(Lua::luaConv(iter.GetValue(), track)){
+			if(lua::luaConv(iter.GetValue(), track)){
 				mTracks.push_back(track);
 			}
 			else{

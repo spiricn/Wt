@@ -243,24 +243,22 @@ void Model::createHwBuffers(GLuint positionStreamIdx,
 }
 
 
-void Model::serialize(LuaPlus::LuaObject& dst){
-	AResource::serialize(dst);
+void Model::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+	AResource::serialize(luaState, dst);
 
 	// skin
-	Lua::LuaObject skins;
-	LUA_NEW_TABLE(skins);
+	lua::LuaObject skins = getManager()->getResourceSystem()->getLuastate()->newTable();
+
 	dst.Set("skins", skins);
 	for(SkinMap::iterator i=mSkins.begin(); i!=mSkins.end(); i++){
 
-		Lua::LuaObject skin;
-		LUA_NEW_TABLE(skin);
+		lua::LuaObject skin = getManager()->getResourceSystem()->getLuastate()->newTable();
 		skins.Set(
 			i->first.c_str(),
 			skin);
 
 		for(GeometrySkin::MeshList::iterator j=i->second->getMeshList().begin(); j!=i->second->getMeshList().end(); j++){
-			Lua::LuaObject skinEntry;
-			LUA_NEW_TABLE(skinEntry);
+			lua::LuaObject skinEntry = getManager()->getResourceSystem()->getLuastate()->newTable();
 
 			skin.Set(
 				j->geometry->getName().c_str(),
@@ -277,8 +275,7 @@ void Model::serialize(LuaPlus::LuaObject& dst){
 	}
 
 	// animations
-	Lua::LuaObject animations;
-	LUA_NEW_TABLE(animations);
+	lua::LuaObject animations = getManager()->getResourceSystem()->getLuastate()->newTable();
 	dst.Set("animations", animations);
 
 	for(AnimationMap::iterator i=mAnimations.begin(); i!=mAnimations.end(); i++){
@@ -289,8 +286,8 @@ void Model::serialize(LuaPlus::LuaObject& dst){
 	}
 }
 
-void Model::deserialize(const LuaPlus::LuaObject& table){
-	AResource::deserialize(table);
+void Model::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
+	AResource::deserialize(luaState, table);
 
 	// skins
 	LuaObject& luaSkins = table.Get("skins");

@@ -3,6 +3,7 @@
 
 using namespace physx;
 
+#include "wt/Lua.h"
 
 namespace wt{
 
@@ -157,8 +158,8 @@ public:
 
 		void deserialize(const LuaPlus::LuaObject& table){
 			String type, ctrlMode;
-			Lua::luaConv(table.Get("type"), type);
-			Lua::luaConv(table.Get("ctrl.mode"), ctrlMode);
+			lua::luaConv(table.Get("type"), type);
+			lua::luaConv(table.Get("ctrl.mode"), ctrlMode);
 
 			if(!type.compare("static")){
 				this->type = eSTATIC_ACTOR;
@@ -175,19 +176,19 @@ public:
 				controlMode = ePHYSICS_MODE;
 
 				String shape;
-				Lua::luaConv(table.Get("geo.shape"), shape);
+				lua::luaConv(table.Get("geo.shape"), shape);
 
 				if(!shape.compare("box")){
 					this->geometryType = eBOX_GEOMETRY;
 
-					Lua::luaConv(table.Get("geo.hx"), geometryDesc.boxGeometry.hx);
-					Lua::luaConv(table.Get("geo.hy"), geometryDesc.boxGeometry.hy);
-					Lua::luaConv(table.Get("geo.hz"), geometryDesc.boxGeometry.hz);
+					lua::luaConv(table.Get("geo.hx"), geometryDesc.boxGeometry.hx);
+					lua::luaConv(table.Get("geo.hy"), geometryDesc.boxGeometry.hy);
+					lua::luaConv(table.Get("geo.hz"), geometryDesc.boxGeometry.hz);
 				}
 				else if(!shape.compare("sphere")){
 					this->geometryType = eSPHERE_GEOMETRY;
 
-					Lua::luaConv(table.Get("geo.rad"), geometryDesc.sphereGeometry.radius);
+					lua::luaConv(table.Get("geo.rad"), geometryDesc.sphereGeometry.radius);
 				}
 				else if(!shape.compare("mesh")){
 					this->geometryType = eMESH_GEOMETRY;
@@ -204,18 +205,18 @@ public:
 				controlMode = eCONTROLLER_MODE;
 
 				String shape;
-				Lua::luaConv(table.Get("ctrl.shape"), shape);
+				lua::luaConv(table.Get("ctrl.shape"), shape);
 
 				if(!shape.compare("capsule")){
 					this->controllerDesc.geometryType = eCAPSULE_CONTROLLER;
-					Lua::luaConv(table.Get("ctrl.rad"), controllerDesc.geometryDesc.capsuleController.radius);
-					Lua::luaConv(table.Get("ctrl.height"), controllerDesc.geometryDesc.capsuleController.height);
+					lua::luaConv(table.Get("ctrl.rad"), controllerDesc.geometryDesc.capsuleController.radius);
+					lua::luaConv(table.Get("ctrl.height"), controllerDesc.geometryDesc.capsuleController.height);
 				}
 				else if(!shape.compare("box")){
 					this->controllerDesc.geometryType = eBOX_CONTROLLER;
-					Lua::luaConv(table.Get("ctrl.hx"), controllerDesc.geometryDesc.boxController.hx);
-					Lua::luaConv(table.Get("ctrl.hy"), controllerDesc.geometryDesc.boxController.hy);
-					Lua::luaConv(table.Get("ctrl.hz"), controllerDesc.geometryDesc.boxController.hz);
+					lua::luaConv(table.Get("ctrl.hx"), controllerDesc.geometryDesc.boxController.hx);
+					lua::luaConv(table.Get("ctrl.hy"), controllerDesc.geometryDesc.boxController.hy);
+					lua::luaConv(table.Get("ctrl.hz"), controllerDesc.geometryDesc.boxController.hz);
 				}
 				else{
 					WT_THROW("TODO");

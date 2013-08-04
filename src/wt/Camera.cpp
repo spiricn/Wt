@@ -21,6 +21,19 @@ const float Camera::getPitch() const{
 	return 0;
 }
 
+void Camera::generateMetaTable(){
+	expose("getPitch", &Camera::getPitch);
+	expose("getYaw", &Camera::getYaw);
+	expose("getPosition", &Camera::getPosition);
+	expose("setPosition", &Camera::setPosition);
+	expose("lookAt", &Camera::lookAt);
+	expose("getForwardVec", &Camera::getForwardVec);
+	expose("getUpVec", &Camera::getUpVec);
+	expose("getRightVec", &Camera::getRightVec);
+	expose("move", &Camera::move);
+	expose("orbit", &Camera::orbit);
+}
+
 void Camera::setRotation(const glm::quat& quat){
 	mUpdateMatrix=true;
 

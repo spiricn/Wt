@@ -23,7 +23,7 @@
 
 using namespace wt;
 
-#if 0
+#if 1
 
 #if defined(WT_DEMO_NO_CONSOLE) && defined(WIN32)
 	#pragma comment(linker, "/SUBSYSTEM:windows")
@@ -111,13 +111,21 @@ extern "C"{
 int main(){
 	lua::State state;
 
-	TestClass1 obj;
-	LuaObject luaObj = state.box(obj);
-	state->GetGlobals().Set("Obj", luaObj);
+	math::Camera cam;
 
-	lua::ScriptPtr s =  state.createScript("test_script.lua");
-	LOG("%d", s->getState().Get("Obj").IsNil());
-	
+	cam.setPosition(glm::vec3(3, 4, 3.15));
+
+	state.box(cam, "Camera");
+
+
+	EventManager e;
+	state.box(e, "EventManager");
+	state.createScript("test_script.lua");
+
+	e.tick();
+
+/*
+	state->DoString("print( cam:getPosition())\ncam:setPosition({1, 2, 3})\nprint( cam:getPosition())\n");*/
 }
 
 #endif

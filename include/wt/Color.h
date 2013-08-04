@@ -6,7 +6,7 @@
 
 namespace wt{
 
-class Color : public Lua::ASerializable{
+class Color : public lua::ASerializable{
 public:
 	float mRed, mGreen, mBlue, mAlpha;
 
@@ -20,9 +20,9 @@ public:
 
 	static Color fromHSV(float h, float s, float v);
 
-	void serialize(LuaPlus::LuaObject& dst);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
 
-	void deserialize(const LuaPlus::LuaObject& src);
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
 	static Color random();
 

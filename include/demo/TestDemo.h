@@ -9,7 +9,13 @@
 #include "wt/ParticleEffect.h"
 #include "wt/SceneLoader.h"
 
+#include "wt/ScriptProcess.h"
+#include "wt/lua/LuaUtils.h"
+
 namespace wt{
+
+
+
 
 class TestDemo : public ADemo{
 public:
@@ -125,8 +131,26 @@ public:
 			//}
 		}
 		else{
-			loader.load("scene.lua");
+			loader.load("saved-scene.lua");
 		}
+
+		//loader.save("saved-scene.lua");
+
+		
+		lua::State* state = getManager()->getLuaState();
+		
+		
+		
+		LuaObject obj = state->box(*getEventManager());
+		state->getGlobals().Set("EventManager", obj);
+
+
+		LuaObject luaCamera = state->box(getScene()->getCamera());
+		state->getGlobals().Set("Camera", luaCamera);
+		
+
+
+		getProcManager().attach(new ScriptProcess(state->createScript("test_script.lua")));
 	}
 
 	String getConfigFile() const{

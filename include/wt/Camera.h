@@ -1,14 +1,13 @@
 #ifndef WT_CAMERA_H
 #define WT_CAMERA_H
 
-
-#include "wt/LuaStateManager.h"
+#include <wt/lua/State.h>
 
 namespace wt{
 
 namespace math{
 
-class Camera : public ALuaObject {
+class Camera : public lua::Object<Camera> {
 private:
 	static const glm::vec3 FORWARD, UP, RIGHT;
 
@@ -65,12 +64,8 @@ public:
 	void getMatrix(glm::mat4x4& dst, bool rotOnly=false);
 
 	// lua
-	void luaPitch(LuaObject deg);
-	void luaYaw(LuaObject deg);
-	void luaSetPosition(LuaObject pos);
-	void luaLookAt(LuaObject pos);
-	void luaOrbit(LuaObject rtr, LuaObject pos);
-	void expose(LuaObject& meta);
+
+	void generateMetaTable();
 
 }; // </Camera>
 

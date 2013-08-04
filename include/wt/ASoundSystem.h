@@ -6,6 +6,7 @@
 #include "wt/Singleton.h"
 #include "wt/EventManager.h"
 #include "wt/AResourceManager.h"
+#include "wt/Lua.h"
 
 namespace wt{
 
@@ -43,7 +44,7 @@ public:
 
 #define EXPOSE(funcName) do{ meta.RegisterObjectDirect(#funcName, (ASoundSystem*)0, &ASoundSystem::lua_ ## funcName); }while(0)
 
-class ASoundSystem : public EventListener, public ALuaObject{
+class ASoundSystem : public EventListener{
 
 private:
 	AResourceManager<ASoundBuffer>* mSoundManager;
@@ -127,7 +128,7 @@ public:
 		SoundPtr sound = playSound(soundPath.ToString());
 		if(!luaPos.IsNil()){
 			glm::vec3 pos;
-			if(Lua::luaConv(luaPos, pos)){
+			if(lua::luaConv(luaPos, pos)){
 				//sound.
 				sound->setPosition( pos );
 				sound->setRelativeToListener(false);
@@ -138,7 +139,6 @@ public:
 
 
 	void expose(LuaObject& meta){
-		EXPOSE(playSound);
 	}
 
 }; // </ASoundSystem>

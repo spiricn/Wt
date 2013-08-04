@@ -5,18 +5,13 @@
 #include "wt/stdafx.h"
 
 #include "wt/math.h"
+#include "wt/lua/Object.h"
 
 namespace wt{
 
 namespace math{
 
-class Transform{
-private:
-	glm::vec3 mPosition, mScale;
-	glm::quat mRotation;
-	glm::mat4x4 mMatrix;
-	bool mDirty;
-
+class Transform : public lua::Object<Transform>{
 public:
 	Transform(const glm::mat4&);
 
@@ -83,6 +78,14 @@ public:
 
 	/** this * other */
 	void preConcat(const Transform& other);
+
+private:
+	glm::vec3 mPosition, mScale;
+	glm::quat mRotation;
+	glm::mat4x4 mMatrix;
+	bool mDirty;
+
+	void generateMetaTable();
 
 }; // </Transform>
 

@@ -8,7 +8,8 @@
 #include "wt/Exception.h"
 #include "wt/Utils.h"
 #include "wt/ASerializable.h"
-#include "wt/LuaStateManager.h"
+#include "wt/AResourceSystem.h"
+#include "wt/lua/State.h"
 
 namespace wt{
 
@@ -26,7 +27,7 @@ public:
 };
 
 template<class T>
-class AResourceGroup : public Lua::ASerializable{
+class AResourceGroup : public lua::ASerializable{
 	friend class AResourceManager<T>;
 public:
 	typedef std::map<String, AResourceGroup<T>*> GroupMap;
@@ -37,6 +38,7 @@ private:
 	AResourceAllocator<T>* mAllocator;
 	ResourceMap mResources;
 	AResourceGroup<T>* mParent;
+	AResourceSystem* mResourceSystem;
 
 protected:
 	// Only resource manager is allowed access
@@ -48,18 +50,28 @@ protected:
 		mName = name;
 	}
 
-	AResourceGroup(AResourceAllocator<T>* allocator,
-		AResourceGroup* parent, const String& name) : mAllocator(allocator),
-		mName(name), mParent(parent){
+	void setResourceSystem(AResourceSystem* system){
+		mResourceSystem = system;
 	}
 
-	AResourceGroup() : mAllocator(NULL), mName(""), mParent(NULL){
+	AResourceGroup(AResourceAllocator<T>* allocator,
+		AResourceGroup* parent, AResourceSystem* resourceSystem, const String& name) : mAllocator(allocator),
+		mName(name), mParent(parent), mResourceSystem(resourceSystem){
+	}
+
+	
+	AResourceGroup() : mAllocator(NULL),
+		mName(""), mParent(NULL), mResourceSystem(NULL){
 	}
 
 	// prevent copy constructor
 	AResourceGroup(const AResourceGroup& other){ assert(0&&"Copy constructor disabled"); }
 
 public:
+
+	AResourceSystem* getResourceSystem() const{
+		return mResourceSystem;
+	}
 
 	virtual ~AResourceGroup(){
 	}
@@ -120,7 +132,7 @@ public:
 	}
 
 	AResourceGroup<T>* createGroup(const String& name){
-		AResourceGroup<T>* res = new AResourceGroup<T>(mAllocator, this, name);
+		AResourceGroup<T>* res = new AResourceGroup<T>(mAllocator, this, mResourceSystem, name);
 
 		mChildren[name] = res;
 
@@ -225,22 +237,21 @@ public:
 		}
 	}
 
-	virtual void serialize(LuaPlus::LuaObject& dst){
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 		dst.Set("type", "GROUP");
 		
-		LuaPlus::LuaObject content;
-		LUA_NEW_TABLE(content);
+
+		LuaPlus::LuaObject content = mResourceSystem->getLuastate()->newTable();
+		
 		dst.Set("content", content);
 
 		/* serialize child groups */
 		for(GroupMap::iterator i=mChildren.begin(); i!=mChildren.end(); i++){
 			/* allocate new table for this group */
-			Lua::LuaObject groupTable;
-			LUA_NEW_TABLE(groupTable);
-
+			lua::LuaObject groupTable = luaState->newTable();
 
 			/* serialize it and append it to this group's table */
-			i->second->serialize(groupTable);
+			i->second->serialize(luaState, groupTable);
 			content.Set(i->first.c_str(),
 				groupTable);
 		}
@@ -248,18 +259,18 @@ public:
 		/* serialize child resources */
 		for(ResourceMap::iterator i=mResources.begin(); i!=mResources.end(); i++){
 			/* allocate new table for this resource */
-			Lua::LuaObject rsrcTable;
-			LUA_NEW_TABLE(rsrcTable);
+			lua::LuaObject rsrcTable = luaState->newTable();
 
+			
 			/* serialize it and append it to this group's table */
-			i->second->serialize(rsrcTable);
+			i->second->serialize(luaState, rsrcTable);
 			content.Set(i->second->getName().c_str(),
 				rsrcTable);
 		}
 
 	}
 
-	virtual void deserialize(const LuaPlus::LuaObject& table){
+	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 		if(!table.IsTable()){
 			WT_THROW("Resoruce group deserialization failed [%s], Lua object not a table", mName.c_str());
 		}
@@ -281,11 +292,11 @@ public:
 		
 			// create & deserialize a child group or resource
 			if(strcmp("GROUP", type)==0){
-				createGroup(name)->deserialize( it.GetValue() );
+				createGroup(name)->deserialize(luaState, it.GetValue() );
 			}
 			else if(strcmp("RESOURCE", type)==0){
 				T* rsrc = create(name);
-				rsrc->deserialize( it.GetValue() );
+				rsrc->deserialize(luaState, it.GetValue() );
 			}
 		}
 	}

@@ -458,7 +458,7 @@ public:
 		getProcManager().attach(mAmbientMusic = new MusicPlayer(mSoundSystem));
 
 		bool soundEnabled = true;
-		Lua::luaConv(config.Get("soundEnabled"), soundEnabled);
+		lua::luaConv(config.Get("soundEnabled"), soundEnabled);
 		if(!soundEnabled){
 			mSoundSystem->setGlobalVolume(0);
 		}

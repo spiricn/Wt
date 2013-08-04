@@ -127,10 +127,9 @@ void ASceneActor::update(float /*dt*/){
 void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque){
 	WT_ASSERT(dst.IsTable(), "Error serializing, object not a table");
 
-	Lua::LuaObject tf;
-	LUA_NEW_TABLE(tf);
+	lua::LuaObject tf = assets->getLuastate()->newTable();
 
-	Lua::luaConv(mTransform, tf);
+	lua::luaConv(mTransform, tf);
 	dst.Set("transform", tf);
 
 	dst.Set("name", mName.c_str());
@@ -140,8 +139,7 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 	);
 
 	if(mBBox){
-		Lua::LuaObject luaBbox;
-		LUA_NEW_TABLE(luaBbox);
+		lua::LuaObject luaBbox = assets->getLuastate()->newTable();
 
 		luaBbox.Set("hx", 1.0);
 		luaBbox.Set("hy", 1.0);
@@ -157,11 +155,11 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 void ASceneActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
 	WT_ASSERT(src.IsTable(), "Error deserializing, object not a table");
 
-	if(!Lua::luaConv(src.Get("transform"), mTransform)){
+	if(!lua::luaConv(src.Get("transform"), mTransform)){
 		WT_THROW("Error deserializing transform");
 	}
 
-	if(!Lua::luaConv(src.Get("name"), mName)){
+	if(!lua::luaConv(src.Get("name"), mName)){
 		mName = "";
 	}
 }

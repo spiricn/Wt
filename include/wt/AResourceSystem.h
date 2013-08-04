@@ -16,6 +16,10 @@ class ParticleEffectResource;
 class AFileSystem;
 class ASoundBuffer;
 
+namespace lua{
+	class State;
+}; // </lua>
+
 template<class T>
 class AResourceManager;
 
@@ -23,6 +27,8 @@ class AResourceSystem{
 public:
 	virtual ~AResourceSystem(){
 	}
+
+	virtual lua::State* getLuastate() = 0;
 
 	virtual AFileSystem* getFileSystem() = 0;
 

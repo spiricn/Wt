@@ -27,6 +27,8 @@
 #include "wt/ParticleEffectResource.h"
 #include "wt/ZipFileSystem.h"
 
+#include "wt/lua/State.h"
+
 #define TD_TRACE_TAG "Assets"
 
 namespace wt{
@@ -44,30 +46,29 @@ private:
 	AResourceManager<ASoundBuffer>* mSoundManager;
 	AFileSystem* mFileSystem;
 	ParticleEffectResourceManager* mParticleManager;
+	lua::State mLuaState;
 
 	template<class T>
-	void serialize(AResourceManager<T>* manager, const String& name, Lua::LuaObject& table){
+	void serialize(AResourceManager<T>* manager, const String& name, lua::LuaObject& table){
 
 		fixAbsolutePaths(manager);
 
-		Lua::LuaObject managerTable;
-		LUA_NEW_TABLE(managerTable);
+		lua::LuaObject managerTable = getLuastate()->newTable();
 		table.Set(name.c_str(), managerTable);
 
-		Lua::LuaObject root;
-		LUA_NEW_TABLE(root);
+		lua::LuaObject root = getLuastate()->newTable();
 		managerTable.Set("$ROOT", root);
 
-		manager->serialize(root);
+		manager->serialize(&mLuaState, root);
 	}
 
 
 	template<class T>
-	void deserialize(AResourceManager<T>* manager, const String& name, const Lua::LuaObject& table){
+	void deserialize(AResourceManager<T>* manager, const String& name, const lua::LuaObject& table){
 		WT_ASSERT(table.IsTable(),
 			"Error deserializing manager - invalid manager table");
 
-		Lua::LuaObject mngrTable = table.Get(name.c_str());
+		lua::LuaObject mngrTable = table.Get(name.c_str());
 
 
 		if(!mngrTable.IsTable()){
@@ -75,7 +76,7 @@ private:
 			return;
 		}
 
-		manager->deserialize(mngrTable.Get("$ROOT"));
+		manager->deserialize(&mLuaState, mngrTable.Get("$ROOT"));
 	}
 
 	void deserialize(const LuaObject& assets){
@@ -141,6 +142,10 @@ public:
 
 	TextureManager* getTextureManager(){
 		return mTextureManager;
+	}
+
+	lua::State* getLuastate(){
+		return &mLuaState;
 	}
 
 	FontManager* getFontManager(){
@@ -262,7 +267,7 @@ public:
 #else
 		Sp<AIOStream> stream = mFileSystem->open(path, AIOStream::eMODE_READ);
 		try{
-			Lua::doStream(state, *(stream.get()));
+			lua::doStream(state, *(stream.get()));
 		}catch(...){
 			LOGE("Error executing asset script");
 			throw;
@@ -293,15 +298,14 @@ public:
 	}
 
 	void serialize(const String& path){
-		Lua::LuaObject assets;
-		LUA_NEW_TABLE(assets);
+		lua::LuaObject assets = getLuastate()->newTable();
 
 		serialize(assets);
 
 		FileIOStream file(path.c_str(), AIOStream::eMODE_WRITE);
 
 		file.print("ASSETS=");
-		Lua::serializeTable(assets, file);
+		lua::serializeTable(assets, file);
 
 		file.close();
 	}

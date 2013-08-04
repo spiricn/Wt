@@ -12,6 +12,13 @@
 #include "wt/Defines.h"
 #include "wt/Mutex.h"
 
+#include "wt/lua/State.h"
+
+
+namespace lua{
+	class State;
+}; // </lua>
+
 namespace wt{
 
 
@@ -46,7 +53,7 @@ public:
 }; // </MemberCallback>
 
 
-class EventManager : public ALuaObject{
+class EventManager : public lua::Object<EventManager>{
 WT_DISALLOW_COPY(EventManager)
 
 public:
@@ -118,6 +125,57 @@ public:
 
 	typedef Sp<ARegisteredEvent> ARegisteredEvtPtr;
 
+public:
+	EventManager(lua::State* luaState);
+
+	virtual ~EventManager();
+
+	bool addScriptListener(const char*, LuaObject callback);
+
+	inline bool isRegistered(const EvtType& type);
+
+	void registerGlobalListener(EventListener* listener);
+
+	void registerInternalEvent(const EvtType& eventType);
+
+	void unregisterInternalEvent(const EvtType& eventType);
+
+	void registerScriptEvent(const char* eventType);
+
+	template<class T>
+	void registerSharedEvent(const EvtType& eventType){
+		registerEvent(eventType, new SharedEventReg<T>);
+	}
+
+	void unregisterGlobalListener(EventListener* listener);
+
+	void unregisterListener(EventListener* listener, const EvtType& eventType);
+
+	void registerListener(EventListener* listener, const EvtType& eventType);
+
+	void registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered=false, uint32_t filterData=0);
+
+	void unregisterListener(EventListener* listener);
+
+	void queueEvent(EvtPtr evt);
+
+	void queueEvent(const char* type, LuaObject data);
+
+	void tick();
+
+	virtual bool dispatchEvent(EventListener* listener, EvtPtr evt){
+		return listener->handleEvent(evt);
+	}
+
+	virtual bool dispatchEvent(Sp<ScriptEventListener> listener, EvtPtr evt){
+		evt->buildLuaData(mLuaState);
+
+		return listener->handleEvent(evt);
+	}
+
+	void generateMetaTable();
+
+
 
 private:
 	static const char* TAG;
@@ -158,67 +216,12 @@ private:
 	
 	EvtCallbackTable mEvtCallbackTable;
 
+	lua::State* mLuaState;
+
 	// used for thread safe event-queue
 	Mutex mMutex;
 
 	void registerEvent(const EvtType& type, ARegisteredEvtPtr evt);
-
-	
-public:
-	EventManager();
-
-	virtual ~EventManager();
-
-	void addScriptListener(const EvtType& eventType, LuaObject& callback);
-
-	inline bool isRegistered(const EvtType& type);
-
-	void registerGlobalListener(EventListener* listener);
-
-	void registerInternalEvent(const EvtType& eventType);
-
-	void unregisterInternalEvent(const EvtType& eventType);
-
-	void registerScriptEvent(const EvtType& eventType);
-
-	template<class T>
-	void registerSharedEvent(const EvtType& eventType){
-		registerEvent(eventType, new SharedEventReg<T>);
-	}
-
-	void unregisterGlobalListener(EventListener* listener);
-
-	void unregisterListener(EventListener* listener, const EvtType& eventType);
-
-	void registerListener(EventListener* listener, const EvtType& eventType);
-
-	void registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered=false, uint32_t filterData=0);
-
-	void unregisterListener(EventListener* listener);
-
-	void queueEvent(EvtPtr evt);
-
-	void tick();
-
-	virtual bool dispatchEvent(EventListener* listener, EvtPtr evt){
-		return listener->handleEvent(evt);
-	}
-
-	virtual bool dispatchEvent(Sp<ScriptEventListener> listener, EvtPtr evt){
-		return listener->handleEvent(evt);
-	}
-
-	/**********************/
-	/**** Lua bindings ****/
-	/**********************/
-
-	void lua_queueEvent(const char* type, LuaObject data);
-
-	void lua_registerScriptEvent(const char* type);
-
-	void lua_addScriptListener(const char* eventType, LuaObject callback);
-
-	void expose(LuaObject& meta);
 
 }; // </EventManager>
 

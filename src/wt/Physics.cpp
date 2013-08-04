@@ -852,34 +852,34 @@ void Physics::createBBox(ASceneActor* actor){
 }
 
 LuaObject Physics::lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter){
-	float radius;
-	glm::vec3 pos;
+	//float radius;
+	//glm::vec3 pos;
 
-	LuaObject res;
-	LUA_NEW_TABLE(res);
+	//LuaObject res;
+	//LUA_NEW_TABLE(res);
 
-	// TODO checks
-	Lua::luaConv(luaPos, pos);
-	Lua::luaConv(luaRadius, radius);
+	//// TODO checks
+	//lua::luaConv(luaPos, pos);
+	//lua::luaConv(luaRadius, radius);
 
-	Sp<Buffer<PhysicsActor*>> actors = getActorsInRegion(pos, radius, groupFilter.IsNil() ? 0x00 : groupFilter.ToInteger() );
+	//Sp<Buffer<PhysicsActor*>> actors = getActorsInRegion(pos, radius, groupFilter.IsNil() ? 0x00 : groupFilter.ToInteger() );
 
-	uint32_t actorIdx=0;
-	for(uint32_t i=0; i<actors->getCapacity(); i++){
-		ASceneActor* actor =  actors->operator[](i)->getSceneActor();
-		if(actor){
-			res.Set(++actorIdx, actor->getId());
-		}
-	}
+	//uint32_t actorIdx=0;
+	//for(uint32_t i=0; i<actors->getCapacity(); i++){
+	//	ASceneActor* actor =  actors->operator[](i)->getSceneActor();
+	//	if(actor){
+	//		res.Set(++actorIdx, actor->getId());
+	//	}
+	//}
 
-	return res;
+	return LuaObject();
 }
 
 int32_t Physics::lua_createRegion(LuaObject luaPos, LuaObject luaRadius){
 	glm::vec3 pos;
 	float radius;
 
-	if(!Lua::luaConv(luaPos, pos) || !Lua::luaConv(luaRadius, radius)){
+	if(!lua::luaConv(luaPos, pos) || !lua::luaConv(luaRadius, radius)){
 		LOGE("Error creating region, invalid position or radius value");
 		return -1;
 	}

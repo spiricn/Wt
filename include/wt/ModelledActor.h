@@ -158,8 +158,7 @@ public:
 
 		// Physics
 		if(getPhysicsActor()){
-			Lua::LuaObject physicsActor;
-			LUA_NEW_TABLE(physicsActor);
+			lua::LuaObject physicsActor = mModel->getManager()->getResourceSystem()->getLuastate()->newTable();
 
 			dst.Set("physics", physicsActor);
 
@@ -179,8 +178,8 @@ public:
 		String modelPath, skin;
 		
 		// Model  & animation
-		if(Lua::luaConv(src.Get("model"), modelPath)){
-			Lua::luaConv(src.Get("skin"), skin);
+		if(lua::luaConv(src.Get("model"), modelPath)){
+			lua::luaConv(src.Get("skin"), skin);
 
 			setModel( assets->getModelManager()->getFromPath(modelPath), skin );
 
@@ -189,10 +188,10 @@ public:
 			float speed = 1.0f;
 			float pos = 0.0f;
 
-			if(Lua::luaConv(src.Get("ani"), animation)){
-				Lua::luaConv(src.Get("ani.loop"), loop);
-				Lua::luaConv(src.Get("ani.pos"), pos);
-				Lua::luaConv(src.Get("ani.speed"), speed);
+			if(lua::luaConv(src.Get("ani"), animation)){
+				lua::luaConv(src.Get("ani.loop"), loop);
+				lua::luaConv(src.Get("ani.pos"), pos);
+				lua::luaConv(src.Get("ani.speed"), speed);
 
 				getAnimationPlayer()->play(animation, loop);
 				getAnimationPlayer()->setSpeed(speed);

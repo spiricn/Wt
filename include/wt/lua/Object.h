@@ -17,11 +17,16 @@ struct MetaInfo{
 }; // </MetaInfo>
 
 
+class State;
+
 template<class T>
 class Object{
-public:
-	virtual void generateMetaTable(LuaObject& table) = 0;
 
+friend class State;
+
+protected:
+	virtual void generateMetaTable() = 0;
+	
 	template<typename Func>
 	void expose(const char* name, Func funcPtr){
 		getMetaInfo()->meta->RegisterObjectDirect(name, (T*)0, funcPtr);

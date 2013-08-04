@@ -5,15 +5,19 @@
 #include "wt/stdafx.h"
 
 #include "wt/HashedString.h"
-#include "wt/LuaStateManager.h"
 #include "wt/Defines.h"
 #include "wt/Sp.h"
+#include "wt/lua/State.h"
 
 namespace wt{
 
 typedef HashedString EvtType;
 
+class EventManager;
+
 class Event{
+friend class EventManager;
+
 private:
 	LuaObject mLuaData;
 	bool mLuaDataBuilt;
@@ -24,6 +28,17 @@ protected:
 	virtual void serialize(LuaObject& dst) = 0;
 
 	virtual void deserialize(LuaObject& src) = 0;
+
+	virtual void buildLuaData(lua::State* luaState){
+		if(!mLuaDataBuilt){
+			mLuaData = luaState->newTable();
+
+			mLuaData.Set("eventType", getType().getString().c_str());
+
+			serialize(mLuaData);
+			mLuaDataBuilt=true;
+		}
+	}
 
 public:
 	Event() : mLuaDataBuilt(false){
@@ -46,13 +61,7 @@ public:
 	virtual const EvtType& getType() const = 0;
 
 	virtual const LuaObject& getLuaData(){
-		if(!mLuaDataBuilt){
-			LUA_NEW_TABLE( mLuaData );
-			mLuaData.Set("eventType", getType().getString().c_str());
-
-			serialize(mLuaData);
-			mLuaDataBuilt=true;
-		}
+		WT_ASSERT(mLuaDataBuilt, "Lua data not built");
 
 		return mLuaData;
 	}

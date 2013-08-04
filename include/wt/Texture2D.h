@@ -99,8 +99,8 @@ public:
 
 	/* Serialization */
 
-	void serialize(LuaPlus::LuaObject& dst){
-		AResource::serialize(dst);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+		AResource::serialize(luaState, dst);
 
 		if(!mUri.empty()){
 			dst.Set("uri", mUri.c_str());
@@ -111,9 +111,9 @@ public:
 
 	}
 
-	void deserialize(const LuaPlus::LuaObject& table){
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 		if(table.Get("uri").IsString()){
-			AResource::deserialize(table);
+			AResource::deserialize(luaState, table);
 		}
 		else{
 			const char* path = table.Get("image").ToString();

@@ -208,7 +208,6 @@ void Transform::postConcat(const Transform& other){
 	*this = *this * other;
 }
 
-
 void Transform::preConcat(const Transform& other){
 	mDirty = true;
 
@@ -235,6 +234,11 @@ Transform operator*(const glm::mat4& mat, const Transform& transform){
 	transform.getMatrix(m);
 
 	return Transform(mat*m);
+}
+
+void Transform::generateMetaTable(){
+	expose("setPosition", (void (Transform::*)(float, float, float))&Transform::setPosition);
+	expose("getPosition", &Transform::getPosition);
 }
 
 }; // </math>

@@ -13,9 +13,9 @@ class ParticleEffectResource : public AResource<ParticleEffectResource>{
 public:
 	ParticleEffectResource(AResourceManager<ParticleEffectResource>* manager=NULL, ResourceHandle handle=0, const String& name="");
 
-	void serialize(LuaPlus::LuaObject& dst);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
 
-	void deserialize(const LuaPlus::LuaObject& table);
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table);
 	
 	ParticleLayerResource* createLayer(const String& name, const ParticleLayerResource::LayerDesc& desc);
 

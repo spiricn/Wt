@@ -2,6 +2,8 @@
 
 #include "wt/ParticleEffect.h"
 
+#include "wt/Lua.h"
+
 namespace wt{
 
 ParticleEffect::ParticleEffect(Scene* parent, uint32_t id, const String& name) : ASceneActor(parent, ASceneActor::eTYPE_PARTICLE_EFFECT, id, name),
@@ -60,7 +62,7 @@ void ParticleEffect::deserialize(AResourceSystem* assets, const LuaPlus::LuaObje
 	ParticleEffectResource* rsrc = NULL;
 
 	String effectUri;
-	if(Lua::luaConv(src.Get("effect"), effectUri)){
+	if(lua::luaConv(src.Get("effect"), effectUri)){
 		rsrc = assets->getParticleResourceManager()->getFromPath(effectUri);
 	}
 	

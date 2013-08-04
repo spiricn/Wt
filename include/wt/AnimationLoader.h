@@ -6,6 +6,7 @@
 
 #include "wt/AResourceLoader.h"
 #include "wt/Animation.h"
+#include "wt/Singleton.h"
 
 namespace wt{
 
