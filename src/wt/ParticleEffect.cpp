@@ -18,6 +18,14 @@ ParticleEffect::~ParticleEffect(){
 	mLayers.clear();
 }
 
+LuaObject ParticleEffect::lua_getTransform(){
+	return getLuaState()->box(getTransform());
+}
+
+void ParticleEffect::generateMetaTable(){
+	expose("getTransform", &ParticleEffect::lua_getTransform);
+}
+
 ParticleEffect::LayerMap& ParticleEffect::getLayerMap(){
 	return mLayers;
 }

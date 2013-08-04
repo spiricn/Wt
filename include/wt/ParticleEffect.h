@@ -16,7 +16,7 @@ namespace wt{
 
 class Renderer;
 
-class ParticleEffect : public ASceneActor{
+class ParticleEffect : public ASceneActor, public lua::Object<ParticleEffect>{
 friend class Renderer;
 
 public:
@@ -37,6 +37,10 @@ public:
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque);
 
 	ParticleEffectResource* getEffectResource() const;
+
+	LuaObject lua_getTransform();
+
+	void generateMetaTable();
 
 private:
 	typedef std::map<String, ParticleLayer*> LayerMap;

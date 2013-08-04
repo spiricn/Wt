@@ -14,6 +14,17 @@ namespace lua{
 
 using namespace LuaPlus;
 
+bool luaConv(const LuaObject& src, void** userdata){
+	if(src.IsTable()){
+		LuaObject object = src.GetByName("__object");
+		if(object.IsLightUserData()){
+			*userdata = object.GetLightUserData();
+			return true;
+		}
+	}
+
+	return false;
+}
 
 // uint32_t
 bool luaConv(const LuaObject& src, uint32_t& dst){

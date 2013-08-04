@@ -6,7 +6,7 @@ namespace wt{
 
 
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
-	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL), mBoundingBoxColor(Color::green()){
+	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL), mBoundingBoxColor(Color::green()), mLuaState(NULL){
 }
 
 void ASceneActor::setBoundingBoxColor(const Color& color){
@@ -50,12 +50,19 @@ void* ASceneActor::getUserData() const{
 	return mUserData;
 }
 
-bool ASceneActor::getAttachPointTransform(const String& /*pointId*/, math::Transform& /*res*/) const{
-	return false;
+bool ASceneActor::getAttachPointTransform(const String& pointId, math::Transform& res) const{
+	if(pointId.size() == 0){
+		res = getTransform();
+
+		return true;
+	}
+	else{
+		return false;
+	}
 }
 
-bool ASceneActor::validAttachPoint(const String& /*pointId*/) const{
-	return false;
+bool ASceneActor::validAttachPoint(const String& pointId) const{
+	return pointId.size() == 0;
 }
 
 bool ASceneActor::attach(const ASceneActor* actor, const String& pointId){

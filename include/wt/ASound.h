@@ -2,6 +2,7 @@
 #define WT_ASOUND_H
 
 #include "wt/AResource.h"
+#include "wt/lua/Object.h"
 
 namespace wt{
 
@@ -12,7 +13,7 @@ public:
 };
 
 
-class ASound{
+class ASound : public lua::Object<ASound>{
 public:
 	enum Status{
 		ePLAYING,
@@ -45,6 +46,11 @@ public:
 	}
 
 	virtual void setRelativeToListener(bool state) = 0;
+
+	void generateMetaTable(){
+		expose("play", &ASound::play);
+	}
+
 
 }; // </ASound>
 

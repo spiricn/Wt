@@ -7,8 +7,8 @@
 
 namespace wt{
 
-Scene::Scene(Physics* physics, Assets* assets) : 
-	mSkyBox(NULL), mNumPointLights(0), mNumSpotLights(0), mAssets(assets), mPhysics(physics){
+Scene::Scene(Physics* physics, Assets* assets, lua::State* luaState) : 
+	mSkyBox(NULL), mNumPointLights(0), mNumSpotLights(0), mAssets(assets), mPhysics(physics), mLuaState(luaState){
 		setCamera(&mDefaultCamera);
 }
 
@@ -145,11 +145,15 @@ ParticleEffect* Scene::createParticleEffect(const String& name){
 
 	mParticleEffects.insert(effect);
 
+	effect->setLuaState(mLuaState);
+
 	return effect;
 }
 
 ModelledActor* Scene::createModelledActor(const String& name){
 	ModelledActor* actor = new ModelledActor(this, generateActorId(), name);
+
+	actor->setLuaState(mLuaState);
 
 	mActors.insert( std::make_pair(actor->getId(), actor) );
 
@@ -190,18 +194,56 @@ SkyBox* Scene::getSkyBox(){
 	return mSkyBox;
 }
 
-/*********************************************************************
- ************** Lua bindings *****************************************
- *********************************************************************/
-
-#define LUA_ERROR(fmt, ...) do{ LOGE("%s " fmt, __FUNCTION__, __VA_ARGS__); }while(0)
-
-void Scene::lua_setLightDir(LuaObject obj){
-	if(obj.Get("direction").IsTable()){
-		if(!lua::luaConv(obj.Get("direction"), mDirectionalLight.mDirection)){
-			// TODO handle
-		}
+void Scene::lua_removeActor(LuaObject obj){
+	void* ptr = NULL;
+	if(lua::luaConv(obj, &ptr)){
+		ASceneActor* actor = (ASceneActor*)ptr;
+		deleteActor(actor);
+#if 0
+		obj.AssignNil(obj.GetState());
+#endif
 	}
+	else{
+		TRACEE("Error deleting actor - invalid object");
+	}
+}
+
+LuaObject Scene::lua_findModelledActor(const char* name){
+	ASceneActor* aActor = findActorByName(name);
+
+	if(aActor ->getActorType() == ASceneActor::eTYPE_MODELLED){
+		ModelledActor* actor = static_cast<ModelledActor*>(aActor);
+		return mLuaState->box(*actor);
+	}
+
+	TRACEE("Modelled actor not found (name=\"%s\")", name);
+	LuaObject res;
+	res.AssignNil( mLuaState->getStateOwner() );
+
+	return res;
+}
+
+
+LuaObject Scene::lua_findParticleEffect(const char* name){
+	ASceneActor* aActor = findActorByName(name);
+
+	if(aActor ->getActorType() == ASceneActor::eTYPE_PARTICLE_EFFECT){
+		ParticleEffect* actor = static_cast<ParticleEffect*>(aActor);
+		return mLuaState->box(*actor);
+	}
+
+	TRACEE("Particle effect not found (name=\"%s\")", name);
+	LuaObject res;
+	res.AssignNil( mLuaState->getStateOwner() );
+
+	return res;
+}
+
+
+void Scene::generateMetaTable(){
+	expose("deleteActor", &Scene::lua_removeActor);
+	expose("findModelledActor", &Scene::lua_findModelledActor);
+	expose("findParticleEffect", &Scene::lua_findParticleEffect);
 }
 
 #if 0
@@ -528,34 +570,5 @@ void Scene::lua_rotateActor(uint32_t actorId, float x, float y, float z, float a
 }
 
 #endif
-void Scene::expose(LuaObject& meta){
-
-#if 0
-#define EXPOSE(funcName) do{ meta.RegisterObjectDirect(#funcName, (Scene*)0, &Scene::lua_ ## funcName); }while(0)
-
-	EXPOSE(setLightDir);
-	EXPOSE(createActor);
-	EXPOSE(setActorModel);
-	EXPOSE(setLightDir);
-	EXPOSE(removeActor);
-	EXPOSE(setActorPosition);
-	EXPOSE(attachActor);
-	EXPOSE(cameraLookAt);
-	EXPOSE(setActorFacing);
-	EXPOSE(createActorController);
-	EXPOSE(moveActor);
-	EXPOSE(getActorTransform);
-	EXPOSE(setLightDir);
-	EXPOSE(setActorUserData);
-	EXPOSE(getActorUserData);
-	EXPOSE(playActorAnimation);
-	EXPOSE(actorHasUserData);
-	EXPOSE(isActorAnimationPlaying);
-	EXPOSE(destroyController);
-	EXPOSE(getActorFacing);
-	EXPOSE(rotateActor);
-#endif
-}
-
 
 }; // </wt>

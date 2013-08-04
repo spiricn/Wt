@@ -32,6 +32,12 @@ protected:
 		getMetaInfo()->meta->RegisterObjectDirect(name, (T*)0, funcPtr);
 	}
 
+
+	template<class BaseClass, typename Func>
+	void exposeBase(const char* name, Func funcPtr){
+		getMetaInfo()->meta->RegisterObjectDirect(name, (BaseClass*)0, funcPtr);
+	}
+
 	static MetaInfo* getMetaInfo(){
 		if(sMetaInfo == NULL){
 			sMetaInfo = new MetaInfo;
@@ -40,10 +46,27 @@ protected:
 		return sMetaInfo;
 	}
 
+	Object() : mBoxed(false){
+	}
+
 	virtual ~Object(){
 	}
 
+	void setBoxedObject(LuaObject object){
+		mBoxedObject = object;
+		mBoxed = true;
+	}
+
+	LuaObject getBoxedObject(){
+		return mBoxedObject;
+	}
+
+	bool isBoxed() const{
+		return mBoxed;
+	}
 private:
+	bool mBoxed;
+	LuaObject mBoxedObject;
 	static MetaInfo* sMetaInfo;
 
 }; // </Object>

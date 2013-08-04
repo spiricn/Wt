@@ -19,6 +19,11 @@ public:
 
 	const LuaObject& getState() const;
 
+	template<typename T, typename V>
+	void setGlobal(const T& key, const V& value){
+		mState.Set(key, value);
+	}
+
 	State* getParent() const;
 
 	~Script();

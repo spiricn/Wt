@@ -27,10 +27,12 @@ class Renderer;
 
 
 
-class Scene{
+class Scene : public lua::Object<Scene>{
 friend class Renderer;
 
 public:
+	
+
 	typedef std::map<uint32_t, ASceneActor*> ActorMap;
 
 	typedef std::set<ModelledActor*> ModelledActorSet;
@@ -102,6 +104,8 @@ private:
 	uint32_t mNumSpotLights;
 	
 
+	lua::State* mLuaState;
+
 	Assets* mAssets;
 
 	uint32_t generateActorId();
@@ -109,7 +113,7 @@ private:
 	GodRayParams mGodrayParams;
 
 public:
-	Scene(Physics* physics, Assets* assets);
+	Scene(Physics* physics, Assets* assets, lua::State* luaState);
 
 	virtual ~Scene();
 
@@ -170,12 +174,19 @@ public:
 	/**********************/
 	/**** Lua bindings ****/
 	/**********************/
+	void lua_removeActor(LuaObject obj);
+
+	LuaObject lua_findModelledActor(const char* name);
+
+	LuaObject lua_findParticleEffect(const char* name);
+
+	void generateMetaTable();
 
 	uint32_t lua_createActor();
 
-	void lua_removeActor(uint32_t actorId);
+	//void lua_removeActor(uint32_t actorId);
 
-	bool lua_isActorAnimationPlaying(uint32_t actorId);
+	/*bool lua_isActorAnimationPlaying(uint32_t actorId);
 
 	void lua_setActorPosition(uint32_t actorId, LuaObject pos);
 
@@ -208,8 +219,7 @@ public:
 	LuaObject lua_getActorFacing(uint32_t actorId);
 
 	void lua_setActorModel(uint32_t actorId, const char* modelPath, const char* skinName);
-
-	void expose(LuaObject& meta);
+*/
 
 private:
 	ActorMap::iterator eraseActor(ActorMap::iterator& iter);

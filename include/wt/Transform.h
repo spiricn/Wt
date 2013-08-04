@@ -79,13 +79,13 @@ public:
 	/** this * other */
 	void preConcat(const Transform& other);
 
+	void generateMetaTable();
+
 private:
 	glm::vec3 mPosition, mScale;
 	glm::quat mRotation;
 	glm::mat4x4 mMatrix;
 	bool mDirty;
-
-	void generateMetaTable();
 
 }; // </Transform>
 

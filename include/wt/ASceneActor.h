@@ -11,10 +11,16 @@
 
 namespace wt{
 
+namespace lua{
+	class State;
+};
+
 class PhysicsActor;
 class Scene;
 
 class ASceneActor{
+friend class Scene;
+
 public:
 	enum ActorType{
 		eTYPE_TERRAIN,
@@ -31,6 +37,8 @@ public:
 	}; // </AttachPoint>
 
 protected:
+	lua::State* mLuaState;
+
 	/** Owner of the actor (scene which created it) */
 	Scene* mParent;
 
@@ -61,7 +69,14 @@ protected:
 	/** Color of the bounding box for this object (used mainly for debugging) */
 	Color mBoundingBoxColor;
 
+	void setLuaState(lua::State* state){
+		mLuaState = state;
+	}
 public:
+	lua::State* getLuaState(){
+		return mLuaState;
+	}
+
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
 
 	void setBoundingBoxColor(const Color& color);

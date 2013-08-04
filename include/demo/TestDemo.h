@@ -139,18 +139,21 @@ public:
 		
 		lua::State* state = getManager()->getLuaState();
 		
-		
-		
 		LuaObject obj = state->box(*getEventManager());
 		state->getGlobals().Set("EventManager", obj);
 
 
 		LuaObject luaCamera = state->box(getScene()->getCamera());
 		state->getGlobals().Set("Camera", luaCamera);
-		
+	
 
+		LuaObject luaScene = state->box(*getScene());
+		state->getGlobals().Set("Scene", luaScene);
 
-		getProcManager().attach(new ScriptProcess(state->createScript("test_script.lua")));
+		lua::ScriptPtr script1;
+		getProcManager().attach(new ScriptProcess(script1 = state->createScript("test_script.lua")));
+
+		//getProcManager().attach(new ScriptProcess(state->createScript("test_script2.lua")));
 	}
 
 	String getConfigFile() const{

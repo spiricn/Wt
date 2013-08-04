@@ -16,6 +16,9 @@ namespace lua{
 using namespace LuaPlus;
 
 
+// user object
+bool luaConv(const LuaObject& src, void** userdata);
+
 // bool
 bool luaConv(const LuaObject& src, bool& dst);
 

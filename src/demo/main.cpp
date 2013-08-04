@@ -82,50 +82,63 @@ int main(){
 
 #else
 
+using namespace wt;
 
 #include "wt/lua/State.h"
 
-int cnt = 0;
-class TestClass1 : public lua::Object<TestClass1>{
+class BaseClass{
 public:
-	
-	int mcnt;
-	TestClass1(){
-		mcnt = ++cnt;
+	void baseMethod(){
+		TRACEI("trace");
 	}
 
-	void test(const char* info){
-		LOG("TEST CLASS 1 : id = %d (info=%s)", mcnt, info);
+	virtual void virtualBaseMethod(){
+		TRACEI("trace");
 	}
-
-	void generateMetaTable(LuaObject& table){
-		expose("test", &TestClass1::test);
-	}
-
 };
 
-extern "C"{
-	 #include <src/lualib.h>
-}
-//#include "src/lua.h"
+class DerivedClass : public BaseClass,  public wt::lua::Object<DerivedClass>{
+public:
+	int cnt;
+
+	DerivedClass (){
+		cnt = 0;
+
+	}
+	void derivedMethod(){
+		++cnt;
+		LOGI("%d", cnt);
+	}
+
+	void virtualBaseMethod(){
+		TRACEI("trace");
+	}
+
+
+	void generateMetaTable(){
+		TRACEI("trace");
+		expose("derivedMethod", &DerivedClass::derivedMethod);
+		expose("virtualBaseMethod", &DerivedClass::virtualBaseMethod);
+
+		exposeBase<BaseClass>("baseMethod", &BaseClass::baseMethod);
+
+
+	}
+};
+
 int main(){
-	lua::State state;
+	wt::lua::State state;
 
-	math::Camera cam;
+	DerivedClass obj;
 
-	cam.setPosition(glm::vec3(3, 4, 3.15));
+	LuaObject box1 = state.box(obj);
+	LuaObject box2 = state.box(obj);
 
-	state.box(cam, "Camera");
+	state.getGlobals().Set("box1", box1);
+	state.getGlobals().Set("box2", box2);
 
-
-	EventManager e;
-	state.box(e, "EventManager");
 	state.createScript("test_script.lua");
 
-	e.tick();
-
-/*
-	state->DoString("print( cam:getPosition())\ncam:setPosition({1, 2, 3})\nprint( cam:getPosition())\n");*/
 }
 
 #endif

@@ -4,6 +4,7 @@
 
 #include "wt/AGameWindow.h"
 #include "wt/AGameInput.h"
+#include "demo/DemoManager.h"
 
 #define TD_TRACE_TAG "ADemo"
 
@@ -95,7 +96,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	}
 
 	// Setup rendering scene
-	mScene = new Scene(mPhysics, mAssets);
+	mScene = new Scene(mPhysics, mAssets, getManager()->getLuaState());
 
 	String cameraMode;
 	if(!lua::luaConv(mConfig->GetGlobal("cameraMode"), cameraMode)){

@@ -13,10 +13,10 @@ ScriptProcess::ScriptProcess(lua::ScriptPtr script) : mScript(script),
 
 void ScriptProcess::onProcUpdate(float dt){
 	mUpdateFnc(dt);
-	String err = mScript->getParent()->getErrorString();
+	/*String err = mScript->getParent()->getErrorString();
 	if(err.size()){
 		TRACEE("Script error occured on update \"%s\"", err.c_str());
-	}
+	}*/
 }
 
 void ScriptProcess::stopProcess(){
