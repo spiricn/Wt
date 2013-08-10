@@ -38,8 +38,12 @@ private:
 	WorldEditTab* mWorldEdit;
 	QSettings* mSettings;
 
-	wt::Renderer mRenderer;
+
+	wt::lua::State mLuaState;
+	wt::EventManager mEventManager;
 	wt::Scene mScene;
+	wt::Renderer mRenderer;
+
 
 	Ui::WtEditorClass ui;
 

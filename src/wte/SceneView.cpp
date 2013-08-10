@@ -6,7 +6,6 @@
 #include <wt/FrameBuffer.h>
 #include <wt/AGameInput.h>
 
-#include "wte/MainGLWidget.h"
 #include "wte/SceneView.h"
 
 SceneView::SceneView(QWidget* parent) : QGLWidget(parent), mTimer(this), mInputGrabbed(false),
@@ -15,8 +14,10 @@ SceneView::SceneView(QWidget* parent) : QGLWidget(parent), mTimer(this), mInputG
 	setFocusPolicy(Qt::StrongFocus);
 
 	installEventFilter(this);
+}
 
-	mRenderer = new wt::Renderer;
+void SceneView::setRenderer(wt::Renderer* renderer){
+	mRenderer = renderer;
 }
 
 wt::Renderer* SceneView::getRenderer(){

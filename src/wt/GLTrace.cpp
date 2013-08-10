@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/GLTrace.h"
+#include "wt/Exception.h"
 
 #define TD_TRACE_TAG "GLTracer"
 
@@ -19,6 +20,11 @@ void printGlErrors(bool before, const char* file, long line, const char* expr){
 			errOccured=true;
 		}
 	}while(glError != GL_NO_ERROR);
+
+
+	if(errOccured){
+		WT_THROW("OpenGL error ocurred, aborting..");
+	}
 
 	#endif
 }

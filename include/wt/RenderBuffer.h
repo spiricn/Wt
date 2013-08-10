@@ -24,6 +24,7 @@ public:
 	static void unbind();
 
 	void destroy();
+
 private:
 	GLuint mHandle;
 	GLenum mFormat;

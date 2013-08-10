@@ -2,6 +2,7 @@
 
 #include "wt/VertexArray.h"
 #include "wt/Exception.h"
+#include "wt/GLTrace.h"
 
 #define TD_TRACE_TAG "VertexArray"
 
@@ -23,11 +24,11 @@ void VertexArray::bind(){
 	}
 	#endif
 
-	glBindVertexArray(mHandle);
+	gl( BindVertexArray(mHandle) );
 }
 
 void VertexArray::unbind(){
-	glBindVertexArray(0);
+	gl( BindVertexArray(0) );
 }
 
 void VertexArray::create(){
@@ -39,13 +40,13 @@ void VertexArray::create(){
 
 	if(!mIsGenerated){
 		mIsGenerated=true;
-		glGenVertexArrays(1, &mHandle);
+		gl( GenVertexArrays(1, &mHandle) );
 	}
 }
 
 void VertexArray::destroy(){
 	if(mIsGenerated){
-		glDeleteVertexArrays(1, &mHandle);
+		gl( DeleteVertexArrays(1, &mHandle) );
 		mIsGenerated=false;
 	}
 }

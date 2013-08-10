@@ -12,14 +12,18 @@
 using namespace std;
 
 WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
-	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"), mScene(new wt::Physics(new wt::EventManager), &mAssets), mAssets(wt::Assets::eFS_DIR, "D:\\Documents\\prog\\c++\\workspace\\Wt\\workspace\\"){
+	: QMainWindow(parent, flags), mWorkspaceFilePath("world.lua"),
+	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState),
+	mAssets(wt::Assets::eFS_DIR, "D:\\Documents\\prog\\c++\\workspace\\Wt\\workspace\\"), mRenderer(&mEventManager){
+
 	ui.setupUi(this);
 
 	td_setCallbackFnc(logCallback, this);
 
 	// World edit tab
-	mWorldEdit = new WorldEditTab(this, &mScene, &mAssets);
+	mWorldEdit = new WorldEditTab(this, &mScene, &mAssets, &mEventManager);
 	ui.mainTabWidget->addTab(mWorldEdit, "World edit");
+	mWorldEdit->ui.sceneView->setRenderer(&mRenderer);
 
 	connect(mWorldEdit->ui.sceneView, SIGNAL(initialized()),
 		this, SLOT(onOpenGLContextCreated()));

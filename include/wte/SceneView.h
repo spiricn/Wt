@@ -33,6 +33,8 @@ public:
 
 	void setScene(wt::Scene* scene);
 
+	void setRenderer(wt::Renderer* renderer);
+
 	wt::Scene* getScene();
 
 	void grabInput(bool state);

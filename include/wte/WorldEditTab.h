@@ -6,6 +6,7 @@
 #include "ui_WorldEdit.h"
 
 #include "wte/ATool.h"
+#include <wt/EventManager.h>
 
 class TerrainEditTool;
 class LightEditTool;
@@ -46,14 +47,14 @@ private:
 	FogTool* mFogTool;
 	wt::AResourceSystem* mAssets;
 	wt::Scene* mScene;
-
+	wt::EventManager* mEventManager;
 	QTimer mTimer;
 
 	typedef QVector<ATool*> ToolList;
 	ToolList mTools;
 
 public:
-	WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets);
+	WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager);
 
 	~WorldEditTab();
 

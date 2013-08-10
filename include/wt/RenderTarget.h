@@ -27,12 +27,12 @@ public:
 	}
 
 	void bind(){
-		mFrameBuffer.bind(wt::gl::FrameBuffer::DRAW);
+		mFrameBuffer.bind(wt::gl::FrameBuffer::eMODE_DRAW);
 		glDrawBuffers(mNumBuffers, mBuffers);
 	}
 
 	void unbind(){
-		mFrameBuffer.unbind(wt::gl::FrameBuffer::DRAW);
+		mFrameBuffer.unbind(wt::gl::FrameBuffer::eMODE_DRAW);
 	}
 }; // </RenderTarget>
 

@@ -91,11 +91,11 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	}
 
 
-	// Attach the renderers (order matters)
-	attachRenderer(new TerrainRenderer);
+	 //Attach the renderers (order matters)
+	//attachRenderer(new TerrainRenderer);
 	attachRenderer(new ModelRenderer);
-	attachRenderer(new ParticleRenderer);
-	attachRenderer(new SkyboxRenderer);
+	//attachRenderer(new SkyboxRenderer);
+	//attachRenderer(new ParticleRenderer);
 
 	LOGV("Compiling godray shader ...");
 	mGodRayShader.create();
@@ -194,7 +194,7 @@ void Renderer::initGodray(){
 
 		mGodrayFBO.create();
 
-		mGodrayFBO.bind(gl::FrameBuffer::DRAW);
+		mGodrayFBO.bind(gl::FrameBuffer::eMODE_DRAW);
 
 		mGodrayPass1.create();
 		mGodrayPass1.bind();
@@ -771,7 +771,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 	if(godrayParams.enabled){ 
 		// pass 1 (render scene without textures/lighting)
-		mGodrayFBO.bind(gl::FrameBuffer::DRAW);
+		mGodrayFBO.bind(gl::FrameBuffer::eMODE_DRAW);
 
 		const GLenum pass1Buffers[] = {GL_COLOR_ATTACHMENT0};
 		gl( DrawBuffers(1, pass1Buffers) );
@@ -866,7 +866,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		// pass 3
 		if(!target){
 			// Default framebuffer
-			gl::FrameBuffer::unbind(gl::FrameBuffer::DRAW);
+			gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
 
 			 GLint doubleBuffered; 
 			gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );

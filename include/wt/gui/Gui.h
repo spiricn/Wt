@@ -254,7 +254,7 @@ public:
 	}
 
 	void draw(){
-		mCanvas.getFBO().bind(FrameBuffer::DRAW);
+		mCanvas.getFBO().bind(FrameBuffer::eMODE_DRAW);
 
 		mCanvas.clear();
 
@@ -332,7 +332,7 @@ public:
 		}
 #endif
 
-		mCanvas.getFBO().unbind(FrameBuffer::DRAW);
+		mCanvas.getFBO().unbind(FrameBuffer::eMODE_DRAW);
 	}
 
 	~UIWindow(){

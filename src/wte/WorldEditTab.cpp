@@ -22,8 +22,8 @@
 #define FPS 50
 	
 
-WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets) : QMainWindow(parent),
-	mSelectedActor(NULL), mAssets(assets), mScene(scene){
+WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager) : QMainWindow(parent),
+	mSelectedActor(NULL), mAssets(assets), mScene(scene), mEventManager(evtManager){
 	 ui.setupUi(this);
 
 	 // Scene setup
@@ -96,6 +96,8 @@ void WorldEditTab::onTimeout(){
 	mScene->getPhysics()->update(dt);
 
 	ui.sceneView->update(dt);
+
+	mEventManager->tick();
 }
 
 void WorldEditTab::createToolbar(){
@@ -131,7 +133,7 @@ void WorldEditTab::onScreenshot(){
 	try{
 		/*ui.sceneView->getRenderer()->saveScreenshot(path.toStdString());*/
 		wt::Image img;
-		wt::gl::FrameBuffer::unbind(wt::gl::FrameBuffer::READ);
+		wt::gl::FrameBuffer::unbindRead();
 		img.fromFrameBuffer(wt::Image::RGB);
 
 		mAssets->getImageManager()->save(path.toStdString(), &img);

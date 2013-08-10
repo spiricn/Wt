@@ -18,7 +18,7 @@ void ShaderProgram::create(){
 }
 
 void ShaderProgram::detach(Shader& shader){
-	glDetachShader(mProgHandle, shader.getHandle());
+	gl( DetachShader(mProgHandle, shader.getHandle()) );
 }
 
 GLuint ShaderProgram::getUniformBlockIndex(const String& name) const{
@@ -32,7 +32,7 @@ void ShaderProgram::createUniformBlockBindPoint(const String& blockName, uint32_
 }
 
 void ShaderProgram::destroy(){
-	glUseProgram(0);
+	gl( UseProgram(0) );
 	detach(mVertexShader);
 
 	if(mHasFragmentShader){
@@ -43,7 +43,7 @@ void ShaderProgram::destroy(){
 		detach(mGeometryShader);
 	}
 
-	glDeleteProgram(mProgHandle);
+	gl( DeleteProgram(mProgHandle) );
 }
 
 void ShaderProgram::getUniformIndices(uint32_t numUniforms, GLuint* indices, ...){
@@ -127,7 +127,7 @@ void ShaderProgram::createFromSources(const String& vertexSource, const String& 
 }
 
 void ShaderProgram::attach(Shader& shader){
-	glAttachShader(mProgHandle, shader.getHandle());
+	gl( AttachShader(mProgHandle, shader.getHandle()) );
 }
 
 void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
@@ -140,7 +140,7 @@ void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
 		names[i] = va_arg(argList, const char*);
 	}
 
-	glTransformFeedbackVaryings(mProgHandle, count, names, GL_INTERLEAVED_ATTRIBS);
+	gl( TransformFeedbackVaryings(mProgHandle, count, names, GL_INTERLEAVED_ATTRIBS) );
 
 	delete[] names;
 
@@ -196,14 +196,14 @@ void ShaderProgram::createFromFiles(const String& vertexPath, const String& frag
 
 bool ShaderProgram::isLinked(){
 	GLint success;
-	glGetProgramiv(mProgHandle, GL_LINK_STATUS, &success);
+	gl( GetProgramiv(mProgHandle, GL_LINK_STATUS, &success) );
 
 	return success==GL_FALSE?false:true;
 }
 
 bool ShaderProgram::hasLog(){
 	GLint log_size=0;
-	glGetProgramiv(mProgHandle, GL_INFO_LOG_LENGTH, &log_size);
+	gl( GetProgramiv(mProgHandle, GL_INFO_LOG_LENGTH, &log_size) );
 
 	return log_size>1?true:false;
 }
@@ -214,11 +214,11 @@ String ShaderProgram::getLog(){
 	if(hasLog()){
 		// get log size
 		GLint log_size=0;
-		glGetProgramiv(mProgHandle, GL_INFO_LOG_LENGTH, &log_size);
+		gl( GetProgramiv(mProgHandle, GL_INFO_LOG_LENGTH, &log_size) );
 
 		// copy log to a buffer
 		char* log_bfr = new char[log_size];
-		glGetProgramInfoLog(mProgHandle, log_size, NULL, log_bfr);
+		gl(GetProgramInfoLog(mProgHandle, log_size, NULL, log_bfr));
 
 		// move log to member string & release memory
 		program_log.append(log_bfr);
@@ -235,7 +235,7 @@ void ShaderProgram::setUniformVal(const String& name, int i){
 }
 
 void ShaderProgram::setUniformVal(GLint location,  int i){
-	glUniform1i(location, i);
+	gl( Uniform1i(location, i) );
 }
 
 /** float */
@@ -244,7 +244,7 @@ void ShaderProgram::setUniformVal(const String& name, float f){
 }
 
 void ShaderProgram::setUniformVal(GLint location,  float f){
-	glUniform1f(location, f);
+	gl( Uniform1f(location, f) );
 }
 
 /** glm::mat4x4& */
@@ -253,7 +253,7 @@ void ShaderProgram::setUniformVal(const String& name, const glm::mat4x4& matrix)
 }
 
 void ShaderProgram::setUniformVal(GLint location, const glm::mat4x4& matrix){
-	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	gl( UniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)) );
 }
 
 /** const glm::mat3x3 */
@@ -262,7 +262,7 @@ void ShaderProgram::setUniformVal(const String& name, const glm::mat3x3& matrix)
 }
 
 void ShaderProgram::setUniformVal(GLint location, const glm::mat3x3& matrix){ 
-	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	gl( UniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix)) );
 }
 
 /** glm::vec3 */
@@ -271,7 +271,7 @@ void ShaderProgram::setUniformVal(const String& name, const glm::vec3& vec){
 }
 
 void ShaderProgram::setUniformVal(GLint location, const glm::vec3& vec){
-	glUniform3fv(location, 1, glm::value_ptr(vec));
+	gl( Uniform3fv(location, 1, glm::value_ptr(vec)) );
 }
 
 /** glm::vec2 */
@@ -280,7 +280,7 @@ void ShaderProgram::setUniformVal(const String& name, const glm::vec2& vec){
 }
 
 void ShaderProgram::setUniformVal(GLint location, const glm::vec2& vec){ 
-	glUniform2fv(location, 1, &vec.x); 
+	gl( Uniform2fv(location, 1, &vec.x)) ;
 }
 
 /** bool */
@@ -294,7 +294,7 @@ void ShaderProgram::setUniformVal(const String& name, const glm::mat4x4* matrice
 }
 
 void ShaderProgram::setUniformVal(GLint location, const glm::mat4x4* matrices, uint32_t count){
-	glUniformMatrix4fv(location, count, false, glm::value_ptr(matrices[0]));
+	gl( UniformMatrix4fv(location, count, false, glm::value_ptr(matrices[0])) );
 }
 
 /** wt::Color */
@@ -303,7 +303,7 @@ void ShaderProgram::setUniformVal(const String& name, const Color& val){
 }
 
 void ShaderProgram::setUniformVal(GLint location, const Color& val){
-	glUniform4fv(location, 1, val.getDataPtr());
+	gl( Uniform4fv(location, 1, val.getDataPtr()) );
 }
 
 GLint ShaderProgram::getUniformLocation(const String& name){
@@ -316,7 +316,7 @@ GLint ShaderProgram::getUniformLocation(const String& name){
 }
 
 void ShaderProgram::bindAttribLocation(GLuint index, const String& name){
-	glBindAttribLocation(mProgHandle, index, name.c_str());
+	gl( BindAttribLocation(mProgHandle, index, name.c_str()) );
 }
 
 GLuint ShaderProgram::getProgramHandle() const{
@@ -324,7 +324,7 @@ GLuint ShaderProgram::getProgramHandle() const{
 }
 
 void ShaderProgram::link(){
-	glLinkProgram(mProgHandle);
+	gl( LinkProgram(mProgHandle) );
 
 	if(!isLinked()){
 		WT_THROW("Error linking shader program \"%s\"", getLog().c_str());
@@ -332,7 +332,7 @@ void ShaderProgram::link(){
 }
 
 void ShaderProgram::use(){
-	glUseProgram(mProgHandle);
+	gl( UseProgram(mProgHandle) );
 }
 
 }; // </gl>

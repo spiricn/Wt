@@ -55,7 +55,7 @@ public:
 		getRenderer()->setClearColor( Color::black() );
 
 
-		getAssets()->load("level2.lua");
+		getAssets()->load("level1.lua");
 
 		ParticleEffectResource* effect;
 

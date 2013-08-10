@@ -210,8 +210,8 @@ void Batch::setVertexAttribute(GLuint attrib_index, GLint component_number, GLen
 	WT_ASSERT(mIsInitialized, "Batch not initialized");
 
 	mVertexArray->bind();
-		glEnableVertexAttribArray(attrib_index);
-		glVertexAttribPointer(attrib_index, component_number, component_type, GL_FALSE, mVertexSize, (const GLvoid*)component_offset);
+		gl( EnableVertexAttribArray(attrib_index) );
+		gl( VertexAttribPointer(attrib_index, component_number, component_type, GL_FALSE, mVertexSize, (const GLvoid*)component_offset) );
 	mVertexArray->unbind();
 }
 

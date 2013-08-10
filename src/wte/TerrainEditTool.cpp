@@ -43,7 +43,7 @@ void TerrainEditTool::setTarget(wt::Terrain* terrain){
 
 		mTerrain->getMapTexture()->generateMipmap();
 
-		mFrameBuffer.unbind(wt::gl::FrameBuffer::DRAW);
+		mFrameBuffer.unbind(wt::gl::FrameBuffer::eMODE_DRAW);
 	}
 }
 
@@ -99,7 +99,7 @@ void TerrainEditTool::onResetTexture(){
 	}
 
 	LOGI("Resetting texture...");
-	mFrameBuffer.bind(wt::gl::FrameBuffer::DRAW);
+	mFrameBuffer.bind(wt::gl::FrameBuffer::eMODE_DRAW);
 
 	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 	glDrawBuffers(1, bfrMap);
@@ -252,7 +252,7 @@ void TerrainEditTool::editAt(float x, float y){
 					mTerrain->getNumCols()*mTerrain->getColScale());
 
 
-			mFrameBuffer.bind(wt::gl::FrameBuffer::DRAW);
+			mFrameBuffer.bind(wt::gl::FrameBuffer::eMODE_DRAW);
 
 			static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 			glDrawBuffers(1, bfrMap);
@@ -288,7 +288,7 @@ void TerrainEditTool::editAt(float x, float y){
 			glEnable(GL_CULL_FACE);
 			//mTerrain.getMapTexture()->dump("test.jpg");
 
-			mFrameBuffer.unbind(wt::gl::FrameBuffer::DRAW);
+			mFrameBuffer.unbind(wt::gl::FrameBuffer::eMODE_DRAW);
 
 			tex->generateMipmap();
 		}

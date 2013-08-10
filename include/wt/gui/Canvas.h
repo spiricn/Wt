@@ -47,7 +47,7 @@ protected:
 	void create(){
 		mFrameBfr.create();
 
-		mFrameBfr.bind(FrameBuffer::DRAW);
+		mFrameBfr.bind(FrameBuffer::eMODE_DRAW);
 
 		mTargetTex->create();
 		mTargetTex->bind();
@@ -277,7 +277,7 @@ public:
 	}
 
 	void clear(){
-		mFrameBfr.bind(FrameBuffer::DRAW);
+		mFrameBfr.bind(FrameBuffer::eMODE_DRAW);
 
 		gl( Disable(GL_BLEND) );
 		//mTargetTex->bind();

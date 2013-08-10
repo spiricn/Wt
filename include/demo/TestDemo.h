@@ -47,101 +47,13 @@ public:
 
 		SceneLoader loader(getScene(), getAssets());
 
-		
-
-		//if(1){
-		if(0){
-			// Actor 1
-
-			/*{
-				ModelledActor* actor = getScene()->createModelledActor("lich");
-				actor->setModel(getAssets()->getModelManager()->find("lich_king"), "default");
-				actor->getAnimationPlayer()->play("attack", true);
-				actor->getAnimationPlayer()->setSpeed(0.3);
-				actor->getTransform().setScale(1.5, 2, 1.5);
-				getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
-			}
-
-			
-			{
-				ParticleEffect* effect = getScene()->createParticleEffect();
-				ParticleEffect::EffectDesc desc;
-
-				desc.color = Color::cyan();
-				desc.maxNumber = 550;
-				desc.size = 0.3;
-				desc.life = 2;
-				desc.texture = getAssets()->getTextureManager()->getFromPath("$ROOT/particle/circle_soft");
-				desc.velocity = 0.3;
-
-				effect->getTransform().setPosition(0, 3, 0);
-
-				effect->create(desc);
-
-				effect->attach( getScene()->findActorByName("lich"), config.Get("bone").ToString() );
-			}
-*/
-			//// Actor 2
-			{
-				ModelledActor* actor = getScene()->createModelledActor();
-				actor->setModel(getAssets()->getModelManager()->find("cube"), "crate");
-
-				actor->getTransform().setPosition(0, 0, 0);
-				getScene()->getCamera().lookAt( actor->getTransform().getPosition() );
-
-
-				getScene()->getPhysics()->createBBox(actor);
-
-	/*			PhysicsActor::Desc desc;
-
-				desc.type = PhysicsActor::eACTOR_TYPE_BBOX;
-
-				desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
-
-				desc.geometryDesc.boxGeometry.hx = 1.0f;
-				desc.geometryDesc.boxGeometry.hy = 1.0f;
-				desc.geometryDesc.boxGeometry.hz = 1.0f;
-				desc.pose = actor->getTransform();
-
-				desc.collisionMask = 0;
-				desc.group = 0x40000000;
-
-				getPhysics()->createActor(actor, desc);*/
-			}
-
-			//// Terrain
-			//{
-			//	TerrainDesc desc;
-			//	desc.texture1 = getAssets()->getImageManager()->find("grass");
-			//	desc.texture2 = getAssets()->getImageManager()->find("dirt");
-			//	desc.texture3 = getAssets()->getImageManager()->find("stone");
-
-			//	desc.textureMap = getAssets()->getTextureManager()->find("map1");
-
-			//	desc.columnScale = 3.0f;
-			//	desc.rowScale = 3.0f;
-			//	desc.heightScale = .1f;
-
-			//	desc.numColumns = 129;
-			//	desc.numRows = 129;
-
-			//	desc.heightmapPath = "workspace/assets/terrain/terrain";
-
-			//	getScene()->createTerrain()->create(desc);
-			//}
-		}
-		else{
-			loader.load("saved-scene.lua");
-		}
-
-		//loader.save("saved-scene.lua");
+		loader.load("scene.lua");
 
 		
 		lua::State* state = getManager()->getLuaState();
 		
 		LuaObject obj = state->box(*getEventManager());
 		state->getGlobals().Set("EventManager", obj);
-
 
 		LuaObject luaCamera = state->box(getScene()->getCamera());
 		state->getGlobals().Set("Camera", luaCamera);
@@ -150,10 +62,23 @@ public:
 		LuaObject luaScene = state->box(*getScene());
 		state->getGlobals().Set("Scene", luaScene);
 
-		lua::ScriptPtr script1;
-		getProcManager().attach(new ScriptProcess(script1 = state->createScript("test_script.lua")));
 
-		//getProcManager().attach(new ScriptProcess(state->createScript("test_script2.lua")));
+
+		PointLight light;
+		light.mColor = Color::green();
+		light.mPosition = glm::vec3(156, 5, 235);
+
+		getScene()->addPointLight(light);
+
+		light.mColor = Color::blue();
+		light.mPosition = glm::vec3(159, 5, 193);
+		light.mDiffuseItensity = 3;
+
+		getScene()->addPointLight(light);
+
+		/*lua::ScriptPtr script1;
+		getProcManager().attach(new ScriptProcess(script1 = state->createScript("test_script.lua")));*/
+
 	}
 
 	String getConfigFile() const{

@@ -19,10 +19,24 @@ FrameBuffer::~FrameBuffer(){
 	}
 }
 
+void FrameBuffer::blit(const glm::vec4& src, const glm::vec4& dst, GLenum attachment, GLint mask, GLenum filter){
+	bindRead();
+
+	gl( ReadBuffer(attachment) );
+
+	gl( BlitFramebuffer(
+		src.x, src.y, src.z, src.w,
+		dst.x, dst.y, dst.z, dst.w,
+		mask, filter
+	));
+}
+
+
 void FrameBuffer::addAttachment(GLenum attachment, const RenderBuffer& target){
 	WT_ASSERT(mIsCreated, "Framebuffer not initialized");
 
-	bind(DRAW);
+	// TODO why draw? probably should be eMODE_FRAMEBUFFER
+	bind(eMODE_DRAW);
 
 	gl( FramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
 		attachment, GL_RENDERBUFFER, target.getHandle()) );
@@ -31,7 +45,7 @@ void FrameBuffer::addAttachment(GLenum attachment, const RenderBuffer& target){
 void FrameBuffer::addAttachment(GLenum attachment, GLuint texture, GLenum textureType){
 	WT_ASSERT(mIsCreated, "Framebuffer not initialized");
 
-	bind(DRAW);
+	bind(eMODE_DRAW);
 
 	// TODO not sure if binding it here is necessary
 	if(texture != 0){
@@ -53,8 +67,32 @@ void FrameBuffer::bind(Mode mode){
 	gl( BindFramebuffer(mode, mHandle) );
 }
 
+void FrameBuffer::bindRead(){
+	bind(eMODE_READ);
+}
+
+void FrameBuffer::bindDraw(){
+	bind(eMODE_DRAW);
+}
+
+void FrameBuffer::bind(){
+	bind(eMODE_FRAMEBUFFER);
+}
+
 void FrameBuffer::unbind(Mode mode){
 	gl( BindFramebuffer(mode, 0) );
+}
+
+void FrameBuffer::unbind(){
+	unbind(eMODE_FRAMEBUFFER);
+}
+
+void FrameBuffer::unbindDraw(){
+	unbind(eMODE_DRAW);
+}
+
+void FrameBuffer::unbindRead(){
+	unbind(eMODE_READ);
 }
 
 void FrameBuffer::create(){
@@ -69,7 +107,7 @@ void FrameBuffer::create(){
 GLenum FrameBuffer::getStatus(){
 	WT_ASSERT(mIsCreated, "Framebuffer not initialized");
 
-	bind(DRAW);
+	bind(eMODE_DRAW);
 
 	return glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
 }
