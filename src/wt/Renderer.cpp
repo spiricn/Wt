@@ -458,6 +458,7 @@ void Renderer::setFOV(float angle){
 }
 
 void Renderer::setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog){
+	// TODO move this to an uniform buffer object so that shaders can share the same 
 	prog.use();
 
 	DirectionalLight dirLight;

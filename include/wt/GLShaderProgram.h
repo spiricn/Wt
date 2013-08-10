@@ -42,7 +42,11 @@ public:
 
 	void setTransformFeedbackVaryings(uint32_t count, ...);
 
+	void getUniformIndices(uint32_t numUniforms, GLuint* indices, ...);
+
 	void createFromSources(const String& vertex_source, const String& fragment_source, const String& geometrySource="");
+
+	void getActiveUniforms(uint32_t numIndices, GLuint* indices, GLenum name, GLint* res);
 
 	void createFromFiles(const String& vertexShaderFile,
 		const String& fragmentShaderFile, const String& geometryShaderFile="");
@@ -52,6 +56,10 @@ public:
 	bool hasLog();
 
 	String getLog();
+
+	GLuint getUniformBlockIndex(const String& name) const;
+
+	void createUniformBlockBindPoint(const String& blockName, uint32_t point);
 
 	// int
 	void setUniformVal(const String& name, int i);

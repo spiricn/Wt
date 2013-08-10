@@ -1,10 +1,12 @@
 #include "wt/stdafx.h"
 
 #include "wt/ModelRenderer.h"
+#include "wt/UniformBufferObject.h"
 
 #define  TD_TRACE_TAG "ModelRenderer"
 
-namespace wt{
+namespace wt
+{
 
 ModelRenderer::ModelRenderer(){
 }
@@ -13,8 +15,8 @@ void ModelRenderer::create(){
 	// Compile the shader
 	LOGV("Compiling model shader...");
 
-	mShader.createFromFiles("shaders\\basic.vp",
-		"shaders\\basic.fp");
+	mShader.createFromFiles("shaders\\model.vp",
+		"shaders\\model.fp");
 
 	mShader.bindAttribLocation(Model::eATTRIB_POSITION, "inVertex");
 	mShader.bindAttribLocation(Model::eATTRIB_TEXCOORD, "inTexCoord");
@@ -28,6 +30,45 @@ void ModelRenderer::create(){
 	mShader.use();
 	mShader.setUniformVal("uSampler", 0);
 	mShader.setUniformVal("uNormalMap", 1);
+
+#if 0
+	// Uniform buffer object example (TODO use this)
+	{
+		// Get an array of uniform indices
+		GLuint indices[3];
+
+		mShader.getUniformIndices(3, indices,
+			"TestBlock.r",
+			"TestBlock.g",
+			"TestBlock.b"
+		);
+
+		// Get an array of uniform offsets in memory
+		GLint uniformOffsets[3];
+		mShader.getActiveUniforms(3, indices, GL_UNIFORM_OFFSET, uniformOffsets);
+
+
+		// Allocate some memory for the UBO
+		char* bfr = new char[3*sizeof(float)];
+		memset(bfr, 0x00, 3*sizeof(float));
+
+		// Set some uniform values
+		*((float*)(bfr + uniformOffsets[0])) = 1.0f;
+		*((float*)(bfr + uniformOffsets[1])) = 0.3f;
+		*((float*)(bfr + uniformOffsets[2])) = 1.0f;
+
+		// Setup shader binding for the uniform block
+		const int kTEST_BLOCK_BINDING = 0;
+		mShader.createUniformBlockBindPoint("TestBlock", kTEST_BLOCK_BINDING);
+
+		// Create the actual UBO
+		static gl::UniformBufferObject ubo;
+		ubo.setData(bfr, 3*sizeof(float));
+
+		// Set its bind point
+		ubo.setBindPoint(kTEST_BLOCK_BINDING);
+	}
+#endif
 
 	// Create a default (invalid) texture 
 	Buffer<unsigned char> bfr;
@@ -101,4 +142,4 @@ void ModelRenderer::render(Scene* scene, ModelledActor* actor, math::Camera* cam
 	}
 }
 
-}; // </wt>
+} // </wt>

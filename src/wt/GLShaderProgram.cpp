@@ -1,8 +1,10 @@
 #include "wt/stdafx.h"
+
 #include "wt/GLShaderProgram.h"
-#include <td/td.h>
 #include "wt/Exception.h"
 #include "wt/Utils.h"
+#include "wt/GLTrace.h"
+
 
 
 #define TD_TRACE_TAG "ShaderProgram"
@@ -19,6 +21,16 @@ void ShaderProgram::detach(Shader& shader){
 	glDetachShader(mProgHandle, shader.getHandle());
 }
 
+GLuint ShaderProgram::getUniformBlockIndex(const String& name) const{
+	return glGetUniformBlockIndex(mProgHandle, name.c_str());
+}
+
+void ShaderProgram::createUniformBlockBindPoint(const String& blockName, uint32_t point){
+	GLuint blockIndex = getUniformBlockIndex(blockName);
+
+	gl( UniformBlockBinding(mProgHandle, blockIndex, point) );
+}
+
 void ShaderProgram::destroy(){
 	glUseProgram(0);
 	detach(mVertexShader);
@@ -32,6 +44,28 @@ void ShaderProgram::destroy(){
 	}
 
 	glDeleteProgram(mProgHandle);
+}
+
+void ShaderProgram::getUniformIndices(uint32_t numUniforms, GLuint* indices, ...){
+	va_list args;
+	va_start(args, indices);
+
+	const char** names = new const char*[numUniforms];
+
+	for(int i=0; i<numUniforms; i++){
+		const char* name = va_arg(args, const char*);
+		names[i] = name;
+	}
+
+	gl( GetUniformIndices(mProgHandle, numUniforms, names, indices) );
+
+	delete[] names;
+
+	va_end(args);
+}
+
+void ShaderProgram::getActiveUniforms(uint32_t numIndices, GLuint* indices, GLenum name, GLint* res){
+	gl( GetActiveUniformsiv(mProgHandle, numIndices, indices, name, res) );
 }
 
 void ShaderProgram::createFromSources(const String& vertexSource, const String& fragmentSource, const String& geometrySource){

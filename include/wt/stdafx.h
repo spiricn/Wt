@@ -73,6 +73,7 @@
 #include <stdarg.h>
 #include <string>
 #include <stdint.h>
+#include <stdarg.h> 
 
 // GLM
 #include <glm/glm.hpp>
