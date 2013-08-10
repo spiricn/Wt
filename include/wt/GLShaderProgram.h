@@ -102,9 +102,27 @@ public:
 
 	GLuint getProgramHandle() const;
 
+
+#if 0
+	// TODO find a way to remove the ambiguity
+	template<typename T>
+	void setUniformVal(const T& val, const String& nameFmt, ...){
+		va_list args;
+		va_start(args, nameFmt);
+
+		char name[256];
+		vsnprintf(name, 256, nameFmt.c_str(), args);
+
+		setUniformVal(name, val);
+
+		va_end(args);
+	}
+#endif
+
 	void link();
 
 	void use();
+
 
 }; // </GLShaderPRogram>
 

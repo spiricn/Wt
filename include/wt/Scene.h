@@ -16,6 +16,8 @@
 #include "wt/ASceneActor.h"
 #include "wt/ModelledActor.h"
 #include "wt/ParticleEffect.h"
+#include "wt/EventManager.h"
+#include "wt/EventEmitter.h"
 
 namespace wt{
 
@@ -26,9 +28,11 @@ namespace wt{
 class Renderer;
 
 
+class ARenderer;
 
 class Scene : public lua::Object<Scene>{
 friend class Renderer;
+friend class ARenderer;
 
 public:
 	
@@ -61,7 +65,7 @@ public:
 		}
 	}; // </GodRayParams>
 
-protected:
+public:
 	const ModelledActorSet& getModelledActors() const{
 		return mModelledActors;
 	}
@@ -74,46 +78,9 @@ protected:
 		return mParticleEffects;
 	}
 
-private:
-	/** Master actor list */
-	ActorMap mActors;
-
-	/** A list of modelled actors (also contained in 'mActors') */
-	ModelledActorSet mModelledActors;
-
-	/** A list of terrain entities (also contained in 'mActors') */
-	TerrainSet mTerrainSet;
-
-	ParticleEffectSet mParticleEffects;
-
-	math::Camera* mCamera;
-
-	math::Camera mDefaultCamera;
-	
-	SkyBox* mSkyBox;
-	Fog mFog;
-	
-	Physics* mPhysics;
-
-	DirectionalLight mDirectionalLight;
-
-	PointLight mPointLights[MAX_POINT_LIGHTS];
-	uint32_t mNumPointLights;
-
-	SpotLight mSpotLights[MAX_SPOT_LIGHTS];
-	uint32_t mNumSpotLights;
-	
-
-	lua::State* mLuaState;
-
-	Assets* mAssets;
-
-	uint32_t generateActorId();
-
-	GodRayParams mGodrayParams;
 
 public:
-	Scene(Physics* physics, Assets* assets, lua::State* luaState);
+	Scene(Physics* physics, Assets* assets, EventManager* eventManager, lua::State* luaState);
 
 	virtual ~Scene();
 
@@ -141,11 +108,23 @@ public:
 		return mNumSpotLights;
 	}
 
-	SpotLight& getSpotLight(uint32_t index);
+	void getSpotLight(uint32_t index, SpotLight& dst) const;
 
-	PointLight& getPointLight(uint32_t index);
+	void getDirectionalLight(DirectionalLight& dst) const;
 
-	DirectionalLight& getDirectionalLight();
+	void getPointLight(uint32_t index, PointLight& dst) const;
+
+
+
+	void setSpotLight(uint32_t index, const SpotLight& src);
+
+	void setPointLight(uint32_t index, const PointLight& src);
+
+	void setDirectionalLight(const DirectionalLight& src);
+
+	
+
+	
 
 	uint32_t getNumPointLights() const;
 	
@@ -224,7 +203,77 @@ public:
 private:
 	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
 
+
+private:
+	/** Master actor list */
+	ActorMap mActors;
+
+	/** A list of modelled actors (also contained in 'mActors') */
+	ModelledActorSet mModelledActors;
+
+	/** A list of terrain entities (also contained in 'mActors') */
+	TerrainSet mTerrainSet;
+
+	ParticleEffectSet mParticleEffects;
+
+	math::Camera* mCamera;
+
+	math::Camera mDefaultCamera;
+	
+	SkyBox* mSkyBox;
+	Fog mFog;
+	
+	Physics* mPhysics;
+
+	DirectionalLight mDirectionalLight;
+
+	PointLight mPointLights[MAX_POINT_LIGHTS];
+	uint32_t mNumPointLights;
+
+	EventManager* mEventManager;
+
+	SpotLight mSpotLights[MAX_SPOT_LIGHTS];
+	uint32_t mNumSpotLights;
+	
+
+	lua::State* mLuaState;
+
+	Assets* mAssets;
+
+	uint32_t generateActorId();
+
+	GodRayParams mGodrayParams;
+
+	EventEmitter mEventEmitter;
+
+	void onLightingModified();
+
 }; // </Scene>
+
+class SceneLightingModifiedEvent : public Event{
+protected:
+	void serialize(LuaObject& dst){
+	}
+
+	void deserialize(LuaObject& src){
+	}
+
+public:
+	Scene* scene;
+
+	SceneLightingModifiedEvent(Scene* scene) : scene(scene){
+	}
+
+	static const EvtType TYPE;
+
+	SceneLightingModifiedEvent(){
+	}
+
+	const EvtType& getType() const{
+		return TYPE;
+	}
+
+}; // </SceneLightingModifiedEvent>
 
 }; // </wt>
 

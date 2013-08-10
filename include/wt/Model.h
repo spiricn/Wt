@@ -19,8 +19,18 @@ class ModelManager;
 class Model : public AResource<Model>{
 friend class ModelManager;
 
-protected:
+public:
+	enum BufferAtribs{
+		eATTRIB_INVALID=-1,
+		eATTRIB_POSITION=0,
+		eATTRIB_TEXCOORD,
+		eATTRIB_NORMAL,
+		eATTRIB_TANGENT,
+		eATTRIB_BONE_ID,
+		eATTRIB_BONE_WEIGHT
+	};
 
+protected:
 	void setTextureManager(TextureManager* textureManager){
 		mTextureManager = textureManager;
 	}
@@ -188,8 +198,7 @@ public:
 
 	void removeGeometry(const String& name);
 
-	void createHwBuffers(GLuint positionStreamIdx=0, GLuint texCoordStreamIdx=1,
-		GLuint normalStreamIdx=2, GLuint tangentStreamIdx=3, GLuint boneWeightStreamIdx=5,  GLuint boneIdsStreamIdx=4);
+	void createHwBuffers();
 
 	void create();
 

@@ -3,33 +3,16 @@
 
 #include <wt/lua/State.h>
 
+#include "wt/Frustum.h"
+#include "wt/Transform.h"
+
 namespace wt{
 
 namespace math{
 
 class Camera : public lua::Object<Camera> {
-private:
-	static const glm::vec3 FORWARD, UP, RIGHT;
-
-	glm::vec3 mForward, mUp, mRight, mOrigin;
-	glm::mat4x4	mViewMatrix;
-	bool mUpdateMatrix, mMatrixRotOnly;
-
-	void rotateWorld(float fAngle, float x, float y, float z);
-
-	void rotateLocal(float fAngle, float x, float y, float z);
-
-	void buildCameraMatrix(glm::mat4x4& dst);
-
-	void buildMatrix(glm::mat4x4& dst, bool rotOnly);
-
-	void localToWorld(const glm::vec3& localPoint, glm::vec3& dst, bool rotOnly);
-
 public:
-	Camera() : mForward(FORWARD), mUp(UP),
-		mRight(RIGHT), mOrigin(0.0f, 0.0f, 0.0f),
-		mUpdateMatrix(true), mMatrixRotOnly(false){
-	}
+	Camera();
 
 	float getYaw() const;
 
@@ -63,9 +46,32 @@ public:
 
 	void getMatrix(glm::mat4x4& dst, bool rotOnly=false);
 
+	void getMVPMatrix(const glm::mat4x4& model, glm::mat4x4& dst, bool rotOnly=false);
+
+	void getMVPMatrix(const Transform& transform, glm::mat4x4& dst, bool rotOnly=false);
+
+	Frustum& getFrustum();
+
 	// lua
 
 	void generateMetaTable();
+private:
+	static const glm::vec3 FORWARD, UP, RIGHT;
+
+	glm::vec3 mForward, mUp, mRight, mOrigin;
+	glm::mat4x4	mViewMatrix;
+	Frustum mFrustum;
+	bool mUpdateMatrix, mMatrixRotOnly;
+
+	void rotateWorld(float fAngle, float x, float y, float z);
+
+	void rotateLocal(float fAngle, float x, float y, float z);
+
+	void buildCameraMatrix(glm::mat4x4& dst);
+
+	void buildMatrix(glm::mat4x4& dst, bool rotOnly);
+
+	void localToWorld(const glm::vec3& localPoint, glm::vec3& dst, bool rotOnly);
 
 }; // </Camera>
 

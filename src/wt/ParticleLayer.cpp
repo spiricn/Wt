@@ -116,25 +116,5 @@ void ParticleCalculationShader::create(){
 	link();
 }
 
-void ParticleRenderShader::setModelViewProj(const glm::mat4& modelView, const glm::mat4& proj){
-	setUniformVal("uModelViewMat", modelView);
-	setUniformVal("uProjMat", proj);
-}
-
-
-void ParticleRenderShader::create(){
-	gl::ShaderProgram::createFromFiles("shaders/particle_render.vp", "shaders/particle.fp");
-
-	bindAttribLocation(ParticleCalculationShader::eATTR_TYPE, "inType");
-	bindAttribLocation(ParticleCalculationShader::eATTR_POSITION, "inPosition");
-	bindAttribLocation(ParticleCalculationShader::eATTR_LIFE, "inLife");
-	bindAttribLocation(ParticleCalculationShader::eATTR_VELOCITY, "inVelocity");
-	bindAttribLocation(ParticleCalculationShader::eATTR_SIZE, "inSize");
-	bindAttribLocation(ParticleCalculationShader::eATTR_MAX_LIFE, "inMaxLife");
-
-	link();
-}
-
-
 }; // </wt>
 

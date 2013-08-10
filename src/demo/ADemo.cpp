@@ -57,10 +57,6 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 	mDemoManager = manager;
 
-	// Initialize the scene renderer
-	mRenderer = new Renderer;
-	mRenderer->init(mWindow->getVideoMode().mScreenWidth,
-		mWindow->getVideoMode().mScreenHeigth);
 		
 	// Load assets
 	Assets::FileSystemType type;
@@ -96,7 +92,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	}
 
 	// Setup rendering scene
-	mScene = new Scene(mPhysics, mAssets, getManager()->getLuaState());
+	mScene = new Scene(mPhysics, mAssets, mEventManager, getManager()->getLuaState());
 
 	String cameraMode;
 	if(!lua::luaConv(mConfig->GetGlobal("cameraMode"), cameraMode)){
@@ -110,6 +106,12 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	else{
 		setCameraControlMode(eCAMERA_TPS);
 	}
+
+	
+	// Initialize the scene renderer (must be done after scene creation due to event registration)
+	mRenderer = new Renderer(mEventManager);
+	mRenderer->init(mWindow->getVideoMode().mScreenWidth,
+		mWindow->getVideoMode().mScreenHeigth);
 
 	mFpsCam.setCamera(&getScene()->getCamera());
 	mTpsCam.setCamera(&getScene()->getCamera());

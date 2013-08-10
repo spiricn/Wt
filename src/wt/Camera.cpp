@@ -12,6 +12,18 @@ const glm::vec3 Camera::FORWARD = glm::vec3(0.0f, 0.0f, -1.0f);
 const glm::vec3 Camera::UP = glm::vec3(0.0f, 1.0f, 0.0f);
 const glm::vec3 Camera::RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
 
+Camera::Camera() : mForward(FORWARD), mUp(UP),
+		mRight(RIGHT), mOrigin(0.0f, 0.0f, 0.0f),
+		mUpdateMatrix(true), mMatrixRotOnly(false){
+
+	mFrustum.setPerspectiveProj(640, 480, 73.0f, 0.5f,
+		3500.0f);
+}
+
+Frustum& Camera::getFrustum(){
+	return mFrustum;
+}
+
 float Camera::getYaw() const{
 	return math::vectorAngle(mForward);
 }
@@ -195,6 +207,22 @@ void Camera::rotateWorld(float fAngle, float x, float y, float z){
 	mUpdateMatrix=true;
 }
 
+void Camera::getMVPMatrix(const Transform& transform, glm::mat4x4& dst, bool rotOnly){
+	glm::mat4 model;
+	transform.getMatrix(model);
+
+	getMVPMatrix(model, dst, rotOnly);
+}
+
+void Camera::getMVPMatrix(const glm::mat4x4& model, glm::mat4x4& dst, bool rotOnly){
+	if(mUpdateMatrix || rotOnly!=mMatrixRotOnly){
+		mMatrixRotOnly=rotOnly;
+		mUpdateMatrix=false;
+		buildCameraMatrix(mViewMatrix);
+	}
+
+	dst = mFrustum.getProjMatrix()*(mViewMatrix*model);
+}
 
 void Camera::getMatrix(glm::mat4x4& dst, bool rotOnly){
 	if(mUpdateMatrix || rotOnly!=mMatrixRotOnly){

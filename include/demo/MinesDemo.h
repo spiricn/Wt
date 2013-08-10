@@ -177,7 +177,13 @@ public:
 		if(getScene()->getPhysics()->pick(getScene()->getCamera(),
 			getRenderer()->getFrustum(), glm::vec2(evt->mX, evt->mY),
 			glm::vec2(getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()), hit)){
-				getScene()->getPointLight(0).mPosition = hit.mImpact + glm::vec3(0, 3, 0);
+
+			PointLight light;
+			getScene()->getPointLight(0, light);
+
+			light.mPosition = hit.mImpact + glm::vec3(0, 3, 0);
+			getScene()->setPointLight(0, light);
+
 
 #ifdef CURSOR_ENABLED
 				mCursor->setParam("uPosition", hit.mImpact + glm::vec3(0, 3, 0));

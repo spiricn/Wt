@@ -75,7 +75,10 @@ void SceneLoader::load(AIOStream& stream){
 	// lights
 	LuaObject dirLight = table.Get("directionalLight");
 	if(dirLight.IsTable()){
-		mScene->getDirectionalLight().deserialize(mAssets->getLuastate(), dirLight);
+		DirectionalLight light;
+		light.deserialize(mAssets->getLuastate(), dirLight);
+
+		mScene->setDirectionalLight(light);
 	}
 
 	LuaObject pointLights = table.Get("pointLights");
@@ -177,7 +180,10 @@ void SceneLoader::save(AIOStream& stream){
 	// Lighting
 	LuaObject dirLight = mAssets->getLuastate()->newTable();
 
-	mScene->getDirectionalLight().serialize(mAssets->getLuastate(), dirLight );
+	DirectionalLight light;
+	mScene->getDirectionalLight(light);
+
+	light.serialize(mAssets->getLuastate(), dirLight );
 
 	sceneTable.Set("directionalLight", dirLight);
 

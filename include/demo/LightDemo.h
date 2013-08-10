@@ -101,17 +101,24 @@ public:
 		getCameraControl()->handle(dt, getManager()->getInput());
 
 		// Move spotlight to the camera
-		SpotLight& l = getScene()->getSpotLight(0);
+		SpotLight l;
+		getScene()->getSpotLight(0, l);
 		l.mPosition = getScene()->getCamera().getPosition();
 		l.direction = getScene()->getCamera().getForwardVec();
+		getScene()->setSpotLight(0, l);
 
 	
 		// Update orbs
 		for(Uint32 i=0; i<mOrbs.size(); i++){
 			mOrbs[i]->update(dt);
 
-			getScene()->getPointLight(i).mColor = mOrbs[i]->getColor();
-			getScene()->getPointLight(i).mPosition = mOrbs[i]->getPosition();
+			PointLight light;
+			getScene()->getPointLight(i, light);
+
+			light.mColor = mOrbs[i]->getColor();
+			light.mPosition = mOrbs[i]->getPosition();
+
+			getScene()->setPointLight(i, light);
 		}
 	
 		// Handle camera movement
@@ -129,7 +136,12 @@ public:
 
 		if(c == KEY_f){
 			// Toggle flashlight
-			getScene()->getSpotLight(0).mActive = !getScene()->getSpotLight(0).mActive;
+			SpotLight light;
+			getScene()->getSpotLight(0, light);
+			
+			light.mActive = light.mActive;
+
+			getScene()->setSpotLight(0, light);
 		}
 		else if(c == KEY_r){
 			mFollowing++;
@@ -204,8 +216,14 @@ public:
 
 
 		// Setup global lighting / fog
-		getScene()->getDirectionalLight().mAmbientIntesity = .1;
-		getScene()->getDirectionalLight().mDiffuseItensity = .1;
+		DirectionalLight light;
+		getScene()->getDirectionalLight(light);
+		
+		light.mAmbientIntesity = .1;
+		light.mDiffuseItensity = .1;
+
+		getScene()->setDirectionalLight(light);
+
 		getScene()->getFog().color = Color::black();
 	}
 

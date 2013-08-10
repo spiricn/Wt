@@ -7,13 +7,24 @@
 
 namespace wt{
 
-Scene::Scene(Physics* physics, Assets* assets, lua::State* luaState) : 
-	mSkyBox(NULL), mNumPointLights(0), mNumSpotLights(0), mAssets(assets), mPhysics(physics), mLuaState(luaState){
+Scene::Scene(Physics* physics, Assets* assets, EventManager* eventManager, lua::State* luaState) : 
+	mSkyBox(NULL), mNumPointLights(0), mEventManager(eventManager), mNumSpotLights(0), mAssets(assets), mPhysics(physics), mLuaState(luaState){
 		setCamera(&mDefaultCamera);
+
+		mEventEmitter.hook(mEventManager,
+			1,
+			SceneLightingModifiedEvent::TYPE
+		);
+}
+
+void Scene::onLightingModified(){
+	mEventManager->queueEvent( new SceneLightingModifiedEvent(this) );
 }
 
 void Scene::addSpotLight(const SpotLight& light){
 	mSpotLights[mNumSpotLights++] = light;
+
+	onLightingModified();
 }
 
 void Scene::getGodRayParams(GodRayParams& dst){
@@ -24,8 +35,8 @@ void Scene::setGodRayParams(const GodRayParams& src){
 	mGodrayParams = src;
 }
 
-SpotLight& Scene::getSpotLight(uint32_t index){
-	return mSpotLights[index];
+void Scene::getSpotLight(uint32_t index, SpotLight& dst) const {
+	dst = mSpotLights[index];
 }
 
 Scene::~Scene(){
@@ -52,12 +63,30 @@ void Scene::addPointLight(const PointLight& light){
 	mPointLights[mNumPointLights++] = light;
 }
 
-PointLight& Scene::getPointLight(uint32_t index){
-	return mPointLights[index];
+void Scene::getPointLight(uint32_t index, PointLight& dst) const{
+	dst = mPointLights[index];
 }
 
-DirectionalLight& Scene::getDirectionalLight(){
-	return mDirectionalLight;
+void Scene::getDirectionalLight(DirectionalLight& dst) const{
+	dst = mDirectionalLight;
+}
+
+void Scene::setSpotLight(uint32_t index, const SpotLight& src){
+	// TODO checks
+	mSpotLights[index] = src;
+	onLightingModified();
+}
+
+void Scene::setPointLight(uint32_t index, const PointLight& src){
+	// TODO checks
+	mPointLights[index] = src;
+	onLightingModified();
+}
+
+void Scene::setDirectionalLight(const DirectionalLight& src){
+	// TODO checks
+	mDirectionalLight = src;
+	onLightingModified();
 }
 
 uint32_t Scene::getNumPointLights() const{
@@ -570,5 +599,7 @@ void Scene::lua_rotateActor(uint32_t actorId, float x, float y, float z, float a
 }
 
 #endif
+
+const EvtType SceneLightingModifiedEvent::TYPE = "SceneLightingModified";
 
 }; // </wt>

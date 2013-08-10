@@ -25,6 +25,14 @@ const glm::mat4x4& Frustum::getProjMatrix() const{
 	return mProjType==Perspective?mPerspectiveProj:mOrthoProj;
 }
 
+float Frustum::getNearWidth() const{
+	return mNearWidth;
+}
+
+float Frustum::getNearHeight() const{
+	return mNearHeight;
+}
+
 void Frustum::setPerspectiveProj(float nearWidth, float nearHeight, float fov, float nearDistance, float farDistance){
 	mProjType = Perspective;
 

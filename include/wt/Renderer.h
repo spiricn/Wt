@@ -24,120 +24,11 @@
 #include "wt/RenderBuffer.h"
 #include "wt/ParticleEffect.h"
 
+#include "wt/ARenderer.h"
+#include "wt/SkyboxRenderer.h"
+#include "wt/EventManager.h"
+
 namespace wt{
-
-
-class SkyboxShader : public wt::gl::ShaderProgram{
-public:
-	void create(){
-		createFromFiles("shaders/skybox.vp", "shaders/skybox.fp");
-
-		bindAttribLocation(0, "inVertex");
-		bindAttribLocation(1, "inTexCoord");
-
-		link();
-	}
-};
-
-class TerrainShader : public wt::gl::ShaderProgram{
-public:
-	void create(){
-		createFromFiles("shaders\\terrain.vp",
-			"shaders\\terrain.fp");
-
-		bindAttribLocation(0, "inPosition");
-		bindAttribLocation(1, "inTexture");
-		bindAttribLocation(2, "inTiledTexture");
-		bindAttribLocation(3, "inNormal");
-
-		link();
-
-		use();
-		setUniformVal("texArray", 0);
-		setUniformVal("map", 1);
-	}
-
-	void setMVPMatrix(const glm::mat4x4& model, const glm::mat4x4& view, const glm::mat4x4& projection){
-		setUniformVal("uModelMat", model);
-		setUniformVal("uViewMat",view);
-		setUniformVal("uProjMat", projection);
-	}
-
-	void setTileTextures(TextureArray* textures){
-		// texture tiles
-		glActiveTexture(GL_TEXTURE0);
-		textures->bind();
-
-	/*	Texture::Params tileParams;
-		tileParams.wrapS = tileParams.wrapT = GL_REPEAT;
-		Texture::setParams(GL_TEXTURE_2D, tileParams);
-		Texture::setParams(GL_TEXTURE_2D_ARRAY, tileParams);*/
-	}
-
-	void setColorMap(Texture2D* map){
-		glActiveTexture(GL_TEXTURE1);
-		map->bind();
-
-		//Texture::Params mapParams;
-		//Texture::setParams(GL_TEXTURE_2D, mapParams);
-		//Texture::setParams(GL_TEXTURE_2D_ARRAY, mapParams);
-	}
-
-
-};
-
-class BasicShader : public wt::gl::ShaderProgram{
-public:
-	BasicShader(){
-	}
-	enum Streams{
-		VERTEX = 0,
-		TEXTURE_COORDS = 1,
-		NORMALS = 2,
-		TANGENT = 3,
-		BONE_IDS = 4,
-		BONE_WEIGHTS = 5
-	};
-
-	void create(){
-		createFromFiles("shaders\\basic.vp",
-			"shaders\\basic.fp");//, "shaders/basic.gp");
-
-		bindAttribLocation(VERTEX, "inVertex");
-		bindAttribLocation(TEXTURE_COORDS, "inTexCoord");
-		bindAttribLocation(NORMALS, "inNormals");
-		bindAttribLocation(TANGENT, "inTangent");
-		bindAttribLocation(BONE_IDS, "inBoneIds");
-		bindAttribLocation(BONE_WEIGHTS, "inWeights");
-
-		link();
-
-		use();
-		setUniformVal("uSampler", 0);
-		setUniformVal("uNormalMap", 1);
-	}
-
-
-	void setNormalMap(Texture2D* map){
-		setUniformVal("uUseNormalMap", map?1:0);
-
-		if(map!=NULL){
-			glActiveTexture(GL_TEXTURE1);
-			map->bind();
-		}
-
-	}
-
-	void setModelMatrix(const glm::mat4& model){
-		setUniformVal("uModelMat", model);
-	}
-
-	void setMPMatrix(const glm::mat4x4& view, const glm::mat4x4& projection){
-		setUniformVal("uViewMat",view);
-		setUniformVal("uProjMat", projection);
-	}
-};
-
 
 class GodRayShader : public gl::ShaderProgram{
 public:
@@ -165,7 +56,7 @@ public:
 
 #define MATERIALS_DISABLED
 
-class Renderer{
+class Renderer : public EventListener{
 public:
 	enum PolygonMode {
 		LINE=GL_LINE,
@@ -178,8 +69,7 @@ public:
 		NONE
 	};
 
-private:
-
+	
 	struct RenderState{
 		PolygonMode polygonMode;
 		Culling culling;
@@ -190,65 +80,16 @@ private:
 		}
 	};
 
-	math::MatrixStack mMatStack;
-	Scene* mScene;
-	math::Frustum mFrustum;
-	Color mClearColor;
-
-	// Shaders
-	ParticleCalculationShader mParticleCalcShader;
-	ParticleRenderShader mParticleRenderShader;
-
-	BasicShader mBasicShader;
-	TerrainShader mTerrainShader;
-	SkyboxShader mSkyShader;
-	GodRayShader mGodRayShader;
-	RectShader mRectShader;
-	gl::ShaderProgram mGodraySunShader;
-
-	gl::Batch mFontBatch, mSunBatch;
-
-	GLuint mFontTexture;
-	RenderState mRenderState;
-	glm::vec2 mViewPort;
-
-	
-	Texture2D mInvalidTex;
-	Material mDefaultMaterial;
-
-	gl::Batch mCubeBatch;
-
-	// Shadows
-	Texture2D mGodraySunTexture;
-	Texture2D mShadowMap, mGodrayPass1, mGodrayPass2;
-	gl::FrameBuffer mShadowFBO, mGodrayFBO;
-	gl::RenderBuffer mGodrayDepthBuffer;
-
-	gl::Batch mGodrayBatch;
-
-	bool mRenderBones;
-	bool mRenderBoundingBoxes;
-
-	float mBoneWidth;
-
-	void setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog);
-
-	void setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog);
-
-	uint32_t mNumRenderedTerrainNodes;
-
-	enum PassType{
-		eNORMAL_PASS,
-		eGODRAY_PASS,
-		eSHADOW_PASS
-	};
-
-	void initGodray();
-
 public:
-	Renderer();
+	Renderer(EventManager* eventManager);
+
+	~Renderer();
 
 	RenderState& getRenderState();
+
+	bool handleEvent(const Sp<Event> evt);
+
+	void attachRenderer(ARenderer* renderer);
 
 	void setRenderBones(bool r);
 
@@ -276,7 +117,7 @@ public:
 
 	void render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color=Color::white());
 
-	void render(Scene* scene, Model* model, Mesh* mesh, PassType pass);
+	void render(Scene* scene, Model* model, Mesh* mesh, ARenderer::PassType pass);
 
 	/** Render all passes of the scene to the given render target
 	 *
@@ -287,28 +128,60 @@ public:
 	void render(Scene& scene, RenderTarget* target=NULL);
 
 private:
-	
-
 	/** Render entire scene in a single pass */
-	void render(Scene& scene, PassType pass);
-
-	/** Render a single ModelledActor */
-	void render(Scene& scene, const ModelledActor* actor, PassType pass);
+	void render(Scene& scene, ARenderer::PassType pass);
 
 	/** Render actor's bone and all its predecessors recursivley (used for debugging */
 	void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bone);
 
-	/** Render a single Terrain entity */
-	void render(Scene& scene, const Terrain* terrain, PassType pass);
+private:
+	math::MatrixStack mMatStack;
+	Scene* mScene;
+	math::Frustum mFrustum;
+	Color mClearColor;
 
-	/** Render a single TerrainNode beloging to a Terrain entity */
-	void render(Scene& scene, const TerrainNode* chunk);
+	GodRayShader mGodRayShader;
+	RectShader mRectShader;
+	gl::ShaderProgram mGodraySunShader;
 
-	/** Render the skybox */
-	void render(Scene& scene, SkyBox* sky);
+	gl::Batch mFontBatch, mSunBatch;
 
-	/** Render a particle effect */
-	void render(Scene& scene, const ParticleEffect* effect, PassType pass);
+	GLuint mFontTexture;
+	RenderState mRenderState;
+	glm::vec2 mViewPort;
+
+	
+	typedef std::vector<ARenderer*> RendererList;
+	RendererList mSceneRenderers;
+
+
+	Material mDefaultMaterial;
+
+	gl::Batch mCubeBatch;
+
+	// Shadows
+	Texture2D mGodraySunTexture;
+	Texture2D mShadowMap, mGodrayPass1, mGodrayPass2;
+	gl::FrameBuffer mShadowFBO, mGodrayFBO;
+	gl::RenderBuffer mGodrayDepthBuffer;
+
+	gl::Batch mGodrayBatch;
+
+	bool mRenderBones;
+	bool mRenderBoundingBoxes;
+
+	float mBoneWidth;
+
+	void setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog);
+
+	void setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog);
+
+	uint32_t mNumRenderedTerrainNodes;
+
+	void initGodray();
+
+	EventManager* mEventManager;
+
 }; // </Renderer>
 
 }; // </wt>

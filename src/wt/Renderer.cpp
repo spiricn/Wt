@@ -5,6 +5,11 @@
 #include "wt/RenderBuffer.h"
 #include "wt/Singleton.h"
 
+
+#include "wt/ParticleRenderer.h"
+#include "wt/ModelRenderer.h"
+#include "wt/TerrainRenderer.h"
+
 #define TD_TRACE_TAG "Renderer"
 
 
@@ -45,12 +50,13 @@ public:
 	
 }; // </DependencyChecker>
 
-
 const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_sprite GL_ARB_fragment_program GL_ARB_vertex_program";
 
-Renderer::Renderer() : mClearColor(0.5, 0, 0, 1.0f),
+Renderer::Renderer(EventManager* eventManager) : mClearColor(0.5, 0, 0, 1.0f),
 	mGodrayPass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(NULL, 0, "", Texture2D::eRECT_TEXTURE),
-	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false){
+	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager){
+
+	mEventManager->registerListener(this, SceneLightingModifiedEvent::TYPE);
 }
 
 void Renderer::init(uint32_t portW, uint32_t portH ){
@@ -84,21 +90,19 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 		WT_THROW("Error initializing glew \"%s\"", (const char*)glewGetErrorString(r));
 	}
 
-	LOGV("Compiling shaders");
-	LOGV("Compiling basic..");
-	mBasicShader.create();
-	LOGV("Compiling sky..");
-	mSkyShader.create();
-	LOGV("Compiling terrain..");
-	mTerrainShader.create();
-	LOGV("Compiling godray..");
+
+	// Attach the renderers (order matters)
+	attachRenderer(new TerrainRenderer);
+	attachRenderer(new ModelRenderer);
+	attachRenderer(new ParticleRenderer);
+	attachRenderer(new SkyboxRenderer);
+
+	LOGV("Compiling godray shader ...");
 	mGodRayShader.create();
-	LOGV("Compiling rect..");
+
+	LOGV("Compiling rect shader ...");
 	mRectShader.create();
-	LOGV("Compiling particle render..");
-	mParticleRenderShader.create();
-	LOGV("Compiling particle calculation..");
-	mParticleCalcShader.create();
+	
 
 	mGodraySunShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
 	mGodraySunShader.bindAttribLocation(0, "inPosition");
@@ -106,7 +110,8 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 
 
 
-	Utils::makeCube(mCubeBatch, 0.01, BasicShader::VERTEX, BasicShader::TEXTURE_COORDS, BasicShader::NORMALS);
+	Utils::makeCube(mCubeBatch, 0.01,
+		Model::eATTRIB_POSITION, Model::eATTRIB_TEXCOORD, Model::eATTRIB_NORMAL);
 
 	LOGV("Generating default texture");
 	gl( GenTextures(1, &mFontTexture) );
@@ -116,19 +121,6 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
  
 	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
 	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
-
-
-	Buffer<unsigned char> bfr;
-	Utils::makeCheckboard(bfr, 100, 100, 5, 5, Color(246/255.0, 2/255.0, 134/255.0), Color::black());
-	mInvalidTex.create();
-	mInvalidTex.setData(100, 100, GL_RGB, GL_RGB, (const GLbyte*)bfr.getData());
-
-	// font batch
-		
-	//
-	//mShadowFBO.create();
-	
-
 
 	initGodray();
 
@@ -154,7 +146,39 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	LOGV("Initialized OK");
 }
 
+Renderer::~Renderer(){
+	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
+		delete *iter;
+	}
 
+	mSceneRenderers.clear();
+}
+
+void Renderer::attachRenderer(ARenderer* renderer){
+	renderer->create();
+	mSceneRenderers.push_back(renderer);
+}
+
+bool Renderer::handleEvent(const Sp<Event> evt){
+	if(evt->getType() == SceneLightingModifiedEvent::TYPE){
+
+		LOGV("Scene lighting changed");
+
+		Scene* scene = ((SceneLightingModifiedEvent*)evt.get())->scene;
+
+		for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
+			(*iter)->onSceneLightingChanged(scene);
+
+			gl::ShaderProgram* rendererProg = (*iter)->setupSceneLighting();
+
+			if(rendererProg != NULL){
+				setShaderLightUniforms(scene, *rendererProg);
+			}
+		}
+	}
+
+	return false;
+}
 void Renderer::initGodray(){
 	{ // Godray setup
 		
@@ -434,24 +458,23 @@ void Renderer::setFOV(float angle){
 }
 
 void Renderer::setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog){
-	/* TODO setting light/fog uniforms this way is highly inneficient
-		a mechanism of Renderer notification has to be devised
-		(dirty flag, event emiting etc..)
-	*/
 	prog.use();
+
+	DirectionalLight dirLight;
+	scene->getDirectionalLight(dirLight);
 
 	// directional
 	prog.setUniformVal("uDirectionalLight.ambientItensity",
-		scene->getDirectionalLight().mAmbientIntesity);
+		dirLight.mAmbientIntesity);
 
 	prog.setUniformVal("uDirectionalLight.color",
-		scene->getDirectionalLight().mColor);
+		dirLight.mColor);
 
 	prog.setUniformVal("uDirectionalLight.diffuseItensity",
-		scene->getDirectionalLight().mDiffuseItensity);
+		dirLight.mDiffuseItensity);
 
 	prog.setUniformVal("uDirectionalLight.direction",
-		scene->getDirectionalLight().mDirection);
+		dirLight.mDirection);
 
 	// point lights
 	#define setVal(fmt, idx, val) \
@@ -467,7 +490,10 @@ void Renderer::setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog){
 
 	uint32_t numActiveLights=0;
 	for(uint32_t i=0; i<scene->getNumPointLights(); i++){
-		if(scene->getPointLight(i).mActive){
+		PointLight light;
+		scene->getPointLight(i, light);
+
+		if(light.mActive){
 			numActiveLights++;
 		}
 	}
@@ -475,48 +501,63 @@ void Renderer::setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog){
 
 	prog.setUniformVal("uNumPointLights", (int32_t)numActiveLights);
 	for(uint32_t i=0; i<scene->getNumPointLights(); i++){
-		if(!scene->getPointLight(i).mActive){
+		PointLight light;
+		scene->getPointLight(i, light);
+
+		if(!light.mActive){
 			continue;
 		}
-		setVal("uPointLights[%d].color", i, scene->getPointLight(i).mColor);
-		setVal("uPointLights[%d].ambientItensity", i, scene->getPointLight(i).mAmbientIntesity);
-		setVal("uPointLights[%d].diffuseItensity", i, scene->getPointLight(i).mDiffuseItensity);
-		setVal("uPointLights[%d].position", i, scene->getPointLight(i).mPosition);
 
-		setVal("uPointLights[%d].attenuation.linear", i, scene->getPointLight(i).mAttenuation.linear);
-		setVal("uPointLights[%d].attenuation.constant", i, scene->getPointLight(i).mAttenuation.constant);
-		setVal("uPointLights[%d].attenuation.exponential", i, scene->getPointLight(i).mAttenuation.exponential);
+		setVal("uPointLights[%d].color", i, light.mColor);
+		setVal("uPointLights[%d].ambientItensity", i, light.mAmbientIntesity);
+		setVal("uPointLights[%d].diffuseItensity", i, light.mDiffuseItensity);
+		setVal("uPointLights[%d].position", i, light.mPosition);
+
+		setVal("uPointLights[%d].attenuation.linear", i, light.mAttenuation.linear);
+		setVal("uPointLights[%d].attenuation.constant", i, light.mAttenuation.constant);
+		setVal("uPointLights[%d].attenuation.exponential", i, light.mAttenuation.exponential);
 	}
 
 	numActiveLights=0;
 	for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
-		if(scene->getSpotLight(i).mActive){
+		SpotLight spotLight;
+		scene->getSpotLight(i, spotLight);
+
+		if(spotLight.mActive){
 			numActiveLights++;
 		}
 	}
 	prog.setUniformVal("uNumSpotLights", (int32_t)numActiveLights);
 
 	for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
-		if(!scene->getSpotLight(i).mActive){
+		SpotLight spotLight;
+		scene->getSpotLight(i, spotLight);
+
+		if(!spotLight.mActive){
 			continue;
 		}
 
-		setVal("uSpotLights[%d].base.color", i, scene->getSpotLight(i).mColor);
-		setVal("uSpotLights[%d].base.ambientItensity", i, scene->getSpotLight(i).mAmbientIntesity);
-		setVal("uSpotLights[%d].base.diffuseItensity", i, scene->getSpotLight(i).mDiffuseItensity);
-		setVal("uSpotLights[%d].base.position", i, scene->getSpotLight(i).mPosition);
+		setVal("uSpotLights[%d].base.color", i, spotLight.mColor);
+		setVal("uSpotLights[%d].base.ambientItensity", i, spotLight.mAmbientIntesity);
+		setVal("uSpotLights[%d].base.diffuseItensity", i, spotLight.mDiffuseItensity);
+		setVal("uSpotLights[%d].base.position", i, spotLight.mPosition);
 
-		setVal("uSpotLights[%d].base.attenuation.linear", i, scene->getSpotLight(i).mAttenuation.linear);
-		setVal("uSpotLights[%d].base.attenuation.constant", i, scene->getSpotLight(i).mAttenuation.constant);
-		setVal("uSpotLights[%d].base.attenuation.exponential", i, scene->getSpotLight(i).mAttenuation.exponential);
+		setVal("uSpotLights[%d].base.attenuation.linear", i, spotLight.mAttenuation.linear);
+		setVal("uSpotLights[%d].base.attenuation.constant", i, spotLight.mAttenuation.constant);
+		setVal("uSpotLights[%d].base.attenuation.exponential", i, spotLight.mAttenuation.exponential);
 
-		setVal("uSpotLights[%d].cutoff", i, cosf(glm::radians(scene->getSpotLight(i).cutoff)));
-		setVal("uSpotLights[%d].direction", i, scene->getSpotLight(i).direction);
+		setVal("uSpotLights[%d].cutoff", i, cosf(glm::radians(spotLight.cutoff)));
+		setVal("uSpotLights[%d].direction", i, spotLight.direction);
 	}
 
 	prog.setUniformVal("uFogParams.density", scene->getFog().density);
 	prog.setUniformVal("uFogParams.color", scene->getFog().color);
 	prog.setUniformVal("uEyePos", scene->getCamera().getPosition());
+
+	prog.setUniformVal("uMaterial.ambientColor", Color::white());
+	prog.setUniformVal("uMaterial.diffuseColor", Color::white());
+	prog.setUniformVal("uMaterial.specularColor", Color::black());
+	prog.setUniformVal("uMaterial.shininess", 0.0f);
 
 	#undef setVal
 }
@@ -577,25 +618,6 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 }
 
-void Renderer::render(Scene& scene, SkyBox* sky){
-	glm::mat4x4 modelMat;
-	sky->getTransform().getMatrix(modelMat);
-
-	glm::mat4x4 viewMat;
-	scene.getCamera().getMatrix(viewMat, true);
-
-	mSkyShader.use();
-	mSkyShader.setUniformVal("uModelViewProjection",
-		mFrustum.getProjMatrix()*(viewMat*modelMat) );
-
-	glActiveTexture(GL_TEXTURE0);
-	sky->bind();
-	mSkyShader.setUniformVal("uSkyboxTexture", 0);
-
-	sky->getBatch().render();
-}
-
-
 void Renderer::saveScreenshot(const String& path){
 	Image img;
 	img.fromFrameBuffer(Image::RGB);
@@ -632,7 +654,6 @@ void Renderer::setViewPort(uint32_t width, uint32_t height){
 			initGodray();
 		}
 	}
-
 
 	mFrustum.setPerspectiveProj((float)width, (float)height, 73.0f, 0.5f,
 		3500.0f);
@@ -692,272 +713,8 @@ void Renderer::setShaderMaterialUniforms(Material* material, gl::ShaderProgram& 
 #endif
 }
 
-void Renderer::render(Scene& scene, const ModelledActor* actor, PassType pass){
-	if(!actor->getModel()){
-		return;
-	}
 
-	if(actor->getAnimationPlayer()){
-		mBasicShader.setUniformVal("uBones",
-			actor->getAnimationPlayer()->getBoneMatrices(),
-			actor->getAnimationPlayer()->getNumBones()
-		);
-	}
-	
-	glm::mat4 modelMat;
-	actor->getTransform().getMatrix(modelMat);
-	mBasicShader.setModelMatrix(modelMat);
-
-	actor->getModel()->getBatch().bind();
-
-	for(Model::GeometrySkin::MeshList::iterator i=actor->getSkin()->getMeshList().begin(); i!=actor->getSkin()->getMeshList().end(); i++){
-		// Use the material if the mesh has one
-		Texture2D* texture = i->texture;
-		Material* material = &i->material;
-
-		if(material == NULL){
-			material = &mDefaultMaterial;
-		}
-
-		mBasicShader.setUniformVal("uAlphaTest", material->isAlphaTested());
-
-#ifndef MATERIALS_DISABLED
-		setShaderMaterialUniforms(material, mBasicShader);
-#endif
-
-		if(texture != NULL){
-			texture->bind();
-		}
-		else{
-			mInvalidTex.bind();
-		}
-
-		//mBasicShader.setNormalMap( i->normalMap );
-
-		// TODO This might be the solotution but we're not quite there yet (depth peeling ?)
-#if 0
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-#else
-		/*glEnable(GL_BLEND);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-			GL_ONE, GL_ONE_MINUS_SRC_ALPHA);*/
-	/*	glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);*/
-#endif
-		glDisable(GL_BLEND);
-		//glEnable(GL_BLEND);
-		//glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-		//glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-
-	/*	if(pass != eNORMAL_PASS){
-			glDisable(GL_BLEND);
-			glEnable(GL_DEPTH_TEST);
-		}*/
-
-		// basically no effect on FPS
-		i->geometry->render();
-	}
-}
-
-/** Terrain node rendering */
-void Renderer::render(Scene& scene, const TerrainNode* node){
-	// frustum cull test
-	if(true /* inFrustum(frustum, node->getBounds() */){
-		// have we reached a leaf?
-		if(!node->isLeaf()){
-			// render children
-			for(uint32_t i=0; i<4; i++){
-				render(scene, &node->getChildren()[i]);
-			}
-		}
-		else{
-			gl( Disable(GL_TEXTURE_2D) );
-			node->render();
-		}
-	}
-}
-
-/** Terrain rendering */
-void Renderer::render(Scene& scene, const Terrain* terrain, PassType pass){
-	
-	// Render terrain
-	mTerrainShader.use();
-
-	gl::ShaderUniform<int>(&mTerrainShader, "uPassType") = pass;
-
-	setShaderLightUniforms(&scene, mTerrainShader);
-	setShaderMaterialUniforms(&mDefaultMaterial, mTerrainShader);
-
-	glm::mat4x4 view;
-	scene.getCamera().getMatrix(view);
-
-	mTerrainShader.setMVPMatrix(glm::mat4(1.0), view, mFrustum.getProjMatrix());
-	mTerrainShader.setTileTextures( terrain->getTerrainTexture() );
-	mTerrainShader.setColorMap( terrain->getMapTexture() );
-
-	render(scene, terrain->getRootNode() );
-}
-
-void Renderer::render(Scene& scene, const ParticleEffect* e, PassType pass){
-	// No need to render particles in any other pass
-	if(pass != eNORMAL_PASS){
-		return;
-	}
-
-	glm::mat4 modelMat;
-	e->getTransform().getMatrix(modelMat);
-
-	// TODO fix this
-
-	ParticleEffect* effect = const_cast<ParticleEffect*>(e);
-
-	{
-		for(ParticleEffect::LayerMap::iterator i=effect->getLayerMap().begin(); i!=effect->getLayerMap().end(); i++){
-			ParticleLayer* layer = i->second;
-
-			// Update particles (TODO move this elsewhere)
-			mParticleCalcShader.use();
-
-			// Upload uniforms
-			//mParticleCalcShader.setUniformVal("uPosition", effect->getTransform().getPosition());
-			mParticleCalcShader.setUniformVal("uDt", effect->getTimeDelta());
-			mParticleCalcShader.setUniformVal("uSeed", math::random(0, 200));
-
-			mParticleCalcShader.setUniformVal("uMaxLife", layer->getLayerResource()->getDesc().maxLife);
-			mParticleCalcShader.setUniformVal("uMinLife", layer->getLayerResource()->getDesc().minLife);
-
-			mParticleCalcShader.setUniformVal("uMaxSize", layer->getLayerResource()->getDesc().maxSize);
-			mParticleCalcShader.setUniformVal("uMinSize", layer->getLayerResource()->getDesc().minSize);
-
-			mParticleCalcShader.setUniformVal("uLocalVelocity", layer->getLayerResource()->getDesc().localVelocity);
-			mParticleCalcShader.setUniformVal("uRandomVelocity", layer->getLayerResource()->getDesc().randomVelocity);
-
-			mParticleCalcShader.setUniformVal("uEmissionRate", layer->getLayerResource()->getDesc().emissionRate);
-
-			mParticleCalcShader.setUniformVal("uEmissionVolume", layer->getLayerResource()->getDesc().emissionVolume);
-
-			mParticleCalcShader.setUniformVal("uWorldSpaceSim", layer->getLayerResource()->getDesc().simulateInWorldSpace);
-
-			if(layer->getLayerResource()->getDesc().simulateInWorldSpace){
-				mParticleCalcShader.setUniformVal("uModelMat", modelMat*layer->getLayerResource()->getDesc().transform);
-			}
-			
-
-			static Texture2D* rndTex = NULL;
-			static bool flag = false;
-			if(!flag){
-				flag = true;
-
-				rndTex = new Texture2D;
-				rndTex->create();
-
-				const uint32_t w = 200;
-				const uint32_t h = 200;
-
-				float* data = new float[w*h*3];
-
-				for(int i=0; i<w*h*3; i++){
-					data[i] = math::random();
-				}
-
-				rndTex->setData(w, h, GL_RGB, GL_RGB, (const GLbyte*)data, GL_FLOAT);
-
-				//rndTex->dump("rnd-dump.bmp");
-
-				delete[] data;
-			}
-
-
-			gl( ActiveTexture(GL_TEXTURE0) );
-			rndTex->bind();
-
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
-
-			mParticleCalcShader.setUniformVal("uRandomTexture", 0);
-
-			// WARNING: do NOT enable this sooner, it may cause some serious problems..
-			glEnable(GL_RASTERIZER_DISCARD);
-			layer->update();
-			glDisable(GL_RASTERIZER_DISCARD);
-		}
-
-	}
-	
-
-	{
-		for(ParticleEffect::LayerMap::iterator i=effect->getLayerMap().begin(); i!=effect->getLayerMap().end(); i++){
-			ParticleLayer* layer = i->second;
-
-			glm::mat4 view;
-			scene.getCamera().getMatrix(view);
-
-			// Render particles
-
-			mParticleRenderShader.use();
-			mParticleRenderShader.setUniformVal("uParticleTexture", 0);
-			mParticleRenderShader.setUniformVal("uWorldSpaceSim", layer->getLayerResource()->getDesc().simulateInWorldSpace);
-
-			if(!layer->getLayerResource()->getDesc().simulateInWorldSpace){
-				mParticleRenderShader.setUniformVal("uModelMat", modelMat*layer->getLayerResource()->getDesc().transform);
-			}
-
-			mParticleRenderShader.setUniformVal("uCamPos", scene.getCamera().getPosition());
-			mParticleRenderShader.setUniformVal("uSizeGrow", layer->getLayerResource()->getDesc().sizeGrow);
-			mParticleRenderShader.setModelViewProj(view, getFrustum().getProjMatrix());
-
-			for(int i=0; i<ParticleLayerResource::LayerDesc::kMAX_COLORS; i++){
-				char name[64];
-				sprintf(name, "uColorAnimation[%d]", i);
-				mParticleRenderShader.setUniformVal(name, layer->getLayerResource()->getDesc().colorAnimation[i]);
-			}
-		
-
-			// Setup OpenGL
-			gl( Enable(GL_BLEND) );
-			gl( BlendEquation(GL_FUNC_ADD) );
-			gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
-			gl( DepthMask(false) );
-
-
-			// Texture
-			gl( ActiveTexture(GL_TEXTURE0) );
-			if(layer->getLayerResource()->getDesc().texture){
-				layer->getLayerResource()->getDesc().texture->bind();
-			}
-			else{
-				glBindTexture(GL_TEXTURE_2D, 0);
-			}
-
-			layer->render();
-		}
-	}
-
-	////LOG("####################");
-	////LOG("Primitives written %d (to buffer %d)", effect->mPrimittivesWritten, effect->mCurrBatch);
-	//for(int k=0; k<2; k++){
-	//	LOG("-------\nBuffer %d", k);
-	//	ParticleEffect::Particle* particles = (ParticleEffect::Particle*)effect->mBatches[k].getVertexBuffer().map(gl::Buffer::eREAD_WRITE);
-
-	//	for(int i=0; i<effect->getDesc().maxNumber; i++){
-	//		ParticleEffect::Particle& particle = particles[i];
-	//		int dummy = 3;
-	//		dummy += 4;
-	//	}
-
-	//	LOG("max life = %f       size=%f", particles[1].maxLife, particles[1].size);
-
-
-	//	effect->mBatches[k].getVertexBuffer().unmap();
-	//}
-
-	gl( DepthMask(true) );
-}
-
-void Renderer::render(Scene& scene, PassType pass){
+void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	// OpenGL state
 	mNumRenderedTerrainNodes = 0;
 	gl( PolygonMode(GL_FRONT_AND_BACK, mRenderState.polygonMode) );
@@ -971,45 +728,11 @@ void Renderer::render(Scene& scene, PassType pass){
 	glm::mat4x4 viewMat;
 	scene.getCamera().getMatrix(viewMat);
 
-	
-	// Terrain entities
-	for(Scene::TerrainSet::const_iterator iter=scene.getTerrainSet().cbegin(); iter!=scene.getTerrainSet().cend(); iter++){
-		render(scene, *iter, pass);
+	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
+		(*iter)->render(&scene, &scene.getCamera(), ARenderer::ePASS_NORMAL);
 	}
 
-	// Modelled actors
-	mBasicShader.use();
-	gl( ActiveTexture(GL_TEXTURE0) );
-	mBasicShader.setUniformVal("uPassType", pass);
-	setShaderLightUniforms(&scene, mBasicShader);
-
-#ifdef MATERIALS_DISABLED
-	setShaderMaterialUniforms(NULL, mBasicShader);
-#endif
-
-	mBasicShader.setMPMatrix(
-		viewMat, mFrustum.getProjMatrix());
-
-	gl( Disable(GL_BLEND) );
-	gl( Enable(GL_DEPTH_TEST) );
-	gl( Disable(GL_CULL_FACE) );
-
-	for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
-		render(scene, *iter, pass);
-	}
-
-	// Sky
-	if(pass == eNORMAL_PASS){
-		SkyBox* sky = scene.getSkyBox();
-		if(sky != NULL){
-			render(scene, sky);
-		}
-
-		// Particles
-		for(Scene::ParticleEffectSet::const_iterator iter=scene.getParticleEffects().cbegin(); iter!=scene.getParticleEffects().cend(); iter++){
-			render(scene, *iter, pass);
-		}
-
+	if(pass == ARenderer::ePASS_NORMAL){
 		// Skeleton bones
 		if(mRenderBones){
 			for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
@@ -1096,7 +819,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 		// render the entire scene (without textures and lighting)
 		gl( Enable(GL_CULL_FACE) );
-		render(scene, eGODRAY_PASS);
+		render(scene, ARenderer::ePASS_GODRAY);
 
 
 		//mGodrayPass1.dump("pass1.bmp");
@@ -1161,7 +884,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		
 		gl( Enable(GL_CULL_FACE) );
 		gl( Disable(GL_BLEND) );
-		render(scene, eNORMAL_PASS);
+		render(scene, ARenderer::ePASS_NORMAL);
 	}
 
 	if(godrayParams.enabled){

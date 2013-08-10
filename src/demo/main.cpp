@@ -84,61 +84,8 @@ int main(){
 
 using namespace wt;
 
-#include "wt/lua/State.h"
-
-class BaseClass{
-public:
-	void baseMethod(){
-		TRACEI("trace");
-	}
-
-	virtual void virtualBaseMethod(){
-		TRACEI("trace");
-	}
-};
-
-class DerivedClass : public BaseClass,  public wt::lua::Object<DerivedClass>{
-public:
-	int cnt;
-
-	DerivedClass (){
-		cnt = 0;
-
-	}
-	void derivedMethod(){
-		++cnt;
-		LOGI("%d", cnt);
-	}
-
-	void virtualBaseMethod(){
-		TRACEI("trace");
-	}
-
-
-	void generateMetaTable(){
-		TRACEI("trace");
-		expose("derivedMethod", &DerivedClass::derivedMethod);
-		expose("virtualBaseMethod", &DerivedClass::virtualBaseMethod);
-
-		exposeBase<BaseClass>("baseMethod", &BaseClass::baseMethod);
-
-
-	}
-};
 
 int main(){
-	wt::lua::State state;
-
-	DerivedClass obj;
-
-	LuaObject box1 = state.box(obj);
-	LuaObject box2 = state.box(obj);
-
-	state.getGlobals().Set("box1", box1);
-	state.getGlobals().Set("box2", box2);
-
-	state.createScript("test_script.lua");
-
 }
 
 #endif

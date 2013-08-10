@@ -15,9 +15,11 @@
 namespace wt{
 
 class Renderer;
+class ParticleRenderer;
 
 class ParticleEffect : public ASceneActor, public lua::Object<ParticleEffect>{
 friend class Renderer;
+friend class ParticleRenderer;
 
 public:
 	ParticleEffect(Scene* parent, uint32_t id, const String& name="");

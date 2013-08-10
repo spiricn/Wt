@@ -186,10 +186,7 @@ Geometry* Model::findGeometryByName(const String& name){
 	return NULL;
 }
 
-void Model::createHwBuffers(GLuint positionStreamIdx,
-	GLuint texCoordStreamIdx, GLuint normalStreamIdx, GLuint tangentStream, GLuint boneWeightStreamIdx,  GLuint boneIdsStreamIdx){
-
-
+void Model::createHwBuffers(){
 	/* allocate a hardware buffer */
 	mBatch.create(
 		GL_TRIANGLES,
@@ -199,22 +196,22 @@ void Model::createHwBuffers(GLuint positionStreamIdx,
 	);
 
 	/* position stream */
-	mBatch.setVertexAttribute(positionStreamIdx, 3, GL_FLOAT, offsetof(Geometry::Vertex, x));
+	mBatch.setVertexAttribute(eATTRIB_POSITION, 3, GL_FLOAT, offsetof(Geometry::Vertex, x));
 
 	/* texture coordinate stream */
-	mBatch.setVertexAttribute(texCoordStreamIdx, 2, GL_FLOAT, offsetof(Geometry::Vertex, s));
+	mBatch.setVertexAttribute(eATTRIB_TEXCOORD, 2, GL_FLOAT, offsetof(Geometry::Vertex, s));
 
 	/* bone IDs stream */
-	mBatch.setVertexAttribute(boneIdsStreamIdx, 4, GL_UNSIGNED_BYTE, offsetof(Geometry::Vertex, bones));
+	mBatch.setVertexAttribute(eATTRIB_BONE_ID, 4, GL_UNSIGNED_BYTE, offsetof(Geometry::Vertex, bones));
 
 	/* normal stream */
-	mBatch.setVertexAttribute(normalStreamIdx, 3, GL_FLOAT, offsetof(Geometry::Vertex, nx));
+	mBatch.setVertexAttribute(eATTRIB_NORMAL, 3, GL_FLOAT, offsetof(Geometry::Vertex, nx));
 
 	/* tangent stream */
-	mBatch.setVertexAttribute(tangentStream, 3, GL_FLOAT, offsetof(Geometry::Vertex, tx));
+	mBatch.setVertexAttribute(eATTRIB_TANGENT, 3, GL_FLOAT, offsetof(Geometry::Vertex, tx));
 
 	/* bone weight stream  */
-	mBatch.setVertexAttribute(boneWeightStreamIdx, 4, GL_FLOAT, offsetof(Geometry::Vertex, weights));
+	mBatch.setVertexAttribute(eATTRIB_BONE_WEIGHT, 4, GL_FLOAT, offsetof(Geometry::Vertex, weights));
 
 	
 

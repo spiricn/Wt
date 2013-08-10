@@ -66,17 +66,32 @@ public:
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		// lighting
-		glm::vec3 sunPos = mSkyDome.getSunPos();
-		DirectionalLight& light = getScene()->getDirectionalLight();
 		
-		mSkyDome.getLightIntensity(&light.mAmbientIntesity, &light.mDiffuseItensity);
+		{
+			// Directional light
+			glm::vec3 sunPos = mSkyDome.getSunPos();
+			DirectionalLight light;
+			getScene()->getDirectionalLight(light);
+		
+			mSkyDome.getLightIntensity(&light.mAmbientIntesity, &light.mDiffuseItensity);
 
-		light.mDirection = glm::normalize( -sunPos );
+			light.mDirection = glm::normalize( -sunPos );
+
+			getScene()->setDirectionalLight(light);
+		}
+
+		{
+			// Point light
+			PointLight light;
+			getScene()->getPointLight(0, light);
+
+			light.mPosition = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
+
+			getScene()->setPointLight(0, light);
+		}
+
 
 		ADemo::onUpdate(dt);
-
-		getScene()->getPointLight(0).mPosition = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
 	}
 
 	void onKeyDown(VirtualKey c){

@@ -8,22 +8,10 @@ namespace wt{
 namespace math{
 
 class Frustum{
-private:
-	enum ProjectionType {Perspective, Orthographic};
-
-	glm::mat4x4		mOrthoProj, mPerspectiveProj;
-	ProjectionType	mProjType;
-
-	float mFov, mNearDist, mFarDist, mNearWidth, mNearHeight;
-	float mOrthoWidth, mOrthoHeight;
-
-
-	void updatePerspectiveMat();
-
-	void updateOrhoMat();
 public:
 	Frustum();
 
+	// Perspective
 	float getFov() const;
 
 	float getNearClip() const;
@@ -31,6 +19,10 @@ public:
 	float getFarClip() const;
 
 	float getAspectRatio() const;
+
+	float getNearWidth() const;
+
+	float getNearHeight() const;
 
 	bool contains(const glm::vec3& point, const glm::mat4& view) const;
 
@@ -41,6 +33,21 @@ public:
 	void setPerspectiveProj(float w, float h, float fov, float nearDistance, float farDistance);
 
 	void setOrthoProj(float width, float height);
+
+private:
+	enum ProjectionType {Perspective, Orthographic};
+
+	glm::mat4x4		mOrthoProj, mPerspectiveProj;
+	ProjectionType	mProjType;
+
+	float mFov, mNearDist, mFarDist, mNearWidth, mNearHeight;
+
+	float mOrthoWidth, mOrthoHeight;
+
+
+	void updatePerspectiveMat();
+
+	void updateOrhoMat();
 };
 
 }; // </math>
