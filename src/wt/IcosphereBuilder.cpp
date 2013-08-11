@@ -2,6 +2,7 @@
 
 #include "wt/IcosphereBuilder.h"
 #include "wt/Buffer.h"
+#include "wt/Math.h"
 
 namespace wt
 {
@@ -102,9 +103,30 @@ IcosphereBuilder::IcosphereBuilder(Vertex** vertices, uint32_t** indices, uint32
 }
 
 // add vertex to mesh, fix position to be on unit sphere, return index
-uint32_t IcosphereBuilder::addVertex(const Vertex& p){
-	double length = glm::sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
-    mVertices.push_back( Vertex(p.x/length, p.y/length, p.z/length));
+uint32_t IcosphereBuilder::addVertex(const Vertex& v){
+	Vertex vertex = v;
+
+	// Normalze the position
+	vertex.position = glm::normalize(vertex.position);
+	
+	// Calculate the normal
+	vertex.normal = -vertex.position;
+
+	// Calculate the texture coordinate
+#if 1
+	vertex.texture.s = glm::asin(vertex.normal.x)/math::PI + 0.5f;
+	vertex.texture.t = glm::asin(vertex.normal.y)/math::PI + 0.5f;
+#else
+	// Faster alternative
+	vertex.texture.s = vertex.normal.x/2.0f + 0.5f;
+	vertex.texture.t = vertex.normal.y/2.0f + 0.5f;
+#endif
+
+	// TODO calculate tangent
+	vertex.tangent = glm::vec3(0.0f);
+
+    mVertices.push_back( vertex );
+
     return mIndex++;
 }
 
@@ -124,13 +146,13 @@ uint32_t IcosphereBuilder::getMiddlePoint(uint32_t p1, uint32_t p2){
 	}
 
     // not in cache, calculate it
-    Vertex point1 = mVertices[p1];
-    Vertex point2 = mVertices[p2];
+    const Vertex& point1 = mVertices[p1];
+    const Vertex& point2 = mVertices[p2];
 
     Vertex middle = Vertex(
-        (point1.x + point2.x) / 2.0, 
-        (point1.y + point2.y) / 2.0, 
-        (point1.z + point2.z) / 2.0);
+        (point1.position.x + point2.position.x) / 2.0, 
+        (point1.position.y + point2.position.y) / 2.0, 
+        (point1.position.z + point2.position.z) / 2.0);
 
     // add vertex makes sure point is on unit sphere
     uint32_t i = addVertex(middle); 

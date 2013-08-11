@@ -9,6 +9,8 @@
 
 #include "wt/Renderer.h"
 
+#define DEFERRED_SHADING
+
 namespace wt
 {
 
@@ -161,13 +163,13 @@ public:
 			uint32_t* indices;
 			uint32_t numIndices, numVertices;
 
-			IcosphereBuilder(&vertices, &indices, &numVertices, &numIndices, 5);
+			IcosphereBuilder(&vertices, &indices, &numVertices, &numIndices, 1);
 
 			// TODO if IcosphereBuilder::Vertex structure changes this will break
 			mSphereBatch.create(GL_TRIANGLES, vertices, numVertices, sizeof(IcosphereBuilder::Vertex),
 				indices, numIndices, sizeof(uint32_t), GL_UNSIGNED_INT);
 
-			mSphereBatch.setVertexAttribute(0, 3, GL_FLOAT, offsetof(IcosphereBuilder::Vertex, x));
+			mSphereBatch.setVertexAttribute(0, 3, GL_FLOAT, offsetof(IcosphereBuilder::Vertex, position));
 		}
 	}
 
@@ -455,12 +457,17 @@ void ModelRenderer::create(){
 }
 
 void ModelRenderer::onSceneLightingChanged(Scene* scene, Renderer* renderer){
+#ifdef DEFERRED_SHADING
 	renderer->setShaderLightUniforms(scene, mDeferredRender->mLightShaders[0]);
 	renderer->setShaderLightUniforms(scene, mDeferredRender->mLightShaders[1]);
+#else
+	renderer->setShaderLightUniforms(scene, mShader);
+#endif
 }
 
 void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
-#if 1
+#ifdef DEFERRED_SHADING
+
 	
 	glm::mat4 viewMat;
 	camera->getMatrix(viewMat);
@@ -579,12 +586,60 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 
 #else
 
+IcosphereBuilder::Vertex* vertices;
+	uint32_t* indices;
+	uint32_t numIndices, numVertices;
+
+	IcosphereBuilder(&vertices, &indices, &numVertices, &numIndices, 1);
+
+	Geometry::Vertex* geoVertices = new Geometry::Vertex[numVertices];
+
+	for(uint32_t i=0; i<numVertices; i++){
+		geoVertices[i].x = vertices[i].position.x;
+		geoVertices[i].y = vertices[i].position.y;
+		geoVertices[i].z = vertices[i].position.z;
+
+		geoVertices[i].nx = vertices[i].normal.x;
+		geoVertices[i].ny = vertices[i].normal.y;
+		geoVertices[i].nz = vertices[i].normal.z;
+
+		geoVertices[i].s = vertices[i].texture.s;
+		geoVertices[i].t = vertices[i].texture.t;
+
+	}
+
+	gSphere.create(GL_TRIANGLES, geoVertices, numVertices, sizeof(Geometry::Vertex),
+		indices, numIndices, sizeof(uint32_t), GL_UNSIGNED_INT);
+
+	/* position stream */
+	gSphere.setVertexAttribute(Model::eATTRIB_POSITION, 3, GL_FLOAT, offsetof(Geometry::Vertex, x));
+
+	/* texture coordinate stream */
+	gSphere.setVertexAttribute(Model::eATTRIB_TEXCOORD, 2, GL_FLOAT, offsetof(Geometry::Vertex, s));
+
+	/* bone IDs stream */
+	gSphere.setVertexAttribute(Model::eATTRIB_BONE_ID, 4, GL_UNSIGNED_BYTE, offsetof(Geometry::Vertex, bones));
+
+	/* normal stream */
+	gSphere.setVertexAttribute(Model::eATTRIB_NORMAL, 3, GL_FLOAT, offsetof(Geometry::Vertex, nx));
+
+	/* tangent stream */
+	gSphere.setVertexAttribute(Model::eATTRIB_TANGENT, 3, GL_FLOAT, offsetof(Geometry::Vertex, tx));
+
+	/* bone weight stream  */
+	gSphere.setVertexAttribute(Model::eATTRIB_BONE_WEIGHT, 4, GL_FLOAT, offsetof(Geometry::Vertex, weights));
+
+	delete[] geoVertices;
+	delete[] vertices;
+	delete[] indices;
+
 	mShader.use();
 
 	gl( ActiveTexture(GL_TEXTURE0) );
 	mShader.setUniformVal("uPassType", pass);
 	
-
+	glm::mat4 viewMat;
+	camera->getMatrix(viewMat);
 
 	mShader.setUniformVal("uViewMat", viewMat);
 	mShader.setUniformVal("uProjMat", camera->getFrustum().getProjMatrix());
@@ -616,13 +671,11 @@ void ModelRenderer::render(Scene* scene, ModelledActor* actor, math::Camera* cam
 	// Upload model matrix
 	glm::mat4 modelMat;
 	actor->getTransform().getMatrix(modelMat);
-	
 	mShader.setUniformVal("uModelMat", modelMat);
 
+	// TODO materials, normal maps, blending not yet implemented
 	actor->getModel()->getBatch().bind();
 
-	// TODO materials, normal maps, blending not yet implemented
-	
 	for(Model::GeometrySkin::MeshList::iterator i=actor->getSkin()->getMeshList().begin(); i!=actor->getSkin()->getMeshList().end(); i++){
 		// Use the material if the mesh has one
 		Texture2D* texture = i->texture;

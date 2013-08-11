@@ -8,12 +8,18 @@ namespace wt
 
 class IcosphereBuilder{
 public:
+#pragma pack(push)
+#pragma pack(1)
 	struct Vertex{
-		float x, y, z;
+		glm::vec3 position;
+		glm::vec3 normal;
+		glm::vec2 texture;
+		glm::vec3 tangent;
 
-		Vertex(float x=0, float y=0, float z=0) : x(x), y(y), z(z){
+		Vertex(float x=0, float y=0, float z=0) : position(x, y, z){
 		}
-	};
+	}; // </Vertex>
+#pragma pack(pop)
 
 	IcosphereBuilder(Vertex** vertices, uint32_t** indices, uint32_t* numVertices, uint32_t* numIndices, uint32_t recursionLevel=1);
 
