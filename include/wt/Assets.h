@@ -249,7 +249,7 @@ public:
 	}
 
 	String getRelativeURI(const String& uri){
-		return Utils::toRelative(mRootDir, uri);
+		return utils::toRelative(mRootDir, uri);
 	}
 
 	void load(const LuaObject& table){

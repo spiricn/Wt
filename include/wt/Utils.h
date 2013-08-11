@@ -1,7 +1,8 @@
 #ifndef WT_UTILS_H
 #define WT_UTILS_H
 
-namespace wt{
+namespace wt
+{
 
 // <forward declaration>
 class Color;
@@ -15,7 +16,8 @@ class Buffer;
 
 // </forward declaration>
 
-namespace Utils{
+namespace utils{
+
 	struct Indent{
 		uint32_t mDepth;
 	
@@ -28,6 +30,10 @@ namespace Utils{
 	bool endsWith(const String& fullString, const String& ending);
 
 	std::ostream& operator<<(std::ostream& dst, const Indent& indent);
+
+	String getFileName(const String& path);
+
+	String getFileExt(const String& path);
 
 	String getEnv(const String& name);
 

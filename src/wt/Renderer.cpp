@@ -110,7 +110,7 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 
 
 
-	Utils::makeCube(mCubeBatch, 0.01,
+	utils::makeCube(mCubeBatch, 0.01,
 		Model::eATTRIB_POSITION, Model::eATTRIB_TEXCOORD, Model::eATTRIB_NORMAL);
 
 	LOGV("Generating default texture");

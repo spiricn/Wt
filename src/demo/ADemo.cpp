@@ -419,7 +419,7 @@ void ADemo::onRender(float dt){
 	if(mShowGrid){
 		glm::mat4 mv;
 		getScene()->getCamera().getMatrix(mv);
-		Utils::renderGrid(mv, getRenderer()->getFrustum().getProjMatrix());
+		utils::renderGrid(mv, getRenderer()->getFrustum().getProjMatrix());
 	}
 }
 
@@ -503,7 +503,7 @@ void ADemo::onKeyDownPriv(VirtualKey code){
 			break;
 			}
 		case KEY_F10:{
-			String path = "screenshots\\screenshot-" + Utils::getCurrentTime() + ".bmp";
+			String path = "screenshots\\screenshot-" + utils::getCurrentTime() + ".bmp";
 			
 			try{
 				mRenderer->saveScreenshot(path);

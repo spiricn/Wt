@@ -22,10 +22,7 @@ GLuint Shader::getHandle(){
 void Shader::createFromSource(const String& source){
 	create();
 
-	String sourceProcessed;
-	preprocess(source, sourceProcessed);
-
-	const GLchar* s[1] = {sourceProcessed.c_str()};// openGL requres us to use array of strings as an argument for glShaderSource
+	const GLchar* s[1] = {source.c_str()};// openGL requres us to use array of strings as an argument for glShaderSource
 	glShaderSource(mHandle, 1, s, NULL);
 }
 
@@ -33,7 +30,7 @@ void Shader::createFromSource(const String& source){
 
 void Shader::createFromFile(const String& path){
 	String source;
-	Utils::readFile(path, source);
+	utils::readFile(path, source);
 
 	createFromSource(source);
 }

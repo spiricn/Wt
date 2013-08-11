@@ -1,9 +1,6 @@
 #ifndef WT_LIGHTING_FP
 #define WT_LIGHTING_FP
 // TODO put all the modules uniforms in a struct
-in vec3 fsNormal;
-in vec3 fsWorldPos;
-
 
 struct DirectionalLight{
 	vec4 color;
@@ -56,7 +53,7 @@ uniform Fog uFogParams;
 uniform vec3 uEyePos;
 uniform int uNumSpotLights;
 
-vec4 calculateLight(vec4 color, float ambientIntensity, float diffuseItensity, vec3 direction){
+vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensity, float diffuseItensity, vec3 direction){
 	vec4 ambientColor = color * ambientIntensity;
 	vec4 SpecularColor;
 	/*
@@ -65,14 +62,14 @@ vec4 calculateLight(vec4 color, float ambientIntensity, float diffuseItensity, v
 		The normal passed from the vertex shader is normalized before it is used.
 		This is because the interpolation the vector went through may have changed its length and it is no longer a unit vector.
 	*/
-	float diffuseFactor = dot(fsNormal, -direction);
+	float diffuseFactor = dot(normal, -direction);
 
 	vec4 diffuseColor;
 	if(diffuseFactor > 0){
 		diffuseColor = color * diffuseItensity * diffuseFactor;
 
-		vec3 VertexToEye = normalize(uEyePos - fsWorldPos);
-        vec3 LightReflect = normalize(reflect(direction, fsNormal));
+		vec3 VertexToEye = normalize(uEyePos - worldPos);
+        vec3 LightReflect = normalize(reflect(direction, normal));
         float SpecularFactor = dot(VertexToEye, LightReflect);
         SpecularFactor = pow(SpecularFactor, uMaterial.shininess);
 		
@@ -92,16 +89,16 @@ vec4 calculateLight(vec4 color, float ambientIntensity, float diffuseItensity, v
 }
 
 
-vec4 calculatePointLight(PointLight light){
+vec4 calculatePointLight(PointLight light, vec3 normal, vec3 worldPos){
 	// direction to the point light
-	vec3 direction = fsWorldPos - light.position;
+	vec3 direction = worldPos - light.position;
 
 	// distance from the point light
 	float d = length(direction);
 
 	direction = normalize(direction);
 
-	vec4 color = calculateLight(light.color, light.ambientItensity, light.diffuseItensity, direction);
+	vec4 color = calculateLight(normal, worldPos, light.color, light.ambientItensity, light.diffuseItensity, direction);
 
 	float attenuation = light.attenuation.constant +
 		light.attenuation.linear * d +
@@ -111,13 +108,13 @@ vec4 calculatePointLight(PointLight light){
 }
 
 
-vec4 calculateSpotLight(SpotLight light){
-	vec3 lightToPixel = normalize(fsWorldPos - light.base.position);
+vec4 calculateSpotLight(SpotLight light, vec3 normal, vec3 worldPos){
+	vec3 lightToPixel = normalize(worldPos - light.base.position);
 
     float spotFactor = dot(lightToPixel, light.direction);
 
     if (spotFactor > light.cutoff) {
-        vec4 color = calculatePointLight(light.base);
+        vec4 color = calculatePointLight(light.base, normal, worldPos);
         return color * (1.0 - (1.0 - spotFactor) * 1.0/(1.0 - light.cutoff));
     }
     else {
@@ -125,9 +122,9 @@ vec4 calculateSpotLight(SpotLight light){
     }
 }
 
-vec4 calcFog(vec4 color){
+vec4 calcFog(vec4 color, vec3 worldPos){
 	// distance from the camera eye
-	float d = abs(distance(fsWorldPos, uEyePos));
+	float d = abs(distance(worldPos, uEyePos));
 
 	float factor = clamp(
 		1.0 - exp(-uFogParams.density*d), 0.0, 1.0

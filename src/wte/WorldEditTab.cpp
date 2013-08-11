@@ -126,7 +126,7 @@ void WorldEditTab::onMouseDown(QMouseEvent* e){
 }
 
 void WorldEditTab::onScreenshot(){
-	wt::String name = "Screenshot-" + wt::Utils::getCurrentTime() + ".bmp";
+	wt::String name = "Screenshot-" + wt::utils::getCurrentTime() + ".bmp";
 	QString path = QFileDialog::getSaveFileName(this,
 		"Save", QDir::current().path()+QString("/screenshots/") + QString(name.c_str()));
 

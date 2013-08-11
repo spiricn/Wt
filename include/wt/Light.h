@@ -124,6 +124,13 @@ public:
 		dst.Set("attenExponential", mAttenuation.exponential);
 	}
 
+	float calculateBoundingSphere(){
+		float maxChannel = glm::max(glm::max(mColor.mRed, mColor.mGreen), mColor.mBlue);
+		// TODO probably wrong, we need to account for attenuation as well
+   		float c = maxChannel * mDiffuseItensity;
+   		return (8.0f * sqrtf(c) + 1.0f);
+	}
+
 }; // </PointLight>
 
 

@@ -137,6 +137,21 @@ public:
 		mPosPut += count;
 	}
 
+	const T& get(uint32_t index) const{
+		return get(index);
+	}
+
+	T& get(uint32_t index){
+		#ifdef WT_CHECKED
+		if(index >= mCapacity){
+			WT_THROW("Get failed, position out of bounds (pos=%d bounds=%d)",
+				index, mCapacity);
+		}
+		#endif
+
+		return mData[index];
+	}
+
 	T& get(){
 		#ifdef WT_CHECKED
 		if(mPosGet >= mCapacity){

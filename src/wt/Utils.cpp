@@ -7,9 +7,11 @@
 
 #define TD_TRACE_TAG "Utils"
 
-namespace wt{
+namespace wt
+{
 
-namespace Utils{
+namespace utils
+{
 
 bool endsWith(const String& fullString, const String& ending){
 	if (fullString.length() >= ending.length()) {
@@ -17,6 +19,38 @@ bool endsWith(const String& fullString, const String& ending){
 	} else {
 		return false;
 	}
+}
+
+String getFileName(const String& inPath){
+	String path = inPath;
+
+	// Extract shader name
+	String name = path;
+	replacePathSplitters(path, '/');
+
+	size_t extPos = path.rfind(".");
+	if(extPos != String::npos){
+		path = path.substr(0, extPos);
+	}
+
+	size_t splitterPos = path.rfind("/");
+	if(splitterPos != String::npos){
+		path = path.substr(splitterPos + 1);
+	}
+	
+	return path;
+}
+
+String getFileExt(const String& inPath){
+	String path = inPath;
+	replacePathSplitters(path, '/');
+
+	size_t extPos = path.rfind(".");
+	if(extPos != String::npos){
+		path = path.substr(extPos + 1);
+	}
+
+	return path;
 }
 
 void replacePathSplitters(String& src, char splitter){
@@ -353,14 +387,14 @@ String toRelative(const String& base, const String& path){
 #if defined(WIN32)
 
 	String b = base;
-	Utils::replacePathSplitters(b, '/');
+	utils::replacePathSplitters(b, '/');
 	if(b[b.size()-1] != '/'){
 		b.append("/");
 	}
 	std::transform(b.begin(), b.end(), b.begin(), ::tolower);
 
 	String p = path;
-	Utils::replacePathSplitters(p, '/');
+	utils::replacePathSplitters(p, '/');
 	std::transform(p.begin(), p.end(), p.begin(), ::tolower);
 
 	if(p.size() > b.size()){

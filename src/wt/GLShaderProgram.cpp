@@ -4,7 +4,7 @@
 #include "wt/Exception.h"
 #include "wt/Utils.h"
 #include "wt/GLTrace.h"
-
+#include "wt/ShaderPreprocessor.h"
 
 
 #define TD_TRACE_TAG "ShaderProgram"
@@ -148,47 +148,42 @@ void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
 }
 
 void ShaderProgram::createFromFiles(const String& vertexPath, const String& fragmentPath,  const String& geometryPath){
+	ShaderPreprocessor preprocessor;
+
 	String vertexSource, fragmentSource, geometrySource;
 	String vertexProcessed, fragmentProcessed, geometryProcessed;
 
 	// Read vertex source into a buffer and preprocess it
-	Utils::readFile(vertexPath, vertexSource);
-	Shader::preprocess(vertexSource, vertexProcessed);
-	{
-		// Dump it for debugging purposes
-		std::stringstream ss;
-		ss << vertexPath << ".preprocessed_tmp";
-		std::ofstream out(ss.str().c_str());
-		out << vertexProcessed;
-		out.close();
-	}
+	utils::readFile(vertexPath, vertexSource);
+	preprocessor.process(vertexSource, vertexProcessed);
+
+#if 1
+	std::ofstream out( "shaders/tmp/" + utils::getFileName(vertexPath) + "_processed.vp" );
+	out << vertexProcessed;
+	out.close();
+#endif
 
 	// Read fragment source into a buffer and preprocess it
 	if(fragmentPath.size() != 0){
-		Utils::readFile(fragmentPath, fragmentSource);
-		Shader::preprocess(fragmentSource, fragmentProcessed);
-		{
-			// Dump it for debugging purposes
-			std::stringstream ss;
-			ss << fragmentPath << ".preprocessed_tmp";
-			std::ofstream out(ss.str().c_str());
-			out << fragmentProcessed;
-			out.close();
-		}
+		utils::readFile(fragmentPath, fragmentSource);
+		preprocessor.process(fragmentSource, fragmentProcessed);
+
+#if 1
+		std::ofstream out( "shaders/tmp/" + utils::getFileName(fragmentPath) + "_processed.fp" );
+		out << fragmentProcessed;
+		out.close();
+#endif
 	}
 
 	// Read geometry source into a buffer and preprocess it
 	if(geometryPath.size() != 0){
-		Utils::readFile(geometryPath, geometrySource);
-		Shader::preprocess(geometrySource, geometryProcessed);
-		{
-			// Dump it for debugging purposes
-			std::stringstream ss;
-			ss << geometryPath << ".preprocessed_tmp";
-			std::ofstream out(ss.str().c_str());
-			out << geometryProcessed;
-			out.close();
-		}
+		utils::readFile(geometryPath, geometrySource);
+		preprocessor.process(geometrySource, geometryProcessed);
+#if 1
+		std::ofstream out( "shaders/tmp/" + utils::getFileName(geometryPath) + "_processed.gp" );
+		out << geometryProcessed;
+		out.close();
+#endif
 	}
 
 	createFromSources(vertexProcessed, fragmentProcessed, geometryProcessed);
