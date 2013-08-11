@@ -66,7 +66,7 @@ public:
 
 		PointLight light;
 		light.mColor = Color::green();
-		light.mPosition = glm::vec3(156, 5, 235);
+		light.mPosition = glm::vec3(142, 20, 244);
 
 		getScene()->addPointLight(light);
 

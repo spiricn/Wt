@@ -21,7 +21,6 @@ void main(){
 	vec3 color = texture(uColorMap, coord).xyz;
 	vec3 normal = normalize(texture(uNormalMap, coord).xyz);
 
-	
 	vec4 lightColor = vec4(0.0, 0.0, 0.0, 0.0);
 
 	for(int i=0; i<uNumPointLights; i++){

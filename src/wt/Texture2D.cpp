@@ -1,20 +1,36 @@
 #include "wt/stdafx.h"
 
 #include "wt/Texture2D.h"
+#include "wt/GLTrace.h"
 
 #define TD_TRACE_TAG "Texture2D"
 
 namespace wt{
 
 void Texture2D::dump(AIOStream& stream){
-		bind();
-	Buffer<uint8_t> p;
+	bind();
 
-	p.create(mWidth*mHeight*3);
-	glGetTexImage(getType(), 0, Image::RGB, GL_UNSIGNED_BYTE, (GLvoid*)p.getData());
+	Buffer<float> depth;
+	depth.create(mWidth*mHeight);
+	gl( GetTexImage(getType(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)depth.getData()) );
+
+
+	Buffer<uint8_t> rgb(mWidth*mHeight*3);
+
+	for(uint32_t i=0; i<depth.getCapacity(); i++){
+		float n = 1.0; // camera z near
+		float f = 100.0; // camera z far
+		float z = depth[i];
+		z = (2.0 * n) / (f + n - z * (f - n));
+		z *= 255;
+
+		rgb[i*3 + 0] = z;
+		rgb[i*3 + 1] = z;
+		rgb[i*3 + 2] = z;
+	}
 
 	Image img;
-	img.setData(mWidth, mHeight, Image::RGB, 3, (unsigned char*)p.getData());
+	img.setData(mWidth, mHeight, Image::RGB, 3, (unsigned char*)rgb.getData());
 
 	DevilImageLoader::getSingleton().save(&stream,
 		&img);

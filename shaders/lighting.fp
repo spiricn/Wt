@@ -100,9 +100,13 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 worldPos){
 
 	vec4 color = calculateLight(normal, worldPos, light.color, light.ambientItensity, light.diffuseItensity, direction);
 
-	float attenuation = light.attenuation.constant +
+	float attenuation = 
+		light.attenuation.constant +
 		light.attenuation.linear * d +
 		light.attenuation.exponential * d * d;
+
+	// Necessary to prevent zero divisions and increasing t
+	//attenuation = min(1.0, attenuation);
 
 	return color/attenuation;
 }

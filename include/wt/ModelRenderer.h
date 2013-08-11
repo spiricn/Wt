@@ -17,7 +17,7 @@ public:
 
 	void render(Scene* scene, math::Camera* camera, PassType pass);
 
-	gl::ShaderProgram* setupSceneLighting();
+	void onSceneLightingChanged(Scene* scene, Renderer*);
 
 private:
 	void render(Scene* scene, ModelledActor* actor, math::Camera* camera, PassType pass);

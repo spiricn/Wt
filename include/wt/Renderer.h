@@ -127,6 +127,8 @@ public:
 	 */
 	void render(Scene& scene, RenderTarget* target=NULL);
 
+	void setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog);
+
 private:
 	/** Render entire scene in a single pass */
 	void render(Scene& scene, ARenderer::PassType pass);
@@ -172,7 +174,7 @@ private:
 
 	float mBoneWidth;
 
-	void setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog);
+	
 
 	void setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog);
 

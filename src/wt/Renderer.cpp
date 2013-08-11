@@ -167,13 +167,13 @@ bool Renderer::handleEvent(const Sp<Event> evt){
 		Scene* scene = ((SceneLightingModifiedEvent*)evt.get())->scene;
 
 		for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
-			(*iter)->onSceneLightingChanged(scene);
+			(*iter)->onSceneLightingChanged(scene, this);
 
-			gl::ShaderProgram* rendererProg = (*iter)->setupSceneLighting();
+			/*gl::ShaderProgram* rendererProg = (*iter)->setupSceneLighting();
 
 			if(rendererProg != NULL){
 				setShaderLightUniforms(scene, *rendererProg);
-			}
+			}*/
 		}
 	}
 

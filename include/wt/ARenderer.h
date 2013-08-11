@@ -11,6 +11,7 @@ class Camera;
 }; // </math>
 
 class Scene;
+class Renderer;
 
 namespace gl{
 	class ShaderProgram;
@@ -31,15 +32,10 @@ public:
 	virtual ~ARenderer(){
 	}
 
-	
-	virtual gl::ShaderProgram* setupSceneLighting(){
-		return NULL;
+	virtual void onSceneLightingChanged(Scene* scene, Renderer*){
 	}
 
-	virtual void onSceneLightingChanged(Scene* scene){
-	}
-
-	virtual void onSceneFogChanged(Scene* scene){
+	virtual void onSceneFogChanged(Scene* scene, Renderer*){
 	}
 
 	virtual void render(Scene* scene, math::Camera* camera, PassType pass) = 0;

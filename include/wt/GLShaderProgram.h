@@ -44,12 +44,12 @@ public:
 
 	void getUniformIndices(uint32_t numUniforms, GLuint* indices, ...);
 
-	void createFromSources(const String& vertex_source, const String& fragment_source, const String& geometrySource="");
+	void createFromSources(const String& vertex_source, const String& fragment_source="", const String& geometrySource="");
 
 	void getActiveUniforms(uint32_t numIndices, GLuint* indices, GLenum name, GLint* res);
 
 	void createFromFiles(const String& vertexShaderFile,
-		const String& fragmentShaderFile, const String& geometryShaderFile="");
+		const String& fragmentShaderFile="", const String& geometryShaderFile="");
 
 	bool isLinked();
 

@@ -2,6 +2,8 @@
 #define WT_LIGHT_H
 
 #include "wt/ASerializable.h"
+#include "wt/Color.h"
+#include "wt/lua/State.h"
 
 namespace wt{
 
@@ -12,44 +14,13 @@ public:
 	float mAmbientIntesity;
 	float mDiffuseItensity;
 
-	ALight(const Color& color, float ambientIntesity, float diffuseItensity) : 
-		mColor(color), mAmbientIntesity(ambientIntesity), mDiffuseItensity(diffuseItensity), mActive(true){
-	}
+	ALight(const Color& color, float ambientIntesity, float diffuseItensity);
 
-	virtual ~ALight(){
-	}
+	virtual ~ALight();
 
-	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
-		LuaObject luaColor = luaState->newTable();
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
 
-		lua::luaConv(mColor, luaColor);
-		dst.Set("color", luaColor);
-
-		dst.Set("ambientIntensity", mAmbientIntesity);
-
-		dst.Set("diffuseIntensity", mDiffuseItensity);
-	}
-
-	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
-		WT_ASSERT(src.IsTable()
-			&& src.Get("ambientIntensity").IsNumber()
-			&& src.Get("diffuseIntensity").IsNumber()
-			&& src.Get("color").IsTable(),
-			"Invalid light lua table");
-
-		if(!lua::luaConv(src.Get("color"), mColor)){
-			// TODO handle
-		}
-
-		if(!lua::luaConv(src.Get("ambientIntensity"), mAmbientIntesity)){
-			// TODO handle
-		}
-
-		if(!lua::luaConv(src.Get("diffuseIntensity"), mDiffuseItensity)){
-			// TODO handle
-		}
-	}
-
+	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 }; // </ALight>
 
 class DirectionalLight : public ALight{
@@ -57,26 +28,11 @@ public:
 	glm::vec3 mDirection;
 
 	DirectionalLight(const Color& color=Color::white(), float ambientIntesity=1.0f,
-		float diffuseItensity=1.0f, const glm::vec3& dir=glm::vec3(0,-1,0)) : ALight(color, ambientIntesity, diffuseItensity),
-		mDirection(dir){
-	}
+		float diffuseItensity=1.0f, const glm::vec3& dir=glm::vec3(0,-1,0));
 
-	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
-		ALight::deserialize(luaState, src);
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
-		if(!lua::luaConv(src.Get("direction"), mDirection)){
-			// TODO handle
-		}	
-	}
-
-	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
-		ALight::serialize(luaState, dst);
-
-		LuaObject luaDir = luaState->newTable();
-
-		lua::luaConv(mDirection, luaDir);
-		dst.Set("direction", luaDir);
-	}
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
 }; // </DirectionalLight>
 
 class PointLight : public ALight{
@@ -89,48 +45,13 @@ public:
 	} mAttenuation;
 
 	PointLight (const Color& color=Color::white(), float ambientIntesity=1.0f,
-		float diffuseItensity=1.0f, const glm::vec3& pos=glm::vec3(0, 0, 0)) : ALight(color, ambientIntesity, diffuseItensity),
-		mPosition(pos){
-			mAttenuation.constant = 1.0f;
-			mAttenuation.linear = 0.1f;
-			mAttenuation.exponential = 0.0f;
-	}
+		float diffuseItensity=1.0f, const glm::vec3& pos=glm::vec3(0, 0, 0));
 
-	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
-		ALight::deserialize(luaState, src);
-		if(!lua::luaConv(src.Get("position"), mPosition)){
-			// TODO handle
-		}
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
-		lua::luaConv(src.Get("attenConstat"), mAttenuation.constant);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
 
-		lua::luaConv(src.Get("attenLinear"), mAttenuation.linear);
-
-		lua::luaConv(src.Get("attenExponential"), mAttenuation.exponential);
-	}
-
-	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
-		ALight::serialize(luaState, dst);
-
-		LuaObject luaPos = luaState->newTable();
-
-		lua::luaConv(mPosition, luaPos);
-		dst.Set("position", luaPos);
-
-		dst.Set("attenConstat", mAttenuation.constant);
-
-		dst.Set("attenLinear", mAttenuation.linear);
-
-		dst.Set("attenExponential", mAttenuation.exponential);
-	}
-
-	float calculateBoundingSphere(){
-		float maxChannel = glm::max(glm::max(mColor.mRed, mColor.mGreen), mColor.mBlue);
-		// TODO probably wrong, we need to account for attenuation as well
-   		float c = maxChannel * mDiffuseItensity;
-   		return (8.0f * sqrtf(c) + 1.0f);
-	}
-
+	float calculateBoundingSphere();
 }; // </PointLight>
 
 
@@ -140,8 +61,7 @@ public:
 	float cutoff;
 
 	SpotLight(const Color& color=Color::white(), float ambientIntesity=1.0f,
-		float diffuseItensity=1.0f, const glm::vec3& pos=glm::vec3(0, 0, 0)) : PointLight(color, ambientIntesity, diffuseItensity, pos){
-	}
+		float diffuseItensity=1.0f, const glm::vec3& pos=glm::vec3(0, 0, 0));
 }; // </SpotLight>
 
 }; // </wt>

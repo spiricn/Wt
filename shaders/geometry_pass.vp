@@ -53,12 +53,12 @@ void main(void) {
 		// animate vertex
 		pos = boneTransform*pos;
 
+		// TODO something is not right here, normals seem to be chaning awkardly with the animation
 		fsNormal = (boneTransform*vec4(fsNormal, 0.0)).xyz;
 	}
 
 	fsTexCoord = inTexCoord.st;
 	
-	// TODO might be wrong
 	fsWorldPos = (uModelMat * pos).xyz;
 
 	gl_Position = modelViewProjMat * pos;
