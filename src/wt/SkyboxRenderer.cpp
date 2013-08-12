@@ -9,6 +9,10 @@ namespace wt{
 SkyboxRenderer::SkyboxRenderer(){
 }
 
+bool SkyboxRenderer::isDeferred() const{
+	return false;
+}
+
 void SkyboxRenderer::create(){
 	LOGV("Compiling skybox shader..");
 

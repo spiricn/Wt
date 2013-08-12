@@ -1,0 +1,9 @@
+#version 140
+
+in vec4 inPosition;
+
+uniform mat4 uModelViewProj;
+
+void main(){
+	gl_Position = uModelViewProj * vec4(inPosition.xyz, 1.0);
+}

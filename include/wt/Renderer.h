@@ -28,7 +28,10 @@
 #include "wt/SkyboxRenderer.h"
 #include "wt/EventManager.h"
 
+
 namespace wt{
+
+class DeferredRender;
 
 class GodRayShader : public gl::ShaderProgram{
 public:
@@ -174,7 +177,7 @@ private:
 
 	float mBoneWidth;
 
-	
+	DeferredRender* mDeferredRenderer;
 
 	void setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog);
 

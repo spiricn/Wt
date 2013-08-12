@@ -19,6 +19,8 @@ public:
 
 	void onSceneLightingChanged(Scene* scene, Renderer*);
 
+	bool isDeferred() const;
+
 private:
 	void render(Scene* scene, ModelledActor* actor, math::Camera* camera, PassType pass);
 

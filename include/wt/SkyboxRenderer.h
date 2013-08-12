@@ -14,6 +14,8 @@ public:
 
 	void render(Scene* scene, math::Camera* camera, PassType pass);
 
+	bool isDeferred() const;
+
 private:
 	gl::ShaderProgram mShader;
 }; // </SkyboxRenderer>

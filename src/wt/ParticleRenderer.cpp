@@ -9,6 +9,10 @@ namespace wt{
 ParticleRenderer::ParticleRenderer(){
 }
 
+bool ParticleRenderer::isDeferred() const{
+	return false;
+}
+
 void ParticleRenderer::create(){
 	// Compile rendering shader
 	LOGV("Compiling particle shader..");

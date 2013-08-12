@@ -22,17 +22,18 @@ uniform int uPassType;
 
 //#define SKIN_DISABLE
 
-void main(void) {
+void main(){
+	// Transform matrices
 	mat4x4 modelViewMat = uViewMat * uModelMat;
 	mat4x4 modelViewProjMat = uProjMat * modelViewMat;
 
-	// vertex normal
-	fsNormal = (uModelMat * vec4(inNormals, 0.0)).xyz;
-
-	// vertex position
+	// Vertex position
 	vec4 pos = inVertex;
 
-	// is the vertex bound to some bones?
+	// Vertex normal
+	vec4 normal = vec4(inNormals, 0.0);
+
+	// Ss the vertex bound to some bones?
 	if(int(inBoneIds[0]) != MAX_BONES){
 
 		mat4x4 boneTransform = mat4(0.0f);
@@ -50,16 +51,18 @@ void main(void) {
 			}
 		}
 
-		// animate vertex
+		// Animate position
 		pos = boneTransform*pos;
 
-		// TODO something is not right here, normals seem to be chaning awkardly with the animation
-		fsNormal = (boneTransform*vec4(fsNormal, 0.0)).xyz;
+		// Animate normal
+		normal = boneTransform*normal;
 	}
 
 	fsTexCoord = inTexCoord.st;
 	
 	fsWorldPos = (uModelMat * pos).xyz;
+
+	fsNormal = (uModelMat * normal).xyz;
 
 	gl_Position = modelViewProjMat * pos;
 }

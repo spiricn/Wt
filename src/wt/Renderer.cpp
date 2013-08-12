@@ -9,6 +9,7 @@
 #include "wt/ParticleRenderer.h"
 #include "wt/ModelRenderer.h"
 #include "wt/TerrainRenderer.h"
+#include "wt/DeferredRenderer.h"
 
 #define TD_TRACE_TAG "Renderer"
 
@@ -54,7 +55,7 @@ const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_spri
 
 Renderer::Renderer(EventManager* eventManager) : mClearColor(0.5, 0, 0, 1.0f),
 	mGodrayPass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(NULL, 0, "", Texture2D::eRECT_TEXTURE),
-	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager){
+	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL){
 
 	mEventManager->registerListener(this, SceneLightingModifiedEvent::TYPE);
 }
@@ -92,10 +93,10 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 
 
 	 //Attach the renderers (order matters)
-	//attachRenderer(new TerrainRenderer);
+	attachRenderer(new TerrainRenderer);
 	attachRenderer(new ModelRenderer);
-	//attachRenderer(new SkyboxRenderer);
-	//attachRenderer(new ParticleRenderer);
+	attachRenderer(new SkyboxRenderer);
+	attachRenderer(new ParticleRenderer);
 
 	LOGV("Compiling godray shader ...");
 	mGodRayShader.create();
@@ -143,6 +144,9 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	FileIOStream stream("d:\\Documents\\prog\\c++\\workspace\\Wt\\rsrc\\godray_sun.png", AIOStream::eMODE_READ);
 	TextureLoader::getSingleton().load(&stream, &mGodraySunTexture);
 
+	LOGV("Initializing deferred renderer");
+	mDeferredRenderer = new DeferredRender(portW, portH);
+
 	LOGV("Initialized OK");
 }
 
@@ -165,6 +169,9 @@ bool Renderer::handleEvent(const Sp<Event> evt){
 		LOGV("Scene lighting changed");
 
 		Scene* scene = ((SceneLightingModifiedEvent*)evt.get())->scene;
+
+		setShaderLightUniforms(scene, *mDeferredRenderer->getLightShader(DeferredRender::eLIGHT_SHADER_DIRECTIONAL) );
+		setShaderLightUniforms(scene, *mDeferredRenderer->getLightShader(DeferredRender::eLIGHT_SHADER_POINT) );
 
 		for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
 			(*iter)->onSceneLightingChanged(scene, this);
@@ -729,10 +736,93 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	glm::mat4x4 viewMat;
 	scene.getCamera().getMatrix(viewMat);
 
+	// WARNING: it's very important for the front face to be set as counter-clockwise
+	// otherwise this whole concept breaks
+	glFrontFace(GL_CCW);
+
+	// Only geometry pass writes to the depth buffer
+	gl( DepthMask(true) );
+	gl( Enable(GL_DEPTH_TEST) );
+
+	// Setup the renderer
+	mDeferredRenderer->startFrame();
+
+	// Bind the drawing buffers (3 textures)
+	mDeferredRenderer->bindForGeometryPass();
+
+	// Clear them all, along with the depth/stencil buffer
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Render all the geometry to the G buffer
 	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
-		(*iter)->render(&scene, &scene.getCamera(), ARenderer::ePASS_NORMAL);
+		if((*iter)->isDeferred()){
+			(*iter)->render(&scene, &scene.getCamera(), ARenderer::ePASS_NORMAL);
+		}
 	}
 
+
+	// When we get here the depth buffer is already populated and the stencil pass
+    // depends on it, but it does not write to it.
+    gl( DepthMask(GL_FALSE) );
+	gl( Enable(GL_STENCIL_TEST ));
+
+	for(uint32_t i=0; i<scene.getNumPointLights(); i++){
+		PointLight light;
+
+		scene.getPointLight(i, light);
+		if(!light.mActive){
+			continue;
+		}
+
+		mDeferredRenderer->stencilPass(&scene, &scene.getCamera(), i);
+		mDeferredRenderer->pointLightPass(&scene, &scene.getCamera(), i);
+	}
+
+	// The directional light does not need a stencil test because its volume
+    // is unlimited and the final pass simply copies the texture.
+
+	gl( Disable(GL_STENCIL_TEST ));
+
+	mDeferredRenderer->directionalLightPass(&scene, &scene.getCamera());
+
+
+	const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT3 };
+	gl( DrawBuffers(1, drawBuffers) );
+	gl( Disable(GL_BLEND) );
+	gl( Enable(GL_DEPTH_TEST) );
+
+	// Render the non-deferred geometry
+	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
+		if(!(*iter)->isDeferred()){
+			(*iter)->render(&scene, &scene.getCamera(), ARenderer::ePASS_NORMAL);
+		}
+	}
+
+	// Final pass (render the resulting texture to the screen)
+	mDeferredRenderer->bindForFinalPass();
+	mDeferredRenderer->getFrameBuffer()->blit(
+			glm::vec4(0, 0, 1280, 720),
+			glm::vec4(0, 0, 1280, 720),
+			GL_COLOR_ATTACHMENT3, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	
+#if 0
+	//// Debug blit
+	GLint doubleBuffered; 
+	gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
+
+	GLenum defaultBfrs[1];
+	defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
+
+	gl( DrawBuffers(1, defaultBfrs) );
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	mDeferredRenderer->debugBlit(glm::vec2(1280, 720));
+#endif
+
+#if 0
 	if(pass == ARenderer::ePASS_NORMAL){
 		// Skeleton bones
 		if(mRenderBones){
@@ -752,6 +842,9 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 			glEnable(GL_DEPTH_TEST);
 		}
 	}
+#endif
+
+	gl::FrameBuffer::unbind();
 }
 
 void Renderer::render(Scene& scene, RenderTarget* target){

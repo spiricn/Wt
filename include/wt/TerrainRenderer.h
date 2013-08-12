@@ -19,6 +19,8 @@ public:
 
 	gl::ShaderProgram* setupSceneLighting();
 
+	bool isDeferred() const;
+
 private:
 	void render(Scene* scene, const TerrainNode* node);
 

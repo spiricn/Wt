@@ -41,6 +41,8 @@ public:
 	virtual void render(Scene* scene, math::Camera* camera, PassType pass) = 0;
 
 	virtual void create() = 0;
+
+	virtual bool isDeferred() const = 0;
 };
 
 }; // </wt>

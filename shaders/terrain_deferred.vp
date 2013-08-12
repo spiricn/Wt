@@ -1,0 +1,35 @@
+#version 130
+
+#define eNORMAL_PASS 0
+#define eGODRAY_PASS 1
+#define eSHADOW_PASS 2
+
+in vec4 inPosition;
+in vec4 inTexture;
+in vec4 inTiledTexture;
+in vec3 inNormal;
+
+uniform mat4x4 uModelMat;
+uniform mat4x4 uProjMat;
+uniform mat4x4 uViewMat;
+uniform int uPassType;
+
+out vec2 fsTexCoords;
+out vec2 fsTiledTexCoords;
+out vec3 fsWorldPos;
+out vec3 fsNormal;
+
+void main(){
+	mat4x4 modelViewMat = uViewMat * uModelMat;
+	mat4x4 modelViewProjMat = uProjMat * modelViewMat;
+
+	float tileFactor = 1;
+
+	fsTexCoords = inTexture.st;
+	fsTiledTexCoords = inTiledTexture.st*tileFactor;
+	fsNormal = inNormal;
+
+	fsWorldPos = (uModelMat*inPosition).xyz;
+
+	gl_Position = modelViewProjMat * inPosition;
+}

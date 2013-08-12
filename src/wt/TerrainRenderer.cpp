@@ -10,10 +10,14 @@ namespace wt{
 TerrainRenderer::TerrainRenderer(){
 }
 
+bool TerrainRenderer::isDeferred() const{
+	return true;
+}
+
 void TerrainRenderer::create(){
 	LOGV("Compiling terrain shader...");
-	mShader.createFromFiles("shaders\\terrain.vp",
-		"shaders\\terrain.fp");
+	mShader.createFromFiles("shaders\\terrain_deferred.vp",
+		"shaders\\terrain_deferred.fp");
 
 	mShader.bindAttribLocation(0, "inPosition");
 	mShader.bindAttribLocation(1, "inTexture");
