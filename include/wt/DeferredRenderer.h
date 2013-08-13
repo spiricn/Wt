@@ -38,6 +38,8 @@ public:
 
 	DeferredRender(uint32_t width, uint32_t height);
 
+	void resize(uint32_t width, uint32_t height);
+
 	void bindForGeometryPass();
 
 	void debugBlit(const glm::vec2& screenSize);

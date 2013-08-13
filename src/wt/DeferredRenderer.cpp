@@ -7,7 +7,7 @@
 namespace wt
 {
 
-DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(width), mHeight(height){
+DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHeight(0){
 	// Framebuffer
 	mFrameBuffer.create();
 	mFrameBuffer.bindDraw();
@@ -21,7 +21,7 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(width),
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		mTextures[i].setData(mWidth, mHeight, GL_RGB, GL_RGB32F, NULL, GL_FLOAT, false);
+		mTextures[i].setData(width, height, GL_RGB, GL_RGB32F, NULL, GL_FLOAT, false);
 		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0 + i, mTextures + i);
 	}
 
@@ -30,7 +30,7 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(width),
 	mDepthTexture.bind();
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	mDepthTexture.setData(mWidth, mHeight, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
+	mDepthTexture.setData(width, height, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
 
 	mFrameBuffer.addAttachment(GL_DEPTH_STENCIL_ATTACHMENT, &mDepthTexture);
 
@@ -39,7 +39,7 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(width),
 	mFinalTexture.bind();
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	mFinalTexture.setData(mWidth, mHeight, GL_RGB, GL_RGBA, NULL, GL_FLOAT, false);
+	mFinalTexture.setData(width, height, GL_RGB, GL_RGBA, NULL, GL_FLOAT, false);
 	mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT3, &mFinalTexture);
 
 	WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete frame buffer");
@@ -111,6 +111,31 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(width),
 
 		mSphereBatch.setVertexAttribute(0, 3, GL_FLOAT, offsetof(IcosphereBuilder::Vertex, position));
 	}
+
+	resize(width, height);
+}
+
+void DeferredRender::resize(uint32_t width, uint32_t height){
+	if(mWidth == width && mHeight == height){
+		return;
+	}
+
+	mWidth = width;
+	mHeight = height;
+
+	for(uint32_t i=0; i<eGTEX_MAX; i++){
+		mTextures[i].setData(mWidth, mHeight, GL_RGB, GL_RGB32F, NULL, GL_FLOAT, false);
+	}
+
+	mDepthTexture.setData(mWidth, mHeight, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
+
+	mFinalTexture.setData(mWidth, mHeight, GL_RGB, GL_RGBA, NULL, GL_FLOAT, false);
+
+	mLightShaders[eLIGHT_SHADER_DIRECTIONAL].use();
+	mLightShaders[eLIGHT_SHADER_DIRECTIONAL].setUniformVal("uScreenSize", glm::vec2(mWidth, mHeight));
+
+	mLightShaders[eLIGHT_SHADER_POINT].use();
+	mLightShaders[eLIGHT_SHADER_POINT].setUniformVal("uScreenSize", glm::vec2(mWidth, mHeight));
 }
 
 void DeferredRender::bindForGeometryPass(){

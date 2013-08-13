@@ -72,7 +72,7 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 
 	mMatStack.pushIdentity();
 
-	setViewPort(portW, portH);
+	
 
 	gl( Enable(GL_DEPTH_TEST) );
 
@@ -91,6 +91,10 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 		WT_THROW("Error initializing glew \"%s\"", (const char*)glewGetErrorString(r));
 	}
 
+	LOGV("Initializing deferred renderer");
+	mDeferredRenderer = new DeferredRender(portW, portH);
+
+	setViewPort(portW, portH);
 
 	 //Attach the renderers (order matters)
 	attachRenderer(new TerrainRenderer);
@@ -144,8 +148,7 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	FileIOStream stream("d:\\Documents\\prog\\c++\\workspace\\Wt\\rsrc\\godray_sun.png", AIOStream::eMODE_READ);
 	TextureLoader::getSingleton().load(&stream, &mGodraySunTexture);
 
-	LOGV("Initializing deferred renderer");
-	mDeferredRenderer = new DeferredRender(portW, portH);
+
 
 	LOGV("Initialized OK");
 }
@@ -665,6 +668,8 @@ void Renderer::setViewPort(uint32_t width, uint32_t height){
 
 	mFrustum.setPerspectiveProj((float)width, (float)height, 73.0f, 0.5f,
 		3500.0f);
+
+	mDeferredRenderer->resize(width, height);
 }
 
 void Renderer::setPolygoneMode(PolygonMode mode){
@@ -802,9 +807,10 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	// Final pass (render the resulting texture to the screen)
 	mDeferredRenderer->bindForFinalPass();
 	mDeferredRenderer->getFrameBuffer()->blit(
-			glm::vec4(0, 0, 1280, 720),
-			glm::vec4(0, 0, 1280, 720),
-			GL_COLOR_ATTACHMENT3, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		glm::vec4(0, 0, mViewPort.x, mViewPort.y),
+		glm::vec4(0, 0, mViewPort.x, mViewPort.y),
+			GL_COLOR_ATTACHMENT3, GL_COLOR_BUFFER_BIT, GL_LINEAR
+	);
 
 	
 #if 0
