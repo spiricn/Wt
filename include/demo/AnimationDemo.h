@@ -78,8 +78,8 @@ public:
 
 		mActor->getAnimationPlayer()->play("stand", true);
 
-		mActor->getTransform().setPosition(200, 0, 200);
-		mActor->getTransform().setScale(10, 10, 10);
+		mActor->getTransformable()->setTranslation(glm::vec3(200, 0, 200));
+		mActor->getTransformable()->setScale(glm::vec3(10, 10, 10));
 
 		// Load camera animation
 		Animation* ani = getAssets()->getAnimationManager()->create("ani_demo_animation");

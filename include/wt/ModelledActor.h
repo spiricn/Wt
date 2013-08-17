@@ -39,6 +39,8 @@ public:
 
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque);
 
+	ATransformable* getTransformable();
+
 	struct DeserializationData{
 		PhysicsActor::Desc pxDesc;
 		bool phyiscs;
@@ -60,6 +62,8 @@ private:
 	Model* mModel;
 	Model::GeometrySkin* mSkin;
 	SkeletalAnimationPlayer* mAnimationPlayer;
+	math::Transform mTransform;
+
 }; // </ModeledActor>
 
 }; // </wt>

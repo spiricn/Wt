@@ -18,6 +18,10 @@ Model* ModelledActor::getModel() const{
 	return mModel;
 }
 
+ATransformable* ModelledActor::getTransformable(){
+	return &mTransform;
+}
+
 void ModelledActor::setModel(Model* model, const String& skin){
 	if(mAnimationPlayer){
 		delete mAnimationPlayer;
@@ -74,7 +78,7 @@ bool ModelledActor::getAttachPointTransform(const String& point, math::Transform
 		bone->getGlobalTransform(boneTransf);
 	}
 
-	res = getTransform() * boneTransf;
+	res = mTransform * boneTransf;
 
 	return true;
 }
@@ -181,11 +185,11 @@ void ModelledActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObjec
 }
 
 glm::vec3 ModelledActor::lua_getPosition(){
-	return getTransform().getPosition();
+	return mTransform.getPosition();
 }
 
 void ModelledActor::lua_move(const glm::vec3& offset){
-	getTransform().translate(offset);
+	mTransform.translate(offset);
 }
 
 void ModelledActor::lua_playAnimation(const char* name, bool loop){
@@ -193,7 +197,7 @@ void ModelledActor::lua_playAnimation(const char* name, bool loop){
 }
 
 lua::LuaObject ModelledActor::lua_getTransform(){
-	return getLuaState()->box(getTransform());
+	return getLuaState()->box(mTransform);
 }
 
 void ModelledActor::generateMetaTable(){

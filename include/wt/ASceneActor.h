@@ -1,11 +1,8 @@
 #ifndef WT_ASCENEACTOR_H
 #define WT_ASCENEACTOR_H
 
-
 #include "wt/stdafx.h"
 
-
-#include "wt/Transform.h"
 #include "wt/Model.h"
 #include "wt/AResourceSystem.h"
 
@@ -23,9 +20,11 @@ friend class Scene;
 
 public:
 	enum ActorType{
-		eTYPE_TERRAIN,
+		eTYPE_INVALID = -1,
+		eTYPE_TERRAIN = 0,
 		eTYPE_PARTICLE_EFFECT,
-		eTYPE_MODELLED
+		eTYPE_MODELLED,
+		eTYPE_POINT_LIGHT
 	};
 
 	struct AttachPoint{
@@ -57,8 +56,6 @@ protected:
 	/** Type of the actor, used for RTTI */
 	ActorType mType;
 
-	math::Transform mTransform;
-
 	/** Scene actor may be paired with a physics actor for its physicall representation */
 	PhysicsActor* mPhysicsActor;
 
@@ -69,13 +66,14 @@ protected:
 	/** Color of the bounding box for this object (used mainly for debugging) */
 	Color mBoundingBoxColor;
 
-	void setLuaState(lua::State* state){
-		mLuaState = state;
-	}
+	void setLuaState(lua::State* state);
+
 public:
-	lua::State* getLuaState(){
-		return mLuaState;
-	}
+	lua::State* getLuaState();
+
+	virtual ATransformable* getTransformable() = 0;
+
+	const ATransformable* getTransformable() const;
 
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
 
@@ -102,9 +100,9 @@ public:
 
 	void* getUserData() const;
 
-	virtual bool getAttachPointTransform(const String& /*pointId*/, math::Transform& /*res*/) const;
+	virtual bool getAttachPointTransform(const String& pointId, glm::mat4& res) const;
 
-	virtual bool validAttachPoint(const String& /*pointId*/) const;
+	virtual bool validAttachPoint(const String& pointId) const;
 
 	bool attach(const ASceneActor* actor, const String& pointId);
 
@@ -119,10 +117,6 @@ public:
 	uint32_t getId() const;
 
 	const String& getName() const;
-
-	math::Transform& getTransform();
-
-	const math::Transform& getTransform() const;
 
 	virtual void update(float /*dt*/);
 

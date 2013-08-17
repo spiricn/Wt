@@ -154,7 +154,7 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 	
 		// Upload model matrix
 		glm::mat4 modelMat;
-		actor->getTransform().getMatrix(modelMat);
+		((ModelledActor*)actor)->getTransformable()->getTransformMatrix(modelMat);
 		mShader.setUniformVal("uModelMat", modelMat);
 
 		for(Model::GeometrySkin::MeshList::iterator i=actor->getSkin()->getMeshList().begin(); i!=actor->getSkin()->getMeshList().end(); i++){
@@ -284,7 +284,7 @@ void ModelRenderer::render(Scene* scene, ModelledActor* actor, math::Camera* cam
 	
 	// Upload model matrix
 	glm::mat4 modelMat;
-	actor->getTransform().getMatrix(modelMat);
+	actor->getTransformable()->getTransformMatrix(modelMat);
 	mShader.setUniformVal("uModelMat", modelMat);
 
 	// TODO materials, normal maps, blending not yet implemented

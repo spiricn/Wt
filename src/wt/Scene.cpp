@@ -156,7 +156,7 @@ void Scene::setPointLightDesc(const PointLight* clight, const PointLight::Desc& 
 void Scene::setDirectionalLightDesc(const DirectionalLight::Desc& desc){
 	mDirectionalLight->getDesc() = desc;
 
-	//onLightingModified(mDirectionalLight);
+	onLightingModified(mDirectionalLight);
 }
 
 const PointLight* Scene::createPointLight(const PointLight::Desc& desc){

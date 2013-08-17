@@ -21,7 +21,7 @@ public:
 	}
 
 	void update(float dt){
-		glm::vec3 pos, scale;
+		/*glm::vec3 pos, scale;
 		glm::quat rot;
 		mAnimator.update(dt,
 			pos,
@@ -31,7 +31,7 @@ public:
 		mActor->getTransform().setPosition(pos);
 		mActor->getTransform().setRotation(rot);
 
-		mColorFactor = fmod(mColorFactor + dt, mCycleTime);
+		mColorFactor = fmod(mColorFactor + dt, mCycleTime);*/
 	}
 
 	Color getColor() const{
@@ -39,7 +39,9 @@ public:
 	}
 
 	glm::vec3 getPosition() const{
-		return mActor->getTransform().getPosition();
+		//return mActor->getTransform().getPosition();
+		static glm::vec3 wtf;
+		return wtf;
 	}
 }; // </LightOrb>
 

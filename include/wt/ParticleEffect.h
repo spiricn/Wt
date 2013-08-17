@@ -44,6 +44,8 @@ public:
 
 	void generateMetaTable();
 
+	ATransformable* getTransformable();
+
 private:
 	typedef std::map<String, ParticleLayer*> LayerMap;
 
@@ -52,6 +54,8 @@ private:
 	float mTimeDelta;
 
 	ParticleEffectResource* mEffectResource;
+
+	math::Transform mTransform;
 
 protected:
 	LayerMap& getLayerMap();

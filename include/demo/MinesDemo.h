@@ -69,7 +69,10 @@ public:
 
 				ModelledActor* actor = (ModelledActor*)cell->userData;
 
-				mBaseHeight = actor->getTransform().getPosition().y;
+				glm::vec3 pos;
+				actor->getTransformable()->getTranslation(pos);
+
+				mBaseHeight = pos.y;
 
 				String skin;
 
@@ -127,10 +130,12 @@ public:
 					}
 				}
 				else{
-					glm::vec3 pos = actor->getTransform().getPosition();
+					glm::vec3 pos;
+					actor->getTransformable()->getTranslation(pos);
+
 					pos.y = mBaseHeight + mInterpolator.getValue();
 
-					actor->getTransform().setPosition(pos);
+					actor->getTransformable()->setTranslation(pos);
 
 					if(mInterpolator.isFinished()){
 						// remove from list
@@ -363,13 +368,15 @@ public:
 				mGameState.setCellUserData(x, y, actor);
 
 				// Initial actor position
-				actor->getTransform().setPosition(
+				actor->getTransformable()->setTranslation(glm::vec3(
 					(- (mGameState.getField().getNumColumn() * 2.1f)/2) + x * (2.1),
 					0,
-					(- (mGameState.getField().getNumRows() * 2.1f)/2) + y * (2.1));
+					(- (mGameState.getField().getNumRows() * 2.1f)/2) + y * (2.1))
+				);
 
-				actor->getTransform().setRotation(
-					0, 1, 0, -90);
+				actor->getTransformable()->setRotation(
+					glm::vec3(0, 1, 0), -90
+				);
 
 				// Create game actor
 				MineActor* ma = new MineActor;
@@ -388,7 +395,7 @@ public:
 				desc.geometryDesc.boxGeometry.hx = 1.0f;
 				desc.geometryDesc.boxGeometry.hy = 1.0f;
 				desc.geometryDesc.boxGeometry.hz = 1.0f;
-				desc.pose = actor->getTransform();
+				actor->getTransformable()->getTransformMatrix(desc.pose);
 
 				PhysicsActor* pActor = getPhysics()->createActor(actor, desc);
 				((PxRigidDynamic*)pActor->getPxActor())->putToSleep();

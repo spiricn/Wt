@@ -401,7 +401,7 @@ void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bo
 	// Setup modelview matrix
 	glm::mat4 view;
 	glm::mat4 model;
-	actor->getTransform().getMatrix(model);
+	((ModelledActor*)actor)->getTransformable()->getTransformMatrix(model);
 	scene->getCamera().getMatrix(view);
 	gl( MatrixMode(GL_MODELVIEW) );
 	gl( LoadMatrixf(glm::value_ptr(view*model)) );

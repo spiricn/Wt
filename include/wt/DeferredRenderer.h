@@ -16,6 +16,7 @@ namespace math
 
 class SceneLightUpdated;
 class SceneLightDeleted;
+class DirectionalLight;
 class PointLight;
 class Scene;
 
@@ -103,6 +104,8 @@ private:
 	ShaderPointLight* findShaderPointLight(const PointLight* light);
 
 	void uploadPointLight(const ShaderPointLight& light);
+
+	void uploadDirectionalLight(const DirectionalLight* light);
 
 
 }; // </DeferredRender>

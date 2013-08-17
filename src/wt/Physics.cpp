@@ -213,7 +213,7 @@ uint32_t Physics::createRegion(const String& name, const glm::vec3& position, fl
 	desc.type = PhysicsActor::eREGION;
 	desc.geometryType = PhysicsActor::eSPHERE_GEOMETRY;
 	desc.geometryDesc.sphereGeometry.radius = radius;
-	desc.pose.setPosition(position);
+	desc.pose = glm::translate(position);
 
 	PhysicsActor* actor = createActor(NULL, desc);
 
@@ -255,20 +255,25 @@ void pxConvert(const math::Transform& src, PxTransform& dst){
 	dst.q.w = src.getQuat().w;
 }
 
-void Physics::convertTransform(const PxTransform& src, math::Transform& dst){
-    dst.setPosition( glm::vec3(src.p.x, src.p.y, src.p.z) );
-    dst.setQuat( src.q.x, src.q.y, src.q.z, src.q.w );
+void Physics::convertTransform(const PxTransform& src, ATransformable& dst){
+	dst.setTranslation( glm::vec3(src.p.x, src.p.y, src.p.z) );
+	dst.setRotation( glm::vec3(src.q.x, src.q.y, src.q.z), src.q.w );
 }
 
-void Physics::convertTransform(const math::Transform& src, PxTransform& dst){
-	dst.p.x = src.getPosition().x;
-	dst.p.y = src.getPosition().y;
-	dst.p.z = src.getPosition().z;
+void Physics::convertTransform(const ATransformable& src, PxTransform& dst){
+	glm::vec3 pos;
+	glm::quat rot;
+	src.getTranslation(pos);
+	src.getRotation(rot);
 
-	dst.q.x = src.getQuat().x;
-	dst.q.y = src.getQuat().y;
-	dst.q.z = src.getQuat().z;
-	dst.q.w = src.getQuat().w;
+	dst.p.x = pos.x;
+	dst.p.y = pos.y;
+	dst.p.z = pos.z;
+
+	dst.q.x = rot.x;
+	dst.q.y = rot.y;
+	dst.q.z = rot.z;
+	dst.q.w = rot.w;
 }
 
 bool Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout){
@@ -328,11 +333,11 @@ void Physics::update(float dt){
 
 		if(actor->isControlled()){
 			const PxExtendedVec3& pos = actor->getController()->getFootPosition();
-			actor->getSceneActor()->getTransform().setPosition(pos.x, pos.y, pos.z);
+			actor->getSceneActor()->getTransformable()->setTranslation(glm::vec3(pos.x, pos.y, pos.z));
 		}
 		else if(actor->getSceneActor()){
 			convertTransform(activeTransforms[i].actor2World,
-				actor->getSceneActor()->getTransform()
+				*actor->getSceneActor()->getTransformable()
 				);
 		}
 		else{
@@ -649,11 +654,14 @@ Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 
 
 PxController* Physics::createController(const PhysicsActor::Desc& desc){
+	glm::vec3 pos;
+	math::extractTranslation(desc.pose, pos);
+
 	if(desc.controllerDesc.geometryType == PhysicsActor::eCAPSULE_CONTROLLER){
 		// Capsule
 		PxCapsuleControllerDesc pxDesc;
 
-		pxConvert(desc.pose.getPosition(), pxDesc.position);
+		pxConvert(pos, pxDesc.position);
 
 		pxDesc.radius = desc.controllerDesc.geometryDesc.capsuleController.radius;
 		pxDesc.height = desc.controllerDesc.geometryDesc.capsuleController.height;
@@ -667,7 +675,7 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 		// Box
 		PxBoxControllerDesc pxDesc;
 
-		pxConvert(desc.pose.getPosition(), pxDesc.position);
+		pxConvert(pos, pxDesc.position);
 
 		pxDesc.halfSideExtent = desc.controllerDesc.geometryDesc.boxController.hx;
 		pxDesc.halfHeight = desc.controllerDesc.geometryDesc.boxController.hy;
@@ -844,7 +852,10 @@ void Physics::createBBox(ASceneActor* actor){
 	desc.geometryDesc.boxGeometry.hy = 1.0f;
 	desc.geometryDesc.boxGeometry.hz = 1.0f;
 
-	desc.pose.setPosition( actor->getTransform().getPosition() );
+	glm::vec3 pos;
+	actor->getTransformable()->getTranslation(pos);
+
+	desc.pose = glm::translate(pos);
 
 	desc.collisionMask = 0;
 

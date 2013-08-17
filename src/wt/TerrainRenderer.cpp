@@ -43,7 +43,7 @@ void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 	camera->getMatrix(view);
 
 	glm::mat4 model;
-	terrain->getTransform().getMatrix(model);
+	terrain->getTransformable()->getTransformMatrix(model);
 
 	mShader.setUniformVal("uModelMat", model);
 	mShader.setUniformVal("uViewMat",view);

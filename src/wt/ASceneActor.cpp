@@ -17,6 +17,14 @@ const Color& ASceneActor::getBoundingBoxColor() const{
 	return mBoundingBoxColor;
 }
 
+void ASceneActor::setLuaState(lua::State* state){
+	mLuaState = state;
+}
+
+lua::State* ASceneActor::getLuaState(){
+	return mLuaState;
+}
+
 void ASceneActor::setBBox(PhysicsActor* box){
 	mBBox = box;
 	PxShape* shape;
@@ -46,13 +54,19 @@ ASceneActor::ActorType ASceneActor::getActorType() const{
 	return mType;
 }
 
+const ATransformable* ASceneActor::getTransformable() const{
+	return getTransformable();
+}
+
+
 void* ASceneActor::getUserData() const{
 	return mUserData;
 }
 
-bool ASceneActor::getAttachPointTransform(const String& pointId, math::Transform& res) const{
+bool ASceneActor::getAttachPointTransform(const String& pointId, glm::mat4& res) const{
 	if(pointId.size() == 0){
-		res = getTransform();
+
+		getTransformable()->getTransformMatrix(res);
 
 		return true;
 	}
@@ -103,14 +117,6 @@ const String& ASceneActor::getName() const{
 	return mName;
 }
 
-math::Transform& ASceneActor::getTransform(){
-	return mTransform;
-}
-
-const math::Transform& ASceneActor::getTransform() const{
-	return mTransform;
-}
-
 void ASceneActor::update(float /*dt*/){
 	if(mBBox){
 		// TODO terribly inefficient
@@ -118,16 +124,22 @@ void ASceneActor::update(float /*dt*/){
 
 		physx::PxTransform pose = actor->getGlobalPose();
 
+		glm::vec3 pos;
+		getTransformable()->getTranslation(pos);
+
 		// TODO handle scaling
-		pose.p.x = mTransform.getPosition().x;
-		pose.p.y = mTransform.getPosition().y;
-		pose.p.z = mTransform.getPosition().z;		
+		pose.p.x = pos.x;
+		pose.p.y = pos.y;
+		pose.p.z = pos.z;		
 
 		actor->setGlobalPose(pose);
 	}
 
 	if(mAttachPoint.actor){
-		mAttachPoint.actor->getAttachPointTransform(mAttachPoint.pointId, mTransform);
+		glm::mat4 tf;
+		mAttachPoint.actor->getAttachPointTransform(mAttachPoint.pointId, tf);
+
+		getTransformable()->setTransformMatrix(tf);
 	}
 }
 
@@ -136,7 +148,7 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 
 	lua::LuaObject tf = assets->getLuastate()->newTable();
 
-	lua::luaConv(mTransform, tf);
+	lua::luaConv(*getTransformable(), tf);
 	dst.Set("transform", tf);
 
 	dst.Set("name", mName.c_str());
@@ -162,7 +174,7 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 void ASceneActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
 	WT_ASSERT(src.IsTable(), "Error deserializing, object not a table");
 
-	if(!lua::luaConv(src.Get("transform"), mTransform)){
+	if(!lua::luaConv(src.Get("transform"), *getTransformable())){
 		WT_THROW("Error deserializing transform");
 	}
 

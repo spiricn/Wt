@@ -80,8 +80,8 @@ public:
 			getPhysics()->createRegion("test", regPos, regSize);
 
 			ModelledActor* actor = getScene()->createModelledActor();
-			actor->getTransform().setPosition(regPos);
-			actor->getTransform().setScale(regSize, regSize, regSize);
+			actor->getTransformable()->setTranslation(regPos);
+			actor->getTransformable()->setScale(glm::vec3(regSize, regSize, regSize));
 
 			actor->setModel(getAssets()->getModelManager()->find("sphere"), "default");
 		}
@@ -115,7 +115,7 @@ public:
 		ModelledActor* sceneActor = getScene()->createModelledActor();
 
 		//sceneActor->getModel()->get
-		sceneActor->getTransform().setPosition(position);
+		sceneActor->getTransformable()->setTranslation(position);
 
 		
 		sceneActor->setModel( getAssets()->getModelManager()->find("cube"), "crate" );
@@ -129,7 +129,7 @@ public:
 		desc.geometryDesc.boxGeometry.hx = 1.0f;
 		desc.geometryDesc.boxGeometry.hy = 1.0f;
 		desc.geometryDesc.boxGeometry.hz = 1.0f;
-		desc.pose = sceneActor->getTransform();
+		sceneActor->getTransformable()->getTransformMatrix(desc.pose);
 		desc.collisionMask = collisionMask;
 		desc.group = 1;
 
@@ -146,7 +146,7 @@ public:
 		// Create scene actor
 		ModelledActor* sceneActor = getScene()->createModelledActor();
 
-		sceneActor->getTransform().setPosition(position);
+		sceneActor->getTransformable()->setTranslation(position);
 
 		sceneActor->setModel( getAssets()->getModelManager()->find("sphere"), "default" );
 
@@ -157,7 +157,7 @@ public:
 		desc.controlMode = PhysicsActor::ePHYSICS_MODE;
 		desc.type = PhysicsActor::eDYNAMIC_ACTOR;
 		desc.geometryDesc.sphereGeometry.radius = 1.0f;
-		desc.pose = sceneActor->getTransform();
+		sceneActor->getTransformable()->getTransformMatrix(desc.pose);
 		desc.collisionMask = collisionMask;
 		desc.group = 0x1;
 

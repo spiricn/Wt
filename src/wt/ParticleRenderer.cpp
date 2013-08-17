@@ -58,7 +58,7 @@ void ParticleRenderer::render(Scene* scene, math::Camera* camera, PassType pass)
 		ParticleEffect* effect = const_cast<ParticleEffect*>(*iter);
 
 		glm::mat4 modelMat;
-		effect->getTransform().getMatrix(modelMat);
+		effect->getTransformable()->getTransformMatrix(modelMat);
 
 
 		for(ParticleEffect::LayerMap::iterator i=effect->getLayerMap().begin(); i!=effect->getLayerMap().end(); i++){

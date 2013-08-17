@@ -81,7 +81,7 @@ public:
 		// Create scene actor
 		ModelledActor* actor = getScene()->createModelledActor();
 
-		actor->getTransform().setPosition(glm::vec3(195.235229, -3.291626, 216.325455));
+		actor->getTransformable()->setTranslation(glm::vec3(195.235229, -3.291626, 216.325455));
 
 		actor->setModel(
 			getAssets()->getModelManager()->getFromPath("$ROOT/wolf"), "timber");
@@ -93,7 +93,10 @@ public:
 
 		mSound = mSoundSystem->createSound( getAssets()->getSoundManager()->getFromPath("$ROOT/wolf/attack") );
 
-		mSound->setPosition( actor->getTransform().getPosition() );
+		glm::vec3 pos;
+		actor->getTransformable()->getTranslation(pos);
+
+		mSound->setPosition( pos );
 		mSound->setRelativeToListener(false);
 
 		mSound->setLoop(true);

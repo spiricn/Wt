@@ -163,11 +163,14 @@ private:
 	Texture2D*				mTextureMap;
 	TerrainNode mRootNode;
 	TerrainDesc mDesc;
+	math::Transform mTransform;
 
 public:
 	Terrain(Scene* parent, uint32_t actorId, const String& name="");
 
 	~Terrain();
+
+	ATransformable* getTransformable();
 
 	void getPhysicsDesc(PhysicsActor::Desc& desc);
 

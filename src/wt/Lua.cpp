@@ -331,6 +331,31 @@ void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObje
 	delete[] bfr;
 }
 
+bool luaConv(const LuaObject& src, ATransformable& dst){
+	// TODO fix this
+	math::Transform tf;
+
+	if(luaConv(src, tf)){
+		glm::mat4 mat;
+		tf.getMatrix(mat);
+
+		dst.setTransformMatrix(mat);
+	}
+	else{
+		return false;
+	}
+}
+
+bool luaConv(const ATransformable& src, LuaObject& dst){
+	// TODO fix this
+	glm::mat4 mat;
+	src.getTransformMatrix(mat);
+
+	math::Transform tf(mat);
+
+	return luaConv(tf, dst);
+}
+
 }; // </Lua
 
 }; // </wt>

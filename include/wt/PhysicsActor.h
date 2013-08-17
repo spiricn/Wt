@@ -45,7 +45,7 @@ public:
 	struct Desc{
 		ActorType type;
 		GeometryType geometryType;
-		math::Transform pose;
+		glm::mat4 pose;
 		uint32_t group;
 		uint32_t collisionMask;
 		ControlMode controlMode;

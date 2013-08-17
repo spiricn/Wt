@@ -21,6 +21,10 @@ uint32_t Terrain::getNumRows() const{
 	return mNumXVertices;
 }
 
+ATransformable* Terrain::getTransformable(){
+	return &mTransform;
+}
+
 uint32_t Terrain::getNumCols() const{
 	return mNumZVertices;
 }

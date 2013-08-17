@@ -18,8 +18,12 @@ ParticleEffect::~ParticleEffect(){
 	mLayers.clear();
 }
 
+ATransformable* ParticleEffect::getTransformable(){
+	return &mTransform;
+}
+
 LuaObject ParticleEffect::lua_getTransform(){
-	return getLuaState()->box(getTransform());
+	return getLuaState()->box( mTransform );
 }
 
 void ParticleEffect::generateMetaTable(){

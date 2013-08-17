@@ -33,16 +33,16 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 
 void ActorEditTool::onScaleChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getTransform().setScale(
+		mSelectedActor->getTransformable()->setScale(
 			ui.transform->getScale()
-			);
+		);
 	}
 }
 
 
 void ActorEditTool::onTranslationChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getTransform().setPosition(
+		mSelectedActor->getTransformable()->setTranslation(
 			ui.transform->getTranslation()
 		);
 	}
@@ -50,9 +50,9 @@ void ActorEditTool::onTranslationChanged(){
 
 void ActorEditTool::onRotationChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getTransform().setRotation(
+		mSelectedActor->getTransformable()->setRotation(
 			ui.transform->getRotation()
-			);
+		);
 	}
 }
 
@@ -95,21 +95,20 @@ void ActorEditTool::updateSelectionStats(){
 	}
 
 	// Transform
-	glm::vec4 rot;
-	mSelectedActor->getTransform().getRotation(rot);
+	glm::vec3 rotAxis;
+	float rotAngle;
+	glm::vec3 pos;
+	glm::vec3 scale;
 
-	ui.transform->setRotation(rot.swizzle(glm::X, glm::Y, glm::Z), rot.w);
+	mSelectedActor->getTransformable()->getRotation(rotAxis, rotAngle);
+	mSelectedActor->getTransformable()->getTranslation(pos);
+	mSelectedActor->getTransformable()->getScale(scale);
 
-	ui.transform->setTranslation( mSelectedActor->getTransform().getPosition() );
+	ui.transform->setRotation(rotAxis, rotAngle);
 
-	ui.transform->setScale( mSelectedActor->getTransform().getScale() );	
+	ui.transform->setTranslation( pos );
 
-#if 0
-	ui.boundingBoxView->setValue(
-		glm::vec3(mSelectedActor->getBounds().getDimensions().x,
-		mSelectedActor->getBounds().getDimensions().y,
-		mSelectedActor->getBounds().getDimensions().z));
-#endif
+	ui.transform->setScale( scale );	
 }
 
 void ActorEditTool::onMouseDrag(MouseDragEvent evt){
@@ -133,48 +132,52 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 
 			if(wt::AGameInput::isKeyDown('X')){
 				if(shiftDown){
-					mSelectedActor->getTransform().rotate(
-						1.0, 0.0, 0.0, evt.dx * smoothFactor
-						);
+					mSelectedActor->getTransformable()->rotate(
+						glm::vec3(1.0, 0.0, 0.0), evt.dx * smoothFactor
+					);
+
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getTransform().translate(
+					mSelectedActor->getTransformable()->translate(
 						glm::vec3(1.0, 0.0, 0.0) * evt.dx * smoothFactor
-						);
+					);
+
 					statsChanged  = true;
 				}
 			}
 			else if(wt::AGameInput::isKeyDown('F')){
-				glm::vec3 scale = mSelectedActor->getTransform().getScale();
-				scale += glm::vec3(1, 1, 1) * evt.dy * 0.01f;
-				mSelectedActor->getTransform().setScale(scale);
+				mSelectedActor->getTransformable()->scale( glm::vec3(1, 1, 1) * evt.dy * 0.01f );
 			}
 			else if(wt::AGameInput::isKeyDown('Y')){
 				if(shiftDown){
-					mSelectedActor->getTransform().rotate(
-						0.0, 1.0, 0.0, evt.dx * smoothFactor
-						);
+					mSelectedActor->getTransformable()->rotate(
+						glm::vec3(0.0, 1.0, 0.0), evt.dx * smoothFactor
+					);
+
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getTransform().translate(
+					mSelectedActor->getTransformable()->translate(
 						glm::vec3(0.0, 1.0, 0.0) * evt.dy * smoothFactor
-						);
+					);
+
 					statsChanged  = true;
 				}
 			}
 			else if(wt::AGameInput::isKeyDown('Z')){
 				if(shiftDown){
-					mSelectedActor->getTransform().rotate(
-						0.0, 0.0, 1.0, evt.dx * smoothFactor
-						);
+					mSelectedActor->getTransformable()->rotate(
+						glm::vec3(0.0, 0.0, 1.0), evt.dx * smoothFactor
+					);
+
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getTransform().translate(
+					mSelectedActor->getTransformable()->translate(
 						glm::vec3(0.0, 0.0, 1.0) * evt.dy * smoothFactor
-						);
+					);
+
 					statsChanged  = true;
 				}
 			}
@@ -186,7 +189,7 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 						// TODO handle this better 
 						if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){
 							// condition checks if the hit actor isn't the selected actor (prevents the user from moving the actor to a point that's on itself)
-							mSelectedActor->getTransform().setPosition(
+							mSelectedActor->getTransformable()->setTranslation(
 								res.mImpact);
 							statsChanged  = true;
 						}
@@ -249,14 +252,17 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 
 	wt::Scene& scene = *mScene;
 
-	glm::vec3 dir = glm::normalize(actor->getTransform().getPosition() - mScene->getCamera().getPosition());
-	float distance = glm::length(actor->getTransform().getPosition() - mScene->getCamera().getPosition());
+	glm::vec3 pos;
+	mSelectedActor->getTransformable()->getTranslation(pos);
+
+	glm::vec3 dir = glm::normalize(pos - mScene->getCamera().getPosition());
+	float distance = glm::length(pos - mScene->getCamera().getPosition());
 	const float d=50.0f;
 	if(distance > d){
 		mScene->getCamera().setPosition(
-			actor->getTransform().getPosition() - dir*d);
+			pos - dir*d);
 	}
-	mScene->getCamera().lookAt(actor->getTransform().getPosition());
+	mScene->getCamera().lookAt(pos);
 
 	// We don't want this to emit a signal
 	ui.comboBoxAnimation->blockSignals(true);
@@ -316,7 +322,7 @@ void ActorEditTool::onNewActor(){
 			// Create physics actor
 			if(res.modelledActor.physicsDesc.geometryType != wt::PhysicsActor::eGEO_TYPE_NONE){
 				// Initial transform
-				res.modelledActor.physicsDesc.pose.setPosition( actor->getTransform().getPosition() );
+				actor->getTransformable()->getTransformMatrix(res.modelledActor.physicsDesc.pose);
 				try{
 					mPhysics->createActor(actor, res.modelledActor.physicsDesc);
 				}catch(wt::Exception& e){
@@ -338,7 +344,7 @@ void ActorEditTool::onNewActor(){
 		}
 
 		if(sceneActor){
-			sceneActor->getTransform().setPosition(
+			mSelectedActor->getTransformable()->setTranslation(
 				mScene->getCamera().getPosition() + mScene->getCamera().getForwardVec()*10.0f);
 
 			mPhysics->createBBox(sceneActor);

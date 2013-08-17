@@ -120,9 +120,9 @@ private:
 
 	TimeAccumulator mTimeAccumulator;
 
-    static void convertTransform(const PxTransform& src, math::Transform& dst);
+    static void convertTransform(const PxTransform& src, ATransformable& dst);
 
-	static void convertTransform(const math::Transform& src, PxTransform& dst);
+	static void convertTransform(const ATransformable& src, PxTransform& dst);
 
 	Sp<PxGeometry> createGeometry(const PhysicsActor::Desc& desc);
 

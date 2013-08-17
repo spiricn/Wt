@@ -230,8 +230,10 @@ void WorldEditTab::onGrabInputChecked(int state){
 void WorldEditTab::onRotSliderMoved(int d){
 	if(mSelectedActor){
 		float factor = d/100.0f;
-		mSelectedActor->getTransform().setRotation(
-			0, 1, 0, factor*360.0f);
+		mSelectedActor->getTransformable()->setRotation(
+			glm::vec3(0, 1, 0), factor*360.0f
+		);
+
 		ui.sceneView->update();
 	}
 }

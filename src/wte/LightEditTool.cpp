@@ -24,68 +24,69 @@ LightEditTool::LightEditTool(SceneView* scene, QWidget* parent) : QDialog(parent
 }
 
 void LightEditTool::onColorChanged(){
-	wt::DirectionalLight light;
-	mScene->getDirectionalLight(light);
-	
-	light.color = ui.color->getColor();
+	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
 
-	mScene->setDirectionalLight(light);
+	desc.color = ui.color->getColor();
+
+	mScene->setDirectionalLightDesc(desc);
 }
 
 void LightEditTool::onSetDirection(){
-	wt::DirectionalLight light;
-	mScene->getDirectionalLight(light);
+	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
 	
-	light.direction = mScene->getCamera().getForwardVec();
+	desc.direction = mScene->getCamera().getForwardVec();
 
-	mScene->setDirectionalLight(light);
-	
+	mScene->setDirectionalLightDesc(desc);
 }
 
 void LightEditTool::onAssetsLoaded(){
-	wt::DirectionalLight light;
-	mScene->getDirectionalLight(light);
+	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
 
-	ui.ambientIntensitySlider->setValue( (light.ambientIntensity/2.0f) * 100);
+	ui.ambientIntensitySlider->setValue( (desc.ambientIntensity/2.0f) * 100);
 
-	ui.diffuseItensitySlider->setValue( (light.diffuseIntensity/2.0f) * 100);
+	ui.diffuseItensitySlider->setValue( (desc.diffuseIntensity/2.0f) * 100);
+
+	ui.color->setColor( desc.color );
 }
 
 void LightEditTool::onColorClicked(){
-	wt::DirectionalLight l;
-	mScene->getDirectionalLight(l);
+	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
 
 	QColorDialog dlg(QColor(
-		l.color.blue*255.0f,
-		l.color.green*255.0f,
-		l.color.blue*255.0f
+		desc.color.blue*255.0f,
+		desc.color.green*255.0f,
+		desc.color.blue*255.0f
 		), this);
 
 	dlg.exec();
 
 	QColor clr = dlg.selectedColor();
-	l.color = wt::Color(
+	desc.color = wt::Color(
 		clr.red()/255.0f, 
 		clr.green()/255.0f, 
 		clr.blue()/255.0f);
+
+	mScene->setDirectionalLightDesc(desc);
 
 	mSceneView->update();
 }
 
 void LightEditTool::onDiffuseIntensityChanged(int val){
-	wt::DirectionalLight l;
-	mScene->getDirectionalLight(l);
+	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
 
-	l.diffuseIntensity = (val/100.0f) * 2;
-	mScene->setDirectionalLight(l);
+	desc.diffuseIntensity = (val/100.0f) * 2;
+
+	mScene->setDirectionalLightDesc(desc);
 
 	mSceneView->update();
 }
 
 void LightEditTool::onAmbientIntensityChanged(int val){	
-	wt::DirectionalLight l;
-	mScene->getDirectionalLight(l);
-	l.ambientIntensity = (val/100.0f) * 2;
-	mScene->setDirectionalLight(l);
+	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
+
+	desc.ambientIntensity = (val/100.0f) * 2;
+
+	mScene->setDirectionalLightDesc(desc);
+
 	mSceneView->update();
 }

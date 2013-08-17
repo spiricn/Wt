@@ -35,10 +35,10 @@ private:
 
 	ParticleEditDialog* mParticleEditDialog;
 
-	void selectActor(wt::ASceneActor* actor);
-	
 	wt::ASceneActor* mSelectedActor;
 
+	void selectActor(wt::ASceneActor* actor);
+	
 	void updateSelectionStats();
 
 	bool mSelectingActor;

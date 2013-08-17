@@ -4,6 +4,7 @@
 
 #include "wt/stdafx.h"
 
+#include "wt/ATransformable.h"
 #include "wt/math.h"
 #include "wt/lua/Object.h"
 
@@ -11,7 +12,7 @@ namespace wt{
 
 namespace math{
 
-class Transform : public lua::Object<Transform>{
+class Transform : public lua::Object<Transform>, public ATransformable{
 public:
 	Transform(const glm::mat4&);
 
@@ -55,10 +56,6 @@ public:
 
 	void setPitch(float deg);
 
-	float getYaw() const;
-
-	void getPitch() const;
-
 	glm::vec3 getForwardVec() const;
 
 	void getFacing(glm::vec3& forward, glm::vec3& up) const;
@@ -80,6 +77,15 @@ public:
 	void preConcat(const Transform& other);
 
 	void generateMetaTable();
+
+	// Transformable interface
+	void setTranslation(const glm::vec3& translation);
+
+	void getScale(glm::vec3& result) const;
+
+	void getTranslation(glm::vec3& result) const;
+
+	void getRotation(glm::quat& result) const;
 
 private:
 	glm::vec3 mPosition, mScale;

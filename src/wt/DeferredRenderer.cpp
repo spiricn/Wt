@@ -136,6 +136,27 @@ void DeferredRender::uploadPointLight(const ShaderPointLight& light){
 	shader.setUniformValFmt(light.light->getDesc().attenuation.quadratic, "uPointLights[%d].attenuation.exponential", light.index);
 }
 
+
+void DeferredRender::uploadDirectionalLight(const DirectionalLight* light){
+	gl::ShaderProgram& shader = mLightShaders[eLIGHT_SHADER_DIRECTIONAL];
+
+	shader.use();
+
+	shader.setUniformVal("uDirectionalLight.ambientItensity",
+		light->getDesc().ambientIntensity);
+
+	shader.setUniformVal("uDirectionalLight.color",
+		light->getDesc().color);
+
+	shader.setUniformVal("uDirectionalLight.diffuseItensity",
+		light->getDesc().diffuseIntensity);
+
+	shader.setUniformVal("uDirectionalLight.direction",
+		light->getDesc().direction);
+}
+
+
+
 DeferredRender::ShaderPointLight* DeferredRender::findShaderPointLight(const PointLight* light){
 	for(int i=0; i<10; i++){
 		if(mShaderPointLights[i].active && mShaderPointLights[i].light == light){
@@ -175,8 +196,8 @@ void DeferredRender::onLightEvent(const SceneLightUpdated* evt){
 
 			uploadPointLight(*shaderLight);
 		}
-		else{
-			// TODO
+		else if(aLight->getType() == ALight::eTYPE_DIRECTIONAL){
+			uploadDirectionalLight((const DirectionalLight*)evt->light);
 		}
 	}
 	else if(evt->type == SceneLightUpdated::eTYPE_CREATED){
@@ -192,6 +213,9 @@ void DeferredRender::onLightEvent(const SceneLightUpdated* evt){
 					break;
 				}
 			}
+		}
+		else if(aLight->getType() == ALight::eTYPE_DIRECTIONAL){
+			uploadDirectionalLight((const DirectionalLight*)evt->light);
 		}
 		else{
 			// TODO

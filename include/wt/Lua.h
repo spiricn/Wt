@@ -8,6 +8,7 @@
 #include "wt/Transform.h"
 #include "wt/AIOStream.h"
 #include "wt/Utils.h"
+#include "wt/ATransformable.h"
 
 namespace wt{
 
@@ -64,6 +65,11 @@ void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObje
 bool luaConv(const math::Transform& src, LuaObject& dst);
 
 bool luaConv(const LuaObject& src, math::Transform& dst);
+
+// ATransformable
+bool luaConv(const LuaObject& src, ATransformable& dst);
+
+bool luaConv(const ATransformable& src, LuaObject& dst);
 
 }; // </Lua
 

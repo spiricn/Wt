@@ -29,12 +29,8 @@ void Transform::rotate(float x, float y, float z, float dAngle){
 	mRotation = mRotation * glm::angleAxis(dAngle, x, y, z);
 }
 
-
-float Transform::getYaw() const{
-	return 0.0f;
-}
-
-void Transform::getPitch() const{
+void Transform::setTranslation(const glm::vec3& translation){
+	setPosition(translation);
 }
 
 void Transform::setFacing(const glm::vec3& fw, const glm::vec3& up){
@@ -212,6 +208,18 @@ void Transform::preConcat(const Transform& other){
 	mDirty = true;
 
 	*this = other * *this;
+}
+
+void Transform::getScale(glm::vec3& result) const{
+	result = mScale;
+}
+
+void Transform::getTranslation(glm::vec3& result) const{
+	result = mPosition;
+}
+
+void Transform::getRotation(glm::quat& result) const{
+	result = mRotation;
 }
 
 Transform operator*(const Transform& a, const Transform& b){
