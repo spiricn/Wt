@@ -283,13 +283,13 @@ void ADemo::update(float dt){
 		sprintf(bfr, "%.2f fps", fps);
 		
 		if(fps >= 60.0f){
-			mFpsTextView->setTextColor(Color::green());
+			mFpsTextView->setTextColor(Color::Green());
 		}
 		else if(fps < 60.0f && fps >= 30.0f){
-			mFpsTextView->setTextColor(Color::yellow());
+			mFpsTextView->setTextColor(Color::Yellow());
 		}
 		else{
-			mFpsTextView->setTextColor(Color::red());
+			mFpsTextView->setTextColor(Color::Red());
 		}
 
 		mFpsTextView->setText(bfr);
@@ -419,7 +419,6 @@ void ADemo::onRender(float dt){
 	if(mShowGrid){
 		glm::mat4 mv;
 		getScene()->getCamera().getMatrix(mv);
-		utils::renderGrid(mv, getRenderer()->getFrustum().getProjMatrix());
 	}
 }
 

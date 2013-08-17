@@ -22,7 +22,7 @@ public:
 		getRenderer()->render( *getScene() );
 
 		mSkyDome.render(
-			getScene()->getCamera(), getRenderer()->getFrustum());
+			getScene()->getCamera(), getScene()->getCamera().getFrustum());
 	}
 
 	String getConfigFile() const{
@@ -67,28 +67,28 @@ public:
 		getCameraControl()->handle(dt, getManager()->getInput());
 
 		
-		{
-			// Directional light
-			glm::vec3 sunPos = mSkyDome.getSunPos();
-			DirectionalLight light;
-			getScene()->getDirectionalLight(light);
-		
-			mSkyDome.getLightIntensity(&light.mAmbientIntesity, &light.mDiffuseItensity);
+		//{
+		//	// Directional light
+		//	glm::vec3 sunPos = mSkyDome.getSunPos();
+		//	DirectionalLight::Desc light;
+		//	getScene()->getDirectionalLight();
+		//
+		//	mSkyDome.getLightIntensity(&light.ambientIntensity, &light.diffuseIntensity);
 
-			light.mDirection = glm::normalize( -sunPos );
+		//	light.direction = glm::normalize( -sunPos );
 
-			getScene()->setDirectionalLight(light);
-		}
+		//	getScene()->setDirectionalLight(light);
+		//}
 
-		{
-			// Point light
-			PointLight light;
-			getScene()->getPointLight(0, light);
+		//{
+		//	// Point light
+		//	PointLight light;
+		//	getScene()->getPointLight(0, light);
 
-			light.mPosition = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
+		//	light.position = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
 
-			getScene()->setPointLight(0, light);
-		}
+		//	getScene()->setPointLight(0, light);
+		//}
 
 
 		ADemo::onUpdate(dt);
@@ -104,7 +104,7 @@ public:
 	}
 
 	void onStart(const LuaObject& config){
-		getRenderer()->setClearColor( Color::black() );
+		getRenderer()->setClearColor( Color::Black() );
 
 		mSkyDome.create(
 			getAssets()->getModelManager()->getFromPath("$ROOT/geodome")->findGeometryByName("GEOMETRY_1"), // dome geometry
@@ -116,17 +116,17 @@ public:
 		getScene()->setSkyBox(NULL);
 
 
-		PointLight light;
-		light.mActive = true;
-		light.mColor = Color(0.1, 0.1, .3);
-		light.mDiffuseItensity = 0.5;
-		light.mAmbientIntesity = 0.5;
+		PointLight::Desc desc;
+		desc.enabled = true;
+		desc.color= Color(0.1, 0.1, .3);
+		desc.diffuseIntensity = 0.5;
+		desc.ambientIntensity = 0.5;
 
-		light.mAttenuation.constant = 0;
-		light.mAttenuation.linear = 0.1;
-		light.mAttenuation.exponential = 0.0;
+		desc.attenuation.constant = 0;
+		desc.attenuation.linear = 0.1;
+		desc.attenuation.quadratic = 0.0;
 
-		getScene()->addPointLight(light);
+		getScene()->createPointLight(desc);
 
 	}
 

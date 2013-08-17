@@ -8,7 +8,10 @@ namespace wt{
 
 class Color : public lua::ASerializable{
 public:
-	float mRed, mGreen, mBlue, mAlpha;
+	float red;
+	float green;
+	float blue;
+	float alpha;
 
 	Color(float r=0.0f, float g=0.0f, float b=0.0f, float a=1.0f);
 
@@ -20,7 +23,7 @@ public:
 
 	static Color fromHSV(float h, float s, float v);
 
-	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const;
 
 	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
@@ -30,23 +33,23 @@ public:
 
 	static Color transparent();
 
-	static Color cyan();
+	static Color Cyan();
 
-	static Color magenta();
+	static Color Magenta();
 
-	static Color yellow();
+	static Color Yellow();
 
-	static Color red();
+	static Color Red();
 
-	static Color green();
+	static Color Green();
 
-	static Color white();
+	static Color White();
 
-	static Color black();
+	static Color Black();
 
-	static Color gray();
+	static Color Gray();
 
-	static Color blue();
+	static Color Blue();
 
 	float* getDataPtr();
 

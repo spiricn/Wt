@@ -122,12 +122,12 @@ public:
 
 	void onTargetLost(){
 		Gui::RectView* v = getUi().findView<Gui::RectView>("target");
-		v->setBackgroundColor(Color::blue());
+		v->setBackgroundColor(Color::Blue());
 	}
 
 	void onTargetAcquired(){
 		Gui::RectView* v = getUi().findView<Gui::RectView>("target");
-		v->setBackgroundColor(Color::red());
+		v->setBackgroundColor(Color::Red());
 	}
 	
 	String getConfigFile() const{

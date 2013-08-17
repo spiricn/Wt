@@ -107,7 +107,7 @@ void ModelRenderer::create(){
 #endif
 	// Create a default (invalid) texture 
 	Buffer<unsigned char> bfr;
-	utils::makeCheckboard(bfr, 100, 100, 5, 5, Color(246/255.0, 2/255.0, 134/255.0), Color::black());
+	utils::makeCheckboard(bfr, 100, 100, 5, 5, Color(246/255.0, 2/255.0, 134/255.0), Color::Black());
 	mInvalidTexture.create();
 	mInvalidTexture.setData(100, 100, GL_RGB, GL_RGB, (const GLbyte*)bfr.getData());
 

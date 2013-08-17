@@ -8,6 +8,7 @@ uniform sampler2D uPositionMap;
 uniform sampler2D uColorMap;
 uniform sampler2D uNormalMap;
 uniform vec2 uScreenSize;
+uniform int uPointLightIndex;
 
 void main(){
 	//Convert a fragment position to normalized screen space
@@ -21,11 +22,7 @@ void main(){
 	vec3 color = texture(uColorMap, coord).xyz;
 	vec3 normal = normalize(texture(uNormalMap, coord).xyz);
 
-	vec4 lightColor = vec4(0.0, 0.0, 0.0, 0.0);
-
-	for(int i=0; i<uNumPointLights; i++){
-		lightColor += calculatePointLight(uPointLights[i], normal, worldPos);
-	}
+	vec4 lightColor = calculatePointLight(uPointLights[uPointLightIndex], normal, worldPos);
 
 	outFragColor = vec4(color * lightColor.xyz, 1.0)
 	//+ vec4(1, 1, 1, 1)

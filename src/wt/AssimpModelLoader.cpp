@@ -270,9 +270,9 @@ void AssimpModelLoader::aiConvert(const aiMatrix4x4& src, math::Transform& dst){
 }
 
 void AssimpModelLoader::aiConvert(const aiColor3D& src, Color& dst){
-	dst.mRed = src.r;
-	dst.mGreen = src.g;
-	dst.mBlue = src.b;
+	dst.red = src.r;
+	dst.green = src.g;
+	dst.blue = src.b;
 }
 
 void AssimpModelLoader::aiConvert(const aiMaterial& src, Material& dst){

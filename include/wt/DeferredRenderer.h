@@ -5,6 +5,7 @@
 #include "wt/GLShaderProgram.h"
 #include "wt/GLBatch.h"
 
+
 namespace wt
 {
 
@@ -13,6 +14,9 @@ namespace math
 	class Camera;
 }
 
+class SceneLightUpdated;
+class SceneLightDeleted;
+class PointLight;
 class Scene;
 
 class DeferredRender{
@@ -52,9 +56,9 @@ public:
 
 	void bindForStencilPass();
 
-	void stencilPass(Scene* scene, math::Camera* camera, uint32_t pointLightIndex);
+	void stencilPass(Scene* scene, math::Camera* camera, const PointLight* light);
 
-	void pointLightPass(Scene* scene, math::Camera* camera, uint32_t pointLightIndex);
+	void pointLightPass(Scene* scene, math::Camera* camera, const PointLight* light);
 
 	void startFrame();
 
@@ -62,8 +66,14 @@ public:
 
 	gl::FrameBuffer* getFrameBuffer();
 
-
 	gl::Batch mSphereBatch;
+
+	void onLightEvent(const SceneLightUpdated* evt);
+
+	void onLightEvent(const SceneLightDeleted* evt);
+	
+	void doLightPass(Scene* scene, math::Camera* camera);
+
 private:
 	Texture2D mTextures[eGTEX_MAX];
 	Texture2D mDepthTexture;
@@ -77,6 +87,23 @@ private:
 
 	gl::Batch mQuadBatch;
 	
+	struct ShaderPointLight{
+		const PointLight* light;
+		uint32_t index;
+		bool active;
+
+		ShaderPointLight() : light(NULL), index(0), active(false){
+		}
+	}; // </ShaderPointLight>
+
+
+	// TODO size hard coded
+	ShaderPointLight mShaderPointLights[10];
+
+	ShaderPointLight* findShaderPointLight(const PointLight* light);
+
+	void uploadPointLight(const ShaderPointLight& light);
+
 
 }; // </DeferredRender>
 

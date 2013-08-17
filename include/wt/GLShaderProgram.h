@@ -61,6 +61,13 @@ public:
 
 	void createUniformBlockBindPoint(const String& blockName, uint32_t point);
 
+	template<typename T>
+	void setUniformValFmt(const T& val, const char* nameFmt, ...);
+
+	GLint getUniformLocationFmt(const String& nameFmt, ...);
+
+	GLint getUniformLocationVFmt(const String& nameFmt, va_list);
+
 	// int
 	void setUniformVal(const String& name, int i);
 
@@ -110,23 +117,6 @@ public:
 
 	GLuint getProgramHandle() const;
 
-
-#if 0
-	// TODO find a way to remove the ambiguity
-	template<typename T>
-	void setUniformVal(const T& val, const String& nameFmt, ...){
-		va_list args;
-		va_start(args, nameFmt);
-
-		char name[256];
-		vsnprintf(name, 256, nameFmt.c_str(), args);
-
-		setUniformVal(name, val);
-
-		va_end(args);
-	}
-#endif
-
 	void link();
 
 	void use();
@@ -152,7 +142,23 @@ public:
 	}
 
 };
-}; // </GL>
+
+template<typename T>
+void ShaderProgram::setUniformValFmt(const T& val, const char* nameFmt, ...){
+	va_list args;
+	va_start(args, nameFmt);
+
+	char bfr[512] = {0};
+	vsnprintf(bfr, 512, nameFmt, args);
+
+	GLint loc = getUniformLocation(bfr);
+
+	va_end(args);
+
+	setUniformVal(loc, val);
+}
+
+}; // </gl>
 
 
 }; // </wt>

@@ -244,7 +244,7 @@ void TerrainEditTool::editAt(float x, float y){
 	bool paintMode = ui.tabWidget->currentIndex() == 1;
 
 	
-	if(mPhysics->pick(mScene->getCamera(), mSceneView->getRenderer()->getFrustum(),
+	if(mPhysics->pick(mScene->getCamera(),
 		glm::vec2(x, y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
 
 			if(paintMode){

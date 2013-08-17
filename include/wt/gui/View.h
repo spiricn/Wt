@@ -59,7 +59,7 @@ public:
 		Color color;
 		Texture2D* texture;
 
-		ViewBackground() : color(Color::white()), texture(NULL){
+		ViewBackground() : color(Color::White()), texture(NULL){
 		}
 
 	}; // </ViewBackground>

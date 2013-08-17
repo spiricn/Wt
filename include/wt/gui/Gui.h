@@ -318,7 +318,7 @@ public:
 
 			mCanvas.drawTexture(&i->second->getTexture(), 
 				0, 0,
-				i->second->getSize().x, i->second->getSize().y, Color::white());
+				i->second->getSize().x, i->second->getSize().y, Color::White());
 		}
 
 		mNeedsRescale = false;

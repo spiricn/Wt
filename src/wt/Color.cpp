@@ -13,16 +13,16 @@ Color::Color(float r, float g, float b, float a){
 }
 
 void Color::set(float r, float g, float b, float a){
-	mRed=r;
-	mGreen=g;
-	mBlue=b;
-	mAlpha=a;
+	red=r;
+	green=g;
+	blue=b;
+	alpha=a;
 }
 
-Color::Color(const glm::vec3& clr) : mRed(clr.r), mGreen(clr.g), mBlue(clr.b), mAlpha(1.0f){
+Color::Color(const glm::vec3& clr) : red(clr.r), green(clr.g), blue(clr.b), alpha(1.0f){
 }
 
-Color::Color(const glm::vec4& clr)  : mRed(clr.r), mGreen(clr.g), mBlue(clr.b), mAlpha(clr.a){
+Color::Color(const glm::vec4& clr)  : red(clr.r), green(clr.g), blue(clr.b), alpha(clr.a){
 }
 
 Color Color::transparent(){
@@ -32,7 +32,7 @@ Color Color::transparent(){
 
 String Color::hex() const{
 	char bfr[9];
-	sprintf(bfr, "%02x%02x%02x%02x", (uint8_t)(mRed*255), (uint8_t)(mGreen*255), (uint8_t)(mBlue*255), (uint8_t)(mAlpha*255));
+	sprintf(bfr, "%02x%02x%02x%02x", (uint8_t)(red*255), (uint8_t)(green*255), (uint8_t)(blue*255), (uint8_t)(alpha*255));
 
 	return bfr;
 }
@@ -62,18 +62,18 @@ Color Color::fromHSV(float h, float s, float v){
 		color = Color(0.0, 0.0, 0.0, a);
 	}
 
-	color.mRed += v - c;
-	color.mGreen += v - c;
-	color.mBlue += v - c;
+	color.red += v - c;
+	color.green += v - c;
+	color.blue += v - c;
 
 	return color;
 }
 
-void Color::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
-	dst.SetNumber("r", mRed);
-	dst.SetNumber("g", mGreen);
-	dst.SetNumber("b", mBlue);
-	dst.SetNumber("a", mAlpha);
+void Color::serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const{
+	dst.SetNumber("r", red);
+	dst.SetNumber("g", green);
+	dst.SetNumber("b", blue);
+	dst.SetNumber("a", alpha);
 }
 
 void Color::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
@@ -85,21 +85,21 @@ void Color::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
 		src.Get("a").IsNumber(), "Invalid color table");
 	#endif
 
-	mRed = src.Get("r").ToNumber();
-	mGreen = src.Get("g").ToNumber();
-	mBlue = src.Get("b").ToNumber();
-	mAlpha = src.Get("a").ToNumber();
+	red = src.Get("r").ToNumber();
+	green = src.Get("g").ToNumber();
+	blue = src.Get("b").ToNumber();
+	alpha = src.Get("a").ToNumber();
 }
 
 float* Color::getDataPtr(){
-	return &mRed;
+	return &red;
 }
 
 const float* Color::getDataPtr() const{
-	return &mRed;
+	return &red;
 }
 
-Color Color::cyan(){
+Color Color::Cyan(){
 	return Color(0.0, 1.0, 1.0);
 }
 
@@ -107,48 +107,48 @@ Color Color::random(){
 	return Color(math::random(),  math::random(),  math::random());
 }
 
-Color Color::magenta(){
+Color Color::Magenta(){
 	return Color(1.0, 0.0, 1.0);
 }
 
-Color Color::yellow(){
+Color Color::Yellow(){
 	return Color(1.0, 1.0, 0.0);
 }
 
-Color Color::red(){
+Color Color::Red(){
 	return Color(1.0f);
 }
 
-Color Color::green(){
+Color Color::Green(){
 	return Color(0.0f, 1.0f);
 }
 
-Color Color::white(){
+Color Color::White(){
 	return Color(1.0f, 1.0f, 1.0f);
 }
 
-Color Color::black(){
+Color Color::Black(){
 	return Color();
 }
 
-Color Color::gray(){
+Color Color::Gray(){
 	return Color(0.5f, 0.5f, 0.5f);
 }
 
-Color Color::blue(){
+Color Color::Blue(){
 	return Color(0.0f, 0.0f, 1.0f);
 }
 
 glm::vec3 Color::asVec3() const{
-	return glm::vec3(mRed, mGreen, mBlue);
+	return glm::vec3(red, green, blue);
 }
 
 glm::vec4 Color::asVec4() const{
-	return glm::vec4(mRed, mGreen, mBlue, mAlpha);
+	return glm::vec4(red, green, blue, alpha);
 }
 
 bool operator==(const Color& a, const Color& b){
-	return a.mRed == b.mRed && a.mGreen == b.mGreen && a.mBlue == b.mBlue && a.mAlpha == b.mAlpha;
+	return a.red == b.red && a.green == b.green && a.blue == b.blue && a.alpha == b.alpha;
 }
 
 bool operator!=(const Color& a, const Color& b){

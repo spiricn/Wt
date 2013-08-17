@@ -100,26 +100,26 @@ public:
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		// Move spotlight to the camera
-		SpotLight l;
-		getScene()->getSpotLight(0, l);
-		l.mPosition = getScene()->getCamera().getPosition();
-		l.direction = getScene()->getCamera().getForwardVec();
-		getScene()->setSpotLight(0, l);
+		//// Move spotlight to the camera
+		//SpotLight l;
+		//getScene()->getSpotLight(0, l);
+		//l.position = getScene()->getCamera().getPosition();
+		//l.direction = getScene()->getCamera().getForwardVec();
+		//getScene()->setSpotLight(0, l);
 
 	
-		// Update orbs
-		for(Uint32 i=0; i<mOrbs.size(); i++){
-			mOrbs[i]->update(dt);
+		//// Update orbs
+		//for(Uint32 i=0; i<mOrbs.size(); i++){
+		//	mOrbs[i]->update(dt);
 
-			PointLight light;
-			getScene()->getPointLight(i, light);
+		//	PointLight light;
+		//	getScene()->getPointLight(i, light);
 
-			light.mColor = mOrbs[i]->getColor();
-			light.mPosition = mOrbs[i]->getPosition();
+		//	light.color = mOrbs[i]->getColor();
+		//	light.position = mOrbs[i]->getPosition();
 
-			getScene()->setPointLight(i, light);
-		}
+		//	getScene()->setPointLight(i, light);
+		//}
 	
 		// Handle camera movement
 		if(mFollowing == -1){
@@ -135,13 +135,13 @@ public:
 		ADemo::onKeyDown(c);
 
 		if(c == KEY_f){
-			// Toggle flashlight
-			SpotLight light;
-			getScene()->getSpotLight(0, light);
-			
-			light.mActive = light.mActive;
+			//// Toggle flashlight
+			//SpotLight light;
+			//getScene()->getSpotLight(0, light);
+			//
+			//light.enabled = !light.enabled;
 
-			getScene()->setSpotLight(0, light);
+			//getScene()->setSpotLight(0, light);
 		}
 		else if(c == KEY_r){
 			mFollowing++;
@@ -181,50 +181,50 @@ public:
 				);
 			mOrbs.push_back(orb);
 			
-			// Setup corresponding point light
-			PointLight l;
-			l.mActive = true;
-			l.mPosition = glm::vec3(210, 10, 210);
+			//// Setup corresponding point light
+			//PointLight l;
+			//l.enabled = true;
+			//l.position = glm::vec3(210, 10, 210);
 
-			l.mColor =  Color::white();
-			l.mAmbientIntesity = 2;
-			l.mDiffuseItensity = 2;
+			//l.color =  Color::White();
+			//l.ambientIntensity = 2;
+			//l.diffuseIntensity = 2;
 
-			l.mAttenuation.constant = 0;
-			l.mAttenuation.linear = 0;
-			l.mAttenuation.exponential = 0.01;
-			getScene()->addPointLight(l);
+			//l.attenuation.constant = 0;
+			//l.attenuation.linear = 0;
+			//l.attenuation.quadratic = 0.01;
+			//getScene()->addPointLight(l);
 		}
 
 		// Setup spot light
-		SpotLight sl;
+		//SpotLight sl;
 
-		sl.cutoff = 30.0f;
-		sl.direction = glm::vec3(0, -1, 0);
-		sl.mActive = false;
-		sl.mPosition = glm::vec3(210, 10, 210);
+		//sl.cutoff = 30.0f;
+		//sl.direction = glm::vec3(0, -1, 0);
+		//sl.enabled = false;
+		//sl.position = glm::vec3(210, 10, 210);
 
-		sl.mColor =  Color::white();
-		sl.mAmbientIntesity = 2;
-		sl.mDiffuseItensity = 2;
+		//sl.color =  Color::White();
+		//sl.ambientIntensity = 2;
+		//sl.diffuseIntensity = 2;
 
-		sl.mAttenuation.constant = 0;
-		sl.mAttenuation.linear = 0;
-		sl.mAttenuation.exponential = 0.01;
+		//sl.attenuation.constant = 0;
+		//sl.attenuation.linear = 0;
+		//sl.attenuation.quadratic= 0.01;
 
-		getScene()->addSpotLight(sl);
+		//getScene()->addSpotLight(sl);
 
 
-		// Setup global lighting / fog
-		DirectionalLight light;
-		getScene()->getDirectionalLight(light);
-		
-		light.mAmbientIntesity = .1;
-		light.mDiffuseItensity = .1;
+		//// Setup global lighting / fog
+		//DirectionalLight light;
+		//getScene()->getDirectionalLight(light);
+		//
+		//light.ambientIntensity = .1;
+		//light.diffuseIntensity = .1;
 
-		getScene()->setDirectionalLight(light);
+		//getScene()->setDirectionalLight(light);
 
-		getScene()->getFog().color = Color::black();
+		getScene()->getFog().color = Color::Black();
 	}
 
 	String getConfigFile() const{

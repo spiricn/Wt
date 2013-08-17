@@ -13,7 +13,13 @@ uniform sampler2D uTextureSampler;
 void main(void) {
 	outWorldPos = fsWorldPos;
 
-	outDiffuse = texture(uTextureSampler, fsTexCoord).xyz;
+	vec4 sample = texture(uTextureSampler, fsTexCoord);
+	 
+	if(sample.a < 0.2){
+		discard;
+	}
+
+	outDiffuse = sample.rgb;
 
 	outNormal = normalize(fsNormal);
 }

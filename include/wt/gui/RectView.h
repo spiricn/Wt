@@ -42,7 +42,7 @@ private:
 
 public:
 
-	RectView() : mBorderEnabled(true), mBorderColor(Color::black()), mBorderWidth(1.0f){
+	RectView() : mBorderEnabled(true), mBorderColor(Color::Black()), mBorderWidth(1.0f){
 	}
 
 	void setDrawBorder(bool state){

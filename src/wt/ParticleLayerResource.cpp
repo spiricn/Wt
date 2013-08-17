@@ -39,7 +39,7 @@ ParticleLayerResource::LayerDesc::LayerDesc() :
 	simulateInWorldSpace(true),
 	texture(NULL){
 		colorAnimation[0] = Color(1, 1, 1, 0);
-		colorAnimation[1] = Color::white();
+		colorAnimation[1] = Color::White();
 		colorAnimation[2] = Color(1, 1, 1, 0.5);
 		colorAnimation[3] = Color(1, 1, 1, 0.1);
 }

@@ -34,8 +34,7 @@ public:
 	void onMouseDown(float x, float y, MouseButton btn){
 		RaycastHitEvent hit;
 
-		if(getScene()->getPhysics()->pick(getScene()->getCamera(),
-			getRenderer()->getFrustum(), glm::vec2(x, y),
+		if(getScene()->getPhysics()->pick(getScene()->getCamera(), glm::vec2(x, y),
 			glm::vec2(getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()), hit, 1)){
 
 				if(hit.mPickedActor->getType() != PhysicsActor::eDYNAMIC_ACTOR){

@@ -14,7 +14,7 @@ private:
 
 public:
 
-	CircleView() : mRadius(1.0f), mColor(Color::white()){
+	CircleView() : mRadius(1.0f), mColor(Color::White()){
 	}
 
 	void setColor(const Color& color){

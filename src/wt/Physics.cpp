@@ -573,7 +573,7 @@ bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastH
 	}
 }
 
-bool Physics::pick(math::Camera& camera, const math::Frustum& frustum, const glm::vec2& screenPos,
+bool Physics::pick(math::Camera& camera, const glm::vec2& screenPos,
 	const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups, PickFlag flags){
 
 	glm::mat4x4 modelView;
@@ -581,7 +581,7 @@ bool Physics::pick(math::Camera& camera, const math::Frustum& frustum, const glm
 
 	glm::vec3 point = math::unProject(screenPos.x, screenPos.y, screenSize.x,
 		screenSize.y, modelView,
-		frustum.getProjMatrix()
+		camera.getFrustum().getProjMatrix()
 		);
 
 	return pick(camera.getPosition(), glm::normalize(point-camera.getPosition()), res, groups, flags);

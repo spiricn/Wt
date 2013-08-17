@@ -81,7 +81,7 @@ public:
 		glm::vec2 pos = (getSize()/2.0f) - (mTextSize/2.0f);
 
 		c.drawText(getFont(),
-			mText, pos.x, pos.y, Color::black(), 1.0f);
+			mText, pos.x, pos.y, Color::Black(), 1.0f);
 	}
 }; // </Button>
 

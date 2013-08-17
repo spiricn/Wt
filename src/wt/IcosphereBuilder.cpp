@@ -140,8 +140,8 @@ uint32_t IcosphereBuilder::getMiddlePoint(uint32_t p1, uint32_t p2){
 
     int ret;
 
-	PointCacheMap::iterator iter = middlePointIndexCache.find(key);
-	if(iter != middlePointIndexCache.end()){
+	PointCacheMap::iterator iter = mMiddlePointIndexCache.find(key);
+	if(iter != mMiddlePointIndexCache.end()){
 		return iter->second;
 	}
 
@@ -158,7 +158,7 @@ uint32_t IcosphereBuilder::getMiddlePoint(uint32_t p1, uint32_t p2){
     uint32_t i = addVertex(middle); 
 
     // store it, return index
-    middlePointIndexCache.insert(
+    mMiddlePointIndexCache.insert(
 		std::make_pair(key, i)
 	);
 

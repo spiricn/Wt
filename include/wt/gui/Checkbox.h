@@ -49,7 +49,7 @@ protected:
 
 public:
 	Checkbox() : mChecked(false){
-		setBackgroundColor(Color::gray());
+		setBackgroundColor(Color::Gray());
 	}
 
 	Checkbox* setText(const String& text){
@@ -83,12 +83,12 @@ public:
 	void draw(Canvas& c){
 		View::draw(c);
 
-		c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/2, Color::white());
+		c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/2, Color::White());
 		if(mChecked){
-			c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/4, Color::black());
+			c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/4, Color::Black());
 		}
 
-		c.drawText(getFont(), mText, getSize().y, 0, Color::black());
+		c.drawText(getFont(), mText, getSize().y, 0, Color::Black());
 	}
 };
 

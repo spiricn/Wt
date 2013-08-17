@@ -25,7 +25,7 @@ public:
 		
 
 		// Main screen rendering
-		getRenderer()->setClearColor(Color::red());
+		getRenderer()->setClearColor(Color::Red());
 		//getRenderer()->render( *getScene() );
 		getRenderer()->render( *getScene(), &mRenderTarget);
 

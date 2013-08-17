@@ -137,20 +137,20 @@ bool luaConv(const Color& src, LuaObject& dst){
 		return false;
 	}
 	else{
-		dst.Set(1, src.mRed);
-		dst.Set(2, src.mGreen);
-		dst.Set(3, src.mBlue);
-		dst.Set(4, src.mAlpha);
+		dst.Set(1, src.red);
+		dst.Set(2, src.green);
+		dst.Set(3, src.blue);
+		dst.Set(4, src.alpha);
 
 		return true;
 	}
 }
 
 bool luaConv(const LuaObject& src, Color& dst){
-	if(!src.IsTable() || !luaConv(src.Get(1), dst.mRed) || 
-		!luaConv(src.Get(2), dst.mGreen) || 
-		!luaConv(src.Get(3), dst.mBlue) ||
-		!luaConv(src.Get(4), dst.mAlpha)){
+	if(!src.IsTable() || !luaConv(src.Get(1), dst.red) || 
+		!luaConv(src.Get(2), dst.green) || 
+		!luaConv(src.Get(3), dst.blue) ||
+		!luaConv(src.Get(4), dst.alpha)){
 		return false;
 	}
 	else{

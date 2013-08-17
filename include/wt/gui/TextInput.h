@@ -37,7 +37,7 @@ public:
 	void draw(Canvas& c){
 		View::draw(c);
 		c.drawText(mFont, mText,
-			mPosition.x, mPosition.y, Color::black());
+			mPosition.x, mPosition.y, Color::Black());
 	}
 
 }; // </TextView>

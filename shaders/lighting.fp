@@ -119,7 +119,7 @@ vec4 calculateSpotLight(SpotLight light, vec3 normal, vec3 worldPos){
         vec4 color = calculatePointLight(light.base, normal, worldPos);
         return color * (1.0 - (1.0 - spotFactor) * 1.0/(1.0 - light.cutoff));
     }
-    else {
+    else{
         return vec4(0,0,0,0);
     }
 }

@@ -17,6 +17,26 @@ void ShaderProgram::create(){
 	mProgHandle = glCreateProgram();
 }
 
+GLint ShaderProgram::getUniformLocationFmt(const String& nameFmt, ...){
+	va_list args;
+	va_start(args, nameFmt);
+
+	GLint res = getUniformLocationVFmt(nameFmt, args);
+
+	va_end(args);
+
+	return res;
+}
+
+GLint ShaderProgram::getUniformLocationVFmt(const String& nameFmt, va_list args){
+	char bfr[256] = {0};
+
+	vsnprintf(bfr, 256, nameFmt.c_str(), args);
+
+	return getUniformLocation(bfr);
+}
+
+
 void ShaderProgram::detach(Shader& shader){
 	gl( DetachShader(mProgHandle, shader.getHandle()) );
 }

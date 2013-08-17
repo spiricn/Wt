@@ -73,6 +73,11 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 
 		mLightShaders[i].use();
 
+		mLightShaders[i].setUniformVal("uMaterial.ambientColor", Color::White());
+		mLightShaders[i].setUniformVal("uMaterial.diffuseColor", Color::White());
+		mLightShaders[i].setUniformVal("uMaterial.specularColor", Color::Black());
+		mLightShaders[i].setUniformVal("uMaterial.shininess", 0.0f);
+
 		mLightShaders[i].setUniformVal("uPositionMap", 0);
 		mLightShaders[i].setUniformVal("uColorMap", 1);
 		mLightShaders[i].setUniformVal("uNormalMap", 2);
@@ -113,6 +118,85 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 	}
 
 	resize(width, height);
+}
+
+void DeferredRender::uploadPointLight(const ShaderPointLight& light){
+	gl::ShaderProgram& shader = mLightShaders[eLIGHT_SHADER_POINT];
+
+	shader.use();
+
+	shader.setUniformValFmt(light.light->getDesc().color, "uPointLights[%d].color", light.index);
+
+	shader.setUniformValFmt(light.light->getDesc().ambientIntensity, "uPointLights[%d].ambientItensity", light.index);
+	shader.setUniformValFmt(light.light->getDesc().diffuseIntensity, "uPointLights[%d].diffuseItensity", light.index);
+	shader.setUniformValFmt(light.light->getDesc().position, "uPointLights[%d].position", light.index);
+
+	shader.setUniformValFmt(light.light->getDesc().attenuation.linear, "uPointLights[%d].attenuation.linear", light.index);
+	shader.setUniformValFmt(light.light->getDesc().attenuation.constant, "uPointLights[%d].attenuation.constant", light.index);
+	shader.setUniformValFmt(light.light->getDesc().attenuation.quadratic, "uPointLights[%d].attenuation.exponential", light.index);
+}
+
+DeferredRender::ShaderPointLight* DeferredRender::findShaderPointLight(const PointLight* light){
+	for(int i=0; i<10; i++){
+		if(mShaderPointLights[i].active && mShaderPointLights[i].light == light){
+			return &mShaderPointLights[i];
+		}
+	}
+
+	return NULL;
+}
+
+void DeferredRender::onLightEvent(const SceneLightDeleted* evt){
+	const ALight* aLight = evt->light.get();
+
+	if(aLight->getType() == ALight::eTYPE_POINT){
+		const PointLight* light = (const PointLight*)aLight;
+
+		ShaderPointLight* shaderLight = findShaderPointLight(light);
+		WT_ASSERT(shaderLight != NULL, "Sanity check fail");
+
+		mShaderPointLights[shaderLight->index].active = false;
+	}
+	else{
+		// TODO
+	}
+
+}
+
+void DeferredRender::onLightEvent(const SceneLightUpdated* evt){
+	const ALight* aLight = evt->light;
+
+	if(evt->type == SceneLightUpdated::eTYPE_MODIFIED){
+		if(aLight->getType() == ALight::eTYPE_POINT){
+			const PointLight* light = (const PointLight*)aLight;
+
+			ShaderPointLight* shaderLight = findShaderPointLight(light);
+			WT_ASSERT(shaderLight != NULL, "Sanity check fail");
+
+			uploadPointLight(*shaderLight);
+		}
+		else{
+			// TODO
+		}
+	}
+	else if(evt->type == SceneLightUpdated::eTYPE_CREATED){
+		if(aLight->getType() == ALight::eTYPE_POINT){
+			const PointLight* light = (const PointLight*)aLight;
+
+			for(uint32_t i=0; i<10; i++){
+				if(!mShaderPointLights[i].active){
+					mShaderPointLights[i].active = true;
+					mShaderPointLights[i].light = light;
+					mShaderPointLights[i].index = i;
+					uploadPointLight( mShaderPointLights[i] );
+					break;
+				}
+			}
+		}
+		else{
+			// TODO
+		}
+	}
 }
 
 void DeferredRender::resize(uint32_t width, uint32_t height){
@@ -222,7 +306,7 @@ void DeferredRender::bindForStencilPass(){
 	glDrawBuffer(GL_NONE);
 }
 
-void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, uint32_t pointLightIndex){
+void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, const PointLight* light){
 	bindForStencilPass();
 
 	mStencilPassShader.use();
@@ -259,15 +343,11 @@ void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, uint32_t po
 		GL_KEEP		// ignore 
 	);
 
-	// Acquire the light
-	PointLight light;
-	scene->getPointLight(pointLightIndex, light);
-
 	math::Transform tf;
 	// Position it
-	tf.setPosition(light.mPosition);
+	tf.setPosition(light->getDesc().position);
 	// Scale it
-	tf.setScale(light.calculateBoundingSphere(), light.calculateBoundingSphere(), light.calculateBoundingSphere());
+	tf.setScale(light->getDesc().calculateBoundingSphere(), light->getDesc().calculateBoundingSphere(), light->getDesc().calculateBoundingSphere());
 
 	// Upload the modelview-projection matrix
 	glm::mat4 mvp;
@@ -278,8 +358,7 @@ void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, uint32_t po
 	mSphereBatch.render();
 }
 
-	
-void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, uint32_t pointLightIndex){
+void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const PointLight* light){
 	// Prepare for the light pass
 	bindForLightPass();
 
@@ -305,15 +384,11 @@ void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, uint32_t
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	// Acquire the light
-	PointLight light;
-	scene->getPointLight(pointLightIndex, light);
-
 	math::Transform tf;
 	// Position it
-	tf.setPosition(light.mPosition);
+	tf.setPosition(light->getDesc().position);
 	// Scale it
-	tf.setScale(light.calculateBoundingSphere(), light.calculateBoundingSphere(), light.calculateBoundingSphere());
+	tf.setScale(light->getDesc().calculateBoundingSphere(), light->getDesc().calculateBoundingSphere(), light->getDesc().calculateBoundingSphere());
 
 	// Upload the modelview-projection matrix
 	glm::mat4 model;
@@ -326,6 +401,8 @@ void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, uint32_t
 	shader.setUniformVal("uProjMat", camera->getFrustum().getProjMatrix());
 	shader.setUniformVal("uModelMat", model);
 
+	shader.setUniformVal("uPointLightIndex", (int)findShaderPointLight(light)->index);
+
 	// Render the sphere
 	mSphereBatch.render();
 
@@ -334,6 +411,24 @@ void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, uint32_t
 	glDisable(GL_BLEND);
 }
 
+void DeferredRender::doLightPass(Scene* scene, math::Camera* camera){
+	// When we get here the depth buffer is already populated and the stencil pass
+    // depends on it, but it does not write to it.
+    gl( DepthMask(GL_FALSE) );
+	gl( Enable(GL_STENCIL_TEST ));
+
+	for(Scene::PointLightSet::const_iterator iter=scene->getPointLightSet().cbegin(); iter!=scene->getPointLightSet().cend(); iter++){
+		stencilPass(scene, camera, *iter);
+		pointLightPass(scene, camera, *iter);
+	}
+
+	// The directional light does not need a stencil test because its volume
+    // is unlimited and the final pass simply copies the texture.
+
+	gl( Disable(GL_STENCIL_TEST ));
+
+	directionalLightPass(scene, &scene->getCamera());
+}
 
 void DeferredRender::startFrame(){
 	mFrameBuffer.bindDraw();

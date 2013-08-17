@@ -10,7 +10,9 @@
 #include "wt/Physics.h"
 #include "wt/ASerializable.h"
 #include "wt/Color.h"
-#include "wt/Light.h"
+#include "wt/DirectionalLight.h"
+#include "wt/SpotLight.h"
+#include "wt/PointLight.h"
 #include "wt/Assets.h"
 #include "wt/Fog.h"
 #include "wt/ASceneActor.h"
@@ -20,10 +22,6 @@
 #include "wt/EventEmitter.h"
 
 namespace wt{
-
-#define MAX_POINT_LIGHTS 3
-#define MAX_SPOT_LIGHTS 3
-
 
 class Renderer;
 
@@ -35,8 +33,6 @@ friend class Renderer;
 friend class ARenderer;
 
 public:
-	
-
 	typedef std::map<uint32_t, ASceneActor*> ActorMap;
 
 	typedef std::set<ModelledActor*> ModelledActorSet;
@@ -45,7 +41,10 @@ public:
 
 	typedef std::set<Terrain*> TerrainSet;
 
-	
+	typedef std::set<PointLight*> PointLightSet;
+
+	typedef std::set<SpotLight*> SpotLightSet;
+
 	struct GodRayParams{
 		Texture2D* sourceTexture;
 		glm::vec3 sourcePosition;
@@ -59,7 +58,7 @@ public:
 		uint32_t sampleNumber;
 		bool enabled;
 		
-		GodRayParams() : sourcePosition(glm::vec3(0.347047, 0.283466, 0.893994)*1000.0f), sourceColor(Color::white()),
+		GodRayParams() : sourcePosition(glm::vec3(0.347047, 0.283466, 0.893994)*1000.0f), sourceColor(Color::White()),
 			rayColor(Color(0.1, 0.1, 0.1, 1.0)), sourceSize(30.0f),  exposure(0.009f),
 			decay(1.0f), density(0.84f), weight(3.1f), sampleNumber(100), enabled(false), sourceTexture(NULL){
 		}
@@ -77,8 +76,6 @@ public:
 	const ParticleEffectSet& getParticleEffects() const{
 		return mParticleEffects;
 	}
-
-
 public:
 	Scene(Physics* physics, Assets* assets, EventManager* eventManager, lua::State* luaState);
 
@@ -96,37 +93,33 @@ public:
 
 	void setGodRayParams(const GodRayParams& src);
 
+	const SpotLightSet& getSpotLightSet() const;
+
+	const PointLightSet& getPointLightSet() const;
+
 	Fog& getFog();
 
 	void setPhysics(Physics* p);
 
-	void addPointLight(const PointLight& light);
+	const PointLight* createPointLight(const PointLight::Desc& desc);
 
-	void addSpotLight(const SpotLight& light);
+	const SpotLight* createSpotLight(const SpotLight::Desc& desc);
 
-	uint32_t getNumSpotLights() const{
-		return mNumSpotLights;
-	}
+	void deleteLight(const ALight* light);
 
-	void getSpotLight(uint32_t index, SpotLight& dst) const;
+	void setSpotLightDesc(const SpotLight* light, const SpotLight::Desc& desc);
 
-	void getDirectionalLight(DirectionalLight& dst) const;
+	void setPointLightDesc(const PointLight* light, const PointLight::Desc& desc);
 
-	void getPointLight(uint32_t index, PointLight& dst) const;
-
-
-
-	void setSpotLight(uint32_t index, const SpotLight& src);
-
-	void setPointLight(uint32_t index, const PointLight& src);
-
-	void setDirectionalLight(const DirectionalLight& src);
-
-	
-
-	
+	void setDirectionalLightDesc(const DirectionalLight::Desc& desc);
 
 	uint32_t getNumPointLights() const;
+
+	uint32_t getNumSpotLights() const;
+
+	uint32_t getMaxPointLights() const;
+
+	uint32_t getMaxSpotLights() const;
 	
 	ModelledActor* createModelledActor(const String& name="");
 
@@ -137,6 +130,8 @@ public:
 	ASceneActor* findActorByName(const String& name) const;
 
 	ASceneActor* getActorById(uint32_t id);
+
+	const DirectionalLight* getDirectionalLight() const;
 
 	void destroy();
 
@@ -219,22 +214,29 @@ private:
 	math::Camera* mCamera;
 
 	math::Camera mDefaultCamera;
+
+	SpotLight* findSpotLight(uint32_t id);
+
+	PointLight* findPointLight(uint32_t id);
 	
 	SkyBox* mSkyBox;
 	Fog mFog;
 	
 	Physics* mPhysics;
 
-	DirectionalLight mDirectionalLight;
-
-	PointLight mPointLights[MAX_POINT_LIGHTS];
-	uint32_t mNumPointLights;
-
+	Sp<DirectionalLight> mDirectionalLight;
+	
 	EventManager* mEventManager;
 
-	SpotLight mSpotLights[MAX_SPOT_LIGHTS];
-	uint32_t mNumSpotLights;
-	
+	SpotLightSet mSpotLightSet;
+
+	typedef std::map<uint32_t, SpotLight*> SpotLightMap;
+	SpotLightMap mSpotLights;
+
+	typedef std::map<uint32_t, PointLight*> PointLightMap;
+	PointLightMap mPointLights;
+
+	PointLightSet mPointLightSet;
 
 	lua::State* mLuaState;
 
@@ -246,11 +248,17 @@ private:
 
 	EventEmitter mEventEmitter;
 
-	void onLightingModified();
+	void onLightingModified(ALight* light);
+
+	void onLightCreated(ALight* light);
+
+	void onLightDeleted(ALight* light);
+
+	// Lighting
 
 }; // </Scene>
 
-class SceneLightingModifiedEvent : public Event{
+class SceneLightUpdated : public Event{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -259,14 +267,47 @@ protected:
 	}
 
 public:
-	Scene* scene;
-
-	SceneLightingModifiedEvent(Scene* scene) : scene(scene){
-	}
-
 	static const EvtType TYPE;
 
-	SceneLightingModifiedEvent(){
+	enum Type{
+		eTYPE_CREATED,
+		eTYPE_MODIFIED,
+	}; // </Type>
+
+	const ALight* light;
+
+	Type type;
+
+	SceneLightUpdated(Type type, const ALight* light) : light(light), type(type){
+	}
+
+	SceneLightUpdated(){
+	}
+
+	const EvtType& getType() const{
+		return TYPE;
+	}
+
+}; // </SceneLightUpdated>
+
+
+class SceneLightDeleted : public Event{
+protected:
+	void serialize(LuaObject& dst){
+	}
+
+	void deserialize(LuaObject& src){
+	}
+
+public:
+	static const EvtType TYPE;
+
+	Sp<const ALight> light;
+
+	SceneLightDeleted(Sp<const ALight> light) : light(light){
+	}
+
+	SceneLightDeleted(){
 	}
 
 	const EvtType& getType() const{

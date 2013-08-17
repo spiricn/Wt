@@ -53,7 +53,7 @@ public:
 			sprintf(bfr, "%.2f%%", mProgress);
 
 			glm::vec2 s = getFont()->measureString(bfr);
-			c.drawTextFmt(getFont(), bfr, getSize()/2.0f - s/2.0f, getSize(), Color::black());
+			c.drawTextFmt(getFont(), bfr, getSize()/2.0f - s/2.0f, getSize(), Color::Black());
 		}
 	}
 

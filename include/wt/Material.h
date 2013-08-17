@@ -20,8 +20,8 @@ private:
 	bool mBlend;
 
 public:
-	Material() : mCullMode(eCULL_CLOCKWISE), mAmbientColor(Color::white()), mSpecularColor(Color::black()), mShininess(0.0f), 
-		mDiffuseColor(Color::white()), mAlphaTested(true), mWireframe(false), mBlend(false){
+	Material() : mCullMode(eCULL_CLOCKWISE), mAmbientColor(Color::White()), mSpecularColor(Color::Black()), mShininess(0.0f), 
+		mDiffuseColor(Color::White()), mAlphaTested(true), mWireframe(false), mBlend(false){
 	}
 
 	void setBlend(bool state){

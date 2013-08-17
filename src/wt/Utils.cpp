@@ -100,9 +100,9 @@ void makeCheckboard(Buffer<unsigned char>& bfr, uint32_t w, uint32_t h,
 				clr=!clr;
 			}
 			const Color& c = clr?clr1:clr2;
-			bfr[base] = c.mRed*255.0;
-			bfr[base+1] = c.mGreen*255.0;
-			bfr[base+2] = c.mBlue*255.0;
+			bfr[base] = c.red*255.0;
+			bfr[base+1] = c.green*255.0;
+			bfr[base+2] = c.blue*255.0;
 		}
 
 		if(i%vf==0){

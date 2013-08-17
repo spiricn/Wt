@@ -144,7 +144,7 @@ public:
 	virtual void destroy(){
 	}
 
-	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const{
 		dst.Set("type", "RESOURCE");
 		if(!mUri.empty()){
 			dst.Set("uri", mUri.c_str());

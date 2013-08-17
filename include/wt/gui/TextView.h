@@ -27,7 +27,7 @@ private:
 
 public:
 
-	TextView() : mTextColor(Color::white()), mFontScale(1.0f), mScalingMode(eFIXED){
+	TextView() : mTextColor(Color::White()), mFontScale(1.0f), mScalingMode(eFIXED){
 	}
 
 	void setScalingMode(ScalingMode mode){ DIRTY

@@ -237,7 +237,7 @@ public:
 		}
 	}
 
-	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const{
 		dst.Set("type", "GROUP");
 		
 
@@ -245,24 +245,23 @@ public:
 		
 		dst.Set("content", content);
 
-		/* serialize child groups */
-		for(GroupMap::iterator i=mChildren.begin(); i!=mChildren.end(); i++){
-			/* allocate new table for this group */
+		// Serialize child groups
+		for(GroupMap::const_iterator i=mChildren.cbegin(); i!=mChildren.cend(); i++){
+			// Allocate new table for this group
 			lua::LuaObject groupTable = luaState->newTable();
 
-			/* serialize it and append it to this group's table */
+			// Serialize it and append it to this group's table
 			i->second->serialize(luaState, groupTable);
 			content.Set(i->first.c_str(),
 				groupTable);
 		}
 
-		/* serialize child resources */
-		for(ResourceMap::iterator i=mResources.begin(); i!=mResources.end(); i++){
-			/* allocate new table for this resource */
+		// Sserialize child resources
+		for(ResourceMap::const_iterator i=mResources.cbegin(); i!=mResources.cend(); i++){
+			// Allocate new table for this resource
 			lua::LuaObject rsrcTable = luaState->newTable();
 
-			
-			/* serialize it and append it to this group's table */
+			// Serialize it and append it to this group's table
 			i->second->serialize(luaState, rsrcTable);
 			content.Set(i->second->getName().c_str(),
 				rsrcTable);

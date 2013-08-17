@@ -21,6 +21,7 @@ namespace wt{
 class TestDemo : public ADemo{
 public:
 
+	const PointLight* pl;
 	TestDemo(){
 	}
 
@@ -29,9 +30,40 @@ public:
 	}
 
 	void onUpdate(float dt){
+		static bool flag = false;
+		static float t = 0;
+		if(!flag){
+			t += dt;
+
+			if( t > 1){
+				PointLight::Desc d = pl->getDesc();
+
+				d.color = Color::random();
+
+				pl->setDesc(d);
+
+				t = 0;
+			}
+		}
 		getPhysics()->update(dt);
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
+
+#if 0
+		static bool flag = false;
+		// Move spotlight to the camera
+		SpotLight l;
+		getScene()->getSpotLight(0, l);
+		l.position = getScene()->getCamera().getPosition();
+		l.direction = getScene()->getCamera().getForwardVec();
+		if(!flag){
+			getScene()->addSpotLight(l);
+			flag = true;
+		}
+		else{
+			getScene()->setSpotLight(0, l);
+		}
+#endif
 	}
 
 	void onKeyDown(VirtualKey c){
@@ -73,23 +105,22 @@ public:
 
 		getScene()->getCamera().setRotation(r);
 
-		PointLight light;
-		light.mAttenuation.constant = 0.0f;
-		light.mAttenuation.linear = 0.0f;
-		light.mAttenuation.exponential = 0.5f;
-
-		light.mColor = Color::yellow();
-		light.mPosition = glm::vec3(126.91, 30.18, 174.11);
-		
-		light.mDiffuseItensity = 15;
-		getScene()->addPointLight(light);
-
-		light.mColor = Color::cyan();
-		light.mPosition = glm::vec3(86.58, 3, 68.56);
-		light.mDiffuseItensity = 15;
 		
 
-		getScene()->addPointLight(light);
+		PointLight::Desc desc;
+		desc.attenuation.constant = 0.0f;
+		desc.attenuation.linear = 0.0f;
+		desc.attenuation.quadratic = 0.5f;
+
+		desc.diffuseIntensity  = 15;
+
+		desc.color = Color::Yellow();
+		desc.position = glm::vec3(126.91, 30.18, 174.11);
+		pl = getScene()->createPointLight(desc);
+
+		desc.color = Color::Cyan();
+		desc.position = glm::vec3(86.58, 3, 68.56);
+		getScene()->createPointLight(desc);
 
 		/*lua::ScriptPtr script1;
 		getProcManager().attach(new ScriptProcess(script1 = state->createScript("test_script.lua")));*/
@@ -131,17 +162,16 @@ public:
 
 		model->create();
 
-		for(int i=0; i<getScene()->getNumPointLights(); i++){
+		/*for(int i=0; i<getScene()->getNumPointLights(); i++){
 			PointLight light;
 			getScene()->getPointLight(i, light);
 
-			if(light.mActive){
+			if(light.enabled){
 				ModelledActor* actor = getScene()->createModelledActor();
 				actor->setModel(model, "main");
-				actor->getTransform().setPosition(light.mPosition);
+				actor->getTransform().setPosition(light.position);
 			}
-		}
-
+		}*/
 	}
 
 	String getConfigFile() const{

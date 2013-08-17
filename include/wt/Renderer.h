@@ -7,7 +7,6 @@
 #include "wt/MatrixStack.h"
 #include "wt/GLShaderProgram.h"
 #include "wt/AGameWindow.h"
-#include "wt/Frustum.h"
 #include "wt/Scene.h"
 #include "wt/FrameBuffer.h"
 #include "wt/Color.h"
@@ -105,11 +104,7 @@ public:
 	void init(uint32_t portW, uint32_t portH );
 
 	void saveScreenshot(const String& path);
-
-	const math::Frustum& getFrustum() const;
 	
-	void setFOV(float angle);
-
 	void setClearColor(const Color& clr);
 
 	void setViewPort(uint32_t width, uint32_t height);
@@ -118,7 +113,7 @@ public:
 
 	void setFaceCulling(Culling mode);
 
-	void render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color=Color::white());
+	void render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color=Color::White());
 
 	void render(Scene* scene, Model* model, Mesh* mesh, ARenderer::PassType pass);
 
@@ -142,7 +137,6 @@ private:
 private:
 	math::MatrixStack mMatStack;
 	Scene* mScene;
-	math::Frustum mFrustum;
 	Color mClearColor;
 
 	GodRayShader mGodRayShader;

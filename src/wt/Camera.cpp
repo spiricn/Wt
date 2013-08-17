@@ -16,7 +16,7 @@ Camera::Camera() : mForward(FORWARD), mUp(UP),
 		mRight(RIGHT), mOrigin(0.0f, 0.0f, 0.0f),
 		mUpdateMatrix(true), mMatrixRotOnly(false){
 
-	mFrustum.setPerspectiveProj(640, 480, 73.0f, 0.5f,
+	mFrustum.setPerspectiveProj(1280, 720, 73.0f, 0.5f,
 		3500.0f);
 }
 

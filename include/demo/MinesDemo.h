@@ -175,14 +175,14 @@ public:
 
 		
 		if(getScene()->getPhysics()->pick(getScene()->getCamera(),
-			getRenderer()->getFrustum(), glm::vec2(evt->mX, evt->mY),
+			glm::vec2(evt->mX, evt->mY),
 			glm::vec2(getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()), hit)){
 
-			PointLight light;
-			getScene()->getPointLight(0, light);
+			//PointLight light;
+			//getScene()->getPointLight(0, light);
 
-			light.mPosition = hit.mImpact + glm::vec3(0, 3, 0);
-			getScene()->setPointLight(0, light);
+			//light.position = hit.mImpact + glm::vec3(0, 3, 0);
+			//getScene()->setPointLight(0, light);
 
 
 #ifdef CURSOR_ENABLED
@@ -274,7 +274,7 @@ public:
 		}
 		else{
 			if(getScene()->getPhysics()->pick(getScene()->getCamera(),
-				getRenderer()->getFrustum(), glm::vec2(x, y),
+				glm::vec2(x, y),
 				glm::vec2(getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()), hit)){
 					MineActor* ma = (MineActor*)hit.mPickedActor->getSceneActor()->getUserData();
 
@@ -442,18 +442,18 @@ public:
 		getManager()->getInput()->setMouseGrabbed(false);
 
 
-		PointLight l;
-		l.mActive = true;
-		l.mPosition = glm::vec3(210, 10, 210);
+	/*	PointLight l;
+		l.enabled = true;
+		l.position = glm::vec3(210, 10, 210);
 
-		l.mColor =  Color::green();
-		l.mAmbientIntesity = 0;
-		l.mDiffuseItensity = 0.1;
+		l.color =  Color::Green();
+		l.ambientIntensity = 0;
+		l.diffuseIntensity = 0.1;
 
-		l.mAttenuation.constant = 0;
-		l.mAttenuation.linear = 0;
-		l.mAttenuation.exponential = 0.01;
-		getScene()->addPointLight(l);
+		l.attenuation.constant = 0;
+		l.attenuation.linear = 0;
+		l.attenuation.quadratic = 0.01;
+		getScene()->addPointLight(l);*/
 
 		getScene()->getSkyBox()->getTransform().rotate(1, 0, 0, 180);
 

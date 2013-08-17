@@ -5,26 +5,96 @@
 
 #define TD_TRACE_TAG "Scene"
 
+#define MAX_POINT_LIGHTS 10
+
+#define MAX_SPOT_LIGHTS 10
+
 namespace wt{
 
-Scene::Scene(Physics* physics, Assets* assets, EventManager* eventManager, lua::State* luaState) : 
-	mSkyBox(NULL), mNumPointLights(0), mEventManager(eventManager), mNumSpotLights(0), mAssets(assets), mPhysics(physics), mLuaState(luaState){
-		setCamera(&mDefaultCamera);
+Scene::Scene(Physics* physics, Assets* assets, EventManager* eventManager, lua::State* luaState) :  mSkyBox(NULL), mEventManager(eventManager),
+	mAssets(assets), mPhysics(physics), mLuaState(luaState), mDirectionalLight(NULL){
 
-		mEventEmitter.hook(mEventManager,
-			1,
-			SceneLightingModifiedEvent::TYPE
-		);
+	setCamera(&mDefaultCamera);
+
+	mEventEmitter.hook(mEventManager,
+		2,
+		SceneLightUpdated::TYPE,
+		SceneLightDeleted::TYPE
+	);
+
+	mDirectionalLight = new DirectionalLight(this, 0);
 }
 
-void Scene::onLightingModified(){
-	mEventManager->queueEvent( new SceneLightingModifiedEvent(this) );
+const DirectionalLight* Scene::getDirectionalLight() const{
+	return mDirectionalLight;
 }
 
-void Scene::addSpotLight(const SpotLight& light){
-	mSpotLights[mNumSpotLights++] = light;
+void Scene::onLightingModified(ALight* light){
+	mEventManager->queueEvent(
+		new SceneLightUpdated(SceneLightUpdated::eTYPE_MODIFIED, light)
+	);
+}
 
-	onLightingModified();
+void Scene::onLightCreated(ALight* light){
+	mEventManager->queueEvent(
+		new SceneLightUpdated(SceneLightUpdated::eTYPE_CREATED, light)
+	);
+}
+
+void Scene::onLightDeleted(ALight* light){
+	mEventManager->queueEvent(
+		new SceneLightDeleted(light)
+	);
+}
+
+const Scene::SpotLightSet& Scene::getSpotLightSet() const{
+	return mSpotLightSet;
+}
+
+const Scene::PointLightSet& Scene::getPointLightSet() const{
+	return mPointLightSet;
+}
+
+void Scene::deleteLight(const ALight* alight){
+	if(alight->getType() == ALight::eTYPE_POINT){
+		PointLight* light = (PointLight*)alight;
+
+		mPointLights.erase(light->getId());
+		mPointLightSet.erase(light);
+
+	}
+	else if(alight->getType() == ALight::eTYPE_SPOT){
+		SpotLight* light = (SpotLight*)alight;	
+
+		mSpotLights.erase(light->getId());
+		mSpotLightSet.erase(light);
+	}
+
+	onLightDeleted((ALight*)alight);
+}
+
+const SpotLight* Scene::createSpotLight(const SpotLight::Desc& desc){
+	uint32_t id = 0;
+
+	while(true){
+		if(findSpotLight(id) != NULL){
+			++id;
+		}
+		else{
+			break;
+		}
+	}
+
+	SpotLight* light = new SpotLight(this, id);
+
+	light->getDesc() = desc;
+
+	mSpotLights.insert(std::make_pair(id, light));
+	mSpotLightSet.insert(light);
+
+	onLightCreated(light);
+
+	return light;
 }
 
 void Scene::getGodRayParams(GodRayParams& dst){
@@ -35,8 +105,14 @@ void Scene::setGodRayParams(const GodRayParams& src){
 	mGodrayParams = src;
 }
 
-void Scene::getSpotLight(uint32_t index, SpotLight& dst) const {
-	dst = mSpotLights[index];
+SpotLight* Scene::findSpotLight(uint32_t id){
+	SpotLightMap::iterator iter = mSpotLights.find(id);
+	return iter == mSpotLights.end() ? NULL : iter->second;
+}
+
+PointLight* Scene::findPointLight(uint32_t id){
+	PointLightMap::iterator iter = mPointLights.find(id);
+	return iter == mPointLights.end() ? NULL : iter->second;
 }
 
 Scene::~Scene(){
@@ -59,47 +135,53 @@ void Scene::setCamera(math::Camera* camera){
 	mCamera = camera;
 }
 
-void Scene::addPointLight(const PointLight& light){
-	mPointLights[mNumPointLights++] = light;
+void Scene::setSpotLightDesc(const SpotLight* clight, const SpotLight::Desc& desc){
+	// Safe
+	SpotLight* light = const_cast<SpotLight*>(clight);
+
+	light->getDesc() = desc;
+
+	onLightingModified(const_cast<SpotLight*>(light));
 }
 
-void Scene::getPointLight(uint32_t index, PointLight& dst) const{
-	dst = mPointLights[index];
+void Scene::setPointLightDesc(const PointLight* clight, const PointLight::Desc& desc){
+	// Safe
+	PointLight* light = const_cast<PointLight*>(clight);
+
+	light->getDesc() = desc;
+
+	onLightingModified(const_cast<PointLight*>(light));
 }
 
-void Scene::getDirectionalLight(DirectionalLight& dst) const{
-	dst = mDirectionalLight;
+void Scene::setDirectionalLightDesc(const DirectionalLight::Desc& desc){
+	mDirectionalLight->getDesc() = desc;
+
+	//onLightingModified(mDirectionalLight);
 }
 
-void Scene::setSpotLight(uint32_t index, const SpotLight& src){
-	// TODO checks
-	mSpotLights[index] = src;
-	onLightingModified();
+const PointLight* Scene::createPointLight(const PointLight::Desc& desc){
+	uint32_t id = 0;
+
+	while(true){
+		if(findPointLight(id) != NULL){
+			++id;
+		}
+		else{
+			break;
+		}
+	}
+
+	PointLight* light = new PointLight(this, id);
+
+	light->getDesc() = desc;
+
+	mPointLights.insert(std::make_pair(id, light));
+	mPointLightSet.insert(light);
+
+	onLightCreated(light);
+
+	return light;
 }
-
-void Scene::setPointLight(uint32_t index, const PointLight& src){
-	// TODO checks
-	mPointLights[index] = src;
-	onLightingModified();
-}
-
-void Scene::setDirectionalLight(const DirectionalLight& src){
-	// TODO checks
-	mDirectionalLight = src;
-	onLightingModified();
-}
-
-uint32_t Scene::getNumPointLights() const{
-	return mNumPointLights;
-}
-
-#if 0
-void Scene::load(const String& path){
-	// scene
-
-}
-#endif
-
 
 uint32_t Scene::generateActorId(){
 	uint32_t id=mActors.size();
@@ -199,6 +281,22 @@ ASceneActor* Scene::findActorByName(const String& name) const{
 	}
 
 	return NULL;
+}
+
+uint32_t Scene::getNumPointLights() const{
+	return mPointLights.size();
+}
+
+uint32_t Scene::getNumSpotLights() const{
+	return mSpotLights.size();
+}
+
+uint32_t Scene::getMaxPointLights() const{
+	return MAX_POINT_LIGHTS;
+}
+
+uint32_t Scene::getMaxSpotLights() const{
+	return MAX_SPOT_LIGHTS;
 }
 
 void Scene::destroy(){
@@ -600,6 +698,8 @@ void Scene::lua_rotateActor(uint32_t actorId, float x, float y, float z, float a
 
 #endif
 
-const EvtType SceneLightingModifiedEvent::TYPE = "SceneLightingModified";
+const EvtType SceneLightUpdated::TYPE = "SceneLightUpdated";
+
+const EvtType SceneLightDeleted::TYPE = "SceneLightDeleted";
 
 }; // </wt>

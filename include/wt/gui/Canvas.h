@@ -111,7 +111,7 @@ public:
 
 
 	void drawTextFmt(Font* font, const String& text,
-		const glm::vec2& pos, const glm::vec2& size, const Color& color=Color::black(), float scale=1.0f){
+		const glm::vec2& pos, const glm::vec2& size, const Color& color=Color::Black(), float scale=1.0f){
 
 		String bfr = text;
 
@@ -306,7 +306,7 @@ public:
 		glDisable(GL_COLOR_MATERIAL);
 		// draw textured quad
 		glBegin(GL_QUADS);
-		glColor4f(color.mRed, color.mGreen, color.mBlue, color.mAlpha);
+		glColor4f(color.red, color.green, color.blue, color.alpha);
 		glVertex2f(x,	y);		glTexCoord2f(1.0, 0.0);
 		glVertex2f(x+w, y);		glTexCoord2f(1.0, 1.0);
 		glVertex2f(x+w, y+h);	glTexCoord2f(0.0, 1.0);
@@ -339,7 +339,7 @@ public:
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_TEXTURE_2D);
 		
-		glColor4f(color.mRed, color.mGreen, color.mBlue, color.mAlpha);
+		glColor4f(color.red, color.green, color.blue, color.alpha);
 
 		glBegin(fill == eFILL ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
 
@@ -364,7 +364,7 @@ public:
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_TEXTURE_2D);
 
-		glColor4f(color.mRed, color.mGreen, color.mBlue, color.mAlpha);
+		glColor4f(color.red, color.green, color.blue, color.alpha);
 
 		glBegin(GL_QUADS);
 			glVertex2f(x + 0, y + 0);
@@ -386,7 +386,7 @@ public:
 
 		gl( Disable(GL_DEPTH_TEST) );
 		gl( Disable(GL_TEXTURE_2D) );
-		gl( Color4f(color.mRed, color.mGreen, color.mBlue, color.mAlpha) );
+		gl( Color4f(color.red, color.green, color.blue, color.alpha) );
 		gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 
 		gl( Begin(GL_LINES) );

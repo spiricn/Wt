@@ -9,7 +9,7 @@ struct Fog{
 	Color color;
 	float density;
 
-	Fog() : color(Color::gray()), density(0.008f){
+	Fog() : color(Color::Gray()), density(0.008f){
 	}
 
 }; // </Fog>

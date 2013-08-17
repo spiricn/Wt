@@ -24,7 +24,13 @@ void main(){
 	vec4 lightColor = calculateLight(normal, worldPos, uDirectionalLight.color, uDirectionalLight.ambientItensity,
 			uDirectionalLight.diffuseItensity, uDirectionalLight.direction);
 
+
+	// TODO move this to a separate shader
+	for(int i=0; i<uNumSpotLights; i++){
+		lightColor += calculateSpotLight(uSpotLights[i], normal, worldPos);
+	}
+
 	outFragColor = vec4(color * lightColor.xyz, 1.0) 
-	//* 0.0
+	///* 0.0
 	;
 }

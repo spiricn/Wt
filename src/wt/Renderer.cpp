@@ -57,7 +57,8 @@ Renderer::Renderer(EventManager* eventManager) : mClearColor(0.5, 0, 0, 1.0f),
 	mGodrayPass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(NULL, 0, "", Texture2D::eRECT_TEXTURE),
 	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL){
 
-	mEventManager->registerListener(this, SceneLightingModifiedEvent::TYPE);
+	mEventManager->registerListener(this, SceneLightUpdated::TYPE);
+	mEventManager->registerListener(this, SceneLightDeleted::TYPE);
 }
 
 void Renderer::init(uint32_t portW, uint32_t portH ){
@@ -167,24 +168,11 @@ void Renderer::attachRenderer(ARenderer* renderer){
 }
 
 bool Renderer::handleEvent(const Sp<Event> evt){
-	if(evt->getType() == SceneLightingModifiedEvent::TYPE){
-
-		LOGV("Scene lighting changed");
-
-		Scene* scene = ((SceneLightingModifiedEvent*)evt.get())->scene;
-
-		setShaderLightUniforms(scene, *mDeferredRenderer->getLightShader(DeferredRender::eLIGHT_SHADER_DIRECTIONAL) );
-		setShaderLightUniforms(scene, *mDeferredRenderer->getLightShader(DeferredRender::eLIGHT_SHADER_POINT) );
-
-		for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
-			(*iter)->onSceneLightingChanged(scene, this);
-
-			/*gl::ShaderProgram* rendererProg = (*iter)->setupSceneLighting();
-
-			if(rendererProg != NULL){
-				setShaderLightUniforms(scene, *rendererProg);
-			}*/
-		}
+	if(evt->getType() == SceneLightUpdated::TYPE){
+		mDeferredRenderer->onLightEvent((const SceneLightUpdated*)evt.get());
+	}
+	else if(evt->getType() == SceneLightDeleted::TYPE){
+		mDeferredRenderer->onLightEvent((const SceneLightDeleted*)evt.get());
 	}
 
 	return false;
@@ -404,7 +392,7 @@ void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bo
 	// Setup projection matrix
 	gl( MatrixMode(GL_PROJECTION) );
 	gl( LoadIdentity() );
-	gl( LoadMatrixf(glm::value_ptr(mFrustum.getProjMatrix())) );
+	gl( LoadMatrixf(glm::value_ptr(scene->getCamera().getFrustum().getProjMatrix())) );
 
 	glm::mat4 tmp;
 	glm::vec3 p;
@@ -460,117 +448,111 @@ void Renderer::setBoneWidth(float width){
 void Renderer::setRenderBoundingBoxes(bool state){
 	mRenderBoundingBoxes = state;
 }
-	
-void Renderer::setFOV(float angle){
-	mFrustum.setPerspectiveProj(
-		mViewPort.x, mViewPort.y, angle, mFrustum.getNearClip(), mFrustum.getFarClip()
-	);
-}
 
 void Renderer::setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog){
-	// TODO move this to an uniform buffer object so that shaders can share the same 
-	prog.use();
+	//// TODO move this to an uniform buffer object so that shaders can share the same 
+	//prog.use();
 
-	DirectionalLight dirLight;
-	scene->getDirectionalLight(dirLight);
+	//DirectionalLight dirLight;
+	//scene->getDirectionalLight(dirLight);
 
-	// directional
-	prog.setUniformVal("uDirectionalLight.ambientItensity",
-		dirLight.mAmbientIntesity);
+	//// directional
+	//prog.setUniformVal("uDirectionalLight.ambientItensity",
+	//	dirLight.ambientIntensity);
 
-	prog.setUniformVal("uDirectionalLight.color",
-		dirLight.mColor);
+	//prog.setUniformVal("uDirectionalLight.color",
+	//	dirLight.color);
 
-	prog.setUniformVal("uDirectionalLight.diffuseItensity",
-		dirLight.mDiffuseItensity);
+	//prog.setUniformVal("uDirectionalLight.diffuseItensity",
+	//	dirLight.diffuseIntensity);
 
-	prog.setUniformVal("uDirectionalLight.direction",
-		dirLight.mDirection);
+	//prog.setUniformVal("uDirectionalLight.direction",
+	//	dirLight.direction);
 
-	// point lights
-	#define setVal(fmt, idx, val) \
-		do{ \
-		*bfr=0; \
-		sprintf(bfr, fmt, idx); \
-		prog.setUniformVal(bfr, val); \
-		}while(0)
-
-
-	char bfr[100];
-	*bfr=0;
-
-	uint32_t numActiveLights=0;
-	for(uint32_t i=0; i<scene->getNumPointLights(); i++){
-		PointLight light;
-		scene->getPointLight(i, light);
-
-		if(light.mActive){
-			numActiveLights++;
-		}
-	}
+	//// point lights
+	//#define setVal(fmt, idx, val) \
+	//	do{ \
+	//	*bfr=0; \
+	//	sprintf(bfr, fmt, idx); \
+	//	prog.setUniformVal(bfr, val); \
+	//	}while(0)
 
 
-	prog.setUniformVal("uNumPointLights", (int32_t)numActiveLights);
-	for(uint32_t i=0; i<scene->getNumPointLights(); i++){
-		PointLight light;
-		scene->getPointLight(i, light);
+	//char bfr[100];
+	//*bfr=0;
 
-		if(!light.mActive){
-			continue;
-		}
+	//uint32_t numActiveLights=0;
+	//for(uint32_t i=0; i<scene->getNumPointLights(); i++){
+	//	PointLight light;
+	//	scene->getPointLight(i, light);
 
-		setVal("uPointLights[%d].color", i, light.mColor);
-		setVal("uPointLights[%d].ambientItensity", i, light.mAmbientIntesity);
-		setVal("uPointLights[%d].diffuseItensity", i, light.mDiffuseItensity);
-		setVal("uPointLights[%d].position", i, light.mPosition);
+	//	if(light.enabled){
+	//		numActiveLights++;
+	//	}
+	//}
 
-		setVal("uPointLights[%d].attenuation.linear", i, light.mAttenuation.linear);
-		setVal("uPointLights[%d].attenuation.constant", i, light.mAttenuation.constant);
-		setVal("uPointLights[%d].attenuation.exponential", i, light.mAttenuation.exponential);
-	}
 
-	numActiveLights=0;
-	for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
-		SpotLight spotLight;
-		scene->getSpotLight(i, spotLight);
+	//prog.setUniformVal("uNumPointLights", (int32_t)numActiveLights);
+	//for(uint32_t i=0; i<scene->getNumPointLights(); i++){
+	//	PointLight light;
+	//	scene->getPointLight(i, light);
 
-		if(spotLight.mActive){
-			numActiveLights++;
-		}
-	}
-	prog.setUniformVal("uNumSpotLights", (int32_t)numActiveLights);
+	//	if(!light.enabled){
+	//		continue;
+	//	}
 
-	for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
-		SpotLight spotLight;
-		scene->getSpotLight(i, spotLight);
+	//	setVal("uPointLights[%d].color", i, light.color);
+	//	setVal("uPointLights[%d].ambientItensity", i, light.ambientIntensity);
+	//	setVal("uPointLights[%d].diffuseItensity", i, light.diffuseIntensity);
+	//	setVal("uPointLights[%d].position", i, light.position);
 
-		if(!spotLight.mActive){
-			continue;
-		}
+	//	setVal("uPointLights[%d].attenuation.linear", i, light.attenuation.linear);
+	//	setVal("uPointLights[%d].attenuation.constant", i, light.attenuation.constant);
+	//	setVal("uPointLights[%d].attenuation.exponential", i, light.attenuation.quadratic);
+	//}
 
-		setVal("uSpotLights[%d].base.color", i, spotLight.mColor);
-		setVal("uSpotLights[%d].base.ambientItensity", i, spotLight.mAmbientIntesity);
-		setVal("uSpotLights[%d].base.diffuseItensity", i, spotLight.mDiffuseItensity);
-		setVal("uSpotLights[%d].base.position", i, spotLight.mPosition);
+	//numActiveLights=0;
+	//for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
+	//	SpotLight spotLight;
+	//	scene->getSpotLight(i, spotLight);
 
-		setVal("uSpotLights[%d].base.attenuation.linear", i, spotLight.mAttenuation.linear);
-		setVal("uSpotLights[%d].base.attenuation.constant", i, spotLight.mAttenuation.constant);
-		setVal("uSpotLights[%d].base.attenuation.exponential", i, spotLight.mAttenuation.exponential);
+	//	if(spotLight.enabled){
+	//		numActiveLights++;
+	//	}
+	//}
+	//prog.setUniformVal("uNumSpotLights", (int32_t)numActiveLights);
 
-		setVal("uSpotLights[%d].cutoff", i, cosf(glm::radians(spotLight.cutoff)));
-		setVal("uSpotLights[%d].direction", i, spotLight.direction);
-	}
+	//for(uint32_t i=0; i<scene->getNumSpotLights(); i++){
+	//	SpotLight spotLight;
+	//	scene->getSpotLight(i, spotLight);
 
-	prog.setUniformVal("uFogParams.density", scene->getFog().density);
-	prog.setUniformVal("uFogParams.color", scene->getFog().color);
-	prog.setUniformVal("uEyePos", scene->getCamera().getPosition());
+	//	if(!spotLight.enabled){
+	//		continue;
+	//	}
 
-	prog.setUniformVal("uMaterial.ambientColor", Color::white());
-	prog.setUniformVal("uMaterial.diffuseColor", Color::white());
-	prog.setUniformVal("uMaterial.specularColor", Color::black());
-	prog.setUniformVal("uMaterial.shininess", 0.0f);
+	//	setVal("uSpotLights[%d].base.color", i, spotLight.color);
+	//	setVal("uSpotLights[%d].base.ambientItensity", i, spotLight.ambientIntensity);
+	//	setVal("uSpotLights[%d].base.diffuseItensity", i, spotLight.diffuseIntensity);
+	//	setVal("uSpotLights[%d].base.position", i, spotLight.position);
 
-	#undef setVal
+	//	setVal("uSpotLights[%d].base.attenuation.linear", i, spotLight.attenuation.linear);
+	//	setVal("uSpotLights[%d].base.attenuation.constant", i, spotLight.attenuation.constant);
+	//	setVal("uSpotLights[%d].base.attenuation.exponential", i, spotLight.attenuation.quadratic);
+
+	//	setVal("uSpotLights[%d].cutoff", i, cosf(glm::radians(spotLight.cutoff)));
+	//	setVal("uSpotLights[%d].direction", i, spotLight.direction);
+	//}
+
+	//prog.setUniformVal("uFogParams.density", scene->getFog().density);
+	//prog.setUniformVal("uFogParams.color", scene->getFog().color);
+	//prog.setUniformVal("uEyePos", scene->getCamera().getPosition());
+
+	//prog.setUniformVal("uMaterial.ambientColor", Color::White());
+	//prog.setUniformVal("uMaterial.diffuseColor", Color::White());
+	//prog.setUniformVal("uMaterial.specularColor", Color::Black());
+	//prog.setUniformVal("uMaterial.shininess", 0.0f);
+
+	//#undef setVal
 }
 
 Renderer::RenderState& Renderer::getRenderState(){
@@ -583,7 +565,7 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 	// projection
 	gl( MatrixMode(GL_PROJECTION) );
 	gl( LoadIdentity() );
-	gl( LoadMatrixf( glm::value_ptr( mFrustum.getProjMatrix() ) ) );
+	gl( LoadMatrixf( glm::value_ptr( camera->getFrustum().getProjMatrix() ) ) );
 
 	// moidelview
 	gl( MatrixMode(GL_MODELVIEW) );
@@ -596,7 +578,7 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 	PxVec3 extents = bounds.getExtents();
 
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_LINE) );
-	gl( Color4f(clr.mRed, clr.mGreen, clr.mBlue, clr.mAlpha) );
+	gl( Color4f(clr.red, clr.green, clr.blue, clr.alpha) );
 
 	glBegin(GL_QUADS);
 		// bottom
@@ -637,15 +619,11 @@ void Renderer::saveScreenshot(const String& path){
 	DevilImageLoader::getSingleton().save(&stream, &img);
 }
 
-const math::Frustum& Renderer::getFrustum() const{
-	return mFrustum;
-}
-
 void Renderer::setClearColor(const Color& clr){
 	mClearColor = clr;
 
-	gl( ClearColor(clr.mRed, clr.mGreen, clr.mBlue,
-		clr.mAlpha) );
+	gl( ClearColor(clr.red, clr.green, clr.blue,
+		clr.alpha) );
 }
 
 void Renderer::setViewPort(uint32_t width, uint32_t height){
@@ -666,8 +644,8 @@ void Renderer::setViewPort(uint32_t width, uint32_t height){
 		}
 	}
 
-	mFrustum.setPerspectiveProj((float)width, (float)height, 73.0f, 0.5f,
-		3500.0f);
+	//mFrustum.setPerspectiveProj((float)width, (float)height, 73.0f, 0.5f,
+	//	3500.0f);
 
 	mDeferredRenderer->resize(width, height);
 }
@@ -702,7 +680,7 @@ void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float 
 	// draw textured quad
 	glBegin(GL_QUADS);
 
-	glColor4f(clr.mRed, clr.mGreen, clr.mBlue, clr.mAlpha);
+	glColor4f(clr.red, clr.green, clr.blue, clr.alpha);
 
 	glVertex2f(x,	y);		glTexCoord2f(1.0, 0.0);
 	glVertex2f(x+w, y);		glTexCoord2f(1.0, 1.0);
@@ -719,9 +697,9 @@ void Renderer::setShaderMaterialUniforms(Material* material, gl::ShaderProgram& 
 	prog.setUniformVal("uMaterial.specularColor", material->getSpecular());
 	prog.setUniformVal("uMaterial.shininess", material->getShininess());
 #else
-	prog.setUniformVal("uMaterial.ambientColor", Color::white());
-	prog.setUniformVal("uMaterial.diffuseColor", Color::white());
-	prog.setUniformVal("uMaterial.specularColor", Color::black());
+	prog.setUniformVal("uMaterial.ambientColor", Color::White());
+	prog.setUniformVal("uMaterial.diffuseColor", Color::White());
+	prog.setUniformVal("uMaterial.specularColor", Color::Black());
 	prog.setUniformVal("uMaterial.shininess", 0.0f);
 #endif
 }
@@ -766,31 +744,7 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 		}
 	}
 
-
-	// When we get here the depth buffer is already populated and the stencil pass
-    // depends on it, but it does not write to it.
-    gl( DepthMask(GL_FALSE) );
-	gl( Enable(GL_STENCIL_TEST ));
-
-	for(uint32_t i=0; i<scene.getNumPointLights(); i++){
-		PointLight light;
-
-		scene.getPointLight(i, light);
-		if(!light.mActive){
-			continue;
-		}
-
-		mDeferredRenderer->stencilPass(&scene, &scene.getCamera(), i);
-		mDeferredRenderer->pointLightPass(&scene, &scene.getCamera(), i);
-	}
-
-	// The directional light does not need a stencil test because its volume
-    // is unlimited and the final pass simply copies the texture.
-
-	gl( Disable(GL_STENCIL_TEST ));
-
-	mDeferredRenderer->directionalLightPass(&scene, &scene.getCamera());
-
+	mDeferredRenderer->doLightPass(&scene, &scene.getCamera());
 
 	const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT3 };
 	gl( DrawBuffers(1, drawBuffers) );
@@ -801,6 +755,26 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
 		if(!(*iter)->isDeferred()){
 			(*iter)->render(&scene, &scene.getCamera(), ARenderer::ePASS_NORMAL);
+		}
+	}
+
+	if(pass == ARenderer::ePASS_NORMAL){
+		// Skeleton bones
+		if(mRenderBones){
+			for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
+				if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
+					render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
+				}
+			}
+		}
+
+		// Bounding boxes
+		if(mRenderBoundingBoxes){
+			glDisable(GL_DEPTH_TEST);
+			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+				render(i->second->getBounds(), &scene.getCamera(), i->second->getBoundingBoxColor());
+			}
+			glEnable(GL_DEPTH_TEST);
 		}
 	}
 
@@ -827,28 +801,6 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	mDeferredRenderer->debugBlit(glm::vec2(1280, 720));
 #endif
 
-#if 0
-	if(pass == ARenderer::ePASS_NORMAL){
-		// Skeleton bones
-		if(mRenderBones){
-			for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
-				if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
-					render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
-				}
-			}
-		}
-
-		// Bounding boxes
-		if(mRenderBoundingBoxes){
-			glDisable(GL_DEPTH_TEST);
-			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-				render(i->second->getBounds(), &scene.getCamera(), i->second->getBoundingBoxColor());
-			}
-			glEnable(GL_DEPTH_TEST);
-		}
-	}
-#endif
-
 	gl::FrameBuffer::unbind();
 }
 
@@ -864,7 +816,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	scene.getGodRayParams(godrayParams);
 	
 	glm::vec4 viewport(0, 0, mViewPort.x, mViewPort.y);
-	glm::vec3 sunScreenPos = glm::project(godrayParams.sourcePosition, modelview, mFrustum.getProjMatrix(), viewport);
+	glm::vec3 sunScreenPos = glm::project(godrayParams.sourcePosition, modelview, scene.getCamera().getFrustum().getProjMatrix(), viewport);
 	bool sunVisible = sunScreenPos.x >= 0.0f && sunScreenPos.y >= 0.0f && sunScreenPos.x <= mViewPort.x && sunScreenPos.y <= mViewPort.y;
 
 	if(godrayParams.enabled){ 
@@ -892,7 +844,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		//scene.getCamera().getMatrix(sunViewMat, 1);
 		mGodraySunShader.setUniformVal("uModelMat", glm::translate(godrayParams.sourcePosition));
 		mGodraySunShader.setUniformVal("uViewMat", modelview);
-		mGodraySunShader.setUniformVal("uProjMat", mFrustum.getProjMatrix());
+		mGodraySunShader.setUniformVal("uProjMat", scene.getCamera().getFrustum().getProjMatrix());
 		mGodraySunShader.setUniformVal("uSunSize", godrayParams.sourceSize);
 		mGodraySunShader.setUniformVal("uPlanetTexture", 0);
 		mGodraySunShader.setUniformVal("uSourceColor", godrayParams.sourceColor);
@@ -906,10 +858,10 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 			mGodraySunTexture.bind();
 		}
 
-		gl( Color4f(godrayParams.sourceColor.mRed, 
-			godrayParams.sourceColor.mGreen,
-			godrayParams.sourceColor.mBlue,
-			godrayParams.sourceColor.mAlpha
+		gl( Color4f(godrayParams.sourceColor.red, 
+			godrayParams.sourceColor.green,
+			godrayParams.sourceColor.blue,
+			godrayParams.sourceColor.alpha
 			) );
 
 		mSunBatch.render();

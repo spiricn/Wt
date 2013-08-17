@@ -128,8 +128,8 @@ public:
 			
 			Gui::TextView* v = getUi().createView<Gui::TextView>("text");
 			v->setGridLocation(3, 5, 12, 4);
-			v->setBackgroundColor(Color::gray());
-			v->setTextColor(Color::black());
+			v->setBackgroundColor(Color::Gray());
+			v->setTextColor(Color::Black());
 			v->setText( kTEST_TEXT );
 			
 		}
@@ -139,9 +139,9 @@ public:
 			Gui::TextView* v = getUi().createView<Gui::TextView>("clr_text");
 			v->setGridLocation(2, 5, 1, 4);
 			v->setScalingMode(Gui::TextView::eAUTO);
-			v->setBackgroundColor(Color::white());
+			v->setBackgroundColor(Color::White());
 			v->setText("Current text color: default");
-			v->setTextColor(Color::black());
+			v->setTextColor(Color::Black());
 		}
 		{
 			
@@ -163,7 +163,7 @@ public:
 				new MemberCallback<GuiDemo>(this, &GuiDemo::onCheckboxClicked), Gui::CheckboxClickedEvent::TYPE, true, v->getId()
 				);
 		}
-		getRenderer()->setClearColor( Color::black() );
+		getRenderer()->setClearColor( Color::Black() );
 
 		getManager()->getInput()->setMouseGrabbed(false);
 	}

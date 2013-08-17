@@ -52,7 +52,7 @@ public:
 	}
 
 	void onStart(const LuaObject& config){
-		getRenderer()->setClearColor( Color::black() );
+		getRenderer()->setClearColor( Color::Black() );
 
 
 		getAssets()->load("level1.lua");

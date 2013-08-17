@@ -9,10 +9,10 @@
 ColorEditWidget::ColorEditWidget(QWidget* parent) : QWidget(parent), mColorDialog(NULL){
     ui.setupUi(this);
 
-	mColorDialog = new QColorDialog(QColor(mColor.mRed*255, 
-			mColor.mGreen*255, 
-			mColor.mBlue*255, 
-			mColor.mAlpha*255), this);
+	mColorDialog = new QColorDialog(QColor(mColor.red*255, 
+			mColor.green*255, 
+			mColor.blue*255, 
+			mColor.alpha*255), this);
 
 	mColorDialog->setOptions(QColorDialog::ShowAlphaChannel | QColorDialog::DontUseNativeDialog | QColorDialog::NoButtons);
 	mColorDialog->setModal(false);
@@ -39,7 +39,7 @@ void ColorEditWidget::setColor(const wt::Color& color){
 
 		ui.color->setColor(color);
 
-		mColorDialog->setCurrentColor( QColor(color.mRed*255, color.mGreen*255, color.mBlue*255, color.mAlpha*255));
+		mColorDialog->setCurrentColor( QColor(color.red*255, color.green*255, color.blue*255, color.alpha*255));
 
 		emit valueChanged();
 	}

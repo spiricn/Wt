@@ -28,8 +28,8 @@ private:
 
 	void setAlpha(float a){
 		mCurrentAlpha = a;
-		Color clr = Color::white();
-		clr.mAlpha = a;
+		Color clr = Color::White();
+		clr.alpha = a;
 		mView->setBackgroundColor(clr);
 	}
 

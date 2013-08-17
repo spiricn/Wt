@@ -100,7 +100,7 @@ void SceneView::initializeGL() {
 
 	mRenderer->init(640, 480);
 
-	mRenderer->setClearColor(wt::Color::gray());
+	mRenderer->setClearColor(wt::Color::Gray());
 	mRenderer->setRenderBoundingBoxes(true);
 
 
