@@ -11,6 +11,7 @@
 
 #include "wt/ScriptProcess.h"
 #include "wt/lua/LuaUtils.h"
+#include <wt/IcosphereBuilder.h>
 
 namespace wt{
 
@@ -63,21 +64,83 @@ public:
 		state->getGlobals().Set("Scene", luaScene);
 
 
+		getScene()->getCamera().setPosition(glm::vec3(120.82, 45.07, 215.169));
+		glm::quat r;
+		r.x = 0.062972;
+		r.y = 0.924936;
+		r.z = -0.331037;
+		r.w = 0.175955;
+
+		getScene()->getCamera().setRotation(r);
 
 		PointLight light;
-		light.mColor = Color::green();
-		light.mPosition = glm::vec3(142, 20, 244);
+		light.mAttenuation.constant = 0.0f;
+		light.mAttenuation.linear = 0.0f;
+		light.mAttenuation.exponential = 0.5f;
 
+		light.mColor = Color::yellow();
+		light.mPosition = glm::vec3(126.91, 30.18, 174.11);
+		
+		light.mDiffuseItensity = 15;
 		getScene()->addPointLight(light);
 
-		light.mColor = Color::blue();
-		light.mPosition = glm::vec3(159, 5, 193);
-		light.mDiffuseItensity = 3;
+		light.mColor = Color::cyan();
+		light.mPosition = glm::vec3(86.58, 3, 68.56);
+		light.mDiffuseItensity = 15;
+		
 
 		getScene()->addPointLight(light);
 
 		/*lua::ScriptPtr script1;
 		getProcManager().attach(new ScriptProcess(script1 = state->createScript("test_script.lua")));*/
+
+		Model* model = getAssets()->getModelManager()->create("orb");
+
+		// Create a sphere batch (used for point lighting)
+		IcosphereBuilder::Vertex* vertices;
+		uint32_t* indices;
+		uint32_t numIndices, numVertices;
+
+		IcosphereBuilder(&vertices, &indices, &numVertices, &numIndices, 1);
+
+		Buffer<Geometry::Vertex> modelVertices(numVertices);
+
+		model->setSize(numVertices, numIndices);
+
+		for(int i=0; i<numVertices; i++){
+			modelVertices[i].x = vertices[i].position.x;
+			modelVertices[i].y = vertices[i].position.y;
+			modelVertices[i].z = vertices[i].position.z;
+
+			modelVertices[i].nx = vertices[i].normal.x;
+			modelVertices[i].nx = vertices[i].normal.y;
+			modelVertices[i].nx = vertices[i].normal.z;
+
+			modelVertices[i].s = vertices[i].texture.s;
+			modelVertices[i].t = vertices[i].texture.t;
+		}
+
+		Buffer<GLuint> modelIndices(numIndices);
+		memcpy(modelIndices.getData(), indices, numIndices*sizeof(uint32_t));
+		
+		Geometry* geometry = model->addGeometry("main", modelVertices, modelIndices);
+
+		Model::GeometrySkin* skin = model->createSkin("main");
+
+		skin->addMesh(geometry);
+
+		model->create();
+
+		for(int i=0; i<getScene()->getNumPointLights(); i++){
+			PointLight light;
+			getScene()->getPointLight(i, light);
+
+			if(light.mActive){
+				ModelledActor* actor = getScene()->createModelledActor();
+				actor->setModel(model, "main");
+				actor->getTransform().setPosition(light.mPosition);
+			}
+		}
 
 	}
 

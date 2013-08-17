@@ -217,8 +217,6 @@ void DeferredRender::directionalLightPass(Scene* scene, math::Camera* camera){
 	mQuadBatch.render();
 }
 
-	
-
 void DeferredRender::bindForStencilPass(){
 	// Disable color write so that our stencil pass does not black out our textures
 	glDrawBuffer(GL_NONE);

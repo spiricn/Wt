@@ -811,7 +811,6 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 		glm::vec4(0, 0, mViewPort.x, mViewPort.y),
 			GL_COLOR_ATTACHMENT3, GL_COLOR_BUFFER_BIT, GL_LINEAR
 	);
-
 	
 #if 0
 	//// Debug blit

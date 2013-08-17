@@ -24,5 +24,7 @@ void main(){
 	vec4 lightColor = calculateLight(normal, worldPos, uDirectionalLight.color, uDirectionalLight.ambientItensity,
 			uDirectionalLight.diffuseItensity, uDirectionalLight.direction);
 
-	outFragColor = vec4(color * lightColor.xyz, 1.0);
+	outFragColor = vec4(color * lightColor.xyz, 1.0) 
+	//* 0.0
+	;
 }

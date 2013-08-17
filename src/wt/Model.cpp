@@ -348,9 +348,11 @@ void Model::create(){
 		GeometrySkin* skin = i->second;
 
 		for(GeometrySkin::MeshList::iterator j=skin->getMeshList().begin(); j!=skin->getMeshList().end(); j++){
-
-			j->geometry = findGeometryByName(j->geometryName);
-			j->geometryName.clear();
+			// Alrady set ?
+			if(j->geometry == NULL){
+				j->geometry = findGeometryByName(j->geometryName);
+				j->geometryName.clear();
+			}
 		}
 	}
 }

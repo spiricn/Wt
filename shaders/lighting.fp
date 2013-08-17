@@ -55,7 +55,9 @@ uniform int uNumSpotLights;
 
 vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensity, float diffuseItensity, vec3 direction){
 	vec4 ambientColor = color * ambientIntensity;
-	vec4 SpecularColor;
+	vec4 specularColor = vec4(0, 0, 0, 0);
+	vec4 diffuseColor = vec4(0, 0, 0, 0);
+
 	/*
 		calculate the cosine of the angle between the light vector and the normal by doing a dot product
 
@@ -63,18 +65,19 @@ vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensi
 		This is because the interpolation the vector went through may have changed its length and it is no longer a unit vector.
 	*/
 	float diffuseFactor = dot(normal, -direction);
-
-	vec4 diffuseColor;
+	
 	if(diffuseFactor > 0){
 		diffuseColor = color * diffuseItensity * diffuseFactor;
 
+		// Drection vertex -> camera
 		vec3 VertexToEye = normalize(uEyePos - worldPos);
+
         vec3 LightReflect = normalize(reflect(direction, normal));
         float SpecularFactor = dot(VertexToEye, LightReflect);
         SpecularFactor = pow(SpecularFactor, uMaterial.shininess);
 		
         if (SpecularFactor > 0) {
-            SpecularColor = color * uMaterial.specularColor * SpecularFactor;
+            specularColor = color * uMaterial.specularColor * SpecularFactor;
         }
 	}
 	else{
@@ -85,7 +88,7 @@ vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensi
 		diffuseColor = vec4(0, 0, 0, 0);
 	}
 
-	return ambientColor*uMaterial.ambientColor + diffuseColor*uMaterial.diffuseColor + SpecularColor;
+	return ambientColor*uMaterial.ambientColor + diffuseColor*uMaterial.diffuseColor + specularColor;
 }
 
 
@@ -100,15 +103,10 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 worldPos){
 
 	vec4 color = calculateLight(normal, worldPos, light.color, light.ambientItensity, light.diffuseItensity, direction);
 
-	float attenuation = 
-		light.attenuation.constant +
-		light.attenuation.linear * d +
-		light.attenuation.exponential * d * d;
+	float att = light.attenuation.constant + light.attenuation.linear * d + light.attenuation.exponential * d * d;
 
-	// Necessary to prevent zero divisions and increasing t
-	//attenuation = min(1.0, attenuation);
+	return color / att;
 
-	return color/attenuation;
 }
 
 

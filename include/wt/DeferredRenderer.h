@@ -62,6 +62,8 @@ public:
 
 	gl::FrameBuffer* getFrameBuffer();
 
+
+	gl::Batch mSphereBatch;
 private:
 	Texture2D mTextures[eGTEX_MAX];
 	Texture2D mDepthTexture;
@@ -74,7 +76,7 @@ private:
 	gl::ShaderProgram mStencilPassShader;
 
 	gl::Batch mQuadBatch;
-	gl::Batch mSphereBatch;
+	
 
 }; // </DeferredRender>
 

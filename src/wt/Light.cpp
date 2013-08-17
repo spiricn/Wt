@@ -74,8 +74,8 @@ PointLight::PointLight (const Color& color, float ambientIntesity,
 	float diffuseItensity, const glm::vec3& pos) : ALight(color, ambientIntesity, diffuseItensity),
 	mPosition(pos){
 		mAttenuation.constant = 0.0f;
-		mAttenuation.linear = 0.8f;
-		mAttenuation.exponential = 0.00f;
+		mAttenuation.linear = 0.0f;
+		mAttenuation.exponential = .3f;
 }
 
 void PointLight::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
@@ -107,10 +107,40 @@ void PointLight::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 }
 
 float PointLight::calculateBoundingSphere(){
-	float maxChannel = glm::max(glm::max(mColor.mRed, mColor.mGreen), mColor.mBlue);
-	// TODO probably wrong, we need to account for attenuation as well
-   	float c = maxChannel * mDiffuseItensity;
-   	return (8.0f * glm::sqrt(c) + 1.0f);
+	// Treshold (consider changing this)
+
+	static const float m = 20/255.0f;
+
+	float f = glm::max(mDiffuseItensity, mAmbientIntesity) * glm::max(glm::max(mColor.mRed, mColor.mGreen), mColor.mBlue);
+
+	float C = mAttenuation.constant;
+
+	float L = mAttenuation.linear;
+
+	float Q = mAttenuation.exponential;
+
+	float res = 0.0f;
+
+	if(L != 0.0f && Q != 0.0f){
+		float D = glm::sqrt( glm::pow(L, 2.0f) - 4*(C - f/m)*Q );
+
+		float d1 = (-L + D) / ( 2 * Q);
+
+		float d2 = (-L - D) / ( 2 * Q );
+
+		res = glm::max(d1, d2);
+	}
+	else if(L == 0.0f && Q != 0.0f){
+		res = glm::sqrt( (-(C - f/m)) / Q );
+	}
+	else if(L != 0.0f && Q == 0.0f){
+		res = ((f/m) - C) / L;
+	}
+	else{
+		res = FLT_MAX;
+	}
+
+	return res;
 }
 SpotLight::SpotLight(const Color& color, float ambientIntesity,
 	float diffuseItensity, const glm::vec3& pos) : PointLight(color, ambientIntesity, diffuseItensity, pos){

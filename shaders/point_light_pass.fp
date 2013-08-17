@@ -27,5 +27,7 @@ void main(){
 		lightColor += calculatePointLight(uPointLights[i], normal, worldPos);
 	}
 
-	outFragColor = vec4(color * lightColor.xyz, 1.0);
+	outFragColor = vec4(color * lightColor.xyz, 1.0)
+	//+ vec4(1, 1, 1, 1)
+	;
 }

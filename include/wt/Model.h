@@ -66,22 +66,6 @@ public:
 		Model* mModel;
 		MeshList mMeshes;
 
-	protected:
-
-		void removeMesh(Geometry* geometry){
-			for(MeshList::iterator i=mMeshes.begin(); i!=mMeshes.end(); i++){
-				if((*i).geometry == geometry){
-					mMeshes.erase(i);
-					return;
-				}
-			}
-		}
-
-		Mesh* addMesh(Geometry* geometry){
-			mMeshes.push_back( Mesh(geometry) );
-			return &mMeshes[mMeshes.size()-1];
-		}
-
 	public:
 		GeometrySkin(Model* model, const String& name) : mModel(model), mName(name){
 			for(GeoList::iterator i=model->mGeometry.begin(); i!=model->mGeometry.end(); i++){
@@ -110,6 +94,21 @@ public:
 		MeshList& getMeshList(){
 			return mMeshes;
 		}
+
+		void removeMesh(Geometry* geometry){
+			for(MeshList::iterator i=mMeshes.begin(); i!=mMeshes.end(); i++){
+				if((*i).geometry == geometry){
+					mMeshes.erase(i);
+					return;
+				}
+			}
+		}
+
+		Mesh* addMesh(Geometry* geometry){
+			mMeshes.push_back( Mesh(geometry) );
+			return &mMeshes[mMeshes.size()-1];
+		}
+
 	}; // </GeometrySkin>
 
 	typedef std::map<String, Sp<GeometrySkin>> SkinMap;
