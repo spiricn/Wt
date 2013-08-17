@@ -13,6 +13,32 @@ void PointLight::setDesc(const Desc& desc) const{
 	getParent()->setPointLightDesc(this, desc);
 }
 
+ATransformable* getTransformable();
+
+void PointLight::setTranslation(const glm::vec3& translation){
+	Desc desc = getDesc();
+	desc.position = translation;
+
+	setDesc(desc);
+}
+
+void PointLight::setRotation(const glm::quat&){
+}
+
+void PointLight::setScale(const glm::vec3&){
+}
+
+void PointLight::getScale(glm::vec3&) const{
+}
+
+void PointLight::getTranslation(glm::vec3& result) const{
+	Desc desc = getDesc();
+	result = desc.position;
+}
+
+void PointLight::getRotation(glm::quat&) const{
+}
+
 void PointLight::Desc::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
 	ALight::Desc::deserialize(luaState, src);
 	if(!lua::luaConv(src.Get("position"), position)){
@@ -42,10 +68,16 @@ void PointLight::Desc::serialize(lua::State* luaState, LuaPlus::LuaObject& dst) 
 }
 
 PointLight::Desc::Desc(){
-	// TODO
+	attenuation.constant = 0.0f;
+	attenuation.linear = 0.0f;
+	attenuation.quadratic = 0.3f;
 }
 
-PointLight::PointLight(Scene* parent, uint32_t id) : ALight(parent, id, ALight::eTYPE_POINT){
+ATransformable* PointLight::getTransformable(){
+	return static_cast<ATransformable*>(this);
+}
+
+PointLight::PointLight(Scene* parent, uint32_t id, const String& name) : ALight(parent, id, ALight::eTYPE_POINT), ASceneActor(parent, ASceneActor::eTYPE_POINT_LIGHT, id, name){
 }
 
 float PointLight::Desc::calculateBoundingSphere() const{

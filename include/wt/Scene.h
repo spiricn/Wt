@@ -233,9 +233,6 @@ private:
 	typedef std::map<uint32_t, SpotLight*> SpotLightMap;
 	SpotLightMap mSpotLights;
 
-	typedef std::map<uint32_t, PointLight*> PointLightMap;
-	PointLightMap mPointLights;
-
 	PointLightSet mPointLightSet;
 
 	lua::State* mLuaState;

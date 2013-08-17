@@ -122,6 +122,8 @@ public:
 		desc.position = glm::vec3(86.58, 3, 68.56);
 		getScene()->createPointLight(desc);
 
+		//getRenderer()->setRenderBoundingBoxes(true);
+
 		/*lua::ScriptPtr script1;
 		getProcManager().attach(new ScriptProcess(script1 = state->createScript("test_script.lua")));*/
 

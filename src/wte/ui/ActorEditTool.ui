@@ -26,7 +26,7 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="modelledActor">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -80,6 +80,50 @@
           </item>
          </layout>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="point_light">
+      <layout class="QFormLayout" name="formLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Color</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="ColorEditWidget" name="lightColor" native="true"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Ambient intensity</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Diffuse intensity</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Attenuation(C, L, Q)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="VecEditWidget" name="lightAttenuation" native="true"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="SlidedSpinboxWidget" name="lightDiffuseIntensity" native="true"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="SlidedSpinboxWidget" name="lightAmbientIntensity" native="true"/>
        </item>
       </layout>
      </widget>
@@ -143,6 +187,30 @@
     <signal>scaleChanged()</signal>
     <signal>translationChanged()</signal>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>ColorEditWidget</class>
+   <extends>QWidget</extends>
+   <header>coloreditwidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>VecEditWidget</class>
+   <extends>QWidget</extends>
+   <header>veceditwidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>SlidedSpinboxWidget</class>
+   <extends>QWidget</extends>
+   <header>slidedspinboxwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -291,6 +359,70 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>lightColor</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onLightColorChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>322</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>-8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lightAmbientIntensity</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onAmbientIntensityChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lightDiffuseIntensity</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onDiffuseIntensityChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>177</x>
+     <y>62</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>32</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lightAttenuation</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onAttenuationChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onNewActor()</slot>
@@ -305,5 +437,9 @@
   <slot>onDeleteActor()</slot>
   <slot>onBBoxGeometryChanged()</slot>
   <slot>onEditParticleEffect()</slot>
+  <slot>onLightColorChanged()</slot>
+  <slot>onAmbientIntensityChanged()</slot>
+  <slot>onDiffuseIntensityChanged()</slot>
+  <slot>onAttenuationChanged()</slot>
  </slots>
 </ui>

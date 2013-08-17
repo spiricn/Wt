@@ -56,18 +56,14 @@ const Scene::PointLightSet& Scene::getPointLightSet() const{
 }
 
 void Scene::deleteLight(const ALight* alight){
-	if(alight->getType() == ALight::eTYPE_POINT){
-		PointLight* light = (PointLight*)alight;
-
-		mPointLights.erase(light->getId());
-		mPointLightSet.erase(light);
-
-	}
-	else if(alight->getType() == ALight::eTYPE_SPOT){
+	if(alight->getType() == ALight::eTYPE_SPOT){
 		SpotLight* light = (SpotLight*)alight;	
 
 		mSpotLights.erase(light->getId());
 		mSpotLightSet.erase(light);
+	}
+	else{
+		WT_THROW("Sanity check fail");
 	}
 
 	onLightDeleted((ALight*)alight);
@@ -111,8 +107,13 @@ SpotLight* Scene::findSpotLight(uint32_t id){
 }
 
 PointLight* Scene::findPointLight(uint32_t id){
-	PointLightMap::iterator iter = mPointLights.find(id);
-	return iter == mPointLights.end() ? NULL : iter->second;
+	ASceneActor* actor = getActorById(id);
+	if(actor->getActorType() == ASceneActor::eTYPE_POINT_LIGHT){
+		return dynamic_cast<PointLight*>(actor);
+	}
+	else{
+		return NULL;
+	}
 }
 
 Scene::~Scene(){
@@ -162,20 +163,14 @@ void Scene::setDirectionalLightDesc(const DirectionalLight::Desc& desc){
 const PointLight* Scene::createPointLight(const PointLight::Desc& desc){
 	uint32_t id = 0;
 
-	while(true){
-		if(findPointLight(id) != NULL){
-			++id;
-		}
-		else{
-			break;
-		}
-	}
+	PointLight* light = new PointLight(this, generateActorId(), "");
 
-	PointLight* light = new PointLight(this, id);
+	light->setLuaState(mLuaState);
 
+	mActors.insert( std::make_pair(((ASceneActor*)light)->getId(), light) );
+	
 	light->getDesc() = desc;
 
-	mPointLights.insert(std::make_pair(id, light));
 	mPointLightSet.insert(light);
 
 	onLightCreated(light);
@@ -209,15 +204,27 @@ Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
 
 	if(iter->second->getActorType() == ASceneActor::eTYPE_MODELLED){
 		WT_ASSERT(mModelledActors.erase( static_cast<ModelledActor*>(iter->second ) ) == 1, "Error erasing actor");
+
+		delete iter->second;
 	}
 	else if(iter->second->getActorType() == ASceneActor::eTYPE_TERRAIN){
 		WT_ASSERT(mTerrainSet.erase( static_cast<Terrain*>(iter->second) ) == 1, "Error erasing actor");
+
+		delete iter->second;
 	}
 	else if(iter->second->getActorType() == ASceneActor::eTYPE_PARTICLE_EFFECT){
 		WT_ASSERT(mParticleEffects.erase( static_cast<ParticleEffect*>(iter->second) ), "Error erasing actor");
-	}
 
-	delete iter->second;
+		delete iter->second;
+	}
+	else if(iter->second->getActorType() == ASceneActor::eTYPE_POINT_LIGHT){
+		PointLight* light = static_cast<PointLight*>(iter->second);
+
+		mPointLightSet.erase(light);
+
+		// We don't delete the object directly but rather let a smart pointer do it
+		onLightDeleted((ALight*)light);
+	}
 
 	return mActors.erase(iter);
 }
@@ -284,7 +291,7 @@ ASceneActor* Scene::findActorByName(const String& name) const{
 }
 
 uint32_t Scene::getNumPointLights() const{
-	return mPointLights.size();
+	return mPointLightSet.size();
 }
 
 uint32_t Scene::getNumSpotLights() const{

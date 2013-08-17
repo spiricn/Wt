@@ -69,6 +69,16 @@ protected slots:
 
 	void onBBoxGeometryChanged();
 
+	// Point light
+	void onAmbientIntensityChanged();
+
+	void onDiffuseIntensityChanged();
+
+	void onLightColorChanged();
+
+	void onAttenuationChanged();
+
+
 }; // </ActorEditTool>
 
 #endif

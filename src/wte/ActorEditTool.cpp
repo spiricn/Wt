@@ -28,6 +28,16 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 
 	mParticleEditDialog = new ParticleEditDialog(this, NULL);
 
+	ui.lightAmbientIntensity->setValueRange(0, 100);
+	ui.lightDiffuseIntensity->setValueRange(0, 100);
+
+	ui.lightDiffuseIntensity->setSingleStep(0.01);
+	ui.lightAmbientIntensity->setSingleStep(0.01);
+
+	ui.lightAttenuation->setDecimals(4);
+	ui.lightAttenuation->setValueRange(0, 1.0f);
+	ui.lightAttenuation->setSingleStep(0.001);
+
 	selectActor(NULL);
 }
 
@@ -235,6 +245,51 @@ void ActorEditTool::onToggleBrush(){
 	}
 }
 
+void ActorEditTool::onAmbientIntensityChanged(){
+	const wt::PointLight* light = static_cast<wt::PointLight*>(mSelectedActor);
+
+	wt::PointLight::Desc desc = light->getDesc();
+
+	desc.ambientIntensity = ui.lightAmbientIntensity->getValue();
+
+	light->setDesc(desc);
+}
+
+void ActorEditTool::onDiffuseIntensityChanged(){
+	const wt::PointLight* light = static_cast<wt::PointLight*>(mSelectedActor);
+
+	wt::PointLight::Desc desc = light->getDesc();
+
+	desc.diffuseIntensity = ui.lightDiffuseIntensity->getValue();
+
+	light->setDesc(desc);
+}
+
+void ActorEditTool::onLightColorChanged(){
+	const wt::PointLight* light = static_cast<wt::PointLight*>(mSelectedActor);
+
+	wt::PointLight::Desc desc = light->getDesc();
+
+	desc.color = ui.lightColor->getColor();
+
+	light->setDesc(desc);
+}
+
+void ActorEditTool::onAttenuationChanged(){
+	wt::PointLight* light = static_cast<wt::PointLight*>(mSelectedActor);
+
+	glm::vec3 val;
+	ui.lightAttenuation->getValue(val);
+
+	wt::PointLight::Desc desc = ((const wt::PointLight*)light)->getDesc();
+
+	desc.attenuation.constant = val.x;
+	desc.attenuation.linear = val.y;
+	desc.attenuation.quadratic = val.z;
+
+	light->setDesc(desc);
+}
+
 void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	if(mSelectedActor){
 		mSelectedActor->setBoundingBoxColor(wt::Color::Green());
@@ -262,13 +317,14 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 		mScene->getCamera().setPosition(
 			pos - dir*d);
 	}
+
 	mScene->getCamera().lookAt(pos);
 
-	// We don't want this to emit a signal
-	ui.comboBoxAnimation->blockSignals(true);
-	ui.comboBoxAnimation->clear();
-
 	if(actor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
+		// We don't want this to emit a signal
+		ui.comboBoxAnimation->blockSignals(true);
+		ui.comboBoxAnimation->clear();
+
 		ui.comboBoxAnimation->setEnabled(true);
 		ui.comboBoxAnimation->addItem("none");
 
@@ -294,12 +350,34 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 		}
 
 		ui.stackedWidget->setCurrentIndex(0);
+
+		ui.comboBoxAnimation->blockSignals(false);
 	}
 	else if(actor->getActorType() == wt::ASceneActor::eTYPE_PARTICLE_EFFECT){
 		ui.stackedWidget->setCurrentIndex(1);
 	}
-	else{
-		ui.comboBoxAnimation->blockSignals(false);
+	else if(actor->getActorType() == wt::ASceneActor::eTYPE_POINT_LIGHT){
+		ui.stackedWidget->setCurrentIndex(2);
+
+		const wt::PointLight* light = static_cast<const wt::PointLight*>(actor);
+		
+		ui.lightAttenuation->setValue(glm::vec3(
+			light->getDesc().attenuation.constant,
+			light->getDesc().attenuation.linear,
+			light->getDesc().attenuation.quadratic
+		));
+
+		ui.lightColor->setColor(
+			light->getDesc().color
+		);
+
+		ui.lightAmbientIntensity->setValue(
+			light->getDesc().ambientIntensity
+		);
+
+		ui.lightDiffuseIntensity->setValue(
+			light->getDesc().diffuseIntensity
+		);
 	}
 	
 
@@ -342,9 +420,18 @@ void ActorEditTool::onNewActor(){
 
 			sceneActor = actor;
 		}
+		else if(res.type == wt::ASceneActor::eTYPE_POINT_LIGHT){
+			const wt::PointLight* actor;
+
+			wt::PointLight::Desc desc;
+			actor = mScene->createPointLight(desc);
+
+
+			sceneActor = (wt::ASceneActor*)actor;
+		}
 
 		if(sceneActor){
-			mSelectedActor->getTransformable()->setTranslation(
+			sceneActor->getTransformable()->setTranslation(
 				mScene->getCamera().getPosition() + mScene->getCamera().getForwardVec()*10.0f);
 
 			mPhysics->createBBox(sceneActor);

@@ -383,6 +383,12 @@ void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, const Point
 }
 
 void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const PointLight* light){
+	ShaderPointLight* shaderPointLight = findShaderPointLight(light);
+	if(shaderPointLight == NULL){
+		// Event has not reached us yet
+		return;
+	}
+
 	// Prepare for the light pass
 	bindForLightPass();
 
@@ -425,7 +431,8 @@ void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const Po
 	shader.setUniformVal("uProjMat", camera->getFrustum().getProjMatrix());
 	shader.setUniformVal("uModelMat", model);
 
-	shader.setUniformVal("uPointLightIndex", (int)findShaderPointLight(light)->index);
+
+	shader.setUniformVal("uPointLightIndex", (int)shaderPointLight->index);
 
 	// Render the sphere
 	mSphereBatch.render();

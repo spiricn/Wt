@@ -46,6 +46,12 @@ public:
 
 	void setW(double z);
 
+	void setSingleStep(double step);
+
+	void setDecimals(uint32_t num);
+
+	void setValueRange(double min, double max);
+
 private:
 	Ui::VecEditWidget ui;
 

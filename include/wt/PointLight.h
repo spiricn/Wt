@@ -2,11 +2,12 @@
 #define WT_POINTLIGHT_H
 
 #include "wt/ALight.h"
+#include "wt/ASceneActor.h"
 
 namespace wt
 {
 
-class PointLight : public ALight{
+class PointLight : public ALight, public ASceneActor, public ATransformable{
 friend class Scene;
 
 public:
@@ -32,12 +33,25 @@ public:
 
 	void setDesc(const Desc& desc) const;
 
+	// Transformable interface
+	ATransformable* getTransformable();
+
+	virtual void setTranslation(const glm::vec3& translation);
+
+	virtual void setRotation(const glm::quat& rotation);
+
+	virtual void setScale(const glm::vec3& scale);
+
+	virtual void getScale(glm::vec3& result) const;
+
+	virtual void getTranslation(glm::vec3& result) const;
+
+	virtual void getRotation(glm::quat& result) const;
+
 protected:
-	PointLight(Scene* parent, uint32_t id);
+	PointLight(Scene* parent, uint32_t id, const String& name);
 
 	Desc& getDesc();
-
-
 
 private:
 	PointLight(const PointLight&);

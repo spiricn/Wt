@@ -30,7 +30,15 @@ void ActorCreationDialog::setModel(wt::Model* model){
 }
 
 void ActorCreationDialog::onActorTypeChanged(int type){
-	ui.stackedWidget->setCurrentIndex(type == 0 ? 1 : 0);
+	// :(
+	ui.stackedWidget->setCurrentIndex(
+		// Model
+		type == 0 ? 2 :
+		// Particle
+		type == 1 ? 0 :
+		// Light
+		1
+	);
 }
 
 void ActorCreationDialog::onParticlePick(){
@@ -105,7 +113,10 @@ void ActorCreationDialog::onSave(){
 		mResult.type = wt::ASceneActor::eTYPE_PARTICLE_EFFECT;
 		mResult.ok = true;
 	}
-	
+	else if(actorType == 2){
+		mResult.type = wt::ASceneActor::eTYPE_POINT_LIGHT;
+		mResult.ok = true;
+	}
 
 	close();
 }
