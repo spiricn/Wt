@@ -1,6 +1,9 @@
 #ifndef WT_LIGHTING_FP
 #define WT_LIGHTING_FP
-// TODO put all the modules uniforms in a struct
+
+#define MAX_POINT_LIGHTS	( 20 )
+#define MAX_SPOT_LIGHTS		( 20 )
+
 
 struct DirectionalLight{
 	vec4 color;
@@ -40,9 +43,6 @@ struct Fog{
 	float density;
 	vec4 color;
 }; // </Fog>
-
-#define MAX_POINT_LIGHTS 3
-#define MAX_SPOT_LIGHTS 3
 
 uniform DirectionalLight uDirectionalLight;
 uniform PointLight uPointLights[MAX_POINT_LIGHTS];

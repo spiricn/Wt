@@ -38,7 +38,7 @@ public:
 			if( t > 1){
 				PointLight::Desc d = pl->getDesc();
 
-				d.color = Color::random();
+				d.enabled = !d.enabled;
 
 				pl->setDesc(d);
 

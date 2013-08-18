@@ -13,8 +13,6 @@ void PointLight::setDesc(const Desc& desc) const{
 	getParent()->setPointLightDesc(this, desc);
 }
 
-ATransformable* getTransformable();
-
 void PointLight::setTranslation(const glm::vec3& translation){
 	Desc desc = getDesc();
 	desc.position = translation;
@@ -39,34 +37,6 @@ void PointLight::getTranslation(glm::vec3& result) const{
 void PointLight::getRotation(glm::quat&) const{
 }
 
-void PointLight::Desc::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
-	ALight::Desc::deserialize(luaState, src);
-	if(!lua::luaConv(src.Get("position"), position)){
-		// TODO handle
-	}
-
-	lua::luaConv(src.Get("attenConstat"), attenuation.constant);
-
-	lua::luaConv(src.Get("attenLinear"), attenuation.linear);
-
-	lua::luaConv(src.Get("attenExponential"), attenuation.quadratic);
-}
-
-void PointLight::Desc::serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const{
-	ALight::Desc::serialize(luaState, dst);
-
-	LuaObject luaPos = luaState->newTable();
-
-	lua::luaConv(position, luaPos);
-	dst.Set("position", luaPos);
-
-	dst.Set("attenConstat", attenuation.constant);
-
-	dst.Set("attenLinear", attenuation.linear);
-
-	dst.Set("attenExponential", attenuation.quadratic);
-}
-
 PointLight::Desc::Desc(){
 	attenuation.constant = 0.0f;
 	attenuation.linear = 0.0f;
@@ -83,7 +53,7 @@ PointLight::PointLight(Scene* parent, uint32_t id, const String& name) : ALight(
 float PointLight::Desc::calculateBoundingSphere() const{
 	// Treshold (consider changing this)
 
-	static const float m = 20/255.0f;
+	static const float m = 10/255.0f;
 
 	float f = glm::max(diffuseIntensity, ambientIntensity) * glm::max(glm::max(color.red, color.green), color.blue);
 
@@ -123,6 +93,59 @@ const PointLight::Desc& PointLight::getDesc() const{
 
 PointLight::Desc& PointLight::getDesc(){
 	return mDesc;
+}
+
+
+void PointLight::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
+	ASceneActor::deserialize(assets, src, opaque);
+
+	Desc desc = getDesc();
+
+	if(!lua::luaConv(src.Get("attenConstat"), desc.attenuation.constant)){
+		// TODO
+	}
+
+	if(!lua::luaConv(src.Get("attenLinear"), desc.attenuation.linear)){
+		// TODO
+	}
+
+	if(!lua::luaConv(src.Get("attenExponential"), desc.attenuation.quadratic)){
+		// TODO
+	}
+
+	if(!lua::luaConv(src.Get("color"), desc.color)){
+		// TODO handle
+	}
+
+	if(!lua::luaConv(src.Get("ambientIntensity"), desc.ambientIntensity)){
+		// TODO handle
+	}
+
+	if(!lua::luaConv(src.Get("diffuseIntensity"), desc.diffuseIntensity)){
+		// TODO handle
+	}
+
+	setDesc(desc);
+}
+
+void PointLight::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque){
+	ASceneActor::serialize(assets, dst, opaque);
+
+	const Desc& desc = getDesc();
+
+	dst.Set("attenConstat", desc.attenuation.constant);
+
+	dst.Set("attenLinear", desc.attenuation.linear);
+
+	dst.Set("attenExponential", desc.attenuation.quadratic);
+
+	LuaObject luaColor = getLuaState()->newTable();
+	lua::luaConv(desc.color, luaColor);
+	dst.Set("color", luaColor);
+
+	dst.Set("ambientIntensity", desc.ambientIntensity);
+
+	dst.Set("diffuseIntensity", desc.diffuseIntensity);
 }
 
 } // </wt>

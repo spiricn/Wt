@@ -449,8 +449,11 @@ void DeferredRender::doLightPass(Scene* scene, math::Camera* camera){
 	gl( Enable(GL_STENCIL_TEST ));
 
 	for(Scene::PointLightSet::const_iterator iter=scene->getPointLightSet().cbegin(); iter!=scene->getPointLightSet().cend(); iter++){
-		stencilPass(scene, camera, *iter);
-		pointLightPass(scene, camera, *iter);
+		const PointLight* light = *iter;
+		if(light->getDesc().enabled){
+			stencilPass(scene, camera, *iter);
+			pointLightPass(scene, camera, *iter);
+		}
 	}
 
 	// The directional light does not need a stencil test because its volume

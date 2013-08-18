@@ -20,14 +20,14 @@ public:
 			float quadratic;
 		} attenuation;
 
-		void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
-
-		void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const;
-
 		float calculateBoundingSphere() const;
 
 		Desc();
 	}; // </Desc>
+
+	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
+
+	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
 
 	const Desc& getDesc() const;
 

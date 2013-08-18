@@ -35,8 +35,18 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 	ui.lightAmbientIntensity->setSingleStep(0.01);
 
 	ui.lightAttenuation->setDecimals(4);
-	ui.lightAttenuation->setValueRange(0, 1.0f);
-	ui.lightAttenuation->setSingleStep(0.001);
+
+	// C
+	ui.lightAttenuation->setSingleStep(0.001, VecEditWidget::eFIELD_X);
+	ui.lightAttenuation->setValueRange(0, 1.0f, VecEditWidget::eFIELD_X);
+
+	// L
+	ui.lightAttenuation->setSingleStep(0.01, VecEditWidget::eFIELD_Y);
+	ui.lightAttenuation->setValueRange(0, 50.0f, VecEditWidget::eFIELD_Y);
+
+	// Q
+	ui.lightAttenuation->setSingleStep(0.001, VecEditWidget::eFIELD_Z);
+	ui.lightAttenuation->setValueRange(0, 1.0f, VecEditWidget::eFIELD_Z);
 
 	selectActor(NULL);
 }

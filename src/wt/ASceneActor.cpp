@@ -153,9 +153,22 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 
 	dst.Set("name", mName.c_str());
 
-	dst.Set("type",
-		mType == eTYPE_MODELLED ? "modelled" : mType == eTYPE_TERRAIN ? "terrain" : "particle"
-	);
+
+	if(mType == eTYPE_MODELLED){
+		dst.Set("type", "modelled");
+	}
+	else if(mType == eTYPE_TERRAIN){
+		dst.Set("type", "terrain");
+	}
+	else if(mType == eTYPE_PARTICLE_EFFECT){
+		dst.Set("type", "particle");
+	}
+	else if(mType == eTYPE_POINT_LIGHT){
+		dst.Set("type", "pointlight");
+	}
+	else{
+		WT_THROW("Unsupported actor type");
+	}
 
 	if(mBBox){
 		lua::LuaObject luaBbox = assets->getLuastate()->newTable();

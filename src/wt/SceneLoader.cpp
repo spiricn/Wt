@@ -64,6 +64,13 @@ void SceneLoader::load(AIOStream& stream){
 
 			mScene->getPhysics()->createBBox(effect);
 		}
+		else if(!type.compare("pointlight")){
+			const PointLight* light = mScene->createPointLight(PointLight::Desc());
+
+			((PointLight*)light)->deserialize(mAssets, actorDesc, NULL);
+
+			mScene->getPhysics()->createBBox((PointLight*)light);
+		}
 		else{
 			TRACEW("Invalid actor type (%s), skipping table..", type.c_str());
 			continue;
@@ -81,6 +88,9 @@ void SceneLoader::load(AIOStream& stream){
 		mScene->setDirectionalLightDesc(desc);
 	}
 
+
+	// TODO should be removed
+#if 0
 	LuaObject pointLights = table.Get("pointLights");
 	if(pointLights.IsTable()){
 		for(LuaPlus::LuaTableIterator iter(pointLights); iter; iter.Next()){
@@ -89,6 +99,7 @@ void SceneLoader::load(AIOStream& stream){
 			mScene->createPointLight(desc);
 		}
 	}
+#endif
 
 	// Skybox
 	if(table.Get("skybox").IsString()){

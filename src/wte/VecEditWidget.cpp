@@ -104,25 +104,58 @@ void VecEditWidget::setZ(double z){
 	setValue(mValue.x, mValue.y, z, mValue.w);
 }
 
-void VecEditWidget::setSingleStep(double step){
-	ui.x->setSingleStep(step);
-	ui.y->setSingleStep(step);
-	ui.z->setSingleStep(step);
-	ui.w->setSingleStep(step);
+void VecEditWidget::setSingleStep(double step, Field field){
+	if(field & eFIELD_X){
+		ui.x->setSingleStep(step);
+	}
+
+	if(field & eFIELD_Y){
+		ui.y->setSingleStep(step);
+	}
+
+	if(field & eFIELD_Z){
+		ui.z->setSingleStep(step);
+	}
+
+	if(field & eFIELD_W){
+		ui.w->setSingleStep(step);
+	}
 }
 
-void VecEditWidget::setValueRange(double min, double max){
-	ui.x->setRange(min, max);
-	ui.y->setRange(min, max);
-	ui.z->setRange(min, max);
-	ui.w->setRange(min, max);
+void VecEditWidget::setValueRange(double min, double max, Field field){
+	if(field & eFIELD_X){
+		ui.x->setRange(min, max);
+	}
+
+	if(field & eFIELD_Y){
+		ui.y->setRange(min, max);
+	}
+
+	if(field & eFIELD_Z){
+		ui.z->setRange(min, max);
+	}
+
+	if(field & eFIELD_W){
+		ui.w->setRange(min, max);
+	}
 }
 
-void VecEditWidget::setDecimals(uint32_t num){
-	ui.x->setDecimals(num);
-	ui.y->setDecimals(num);
-	ui.z->setDecimals(num);
-	ui.w->setDecimals(num);
+void VecEditWidget::setDecimals(uint32_t num, Field field){
+	if(field & eFIELD_X){
+		ui.x->setDecimals(num);
+	}
+
+	if(field & eFIELD_Y){
+		ui.y->setDecimals(num);
+	}
+
+	if(field & eFIELD_Z){
+		ui.z->setDecimals(num);
+	}
+
+	if(field & eFIELD_W){
+		ui.w->setDecimals(num);
+	}
 }
 
 void VecEditWidget::setW(double w){

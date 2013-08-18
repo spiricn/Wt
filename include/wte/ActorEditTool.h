@@ -78,7 +78,6 @@ protected slots:
 
 	void onAttenuationChanged();
 
-
 }; // </ActorEditTool>
 
 #endif

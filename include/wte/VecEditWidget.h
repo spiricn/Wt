@@ -11,7 +11,15 @@ public:
 		eMODE_VEC2,
 		eMODE_VEC3,
 		eMODE_VEC4
-	};
+	}; // </Mode>
+
+	enum Field{
+		eFIELD_X = 1 << 0,
+		eFIELD_Y = 1 << 1,
+		eFIELD_Z = 1 << 2,
+		eFIELD_W = 1 << 3,
+		eFIELD_ALL = eFIELD_X|eFIELD_Y|eFIELD_Z|eFIELD_W
+	}; // </Field>
 
 public:
     VecEditWidget(QWidget* parent=NULL);
@@ -46,11 +54,11 @@ public:
 
 	void setW(double z);
 
-	void setSingleStep(double step);
+	void setSingleStep(double step, Field field=eFIELD_ALL);
 
-	void setDecimals(uint32_t num);
+	void setDecimals(uint32_t num, Field field=eFIELD_ALL);
 
-	void setValueRange(double min, double max);
+	void setValueRange(double min, double max, Field field=eFIELD_ALL);
 
 private:
 	Ui::VecEditWidget ui;
@@ -68,5 +76,9 @@ signals:
 	void valueChanged();
 
 }; // </Vec3View>
+
+inline VecEditWidget::Field operator|(const VecEditWidget::Field& a, const VecEditWidget::Field& b){
+	return static_cast<VecEditWidget::Field>( static_cast<int>(a) | static_cast<int>(b) );
+}
 
 #endif // </WTE_VEC3VIEW_H>

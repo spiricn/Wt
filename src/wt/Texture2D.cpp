@@ -10,6 +10,9 @@ namespace wt{
 void Texture2D::dump(AIOStream& stream){
 	bind();
 
+#if 0
+	// Depth dump
+	// TODO do this properly
 	Buffer<float> depth;
 	depth.create(mWidth*mHeight);
 	gl( GetTexImage(getType(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)depth.getData()) );
@@ -34,6 +37,17 @@ void Texture2D::dump(AIOStream& stream){
 
 	DevilImageLoader::getSingleton().save(&stream,
 		&img);
+
+#else
+	Buffer<GLubyte> rgb(mWidth*mHeight*3);
+	gl( GetTexImage(getType(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)rgb.getData()) );
+
+	Image img;
+	img.setData(mWidth, mHeight, Image::RGB, 3, (unsigned char*)rgb.getData());
+
+	DevilImageLoader::getSingleton().save(&stream,
+		&img);
+#endif
 }
 
 void Texture2D::generateMipmap(){
