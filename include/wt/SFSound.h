@@ -37,15 +37,17 @@ inline void sfConvert(const glm::vec3& src, sf::Vector3f& dst){
 }
 
 class SFSound : public ASound{
-private:
-	sf::Sound mSound;
 public:
-	SFSound(ASoundBuffer* buffer){
+	SFSound(ASoundBuffer* buffer) : mBuffer(buffer){
 		mSound.SetBuffer( static_cast<SFSoundBuffer*>(buffer)->getSFSoundBuffer() );
 	}
 
 	~SFSound(){
 		mSound.Stop();
+	}
+
+	ASoundBuffer* getSoundBuffer(){
+		return mBuffer;
 	}
 
 	Status getStatus() const{
@@ -94,6 +96,9 @@ public:
 		return res;
 	}
 
+private:
+	sf::Sound mSound;
+	ASoundBuffer* mBuffer;
 };
 
 class SFSoundManager : public AResourceManager<ASoundBuffer>{

@@ -88,11 +88,15 @@ void ATransformable::strife(float distance){
 
 float ATransformable::getPitch() const{
 	// TODO
+	WT_THROW("Not implemented");
+
 	return 0.0f;
 }
 
 float ATransformable::getYaw() const{
 	// TODO
+	WT_THROW("Not implemented");
+
 	return 0.0f;
 }
 
@@ -134,5 +138,18 @@ void ATransformable::setTransformMatrix(const glm::mat4& mat){
 void ATransformable::setRotation(const glm::vec3& axis, float angle){
 	setRotation( glm::angleAxis(angle, axis) );
 }
+
+void ATransformable::decomposeTransform(glm::vec3& pos, glm::vec3& scale, glm::quat& rot) const{
+	getTranslation(pos);
+	getScale(scale);
+	getRotation(rot);
+}
+
+void ATransformable::getCameraMatrix(glm::vec3& dst) const{
+	// TODO
+
+	WT_THROW("Not implemented");
+}
+
 
 } // </wt>

@@ -9,6 +9,17 @@
 
 #define TD_TRACE_TAG "ActorCreationDialog"
 
+// TODO
+#define STACK_MODEL_IDX 3
+#define STACK_PARTICLE_IDX 0
+#define STACK_LIGHT_IDX 1
+#define STACK_SOUND_IDX 2
+
+#define DROP_MODEL_IDX 0
+#define DROP_PARTICLE_IDX 1
+#define DROP_LIGHT_IDX 2
+#define DROP_SOUND_IDX 3
+
 ActorCreationDialog::ActorCreationDialog(QWidget* parent, wt::AResourceSystem* assets) : QDialog(parent), mAssets(assets){
     ui.setupUi(this);
 
@@ -30,15 +41,30 @@ void ActorCreationDialog::setModel(wt::Model* model){
 }
 
 void ActorCreationDialog::onActorTypeChanged(int type){
-	// :(
-	ui.stackedWidget->setCurrentIndex(
-		// Model
-		type == 0 ? 2 :
-		// Particle
-		type == 1 ? 0 :
-		// Light
-		1
-	);
+	int stackIdx;
+
+	if(type == DROP_MODEL_IDX){
+		stackIdx = STACK_MODEL_IDX;
+	}
+	else if(type == DROP_PARTICLE_IDX){
+		stackIdx = STACK_PARTICLE_IDX;
+	}
+	else if(type == DROP_LIGHT_IDX){
+		stackIdx = STACK_LIGHT_IDX;
+	}
+	else if(type == DROP_SOUND_IDX){
+		stackIdx = STACK_SOUND_IDX;
+	}
+
+	ui.stackedWidget->setCurrentIndex(stackIdx);
+}
+
+void ActorCreationDialog::onSoundPick(){
+	wt::ASoundBuffer* sound= ResourcePickerDialog::pickResource<wt::ASoundBuffer>(this, mAssets->getSoundManager());
+	if(sound){
+		ui.sound->setText(sound->getPath().c_str());
+		mResult.sound3D.soundBuffer = sound;
+	}
 }
 
 void ActorCreationDialog::onParticlePick(){
@@ -116,6 +142,13 @@ void ActorCreationDialog::onSave(){
 	else if(actorType == 2){
 		mResult.type = wt::ASceneActor::eTYPE_POINT_LIGHT;
 		mResult.ok = true;
+	}
+	else if(actorType == 3){
+		mResult.type = wt::ASceneActor::eTYPE_SOUND;
+		mResult.ok = true;
+	}
+	else{
+		WT_THROW("Unsupported actor type");
 	}
 
 	close();

@@ -98,6 +98,10 @@ void WorldEditTab::onTimeout(){
 	ui.sceneView->update(dt);
 
 	mEventManager->tick();
+
+	//mScene
+	mAssets->getSoundSystem()->setListenerForwardVec( mScene->getCamera().getForwardVec() );
+	mAssets->getSoundSystem()->setListenerPosition( mScene->getCamera().getPosition() );	
 }
 
 void WorldEditTab::createToolbar(){

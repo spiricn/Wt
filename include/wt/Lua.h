@@ -61,11 +61,6 @@ void serializeTable(LuaObject& table, AIOStream& stream, uint32_t depth=0);
 
 void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject* fenv=NULL);
 
-// Transform
-bool luaConv(const math::Transform& src, LuaObject& dst);
-
-bool luaConv(const LuaObject& src, math::Transform& dst);
-
 // ATransformable
 bool luaConv(const LuaObject& src, ATransformable& dst);
 

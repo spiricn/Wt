@@ -20,6 +20,7 @@
 #include "wt/ParticleEffect.h"
 #include "wt/EventManager.h"
 #include "wt/EventEmitter.h"
+#include "wt/Sound.h"
 
 namespace wt{
 
@@ -44,6 +45,8 @@ public:
 	typedef std::set<PointLight*> PointLightSet;
 
 	typedef std::set<SpotLight*> SpotLightSet;
+
+	typedef std::set<Sound*> SoundSet;
 
 	struct GodRayParams{
 		Texture2D* sourceTexture;
@@ -113,6 +116,8 @@ public:
 
 	void setDirectionalLightDesc(const DirectionalLight::Desc& desc);
 
+	Sound* createSound(const String& name);
+
 	uint32_t getNumPointLights() const;
 
 	uint32_t getNumSpotLights() const;
@@ -158,43 +163,6 @@ public:
 
 	uint32_t lua_createActor();
 
-	//void lua_removeActor(uint32_t actorId);
-
-	/*bool lua_isActorAnimationPlaying(uint32_t actorId);
-
-	void lua_setActorPosition(uint32_t actorId, LuaObject pos);
-
-	void lua_setActorFacing(uint32_t actorId, LuaObject facing);
-
-	void lua_destroyController(uint32_t actorId);
-
-	void lua_setLightDir(LuaObject obj);
-
-	void lua_attachActor(uint32_t actor1, uint32_t actor2, const char* boneName);
-
-	void lua_playActorAnimation(uint32_t actorId, const char* animationName, bool loop);
-
-	void lua_cameraLookAt(LuaObject pos);
-
-	bool lua_actorHasUserData(uint32_t actorId);
-
-	void lua_createActorController(uint32_t actorId, LuaObject physicsGroup, LuaObject ctrlDesc);
-
-	void lua_moveActor(uint32_t actorId, LuaObject luaDisp, float dt);
-
-	void lua_rotateActor(uint32_t actorId, float x, float y, float z, float angle);
-
-	void lua_setActorUserData(uint32_t actorId, uint32_t data);
-
-	uint32_t lua_getActorUserData(uint32_t actorId);
-
-	LuaObject lua_getActorTransform(uint32_t actorId);
-
-	LuaObject lua_getActorFacing(uint32_t actorId);
-
-	void lua_setActorModel(uint32_t actorId, const char* modelPath, const char* skinName);
-*/
-
 private:
 	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
 
@@ -208,6 +176,8 @@ private:
 
 	/** A list of terrain entities (also contained in 'mActors') */
 	TerrainSet mTerrainSet;
+
+	SoundSet mSoundSet;
 
 	ParticleEffectSet mParticleEffects;
 

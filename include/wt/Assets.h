@@ -47,6 +47,7 @@ private:
 	AFileSystem* mFileSystem;
 	ParticleEffectResourceManager* mParticleManager;
 	lua::State mLuaState;
+	ASoundSystem* mSoundSystem;
 
 	template<class T>
 	void serialize(AResourceManager<T>* manager, const String& name, lua::LuaObject& table){
@@ -115,6 +116,7 @@ public:
 		mSkyBoxManager = new SkyBoxManager(this);
 		mSoundManager = new SFSoundManager(this);
 		mParticleManager = new ParticleEffectResourceManager(this);
+		mSoundSystem = new SFSoundSystem( dynamic_cast<SFSoundManager*>(mSoundManager) );
 
 		// TODO remvoe singleton
 		mFontManager = &FontManager::getSingleton();
@@ -196,6 +198,10 @@ public:
 
 			mListener->onLoadProgress((float)mLoadedResources/mTotalResources);
 		}
+	}
+
+	ASoundSystem* getSoundSystem(){
+		return mSoundSystem;
 	}
 
 	void unloadAll(){
@@ -319,6 +325,7 @@ public:
 		delete mSoundManager;
 		delete mFileSystem;
 		delete mParticleManager;
+		delete mSoundSystem;
 	}
 
 }; // </Assets>

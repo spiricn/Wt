@@ -76,6 +76,20 @@ void ActorEditTool::onRotationChanged(){
 	}
 }
 
+void ActorEditTool::onActorRename(){
+	if(isToolFocused() && mSelectedActor){
+		bool ok;
+		wt::String name = QInputDialog::getText(this, "Input",
+			"New name: ", QLineEdit::Normal, mSelectedActor->getName().c_str(), &ok).toStdString();
+
+		if(!ok){
+			return;
+		}
+
+		mSelectedActor->setName(name);
+	}
+}
+
 void ActorEditTool::onMousePress(QMouseEvent* evt){
 	if(!isToolFocused()){
 		return;
@@ -389,7 +403,12 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 			light->getDesc().diffuseIntensity
 		);
 	}
-	
+	else if(actor->getActorType() == wt::ASceneActor::eTYPE_SOUND){
+		ui.stackedWidget->setCurrentIndex(3);
+	}
+	else{
+		WT_THROW("Unsupported actor type");
+	}
 
 	// Update tarnsform information
 	updateSelectionStats();
@@ -438,6 +457,19 @@ void ActorEditTool::onNewActor(){
 
 
 			sceneActor = (wt::ASceneActor*)actor;
+		}
+		else if(res.type == wt::ASceneActor::eTYPE_SOUND){
+			wt::Sound* sound = mScene->createSound(res.name.toStdString()) ;
+
+			sound->setSound( mAssets->getSoundSystem()->createSound(res.sound3D.soundBuffer) );
+			sound->getSound()->setRelativeToListener( false );
+			sound->getSound()->setLoop(true);
+			sound->getSound()->play();
+
+			sceneActor = dynamic_cast<wt::ASceneActor*>( sound );
+		}
+		else{
+			WT_THROW("Unsupported actor type");
 		}
 
 		if(sceneActor){

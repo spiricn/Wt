@@ -56,6 +56,10 @@ public:
 
 	virtual void setRotation(const glm::vec3& axis, float angle);
 
+	virtual void decomposeTransform(glm::vec3& translation, glm::vec3& scale, glm::quat& rotation) const;
+
+	virtual void getCameraMatrix(glm::vec3& dst) const;
+
 }; // </ATransformable>
 
 } // </wt>

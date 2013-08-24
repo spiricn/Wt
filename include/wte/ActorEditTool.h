@@ -61,6 +61,8 @@ protected slots:
 
 	void onEditParticleEffect();
 
+	void onActorRename();
+
 	void onRotationChanged();
 
 	void onMousePress(QMouseEvent*);

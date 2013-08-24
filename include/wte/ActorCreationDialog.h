@@ -32,6 +32,10 @@ public:
 		struct{
 			wt::ParticleEffectResource* effect;
 		} particleEffect;
+
+		struct{
+			wt::ASoundBuffer* soundBuffer;
+		} sound3D;
 	};
 
 	EditResult mResult;
@@ -54,6 +58,8 @@ protected slots:
 	void onGeometryChanged(int);
 
 	void onParticlePick();
+
+	void onSoundPick();
 
 	void onActorTypeChanged(int);
 

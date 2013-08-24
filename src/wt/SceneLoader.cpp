@@ -71,6 +71,13 @@ void SceneLoader::load(AIOStream& stream){
 
 			mScene->getPhysics()->createBBox((PointLight*)light);
 		}
+		else if(!type.compare("sound")){
+			Sound* sound = mScene->createSound("");
+			
+			sound->deserialize(mAssets, actorDesc, NULL);
+
+			mScene->getPhysics()->createBBox(sound);
+		}
 		else{
 			TRACEW("Invalid actor type (%s), skipping table..", type.c_str());
 			continue;

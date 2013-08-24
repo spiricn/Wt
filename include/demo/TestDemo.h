@@ -21,7 +21,8 @@ namespace wt{
 class TestDemo : public ADemo{
 public:
 
-	const PointLight* pl;
+	ASceneActor* mMainActor;
+
 	TestDemo(){
 	}
 
@@ -30,40 +31,41 @@ public:
 	}
 
 	void onUpdate(float dt){
-		static bool flag = false;
-		static float t = 0;
-		if(!flag){
-			t += dt;
+		getAssets()->getSoundSystem()->setListenerForwardVec( getScene()->getCamera().getForwardVec() );
+		getAssets()->getSoundSystem()->setListenerPosition( getScene()->getCamera().getPosition() );
 
-			if( t > 1){
-				PointLight::Desc d = pl->getDesc();
-
-				d.enabled = !d.enabled;
-
-				pl->setDesc(d);
-
-				t = 0;
-			}
-		}
 		getPhysics()->update(dt);
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-#if 0
-		static bool flag = false;
-		// Move spotlight to the camera
-		SpotLight l;
-		getScene()->getSpotLight(0, l);
-		l.position = getScene()->getCamera().getPosition();
-		l.direction = getScene()->getCamera().getForwardVec();
-		if(!flag){
-			getScene()->addSpotLight(l);
-			flag = true;
+		const glm::vec3 start(206, 6, 205);
+		const glm::vec3 end(84, 21, 205);
+		const float speed = 10;
+
+		static bool headingBack = false;
+
+		glm::vec3 pos;
+		mMainActor->getTransformable()->getTranslation(pos);
+
+		if(headingBack){
+
+			if( glm::length(pos-start) < 2 ){
+				headingBack = false;
+			}
+			else{
+				glm::vec3 dir = glm::normalize(start-pos);
+				mMainActor->getTransformable()->translate(dir*speed*dt);
+			}
 		}
 		else{
-			getScene()->setSpotLight(0, l);
+			if( glm::length(pos-end) < 2 ){
+				headingBack = true;
+			}
+			else{
+				glm::vec3 dir = glm::normalize(end-pos);
+				mMainActor->getTransformable()->translate(dir*speed*dt);
+			}
 		}
-#endif
 	}
 
 	void onKeyDown(VirtualKey c){
@@ -74,106 +76,88 @@ public:
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-
 		getAssets()->load("level1.lua");
 
-
 		SceneLoader loader(getScene(), getAssets());
-
 		loader.load("scene.lua");
 
-		
-		lua::State* state = getManager()->getLuaState();
-		
-		LuaObject obj = state->box(*getEventManager());
-		state->getGlobals().Set("EventManager", obj);
-
-		LuaObject luaCamera = state->box(getScene()->getCamera());
-		state->getGlobals().Set("Camera", luaCamera);
 	
+		{
+			Model* model = getAssets()->getModelManager()->create("orb");
 
-		LuaObject luaScene = state->box(*getScene());
-		state->getGlobals().Set("Scene", luaScene);
+			// Create sphere model
 
+			IcosphereBuilder::Vertex* vertices;
+			uint32_t* indices;
+			uint32_t numIndices, numVertices;
 
-		getScene()->getCamera().setPosition(glm::vec3(120.82, 45.07, 215.169));
-		glm::quat r;
-		r.x = 0.062972;
-		r.y = 0.924936;
-		r.z = -0.331037;
-		r.w = 0.175955;
+			IcosphereBuilder(&vertices, &indices, &numVertices, &numIndices, 1);
 
-		getScene()->getCamera().setRotation(r);
+			Buffer<Geometry::Vertex> modelVertices(numVertices);
 
+			model->setSize(numVertices, numIndices);
+
+			for(uint32_t i=0; i<numVertices; i++){
+				modelVertices[i].x = vertices[i].position.x;
+				modelVertices[i].y = vertices[i].position.y;
+				modelVertices[i].z = vertices[i].position.z;
+
+				modelVertices[i].nx = vertices[i].normal.x;
+				modelVertices[i].nx = vertices[i].normal.y;
+				modelVertices[i].nx = vertices[i].normal.z;
+
+				modelVertices[i].s = vertices[i].texture.s;
+				modelVertices[i].t = vertices[i].texture.t;
+			}
+
+			Buffer<GLuint> modelIndices(numIndices);
+			memcpy(modelIndices.getData(), indices, numIndices*sizeof(uint32_t));
 		
+			Geometry* geometry = model->addGeometry("main", modelVertices, modelIndices);
 
-		PointLight::Desc desc;
-		desc.attenuation.constant = 0.0f;
-		desc.attenuation.linear = 0.0f;
-		desc.attenuation.quadratic = 0.5f;
+			Model::GeometrySkin* skin = model->createSkin("main");
 
-		desc.diffuseIntensity  = 15;
+			skin->addMesh(geometry);
 
-		desc.color = Color::Yellow();
-		desc.position = glm::vec3(126.91, 30.18, 174.11);
-		pl = getScene()->createPointLight(desc);
-
-		desc.color = Color::Cyan();
-		desc.position = glm::vec3(86.58, 3, 68.56);
-		getScene()->createPointLight(desc);
-
-		//getRenderer()->setRenderBoundingBoxes(true);
-
-		/*lua::ScriptPtr script1;
-		getProcManager().attach(new ScriptProcess(script1 = state->createScript("test_script.lua")));*/
-
-		Model* model = getAssets()->getModelManager()->create("orb");
-
-		// Create a sphere batch (used for point lighting)
-		IcosphereBuilder::Vertex* vertices;
-		uint32_t* indices;
-		uint32_t numIndices, numVertices;
-
-		IcosphereBuilder(&vertices, &indices, &numVertices, &numIndices, 1);
-
-		Buffer<Geometry::Vertex> modelVertices(numVertices);
-
-		model->setSize(numVertices, numIndices);
-
-		for(int i=0; i<numVertices; i++){
-			modelVertices[i].x = vertices[i].position.x;
-			modelVertices[i].y = vertices[i].position.y;
-			modelVertices[i].z = vertices[i].position.z;
-
-			modelVertices[i].nx = vertices[i].normal.x;
-			modelVertices[i].nx = vertices[i].normal.y;
-			modelVertices[i].nx = vertices[i].normal.z;
-
-			modelVertices[i].s = vertices[i].texture.s;
-			modelVertices[i].t = vertices[i].texture.t;
+			model->create();
 		}
 
-		Buffer<GLuint> modelIndices(numIndices);
-		memcpy(modelIndices.getData(), indices, numIndices*sizeof(uint32_t));
-		
-		Geometry* geometry = model->addGeometry("main", modelVertices, modelIndices);
+		{
+			ModelledActor* actor = getScene()->createModelledActor();
+			actor->setModel(getAssets()->getModelManager()->find("orb"), "main");
+			mMainActor = actor;
+			actor->getTransformable()->setTranslation(glm::vec3(206, 6, 205));
 
-		Model::GeometrySkin* skin = model->createSkin("main");
+			getScene()->findActorByName("lighty")->attach(mMainActor, "");
+			getScene()->findActorByName("firy")->attach(mMainActor, "");
+		}
 
-		skin->addMesh(geometry);
+		{
+			Sound* sound = getScene()->createSound("");
 
-		model->create();
+			sound->setSound( getAssets()->getSoundSystem()->createSound("$ROOT/test") );
 
-		/*for(int i=0; i<getScene()->getNumPointLights(); i++){
-			PointLight light;
-			getScene()->getPointLight(i, light);
+			sound->getSound()->setLoop(true);
+			sound->getSound()->setRelativeToListener(false);
+			sound->getSound()->play();
 
-			if(light.enabled){
-				ModelledActor* actor = getScene()->createModelledActor();
-				actor->setModel(model, "main");
-				actor->getTransform().setPosition(light.position);
-			}
-		}*/
+
+			sound->attach(mMainActor, "");
+		}
+
+		// Assemble fire
+		{
+			ModelledActor* model = dynamic_cast<ModelledActor*>( getScene()->findActorByName("model_fire") );
+			Sound* sound = dynamic_cast<Sound*>( getScene()->findActorByName("sound_fire") );
+			ParticleEffect* effect = dynamic_cast<ParticleEffect*>( getScene()->findActorByName("particle_fire") );
+			PointLight* light = dynamic_cast<PointLight*>( getScene()->findActorByName("light_fire") );
+
+			sound->attach(model, "");
+			effect->attach(model, "");
+			light->attach(model, "");
+		}
+
+		loader.save("tmp_saved_scene.lua");
 	}
 
 	String getConfigFile() const{

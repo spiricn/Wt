@@ -31,7 +31,7 @@ public:
 
 	bool validAttachPoint(const String& pointId) const;
 
-	bool getAttachPointTransform(const String& point, math::Transform& res) const;
+	bool getAttachPointTransform(const String& pointId, glm::mat4& res) const;
 
 	void update(float dt);
 

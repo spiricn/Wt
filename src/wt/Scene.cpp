@@ -225,6 +225,14 @@ Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
 		// We don't delete the object directly but rather let a smart pointer do it
 		onLightDeleted((ALight*)light);
 	}
+	else if(iter->second->getActorType() == ASceneActor::eTYPE_SOUND){
+		Sound* sound = dynamic_cast<Sound*>(iter->second);
+
+		mSoundSet.erase(sound);
+	}
+	else{
+		WT_THROW("Unhandled actor type");
+	}
 
 	return mActors.erase(iter);
 }
@@ -278,6 +286,18 @@ ModelledActor* Scene::createModelledActor(const String& name){
 	mModelledActors.insert(actor);
 
 	return actor;
+}
+
+Sound* Scene::createSound(const String& name){
+	Sound* sound = new Sound(this, generateActorId(), name);
+
+	sound->setLuaState(mLuaState);
+
+	mActors.insert( std::make_pair(sound->getId(), sound) );
+
+	mSoundSet.insert(sound);
+
+	return sound;
 }
 
 ASceneActor* Scene::findActorByName(const String& name) const{

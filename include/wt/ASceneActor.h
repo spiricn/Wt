@@ -24,7 +24,8 @@ public:
 		eTYPE_TERRAIN = 0,
 		eTYPE_PARTICLE_EFFECT,
 		eTYPE_MODELLED,
-		eTYPE_POINT_LIGHT
+		eTYPE_POINT_LIGHT,
+		eTYPE_SOUND
 	};
 
 	struct AttachPoint{
@@ -117,6 +118,8 @@ public:
 	uint32_t getId() const;
 
 	const String& getName() const;
+
+	void setName(const String& name);
 
 	virtual void update(float /*dt*/);
 

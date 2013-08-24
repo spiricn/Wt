@@ -51,6 +51,7 @@ public:
 		expose("play", &ASound::play);
 	}
 
+	virtual ASoundBuffer* getSoundBuffer() = 0;
 
 }; // </ASound>
 
@@ -68,6 +69,11 @@ public:
 
 	const String& getSource(){
 		return mSource;
+	}
+
+	// TODO rethink this
+	ASoundBuffer* getSoundBuffer(){
+		return NULL;
 	}
 }; // </ASoundStream>
 

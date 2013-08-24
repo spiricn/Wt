@@ -61,26 +61,38 @@ void ModelledActor::setSkin(Model::GeometrySkin* skin){
 }
 
 bool ModelledActor::validAttachPoint(const String& pointId) const{
-	return mModel->getSkeleton()->findChildByName(pointId, true) != NULL;
-}
-
-bool ModelledActor::getAttachPointTransform(const String& point, math::Transform& res) const{
-	SkeletonBone* bone = mModel->getSkeleton()->findChildByName(point, true);
-	if(!bone){
-		return false;
-	}
-
-	glm::mat4 boneTransf;
-	if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
-		boneTransf = mAnimationPlayer->getGlobalBoneTransform(bone->getIndex());
+	if(mModel->getSkeleton() != NULL && pointId.size()){
+		return mModel->getSkeleton()->findChildByName(pointId, true) != NULL;
 	}
 	else{
-		bone->getGlobalTransform(boneTransf);
+		return true;
 	}
+}
 
-	res = mTransform * boneTransf;
+bool ModelledActor::getAttachPointTransform(const String& point, glm::mat4& res) const{
+	if(point.size()){
+		SkeletonBone* bone = mModel->getSkeleton()->findChildByName(point, true);
+		if(!bone){
+			return false;
+		}
 
-	return true;
+		glm::mat4 boneTransf;
+		if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
+			boneTransf = mAnimationPlayer->getGlobalBoneTransform(bone->getIndex());
+		}
+		else{
+			bone->getGlobalTransform(boneTransf);
+		}
+
+		math::Transform tf = mTransform * boneTransf;
+
+		tf.getMatrix(res);
+
+		return true;
+	}
+	else{
+		return ASceneActor::getAttachPointTransform(point, res);
+	}
 }
 
 void ModelledActor::update(float dt){

@@ -15,6 +15,7 @@ class Texture2D;
 class ParticleEffectResource;
 class AFileSystem;
 class ASoundBuffer;
+class ASoundSystem;
 
 namespace lua{
 	class State;
@@ -61,6 +62,8 @@ public:
 	virtual void serialize(const String& path) = 0;
 
 	virtual String getRelativeURI(const String& uri) = 0;
+
+	virtual ASoundSystem* getSoundSystem() = 0;
 };
 
 }; // </wt>

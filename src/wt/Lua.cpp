@@ -247,62 +247,6 @@ void serializeTable(LuaObject& table, AIOStream& stream, uint32_t depth){
 	WT_UNUSED(depth);
 	serialize(table, stream);
 }
-
-bool luaConv(const math::Transform& src, LuaObject& dst){
-	if(!dst.IsTable()){
-		return false;
-	}
-
-	// Position
-	dst.Set(1, src.getPosition().x);
-	dst.Set(2, src.getPosition().y);
-	dst.Set(3, src.getPosition().z);
-
-	// Scale
-	dst.Set(4, src.getScale().x);
-	dst.Set(5, src.getScale().y);
-	dst.Set(6, src.getScale().z);
-
-	// Rotation
-	dst.Set(7, src.getQuat().x);
-	dst.Set(8, src.getQuat().y);
-	dst.Set(9, src.getQuat().z);
-	dst.Set(10, src.getQuat().w);
-
-	return true;
-}
-
-bool luaConv(const LuaObject& src, math::Transform& dst){
-	if(!src.IsTable()){
-		return false;
-	}
-
-	// Position
-	float px, py, pz;
-	if(!luaConv(src.Get(1), px)) return false;
-	if(!luaConv(src.Get(2), py)) return false;
-	if(!luaConv(src.Get(3), pz)) return false;
-	dst.setPosition(px, py, pz);
-
-	// Scale
-	float sx, sy, sz;
-	if(!luaConv(src.Get(4), sx)) return false;
-	if(!luaConv(src.Get(5), sy)) return false;
-	if(!luaConv(src.Get(6), sz)) return false;
-	dst.setScale(sx, sy, sz);
-
-	// Rotation
-	float rx, ry, rz, rw;
-	if(!luaConv(src.Get(7), rx)) return false;
-	if(!luaConv(src.Get(8), ry)) return false;
-	if(!luaConv(src.Get(9), rz)) return false;
-	if(!luaConv(src.Get(10), rw)) return false;
-	dst.setQuat(rx, ry, rz, rw);
-
-	return true;
-}
-
-
 void luaDoStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject& fenv){
 }
 
@@ -332,28 +276,64 @@ void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObje
 }
 
 bool luaConv(const LuaObject& src, ATransformable& dst){
-	// TODO fix this
-	math::Transform tf;
+	// Position
+	float px, py, pz;
+	if(!luaConv(src.Get(1), px)) return false;
+	if(!luaConv(src.Get(2), py)) return false;
+	if(!luaConv(src.Get(3), pz)) return false;
+	dst.setTranslation(glm::vec3(px, py, pz));
 
-	if(luaConv(src, tf)){
-		glm::mat4 mat;
-		tf.getMatrix(mat);
+	// Scale
+	float sx, sy, sz;
+	if(!luaConv(src.Get(4), sx)) return false;
+	if(!luaConv(src.Get(5), sy)) return false;
+	if(!luaConv(src.Get(6), sz)) return false;
+	dst.setScale(glm::vec3(sx, sy, sz));
 
-		dst.setTransformMatrix(mat);
-	}
-	else{
-		return false;
-	}
+	// Rotation
+	float rx, ry, rz, rw;
+	if(!luaConv(src.Get(7), rx)) return false;
+	if(!luaConv(src.Get(8), ry)) return false;
+	if(!luaConv(src.Get(9), rz)) return false;
+	if(!luaConv(src.Get(10), rw)) return false;
+	glm::quat rot;
+	rot.x = rx;
+	rot.y = ry;
+	rot.z = rz;
+	rot.w = rw;
+
+	dst.setRotation(rot);
+
+	return true;
 }
 
 bool luaConv(const ATransformable& src, LuaObject& dst){
-	// TODO fix this
-	glm::mat4 mat;
-	src.getTransformMatrix(mat);
+	if(!dst.IsTable()){
+		return false;
+	}
 
-	math::Transform tf(mat);
+	glm::vec3 pos, scale;
+	glm::quat rot;
 
-	return luaConv(tf, dst);
+	src.decomposeTransform(pos, scale, rot);
+
+	// Position
+	dst.Set(1, pos.x);
+	dst.Set(2, pos.y);
+	dst.Set(3, pos.z);
+
+	// Scale
+	dst.Set(4, scale.x);
+	dst.Set(5, scale.y);
+	dst.Set(6, scale.z);
+
+	// Rotation
+	dst.Set(7, rot.x);
+	dst.Set(8, rot.y);
+	dst.Set(9, rot.z);
+	dst.Set(10, rot.w);
+
+	return true;
 }
 
 }; // </Lua

@@ -17,6 +17,10 @@ const Color& ASceneActor::getBoundingBoxColor() const{
 	return mBoundingBoxColor;
 }
 
+void ASceneActor::setName(const String& name){
+	mName = name;
+}
+
 void ASceneActor::setLuaState(lua::State* state){
 	mLuaState = state;
 }
@@ -55,7 +59,9 @@ ASceneActor::ActorType ASceneActor::getActorType() const{
 }
 
 const ATransformable* ASceneActor::getTransformable() const{
-	return getTransformable();
+	ATransformable* res = const_cast<ASceneActor*>(this)->getTransformable();
+
+	return res;
 }
 
 
@@ -165,6 +171,9 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 	}
 	else if(mType == eTYPE_POINT_LIGHT){
 		dst.Set("type", "pointlight");
+	}
+	else if(mType == eTYPE_SOUND){
+		dst.Set("type", "sound");
 	}
 	else{
 		WT_THROW("Unsupported actor type");
