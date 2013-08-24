@@ -3,15 +3,9 @@
 
 #include "wt/AResource.h"
 #include "wt/lua/Object.h"
+#include "wt/ASoundBuffer.h"
 
 namespace wt{
-
-class ASoundBuffer : public AResource<ASoundBuffer>{
-public:
-	ASoundBuffer(AResourceManager<ASoundBuffer>* manager=NULL, ResourceHandle handle=0, const String& name="") : AResource(manager, handle, name){
-	}
-};
-
 
 class ASound : public lua::Object<ASound>{
 public:
@@ -22,7 +16,6 @@ public:
 	};
 
 public:
-
 	virtual ~ASound(){
 	}
 
@@ -53,30 +46,29 @@ public:
 
 	virtual ASoundBuffer* getSoundBuffer() = 0;
 
+	/**
+	 * Sets the minimum distance under which the sound will be heard at its maximum volume
+	 * MinDistance is the sound minimum distance, set with SetMinDistance
+	 * Attenuation is the sound attenuation, set with SetAttenuation
+	 * Distance    is the distance between the sound and the listener
+     *
+	 * Factor = MinDistance / (MinDistance + Attenuation * (max(Distance, MinDistance) - MinDistance))
+	 */
+	virtual void setMinimumDistance(float distance) = 0;
+
+	virtual void setAttenuation(float att) = 0;
+
+	virtual float getMinimumDistance() const = 0;
+
+	virtual float getAttenuation() const = 0;
+
+	virtual float getVolume() const = 0;
+
+	virtual float getPitch() const = 0;
+
+	virtual void setPitch(float pitch) = 0;
+
 }; // </ASound>
-
-class ASoundStream : public ASound{
-private:
-	String mSource;
-
-public:
-	virtual ~ASoundStream(){
-	}
-
-	virtual void setSource(const String& src){
-		mSource = src;
-	}
-
-	const String& getSource(){
-		return mSource;
-	}
-
-	// TODO rethink this
-	ASoundBuffer* getSoundBuffer(){
-		return NULL;
-	}
-}; // </ASoundStream>
-
 
 }; // </wt>
 

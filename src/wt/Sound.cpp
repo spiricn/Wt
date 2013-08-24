@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/Sound.h"
+#include "wt/ASoundBuffer.h"
 
 #define TD_TRACE_TAG "Sound"
 
@@ -57,6 +58,10 @@ void Sound::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* op
 
 	if(mSound.get() != NULL){
 		dst.Set("rsrc", mSound->getSoundBuffer()->getPath().c_str());
+		dst.Set("attenuation", mSound->getAttenuation());
+		dst.Set("minDistance", mSound->getMinimumDistance());
+		dst.Set("volume", mSound->getVolume());
+		dst.Set("pitch", mSound->getPitch());
 	}
 	else{
 		dst.Set("rsrc", 0);
@@ -68,6 +73,18 @@ void Sound::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, 
 	if(lua::luaConv(src.Get("rsrc"), rsrcPath)){
 		mSound = assets->getSoundSystem()->createSound(rsrcPath);
 
+
+		float attenuation=1.0f, minDistance=1.0f, volume=1.0f, pitch=1.0f;
+
+		lua::luaConv(src.Get("volume"), volume);
+		lua::luaConv(src.Get("attenuation"), attenuation);
+		lua::luaConv(src.Get("minDistance"), minDistance);
+		lua::luaConv(src.Get("pitch"), pitch);
+
+		mSound->setPitch(pitch);
+		mSound->setVolume(volume);
+		mSound->setAttenuation(attenuation);
+		mSound->setMinimumDistance(minDistance);
 		mSound->setRelativeToListener(false);
 		mSound->setLoop(true);
 		mSound->play();

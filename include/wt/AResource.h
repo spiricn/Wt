@@ -4,17 +4,17 @@
 
 #include "wt/stdafx.h"
 
-
 #include "wt/Utils.h"
 #include "wt/ASerializable.h"
+
+namespace wt
+{
 
 template<typename T>
 class AResourceGroup;
 
 template<typename T>
 class AResourceManager;
-
-namespace wt{
 
 typedef unsigned long ResourceHandle;
 

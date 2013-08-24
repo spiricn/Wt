@@ -130,11 +130,44 @@
      <widget class="QWidget" name="page">
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Loop</string>
+          <string>Volume:</string>
          </property>
         </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Minimum distance:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Attenuation:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Pitch:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="SlidedSpinboxWidget" name="volume" native="true"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="SlidedSpinboxWidget" name="minDistance" native="true"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="SlidedSpinboxWidget" name="attenuation" native="true"/>
+       </item>
+       <item row="3" column="1">
+        <widget class="SlidedSpinboxWidget" name="pitch" native="true"/>
        </item>
       </layout>
      </widget>
@@ -229,6 +262,9 @@
    <extends>QWidget</extends>
    <header>slidedspinboxwidget.h</header>
    <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -384,8 +420,8 @@
    <slot>onLightColorChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>24</y>
+     <x>108</x>
+     <y>33</y>
     </hint>
     <hint type="destinationlabel">
      <x>325</x>
@@ -400,8 +436,8 @@
    <slot>onAmbientIntensityChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>138</x>
-     <y>47</y>
+     <x>108</x>
+     <y>38</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -416,8 +452,8 @@
    <slot>onDiffuseIntensityChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>177</x>
-     <y>62</y>
+     <x>108</x>
+     <y>38</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -432,8 +468,8 @@
    <slot>onAttenuationChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>137</x>
-     <y>79</y>
+     <x>108</x>
+     <y>38</y>
     </hint>
     <hint type="destinationlabel">
      <x>1</x>
@@ -448,12 +484,76 @@
    <slot>onActorRename()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>367</x>
-     <y>437</y>
+     <x>474</x>
+     <y>445</y>
     </hint>
     <hint type="destinationlabel">
      <x>379</x>
      <y>452</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>volume</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onVolumeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>314</x>
+     <y>31</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>minDistance</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onMinDistanceChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>423</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>483</x>
+     <y>78</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>attenuation</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onSoundAttenuationChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>411</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>486</x>
+     <y>136</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pitch</sender>
+   <signal>valueChanged()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onPitchChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>300</x>
+     <y>173</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>483</x>
+     <y>183</y>
     </hint>
    </hints>
   </connection>
@@ -476,5 +576,9 @@
   <slot>onDiffuseIntensityChanged()</slot>
   <slot>onAttenuationChanged()</slot>
   <slot>onActorRename()</slot>
+  <slot>onVolumeChanged()</slot>
+  <slot>onMinDistanceChanged()</slot>
+  <slot>onSoundAttenuationChanged()</slot>
+  <slot>onPitchChanged()</slot>
  </slots>
 </ui>

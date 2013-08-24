@@ -9,256 +9,53 @@
 
 namespace wt{
 
-class SFSoundBuffer : public ASoundBuffer{
-private:
-	sf::SoundBuffer mSoundBuffer;
-
-public:
-	sf::SoundBuffer& getSFSoundBuffer(){
-		return mSoundBuffer;
-	}
-	
-	SFSoundBuffer(AResourceManager<ASoundBuffer>* manager=NULL, ResourceHandle handle=0, const String& name="") : ASoundBuffer(manager, handle, name){
-	}
-
-}; // </ASoundBuffer>
-
-
-inline void sfConvert(const sf::Vector3f& src, glm::vec3& dst){
-	dst.x = src.x;
-	dst.y = src.y;
-	dst.z = src.z;
-}
-
-inline void sfConvert(const glm::vec3& src, sf::Vector3f& dst){
-	dst.x = src.x;
-	dst.y = src.y;
-	dst.z = src.z;
-}
-
 class SFSound : public ASound{
 public:
-	SFSound(ASoundBuffer* buffer) : mBuffer(buffer){
-		mSound.SetBuffer( static_cast<SFSoundBuffer*>(buffer)->getSFSoundBuffer() );
-	}
+	SFSound(ASoundBuffer* buffer);
 
-	~SFSound(){
-		mSound.Stop();
-	}
+	~SFSound();
 
-	ASoundBuffer* getSoundBuffer(){
-		return mBuffer;
-	}
+	ASoundBuffer* getSoundBuffer();
 
-	Status getStatus() const{
-		switch(mSound.GetStatus()){
-		case sf::Sound::Playing:
-			return ePLAYING;
-		case sf::Sound::Stopped:
-			return eSTOPPED;
-		case sf::Sound::Paused:
-			return ePAUSED;
-		default:
-			return eSTOPPED;
-		}
-	}
+	Status getStatus() const;
 
-	void stop(){
-		mSound.Stop();
-	}
+	void stop();
 
-	void setRelativeToListener(bool state){
-		mSound.SetRelativeToListener(state);
-	}
+	void setRelativeToListener(bool state);
 
-	void setVolume(float volume){
-		WT_ASSERT(volume >= 0.0f && volume <= 1.0f,
-		"Sound volume must be in range [0, 1] got %f", volume);
+	void setVolume(float volume);
 
-		mSound.SetVolume(volume * 100.0f);
-	}
+	void setPosition(const glm::vec3& pos);
 
-	void setPosition(const glm::vec3& pos){
-		mSound.SetPosition(pos.x, pos.y, pos.z);
-	}
+	void setLoop(bool state);
 
-	void setLoop(bool state){
-		mSound.SetLoop(state);
-	}
+	void play();
 
-	void play(){
-		mSound.Play();
-	}
+	glm::vec3 getPosition() const;
 
-	glm::vec3 getPosition() const{
-		glm::vec3 res;
-		sfConvert(mSound.GetPosition(), res);
-		return res;
-	}
+	void setMinimumDistance(float distance);
+
+	void setAttenuation(float att);
+
+	float getMinimumDistance() const;
+
+	float getAttenuation() const;
+
+	float getVolume() const;
+
+	float getPitch() const;
+
+	void setPitch(float pitch);
 
 private:
 	sf::Sound mSound;
 	ASoundBuffer* mBuffer;
-};
 
-class SFSoundManager : public AResourceManager<ASoundBuffer>{
-private:
-	ASoundBuffer* allocate(AResourceGroup<ASoundBuffer>* parent, const String& resourceName){
-		// Generate a new handle
-		ResourceHandle handle = newHandle();
+}; // </SFSound>
 
-		// Allcoate the resource & store it
-		ASoundBuffer* rsrc = new SFSoundBuffer(this, handle, resourceName);
-		mResources[handle] = rsrc;
-		rsrc->setGroup(parent);
-		return rsrc;
-	}
+void sfConvert(const sf::Vector3f& src, glm::vec3& dst);
 
-public:
-	SFSoundManager(AResourceSystem* assets) : AResourceManager(assets){
-	}
-};
-
-class SFSoundLoader: public AResourceLoader<ASoundBuffer>, public Singleton<SFSoundLoader>{
-public:
-	void load(AIOStream* stream, ASoundBuffer* dst){
-		SFSoundBuffer* bfr = static_cast<SFSoundBuffer*>(dst);
-		//bfr->getSFSoundBuffer().load
-
-		char* data = new char[stream->getSize()];
-
-		stream->read(data, stream->getSize());
-
-		if(!bfr->getSFSoundBuffer().LoadFromMemory(data, stream->getSize())){
-			WT_THROW("Error loading sound from stream");
-		}
-
-		delete[] data;
-		//dst->setUri(path);
-	}
-
-	void save(AIOStream* stream, ASoundBuffer* dst){
-		LOGW("Saving not implemented!");
-	}
-};
-
-
-class SFSoundStream : public ASoundStream{
-private:
-	sf::Music mMusic;
-public:
-	SFSoundStream(const String& src){
-		setSource(src);
-	}
-
-	~SFSoundStream(){
-		mMusic.Stop();
-	}
-
-	void setRelativeToListener(bool state){
-		mMusic.SetRelativeToListener(state);
-	}
-
-	void setSource(const String& src){
-		ASoundStream::setSource(src);
-
-		if(!mMusic.OpenFromFile(src)){
-			WT_THROW(
-				"Error openning sound stream from \"%s\"", src.c_str());
-		}
-	}
-
-	virtual Status getStatus() const{
-		switch( mMusic.GetStatus() ){
-		case sf::Sound::Stopped:
-			return eSTOPPED;
-		case sf::Sound::Playing:
-			return ePLAYING;
-		case sf::Sound::Paused:
-			return ePAUSED;
-		default:
-			return eSTOPPED;
-		}
-	}
-
-	virtual void play(){
-		mMusic.Play();
-	}
-
-	void setVolume(float volume){
-		WT_ASSERT(volume >= 0.0f && volume <= 1.0f,
-			"Sound volume must be in range [0, 1] got %f", volume);
-
-		mMusic.SetVolume(volume * 100.0f);
-	}
-
-	virtual void setLoop(bool state){
-		mMusic.SetLoop(state);
-	}
-
-	virtual void stop(){
-		mMusic.Stop();
-	}
-
-	virtual void setPosition(const glm::vec3& position){
-	}
-
-	virtual glm::vec3 getPosition() const{
-		static glm::vec3 tmp;
-		// TODO
-		return tmp;
-	}
-}; // </SFSoundStream>
-
-class SFSoundSystem : public ASoundSystem{
-private:
-	bool mIsMuted;
-	SFSoundManager* mSoundManager;
-
-public: 
-	
-	SFSoundSystem(SFSoundManager* soundManager) : mIsMuted(false), mSoundManager(soundManager){
-	}
-
-	SoundPtr createSound(const String& path){
-		return new SFSound(mSoundManager->getFromPath(path.c_str()));
-	}
-
-	virtual SoundPtr createSound(ASoundBuffer* bfr){
-		return new SFSound(bfr);
-	}
-
-	void setListenerPosition(const glm::vec3& pos){
-		sf::Listener::SetPosition(pos.x, pos.y, pos.z);
-	}
-
-	void setListenerForwardVec(const glm::vec3& fw){
-		sf::Listener::SetTarget(fw.x, fw.y, fw.z);
-	}
-
-	SoundStreamPtr createSoundStream(const String& path){
-		return new SFSoundStream(path);
-	}
-
-	void setGlobalVolume(float volume){
-
-		sf::Listener::SetGlobalVolume(volume*100);
-	}
-
-	float getGlobalVolume() const{
-		return sf::Listener::GetGlobalVolume();
-	}
-
-	virtual bool isMuted() const{
-		return mIsMuted;
-	}
-
-	virtual void setMuted(bool state){
-		mIsMuted = state;
-		setGlobalVolume( state ? 0.0f : 1.0f );
-	}
-};
-
+void sfConvert(const glm::vec3& src, sf::Vector3f& dst);
 
 }; // </wt>
 

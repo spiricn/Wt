@@ -26,7 +26,6 @@ class MinesDemo : public ADemo, public EventListener{
 private:
 	Minesweeper mGameState;
 	//ParticleEmitter mEmitter;
-	ASoundSystem* mSoundSystem;
 	MusicPlayer* mAmbientMusic;
 	MusicPlayer* mDefeatMusic;
 	ProcPtr mEndGameToast;
@@ -169,7 +168,7 @@ public:
 		getScene()->update(dt);
 
 		//mEmitter.update(dt);
-		mSoundSystem->update(dt);
+		getAssets()->getSoundSystem()->update(dt);
 		
 		getScene()->getSkyBox()->getTransform().rotate(1, 1, 1, 3*dt);
 
@@ -201,7 +200,7 @@ public:
 			CellRevealedEvent* evt = (CellRevealedEvent*)e.get();
 
 			if(evt->cells.size() > 1){
-				/*mSoundSystem->playSound("$ROOT/misc/magicclick");*/
+				/*getAssets()->getSoundSystem()->playSound("$ROOT/misc/magicclick");*/
 			}
 			getProcManager().attach( new MineDetacher(e) );
 
@@ -464,16 +463,13 @@ public:
 
 		getScene()->getSkyBox()->getTransform().rotate(1, 0, 0, 180);
 
-
-		mSoundSystem = new SFSoundSystem((SFSoundManager*)getAssets()->getSoundManager());
-
 		
-		getProcManager().attach(mAmbientMusic = new MusicPlayer(mSoundSystem));
+		getProcManager().attach(mAmbientMusic = new MusicPlayer(getAssets()->getSoundSystem()));
 
 		bool soundEnabled = true;
 		lua::luaConv(config.Get("soundEnabled"), soundEnabled);
 		if(!soundEnabled){
-			mSoundSystem->setGlobalVolume(0);
+			getAssets()->getSoundSystem()->setGlobalVolume(0);
 		}
 
 		mAmbientMusic->play("assets/demo/MinesDemo/-1 - 2ndBallad.ogg");

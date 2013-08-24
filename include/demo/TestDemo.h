@@ -155,6 +155,8 @@ public:
 			sound->attach(model, "");
 			effect->attach(model, "");
 			light->attach(model, "");
+
+			mMainActor = model;
 		}
 
 		loader.save("tmp_saved_scene.lua");

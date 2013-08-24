@@ -7,87 +7,24 @@
 #include "wt/EventManager.h"
 #include "wt/AResourceManager.h"
 #include "wt/Lua.h"
+#include "wt/ASoundStream.h"
 
 namespace wt{
 
 typedef Sp<ASound> SoundPtr;
 typedef Sp<ASoundStream> SoundStreamPtr;
 
-class SetGlobalVolumeEvt : public Event{
+class ASoundSystem{
 public:
-	static const EvtType TYPE;
+	virtual ~ASoundSystem();
 
-protected:
-	void serialize(LuaObject& dst){
-		dst.Set("volume", mVolume);
-	}
+	void setManager(AResourceManager<ASoundBuffer>* manager);
 
-	void deserialize(LuaObject& src){
-		mVolume = src.Get("volume").ToNumber();
-	}
+	SoundPtr playSound(const String& path);
 
-public:
-	float mVolume;
+	SoundPtr playSound(SoundPtr sound);
 
-	SetGlobalVolumeEvt(float volume) : mVolume(volume){
-	}
-
-	SetGlobalVolumeEvt(LuaObject& data) : Event(data){
-		deserialize(data);
-	}
-
-	const EvtType& getType() const{
-		return TYPE;
-	}
-
-}; // </SetGlobalVolumeEvt>
-
-#define EXPOSE(funcName) do{ meta.RegisterObjectDirect(#funcName, (ASoundSystem*)0, &ASoundSystem::lua_ ## funcName); }while(0)
-
-class ASoundSystem : public EventListener{
-
-private:
-	AResourceManager<ASoundBuffer>* mSoundManager;
-
-protected:
-	bool handleEvent(const Sp<Event> e){
-		const EvtType& type = e->getType();
-
-		if(type == SetGlobalVolumeEvt::TYPE){
-			setGlobalVolume( static_cast<const SetGlobalVolumeEvt*>(e.get())->mVolume );
-		}
-
-		return true;
-	}
-
-
-	std::vector<SoundPtr> mActiveSounds;
-public:
-	void setManager(AResourceManager<ASoundBuffer>* manager){
-		mSoundManager = manager;
-	}
-
-	SoundPtr playSound(const String& path){
-		return playSound( createSound(path) );
-	}
-
-	SoundPtr playSound(SoundPtr sound){
-		sound->play();
-		mActiveSounds.push_back(sound);
-		return sound;
-	}
-
-	void update(float dt){
-		for(std::vector<SoundPtr>::iterator i=mActiveSounds.begin(); i!=mActiveSounds.end(); i++){
-			if((*i)->getStatus() == ASound::eSTOPPED){
-				i = mActiveSounds.erase(i);
-			}
-
-			if(i==mActiveSounds.end()){
-				break;
-			}
-		}
-	}
+	void update(float dt);
 
 	virtual SoundPtr createSound(const String& path)=0;
 
@@ -109,41 +46,13 @@ public:
 
 	virtual void setMuted(bool state) = 0;
 
-	void registerEvents(){
-#if 0
-		// TODO
-		EventManager::getSingleton().registerSharedEvent<SetGlobalVolumeEvt>(SetGlobalVolumeEvt::TYPE);
-		EventManager::getSingleton().registerListener(this, SetGlobalVolumeEvt::TYPE);
-#endif
-	}
+private:
+	AResourceManager<ASoundBuffer>* mSoundManager;
 
-	/**********************/
-	/**** Lua bindings ****/
-	/**********************/
-
-
-
-
-	void lua_playSound(LuaObject soundPath, LuaObject luaPos){
-		SoundPtr sound = playSound(soundPath.ToString());
-		if(!luaPos.IsNil()){
-			glm::vec3 pos;
-			if(lua::luaConv(luaPos, pos)){
-				//sound.
-				sound->setPosition( pos );
-				sound->setRelativeToListener(false);
-			}
-		
-		}
-	}
-
-
-	void expose(LuaObject& meta){
-	}
+protected:
+	std::vector<SoundPtr> mActiveSounds;
 
 }; // </ASoundSystem>
-
-#undef EXPOSE
 
 } // </wt>
 

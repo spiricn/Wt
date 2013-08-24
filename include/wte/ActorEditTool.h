@@ -80,6 +80,14 @@ protected slots:
 
 	void onAttenuationChanged();
 
+	void onMinDistanceChanged();
+
+	void onVolumeChanged();
+
+	void onSoundAttenuationChanged();
+	
+	void onPitchChanged();
+
 }; // </ActorEditTool>
 
 #endif

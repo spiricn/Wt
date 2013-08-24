@@ -12,7 +12,6 @@ namespace wt{
 class SoundDemo : public ADemo{
 private:
 	SoundPtr mSound;
-	ASoundSystem* mSoundSystem;
 	SoundStreamPtr mMusic;
 
 public:
@@ -25,8 +24,8 @@ public:
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		mSoundSystem->setListenerForwardVec( getScene()->getCamera().getForwardVec() );
-		mSoundSystem->setListenerPosition( getScene()->getCamera().getPosition() );
+		getAssets()->getSoundSystem()->setListenerForwardVec( getScene()->getCamera().getForwardVec() );
+		getAssets()->getSoundSystem()->setListenerPosition( getScene()->getCamera().getPosition() );
 	}
 
 	void onKeyDown(VirtualKey c){
@@ -47,11 +46,11 @@ public:
 		}
 		else if(c == 269){
 			// Volume down
-			mSoundSystem->setGlobalVolume( glm::clamp(mSoundSystem->getGlobalVolume() - 0.1f, 0.0f, 1.0f) );
+			getAssets()->getSoundSystem()->setGlobalVolume( glm::clamp(getAssets()->getSoundSystem()->getGlobalVolume() - 0.1f, 0.0f, 1.0f) );
 		}
 		else if(c == 270){
 			// Volume up
-			mSoundSystem->setGlobalVolume( glm::clamp(mSoundSystem->getGlobalVolume() + 0.1f, 0.0f, 1.0f) );
+			getAssets()->getSoundSystem()->setGlobalVolume( glm::clamp(getAssets()->getSoundSystem()->getGlobalVolume() + 0.1f, 0.0f, 1.0f) );
 		}
 	}
 
@@ -88,10 +87,7 @@ public:
 
 		actor->getAnimationPlayer()->play("attack", true);
 
-		// Create sound 
-		mSoundSystem = new SFSoundSystem((SFSoundManager*)getAssets()->getSoundManager());
-
-		mSound = mSoundSystem->createSound( getAssets()->getSoundManager()->getFromPath("$ROOT/wolf/attack") );
+		mSound = getAssets()->getSoundSystem()->createSound( getAssets()->getSoundManager()->getFromPath("$ROOT/wolf/attack") );
 
 		glm::vec3 pos;
 		actor->getTransformable()->getTranslation(pos);
@@ -103,7 +99,7 @@ public:
 		mSound->play();
 
 		// Create music
-		mMusic = mSoundSystem->createSoundStream("assets/music/dayforest03.ogg");
+		mMusic = getAssets()->getSoundSystem()->createSoundStream("assets/music/dayforest03.ogg");
 		mMusic->setLoop(true);
 		mMusic->play();
 	}

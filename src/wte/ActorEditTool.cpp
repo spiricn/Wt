@@ -48,6 +48,11 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 	ui.lightAttenuation->setSingleStep(0.001, VecEditWidget::eFIELD_Z);
 	ui.lightAttenuation->setValueRange(0, 1.0f, VecEditWidget::eFIELD_Z);
 
+	ui.volume->setValueRange(0, 100);
+	ui.minDistance->setValueRange(0.5, 100);
+	ui.attenuation->setValueRange(0, 100);
+	ui.pitch->setValueRange(0.01, 10);
+
 	selectActor(NULL);
 }
 
@@ -405,6 +410,16 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	}
 	else if(actor->getActorType() == wt::ASceneActor::eTYPE_SOUND){
 		ui.stackedWidget->setCurrentIndex(3);
+
+		const wt::Sound* sound = dynamic_cast<const wt::Sound*>(actor);
+
+		ui.volume->setValue( sound->getSound()->getVolume()*100.0f );
+
+		ui.attenuation->setValue( sound->getSound()->getAttenuation() );
+
+		ui.minDistance->setValue( sound->getSound()->getMinimumDistance() );
+
+		ui.pitch->setValue( sound->getSound()->getPitch() );
 	}
 	else{
 		WT_THROW("Unsupported actor type");
@@ -478,5 +493,37 @@ void ActorEditTool::onNewActor(){
 
 			mPhysics->createBBox(sceneActor);
 		}
+	}
+}
+
+void ActorEditTool::onMinDistanceChanged(){
+	if(isToolFocused() && mSelectedActor != NULL){
+		wt::Sound* sound = dynamic_cast<wt::Sound*>(mSelectedActor);
+
+		sound->getSound()->setMinimumDistance( ui.minDistance->getValue() );
+	}
+}
+
+void ActorEditTool::onVolumeChanged(){
+	if(isToolFocused() && mSelectedActor != NULL){
+		wt::Sound* sound = dynamic_cast<wt::Sound*>(mSelectedActor);
+
+		sound->getSound()->setVolume( ui.volume->getValue()/100.0f );
+	}
+}
+
+void ActorEditTool::onSoundAttenuationChanged(){
+	if(isToolFocused() && mSelectedActor != NULL){
+		wt::Sound* sound = dynamic_cast<wt::Sound*>(mSelectedActor);
+
+		sound->getSound()->setAttenuation( ui.attenuation->getValue() );
+	}
+}
+
+void ActorEditTool::onPitchChanged(){
+	if(isToolFocused() && mSelectedActor != NULL){
+		wt::Sound* sound = dynamic_cast<wt::Sound*>(mSelectedActor);
+
+		sound->getSound()->setPitch( ui.pitch->getValue() );
 	}
 }
