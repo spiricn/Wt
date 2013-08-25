@@ -45,8 +45,8 @@ void ModelRenderer::create(){
 
 #else
 	// Geometry pass shader
-	mShader.createFromFiles("shaders/geometry_pass.vp",
-		"shaders/geometry_pass.fp");
+	mShader.createFromFiles("shaders/model_deferred.vp",
+		"shaders/model_deferred.fp");
 		
 	mShader.bindAttribLocation(Model::eATTRIB_POSITION, "inVertex");
 	mShader.bindAttribLocation(Model::eATTRIB_TEXCOORD, "inTexCoord");
@@ -128,15 +128,12 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 
 	
 	glm::mat4 viewMat;
-	camera->getMatrix(viewMat);
-
-	
-
+	camera->getCameraMatrix(viewMat);
 
 	// Setup the shader
 	mShader.use();
 	mShader.setUniformVal("uViewMat", viewMat);
-	mShader.setUniformVal("uProjMat", camera->getFrustum().getProjMatrix());
+	mShader.setUniformVal("uProjMat", camera->getProjectionMatrix());
 	glActiveTexture(GL_TEXTURE0);
 
 	// Render the geometry

@@ -392,7 +392,7 @@ void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bo
 	// Setup projection matrix
 	gl( MatrixMode(GL_PROJECTION) );
 	gl( LoadIdentity() );
-	gl( LoadMatrixf(glm::value_ptr(scene->getCamera().getFrustum().getProjMatrix())) );
+	gl( LoadMatrixf(glm::value_ptr(scene->getCamera().getProjectionMatrix())) );
 
 	glm::mat4 tmp;
 	glm::vec3 p;
@@ -402,7 +402,7 @@ void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bo
 	glm::mat4 view;
 	glm::mat4 model;
 	((ModelledActor*)actor)->getTransformable()->getTransformMatrix(model);
-	scene->getCamera().getMatrix(view);
+	scene->getCamera().getCameraMatrix(view);
 	gl( MatrixMode(GL_MODELVIEW) );
 	gl( LoadMatrixf(glm::value_ptr(view*model)) );
 
@@ -559,19 +559,82 @@ Renderer::RenderState& Renderer::getRenderState(){
 	return mRenderState;
 }
 
+void Renderer::render(const ATransformable* tf, math::Camera* camera){
+	static const float kLINE_LENGTH = 5.0f;
+	static const float kLINE_WIDTH = 3.0f;
+
+	gl( UseProgram(0) );
+
+	// projection
+	gl( MatrixMode(GL_PROJECTION) );
+	gl( LoadIdentity() );
+	gl( LoadMatrixf( glm::value_ptr( camera->getProjectionMatrix() ) ) );
+
+	// moidelview
+	gl( MatrixMode(GL_MODELVIEW) );
+	gl( LoadIdentity() );
+	glm::mat4 mv;
+	camera->getCameraMatrix(mv);
+	gl( LoadMatrixf( glm::value_ptr(mv) ) );
+
+
+	glm::vec3 pos, fw, up, right;
+
+	tf->getTranslation(pos);
+	tf->getForwardVector(fw);
+	tf->getUpVector(up);
+	tf->getRightVector(right);
+
+	
+	GLint currentLineWidth;
+	gl( GetIntegerv(GL_LINE_WIDTH, &currentLineWidth) );
+
+	gl( Disable(GL_BLEND) );
+	gl( LineWidth(kLINE_WIDTH) );
+
+	glm::vec3 start = pos;
+	glm::vec3 end;
+
+	{
+		glBegin(GL_LINES);
+
+		// X axis - red
+		end = pos + right*kLINE_LENGTH;
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(start.x, start.y, start.z);
+		glVertex3f(end.x, end.y, end.z);
+
+		// Y axis - green
+		end = pos + up*kLINE_LENGTH;
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(start.x, start.y, start.z);
+		glVertex3f(end.x, end.y, end.z);
+
+		// Z axis - blue
+		end = pos + fw*kLINE_LENGTH;
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(start.x, start.y, start.z);
+		glVertex3f(end.x, end.y, end.z);
+
+		glEnd();
+	}
+
+	gl( LineWidth(currentLineWidth) );
+}
+
 void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color& clr){
 	gl( UseProgram(0) );
 
 	// projection
 	gl( MatrixMode(GL_PROJECTION) );
 	gl( LoadIdentity() );
-	gl( LoadMatrixf( glm::value_ptr( camera->getFrustum().getProjMatrix() ) ) );
+	gl( LoadMatrixf( glm::value_ptr( camera->getProjectionMatrix() ) ) );
 
 	// moidelview
 	gl( MatrixMode(GL_MODELVIEW) );
 	gl( LoadIdentity() );
 	glm::mat4 mv;
-	camera->getMatrix(mv);
+	camera->getCameraMatrix(mv);
 	gl( LoadMatrixf( glm::value_ptr(mv) ) );
 
 	PxVec3 center = bounds.getCenter();
@@ -717,7 +780,7 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 
 	// View matrix
 	glm::mat4x4 viewMat;
-	scene.getCamera().getMatrix(viewMat);
+	scene.getCamera().getCameraMatrix(viewMat);
 
 	// WARNING: it's very important for the front face to be set as counter-clockwise
 	// otherwise this whole concept breaks
@@ -776,6 +839,14 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 			}
 			glEnable(GL_DEPTH_TEST);
 		}
+
+		//if(mRenderAxis){
+			glDisable(GL_DEPTH_TEST);
+			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+				render(i->second->getTransformable(), &scene.getCamera());
+			}
+			glEnable(GL_DEPTH_TEST);
+		//}
 	}
 
 	// Final pass (render the resulting texture to the screen)
@@ -808,15 +879,17 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	setClearColor(mClearColor);
 
 	glm::mat4 modelview;
-	scene.getCamera().getMatrix(modelview, true);
+	scene.getCamera().getCameraMatrix(modelview);
 
-
+	modelview[3][0] = 0.0f;
+	modelview[3][1] = 0.0f;
+	modelview[3][2] = 0.0f;
 
 	Scene::GodRayParams godrayParams;
 	scene.getGodRayParams(godrayParams);
 	
 	glm::vec4 viewport(0, 0, mViewPort.x, mViewPort.y);
-	glm::vec3 sunScreenPos = glm::project(godrayParams.sourcePosition, modelview, scene.getCamera().getFrustum().getProjMatrix(), viewport);
+	glm::vec3 sunScreenPos = glm::project(godrayParams.sourcePosition, modelview, scene.getCamera().getProjectionMatrix(), viewport);
 	bool sunVisible = sunScreenPos.x >= 0.0f && sunScreenPos.y >= 0.0f && sunScreenPos.x <= mViewPort.x && sunScreenPos.y <= mViewPort.y;
 
 	if(godrayParams.enabled){ 
@@ -844,7 +917,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		//scene.getCamera().getMatrix(sunViewMat, 1);
 		mGodraySunShader.setUniformVal("uModelMat", glm::translate(godrayParams.sourcePosition));
 		mGodraySunShader.setUniformVal("uViewMat", modelview);
-		mGodraySunShader.setUniformVal("uProjMat", scene.getCamera().getFrustum().getProjMatrix());
+		mGodraySunShader.setUniformVal("uProjMat", scene.getCamera().getProjectionMatrix());
 		mGodraySunShader.setUniformVal("uSunSize", godrayParams.sourceSize);
 		mGodraySunShader.setUniformVal("uPlanetTexture", 0);
 		mGodraySunShader.setUniformVal("uSourceColor", godrayParams.sourceColor);

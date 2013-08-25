@@ -331,7 +331,7 @@ public:
 		// Create new field
 		mGameState.createField( numColumns, numRows, numMines );
 
-		getScene()->getCamera().setPosition(cameraPosition);
+		getScene()->getCamera().setTranslation(cameraPosition);
 		getScene()->getCamera().setRotation(cameraRotation);
 
 		// Remove all the actors from the scene

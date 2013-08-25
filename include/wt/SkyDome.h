@@ -5,7 +5,6 @@
 #include "wt/GLShaderProgram.h"
 #include "wt/Model.h"
 #include "wt/Texture2D.h"
-#include "wt/Frustum.h"
 
 namespace wt{
 
@@ -114,7 +113,7 @@ public:
 
 	void setTimeOfDay(float p);
 
-	void render(math::Camera& camera, const math::Frustum& frustum);
+	void render(math::Camera& camera);
 
 }; // </SkyDome>
 

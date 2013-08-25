@@ -20,7 +20,7 @@ private:
 
 public:
 	FPSCameraControler(Camera* camera=NULL) : mCamera(camera),
-		mMoveSpeed(50.0f), mMouseSensitivity(2.0f){
+		mMoveSpeed(50.0f), mMouseSensitivity(0.1f){
 	}
 
 	void setCamera(Camera* camera){
@@ -61,35 +61,39 @@ public:
 	}
 
 	void moveForward(float dt){
-		mCamera->move( glm::vec3(0.0f, 0.0f, 1.0f) * (mMoveSpeed*dt) );
+		mCamera->moveForward(-mMoveSpeed*dt);
 	}
 
 	void moveBackward(float dt){
-		mCamera->move( glm::vec3(0.0f, 0.0f, -1.0f) * (mMoveSpeed*dt) );
+		mCamera->moveForward(mMoveSpeed*dt);
 	}
 
 	void strifeLeft(float dt){
-		mCamera->move( glm::vec3(1.0f, 0.0f, 0.0f) * (mMoveSpeed*dt) );
+		mCamera->strife(-mMoveSpeed*dt);
 	}
 
 	void strifeRight(float dt){
-		mCamera->move( glm::vec3(-1.0f, 0.0f, 0.0f) * (mMoveSpeed*dt) );
+		mCamera->strife(mMoveSpeed*dt);
 	}
 
 	void moveUp(float dt){
-		mCamera->move( glm::vec3(0.0f, 1.0f, 0.0f) * (mMoveSpeed*dt) );
+		mCamera->translate( glm::vec3(0.0f, 1.0f, 0.0f) * (mMoveSpeed*dt) );
 	}
 
 	void moveDown(float dt){
-		mCamera->move( glm::vec3(0.0f, -1.0f, 0.0f) * (mMoveSpeed*dt) );
+		mCamera->translate( glm::vec3(0.0f, -1.0f, 0.0f) * (mMoveSpeed*dt) );
 	}
 
 	void lookHorizontal(float dx){
-		mCamera->yaw(-dx*mMouseSensitivity);
+		if(dx*mMouseSensitivity != 0.0f){
+			mCamera->yaw(-dx*mMouseSensitivity);
+		}
 	}
 
 	void lookVertical(float dy){
-		mCamera->pitch(dy*mMouseSensitivity);
+		if(dy*mMouseSensitivity != 0.0f){
+			mCamera->pitch(-dy*mMouseSensitivity);
+		}
 	}
 };
 

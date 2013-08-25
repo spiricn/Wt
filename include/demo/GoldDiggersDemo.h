@@ -57,8 +57,12 @@ public:
 
 		getEventManager()->queueEvent(e);
 
-		mSoundSystem->setListenerForwardVec( getScene()->getCamera().getForwardVec() );
-		mSoundSystem->setListenerPosition( getScene()->getCamera().getPosition() );
+		glm::vec3 pos, fw;
+		getScene()->getCamera().getForwardVector(fw);
+		getScene()->getCamera().getTranslation(pos);
+
+		mSoundSystem->setListenerForwardVec(fw);
+		mSoundSystem->setListenerPosition(pos);
 		mSoundSystem->update(dt);
 	}
 

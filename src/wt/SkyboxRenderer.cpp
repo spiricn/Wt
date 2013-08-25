@@ -40,9 +40,17 @@ void SkyboxRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 	mShader.use();
 
 	// Set the modelview-projection matrix
-	glm::mat4 mvp;
-	camera->getMVPMatrix(sky->getTransform(), mvp, true);
-	mShader.setUniformVal("uModelViewProjection", mvp);
+	glm::mat4 view;
+	camera->getCameraMatrix(view);
+
+	view[3][0] = 0.0f;
+	view[3][1] = 0.0f;
+	view[3][2] = 0.0f;
+
+	glm::mat4 model;
+	sky->getTransform().getTransformMatrix(model);
+
+	mShader.setUniformVal("uModelViewProjection", camera->getProjectionMatrix()*(view*model));
 
 	// Bind the sky texture
 	glActiveTexture(GL_TEXTURE0);

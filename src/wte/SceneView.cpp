@@ -55,7 +55,9 @@ void SceneView::update(float dt){
 
 		float speed = 50;
 
-		mScene->getCamera().move(disp*speed*dt);
+		mScene->getCamera().moveForward(disp.z * speed * dt);
+		mScene->getCamera().moveUp(disp.y * speed * dt);
+		mScene->getCamera().strife(disp.x * speed * dt);
 	}
 
 	repaint();
@@ -133,7 +135,7 @@ void SceneView::mouseMoveEvent(QMouseEvent* evt){
 
 		if(mScene){
 			mScene->getCamera().yaw(-dx);
-			mScene->getCamera().pitch(dy);
+			mScene->getCamera().pitch(-dy);
 		}
 	}
 

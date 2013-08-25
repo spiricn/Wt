@@ -2,7 +2,6 @@
 
 #include "wt/Physics.h"
 #include "wt/camera.h"
-#include "Wt/frustum.h"
 
 #define TD_TRACE_TAG "Physics"
 
@@ -582,14 +581,17 @@ bool Physics::pick(math::Camera& camera, const glm::vec2& screenPos,
 	const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups, PickFlag flags){
 
 	glm::mat4x4 modelView;
-	camera.getMatrix(modelView);
+	camera.getCameraMatrix(modelView);
 
 	glm::vec3 point = math::unProject(screenPos.x, screenPos.y, screenSize.x,
 		screenSize.y, modelView,
-		camera.getFrustum().getProjMatrix()
+		camera.getProjectionMatrix()
 		);
 
-	return pick(camera.getPosition(), glm::normalize(point-camera.getPosition()), res, groups, flags);
+	glm::vec3 eyePos;
+	camera.getTranslation(eyePos);
+
+	return pick(eyePos, glm::normalize(point-eyePos), res, groups, flags);
 }
 
 

@@ -99,9 +99,12 @@ void WorldEditTab::onTimeout(){
 
 	mEventManager->tick();
 
-	//mScene
-	mAssets->getSoundSystem()->setListenerForwardVec( mScene->getCamera().getForwardVec() );
-	mAssets->getSoundSystem()->setListenerPosition( mScene->getCamera().getPosition() );	
+	glm::vec3 eyePos, eyeFw;
+	mScene->getCamera().getForwardVector(eyeFw);
+	mScene->getCamera().getTranslation(eyePos);
+
+	mAssets->getSoundSystem()->setListenerForwardVec( eyeFw );
+	mAssets->getSoundSystem()->setListenerPosition( eyePos );	
 }
 
 void WorldEditTab::createToolbar(){

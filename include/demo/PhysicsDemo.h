@@ -52,9 +52,13 @@ public:
 	}
 
 	void onKeyDown(VirtualKey c){
+		glm::vec3 fw, pos;
+		getScene()->getCamera().getForwardVector(fw);
+		getScene()->getCamera().getTranslation(pos);
+
 		if(c == KEY_t){
 			spawnBox(
-				getScene()->getCamera().getPosition(), getScene()->getCamera().getForwardVec()*30.0f, 0x800000 /* collide only with terrain */);
+				pos, fw*30.0f, 0x800000 /* collide only with terrain */);
 		}
 		else if(c == KEY_p){
 			mPhysicsPaused = !mPhysicsPaused;
@@ -64,7 +68,7 @@ public:
 		}
 		else if(c == KEY_y){
 			spawnBall(
-				getScene()->getCamera().getPosition(), getScene()->getCamera().getForwardVec()*30.0f);
+				pos, fw*30.0f);
 		}
 
 		ADemo::onKeyDown(c);

@@ -21,8 +21,7 @@ public:
 	void onRender(float dt){
 		getRenderer()->render( *getScene() );
 
-		mSkyDome.render(
-			getScene()->getCamera(), getScene()->getCamera().getFrustum());
+		mSkyDome.render(getScene()->getCamera());
 	}
 
 	String getConfigFile() const{

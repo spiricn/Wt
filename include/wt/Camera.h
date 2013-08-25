@@ -3,75 +3,87 @@
 
 #include <wt/lua/State.h>
 
-#include "wt/Frustum.h"
 #include "wt/Transform.h"
+#include "wt/ATransformable.h"
 
 namespace wt{
 
 namespace math{
 
-class Camera : public lua::Object<Camera> {
+class Camera : public ATransformable{
 public:
+	struct PerspectiveParams{
+		float verticalFov;
+		float nearPlaneDistance;
+		float farPlaneDistance;
+		float nearPlaneWidth;
+		float nearPlaneHeight;
+
+		PerspectiveParams();
+	}; // </PerspectiveParams>
+
+	struct OrthoParams{
+		float screenWidth;
+		float screenHeight;
+
+		OrthoParams();
+	}; // </OrthoParams>
+
+	enum ProjectionType{
+		ePROJECTION_PERSPECTIVE,
+		ePROJECTION_ORTHO
+	};
+
 	Camera();
 
-	float getYaw() const;
+	void setTranslation(const glm::vec3& translation);
 
-	void yaw(float deg);
+	void setRotation(const glm::quat& rotation);
 
-	void pitch(float deg);
+	void setScale(const glm::vec3& scale);
 
-	void getRotation(glm::mat4& rot);
+	void getScale(glm::vec3& result) const;
 
-	void getRotation(glm::quat& res);
+	void getTranslation(glm::vec3& result) const;
 
-	void lookAt(const glm::vec3& point);
+	void getRotation(glm::quat& result) const;
 
-	void setRotation(const glm::quat& quat);
+	const PerspectiveParams& getPerspectiveParams() const;
 
-	void move(const glm::vec3& offset);
+	const OrthoParams& getOrthoParams() const;
+	
+	void setProjectionType(ProjectionType type);
 
-	void setPosition(const glm::vec3& pos);
+	ProjectionType getProjectionType() const;
 
-	void orbit(float radius, float theta, float rho, const glm::vec3& pos);
+	const glm::mat4& getProjectionMatrix();
 
-	const glm::vec3& getForwardVec() const;
+	void getTransformMatrix(glm::mat4& res) const;
 
-	const glm::vec3& getUpVec() const;
+	void setPerspectiveParams(const PerspectiveParams& params);
 
-	const glm::vec3& getRightVec() const;
+	void setOrthoParams(const OrthoParams& params);
 
-	const glm::vec3& getPosition() const;
+	void getForwardVector(glm::vec3& result) const;
 
-	const float getPitch() const;
+	void getRightVector(glm::vec3& result) const;
 
-	void getMatrix(glm::mat4x4& dst, bool rotOnly=false);
+	void getUpVector(glm::vec3& result) const;
 
-	void getMVPMatrix(const glm::mat4x4& model, glm::mat4x4& dst, bool rotOnly=false);
-
-	void getMVPMatrix(const Transform& transform, glm::mat4x4& dst, bool rotOnly=false);
-
-	Frustum& getFrustum();
-
-	// lua
-
-	void generateMetaTable();
 private:
-	static const glm::vec3 FORWARD, UP, RIGHT;
+	void rebuildProjectionMatrix();
 
-	glm::vec3 mForward, mUp, mRight, mOrigin;
-	glm::mat4x4	mViewMatrix;
-	Frustum mFrustum;
-	bool mUpdateMatrix, mMatrixRotOnly;
+	// Projection params
+	ProjectionType mProjectionType;
+	PerspectiveParams mPerspectiveParams;
+	OrthoParams mOrthoParams;
+	glm::mat4 mProjectionMatrix;
 
-	void rotateWorld(float fAngle, float x, float y, float z);
-
-	void rotateLocal(float fAngle, float x, float y, float z);
-
-	void buildCameraMatrix(glm::mat4x4& dst);
-
-	void buildMatrix(glm::mat4x4& dst, bool rotOnly);
-
-	void localToWorld(const glm::vec3& localPoint, glm::vec3& dst, bool rotOnly);
+	// Camera params
+	glm::vec3 mTranslation;
+	glm::vec3 mForwardVector;
+	glm::vec3 mUpVector;
+	glm::vec3 mRightVector;
 
 }; // </Camera>
 

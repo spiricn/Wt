@@ -133,8 +133,8 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 		mFpsCam.setMoveSpeed(speed);
 
-		mScene->getCamera().setPosition(pos);
-		mScene->getCamera().setRotation(rot);
+		//mScene->getCamera().setTranslation(pos);
+		//mScene->getCamera().setRotation(rot);
 	}
 
 	mShowGrid = mConfig->GetGlobal("showGrid").ToInteger() ? true : false;
@@ -418,7 +418,7 @@ const String& ADemo::getName() const{
 void ADemo::onRender(float dt){
 	if(mShowGrid){
 		glm::mat4 mv;
-		getScene()->getCamera().getMatrix(mv);
+		getScene()->getCamera().getCameraMatrix(mv);
 	}
 }
 
@@ -480,14 +480,16 @@ void ADemo::onKeyDownPriv(VirtualKey code){
 
 		case KEY_F5:
 			{
-				const glm::vec3& pos = mScene->getCamera().getPosition();
+				glm::vec3 pos;
+				mScene->getCamera().getTranslation(pos);
 				LOGI("Camera position: = {%f, %f, %f}", pos.x, pos.y, pos.z);
 
 				glm::quat rot;
 				mScene->getCamera().getRotation(rot);
 				LOGI("Camera rotation = {%f, %f, %f, %f}", rot.x, rot.y, rot.z, rot.w);
 
-				glm::vec3 fw = mScene->getCamera().getForwardVec();
+				glm::vec3 fw;
+				mScene->getCamera().getForwardVector(fw);
 				LOGI("Camera facing = {%f, %f, %f}", fw.x, fw.y, fw.z);
 
 
@@ -532,17 +534,20 @@ void ADemo::onUpdate(float dt){
 	glm::vec3 disp(0);
 
 	glm::vec3 moveVec(0);
+	glm::vec3 fw;
+	getScene()->getCamera().getForwardVector(fw);
+
 	if(mInput->isKeyDown(KEY_w)){
-		disp += glm::normalize(getScene()->getCamera().getForwardVec() * glm::vec3(1, 0, 1)) * moveSpeed;
+		disp += glm::normalize(fw * glm::vec3(1, 0, 1)) * moveSpeed;
 	}
 	if(mInput->isKeyDown(KEY_s)){
-		disp += -glm::normalize(getScene()->getCamera().getForwardVec() * glm::vec3(1, 0, 1)) * moveSpeed;
+		disp += -glm::normalize(fw * glm::vec3(1, 0, 1)) * moveSpeed;
 	}
 	if(mInput->isKeyDown(KEY_a)){
-		disp += glm::normalize(getScene()->getCamera().getRightVec() * glm::vec3(1, 0, 1)) * moveSpeed;
+		disp += glm::normalize(fw * glm::vec3(1, 0, 1)) * moveSpeed;
 	}
 	if(mInput->isKeyDown(KEY_d)){
-		disp += -glm::normalize(getScene()->getCamera().getRightVec() * glm::vec3(1, 0, 1)) * moveSpeed;
+		disp += -glm::normalize(fw * glm::vec3(1, 0, 1)) * moveSpeed;
 	}
 
 	// gravity
@@ -560,7 +565,7 @@ void ADemo::onUpdate(float dt){
 	glm::vec3 camPos;
 	pxConvert(mCamController->getController()->getFootPosition(),
 		camPos);
-	getScene()->getCamera().setPosition(camPos + glm::vec3(0, 3, 0));
+	getScene()->getCamera().setTranslation(camPos + glm::vec3(0, 3, 0));
 
 }
 

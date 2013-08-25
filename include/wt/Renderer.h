@@ -101,6 +101,8 @@ public:
 
 	void render(const PxBounds3& bounds, math::Camera* camera, const Color& clr);
 
+	void render(const ATransformable* tf, math::Camera* camera);
+
 	void init(uint32_t portW, uint32_t portH );
 
 	void saveScreenshot(const String& path);

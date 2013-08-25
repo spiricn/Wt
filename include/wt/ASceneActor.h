@@ -127,6 +127,8 @@ public:
 
 	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
 
+	virtual void destroy();
+
 }; // </ASceneActor>
 
 

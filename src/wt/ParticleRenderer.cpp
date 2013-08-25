@@ -112,7 +112,7 @@ void ParticleRenderer::render(Scene* scene, math::Camera* camera, PassType pass)
 				ParticleLayer* layer = i->second;
 
 				glm::mat4 view;
-				camera->getMatrix(view);
+				camera->getCameraMatrix(view);
 
 				// Render particles
 				mParticleRenderShader.use();
@@ -123,10 +123,13 @@ void ParticleRenderer::render(Scene* scene, math::Camera* camera, PassType pass)
 					mParticleRenderShader.setUniformVal("uModelMat", modelMat*layer->getLayerResource()->getDesc().transform);
 				}
 
-				mParticleRenderShader.setUniformVal("uCamPos", camera->getPosition());
+				glm::vec3 eyePos;
+				camera->getTranslation(eyePos);
+
+				mParticleRenderShader.setUniformVal("uCamPos", eyePos);
 				mParticleRenderShader.setUniformVal("uSizeGrow", layer->getLayerResource()->getDesc().sizeGrow);
 				mParticleRenderShader.setUniformVal("uModelViewMat", view);
-				mParticleRenderShader.setUniformVal("uProjMat", camera->getFrustum().getProjMatrix());
+				mParticleRenderShader.setUniformVal("uProjMat", camera->getProjectionMatrix());
 
 				for(int i=0; i<ParticleLayerResource::LayerDesc::kMAX_COLORS; i++){
 					char name[64];

@@ -164,12 +164,12 @@ void SceneLoader::load(AIOStream& stream){
 		// Position
 		glm::vec3 pos;
 		lua::luaConv(cameraTable.Get("pos"), pos);
-		mScene->getCamera().setPosition(pos);
+		mScene->getCamera().setTranslation(pos);
 
 		// Rotation
 		glm::quat rot;
 		lua::luaConv(cameraTable.Get("rot"), rot);
-		mScene->getCamera().setRotation(rot);
+		//mScene->getCamera().setRotation(rot);
 	}
 }
 
@@ -272,9 +272,11 @@ void SceneLoader::save(AIOStream& stream){
 		cameraTable.Set("rot", luaRot);
 
 		// Position
-		lua::LuaObject pos = mAssets->getLuastate()->newTable();
-		lua::luaConv(mScene->getCamera().getPosition(), pos);
-		cameraTable.Set("pos", pos);
+		lua::LuaObject luaPos = mAssets->getLuastate()->newTable();
+		glm::vec3 pos;
+		mScene->getCamera().getTranslation(pos);
+		lua::luaConv(pos, luaPos);
+		cameraTable.Set("pos", luaPos);
 
 		sceneTable.Set("camera", cameraTable);
 	}

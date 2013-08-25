@@ -40,14 +40,14 @@ void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 	gl::ShaderUniform<int>(&mShader, "uPassType") = pass;
 
 	glm::mat4x4 view;
-	camera->getMatrix(view);
+	camera->getCameraMatrix(view);
 
 	glm::mat4 model;
 	terrain->getTransformable()->getTransformMatrix(model);
 
 	mShader.setUniformVal("uModelMat", model);
 	mShader.setUniformVal("uViewMat",view);
-	mShader.setUniformVal("uProjMat", camera->getFrustum().getProjMatrix());
+	mShader.setUniformVal("uProjMat", camera->getProjectionMatrix());
 
 	glActiveTexture(GL_TEXTURE0);
 	terrain->getTerrainTexture()->bind();

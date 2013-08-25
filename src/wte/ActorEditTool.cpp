@@ -339,11 +339,14 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	glm::vec3 pos;
 	mSelectedActor->getTransformable()->getTranslation(pos);
 
-	glm::vec3 dir = glm::normalize(pos - mScene->getCamera().getPosition());
-	float distance = glm::length(pos - mScene->getCamera().getPosition());
+	glm::vec3 eyePos;
+	mScene->getCamera().getTranslation(eyePos);
+
+	glm::vec3 dir = glm::normalize(pos - eyePos);
+	float distance = glm::length(pos - eyePos);
 	const float d=50.0f;
 	if(distance > d){
-		mScene->getCamera().setPosition(
+		mScene->getCamera().setTranslation(
 			pos - dir*d);
 	}
 
@@ -488,8 +491,15 @@ void ActorEditTool::onNewActor(){
 		}
 
 		if(sceneActor){
+			glm::vec3 eyePos, eyeFw;
+
+			mScene->getCamera().getTranslation(eyePos);
+
+			mScene->getCamera().getForwardVector(eyeFw);
+
+
 			sceneActor->getTransformable()->setTranslation(
-				mScene->getCamera().getPosition() + mScene->getCamera().getForwardVec()*10.0f);
+				 eyePos + eyeFw*10.0f);
 
 			mPhysics->createBBox(sceneActor);
 		}

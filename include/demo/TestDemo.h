@@ -15,9 +15,6 @@
 
 namespace wt{
 
-
-
-
 class TestDemo : public ADemo{
 public:
 
@@ -31,8 +28,12 @@ public:
 	}
 
 	void onUpdate(float dt){
-		getAssets()->getSoundSystem()->setListenerForwardVec( getScene()->getCamera().getForwardVec() );
-		getAssets()->getSoundSystem()->setListenerPosition( getScene()->getCamera().getPosition() );
+		glm::vec3 eyePos, fw;
+		getScene()->getCamera().getForwardVector(fw);
+		getScene()->getCamera().getTranslation(eyePos);
+
+		getAssets()->getSoundSystem()->setListenerForwardVec(fw);
+		getAssets()->getSoundSystem()->setListenerPosition(eyePos);
 
 		getPhysics()->update(dt);
 		getScene()->update(dt);

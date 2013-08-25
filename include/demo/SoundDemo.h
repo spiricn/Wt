@@ -24,8 +24,13 @@ public:
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		getAssets()->getSoundSystem()->setListenerForwardVec( getScene()->getCamera().getForwardVec() );
-		getAssets()->getSoundSystem()->setListenerPosition( getScene()->getCamera().getPosition() );
+		glm::vec3 fw, pos;
+
+		getScene()->getCamera().getForwardVector(fw);
+		getScene()->getCamera().getTranslation(pos);
+
+		getAssets()->getSoundSystem()->setListenerForwardVec( fw );
+		getAssets()->getSoundSystem()->setListenerPosition( pos);
 	}
 
 	void onKeyDown(VirtualKey c){

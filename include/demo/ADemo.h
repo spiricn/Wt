@@ -6,7 +6,6 @@
 #include "wt/GLBatch.h"
 #include "wt/Utils.h"
 #include "wt/Camera.h"
-#include "wt/Frustum.h"
 #include "wt/Timer.h"
 #include "wt/Scene.h"
 #include "wt/Renderer.h"

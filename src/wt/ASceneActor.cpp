@@ -2,6 +2,8 @@
 #include "wt/ASceneActor.h"
 #include "wt/PhysicsActor.h"
 
+#include "wt/Scene.h"
+
 namespace wt{
 
 
@@ -19,6 +21,10 @@ const Color& ASceneActor::getBoundingBoxColor() const{
 
 void ASceneActor::setName(const String& name){
 	mName = name;
+}
+
+void ASceneActor::destroy(){
+	return mParent->deleteActor(this);
 }
 
 void ASceneActor::setLuaState(lua::State* state){

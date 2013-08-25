@@ -313,7 +313,10 @@ void DeferredRender::directionalLightPass(Scene* scene, math::Camera* camera){
 	shader.setUniformVal("uProjMat", glm::mat4(1.0f));
 	shader.setUniformVal("uModelMat", glm::mat4(1.0f));
 
-	shader.setUniformVal("uEyePos", camera->getPosition());
+	glm::vec3 eyePos;
+	camera->getTranslation(eyePos);
+
+	shader.setUniformVal("uEyePos", eyePos);
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -374,9 +377,12 @@ void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, const Point
 	tf.setScale(light->getDesc().calculateBoundingSphere(), light->getDesc().calculateBoundingSphere(), light->getDesc().calculateBoundingSphere());
 
 	// Upload the modelview-projection matrix
-	glm::mat4 mvp;
-	camera->getMVPMatrix(tf, mvp);
-	mStencilPassShader.setUniformVal("uModelViewProj", mvp);
+	glm::mat4 model, view;
+	tf.getTransformMatrix(model);
+
+	camera->getCameraMatrix(view);
+
+	mStencilPassShader.setUniformVal("uModelViewProj", camera->getProjectionMatrix() * (view * model) );
 
 	// Render the sphere
 	mSphereBatch.render();
@@ -425,10 +431,10 @@ void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const Po
 	tf.getMatrix(model);
 
 	glm::mat4 view;
-	camera->getMatrix(view);
+	camera->getCameraMatrix(view);
 
 	shader.setUniformVal("uViewMat", view);
-	shader.setUniformVal("uProjMat", camera->getFrustum().getProjMatrix());
+	shader.setUniformVal("uProjMat", camera->getProjectionMatrix());
 	shader.setUniformVal("uModelMat", model);
 
 

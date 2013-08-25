@@ -82,10 +82,4 @@ int main(){
 
 #else
 
-using namespace wt;
-
-
-int main(){
-}
-
 #endif

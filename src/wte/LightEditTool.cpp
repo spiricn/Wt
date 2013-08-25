@@ -34,7 +34,10 @@ void LightEditTool::onColorChanged(){
 void LightEditTool::onSetDirection(){
 	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
 	
-	desc.direction = mScene->getCamera().getForwardVec();
+	glm::vec3 eyeFw;
+	mScene->getCamera().getForwardVector(eyeFw);
+
+	desc.direction = eyeFw;
 
 	mScene->setDirectionalLightDesc(desc);
 }

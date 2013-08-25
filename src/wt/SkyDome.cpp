@@ -1,6 +1,5 @@
 #include "wt/stdafx.h"
 #include "wt/SkyDome.h"
-#include "wt/Frustum.h"
 
 #define TD_TRACE_TAG "SkyDome"
 
@@ -74,11 +73,16 @@ void SkyDome::setTimeOfDay(float p){
 	update(0.0f);
 }
 
-void SkyDome::render(math::Camera& camera, const math::Frustum& frustum){
+void SkyDome::render(math::Camera& camera){
 	mShader.use();
 		
 	glm::mat4 view;
-	camera.getMatrix(view, false);
+	camera.getCameraMatrix(view);
+
+	view[3][0] = 0.0f;
+	view[3][1] = 0.0f;
+	view[3][2] = 0.0f;
+
 	glDepthMask(false);
 
 	math::Transform domeTransform;
@@ -90,7 +94,7 @@ void SkyDome::render(math::Camera& camera, const math::Frustum& frustum){
 	domeTransform.getMatrix(model);
 
 	mShader.setModelViewProjMat(model,
-		view, frustum.getProjMatrix());
+		view, camera.getProjectionMatrix());
 
 	glActiveTexture(GL_TEXTURE0);
 	mSkyTexture->bind();
@@ -131,8 +135,12 @@ void SkyDome::render(math::Camera& camera, const math::Frustum& frustum){
 	//camera.getMatrix(view);
 	mPlanetShader.setUniformVal("uModelMat", glm::translate(sp));
 	mPlanetShader.setUniformVal("uViewMat", view);
-	mPlanetShader.setUniformVal("uCamPos", camera.getPosition());
-	mPlanetShader.setUniformVal("uProjMat", frustum.getProjMatrix());
+
+	glm::vec3 eyePos;
+	camera.getTranslation(eyePos);
+
+	mPlanetShader.setUniformVal("uCamPos", eyePos);
+	mPlanetShader.setUniformVal("uProjMat", camera.getProjectionMatrix());
 	mPlanetBatch.render();
 
 	glDepthMask(true);

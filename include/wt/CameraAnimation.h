@@ -49,7 +49,7 @@ public:
 		glm::vec3 pos, scale;
 		glm::quat rot;
 		mAnimation->mNodeAnimations[0]->evaluate(mTime, pos, rot, scale);
-		mCamera->setPosition(pos);
+		mCamera->setTranslation(pos);
 		mCamera->setRotation(rot);
 	}
 
@@ -76,7 +76,8 @@ public:
 	}
 
 	void addKeyframe(){
-		glm::vec3 pos = mCamera->getPosition();
+		glm::vec3 pos;
+		mCamera->getTranslation(pos);
 
 		glm::quat rot;
 		mCamera->getRotation(rot);

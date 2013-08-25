@@ -6,6 +6,12 @@ namespace wt
 
 class ATransformable{
 public:
+	static const glm::vec3 kFORWARD_VEC;
+
+	static const glm::vec3 kUP_VEC;
+
+	static const glm::vec3 kRIGHT_VEC;
+
 	virtual ~ATransformable();
 
 	virtual void setTranslation(const glm::vec3& translation) = 0;
@@ -28,11 +34,11 @@ public:
 
 	virtual void scale(const glm::vec3& offset);
 
-	virtual void getForwardVector(glm::vec3& result);
+	virtual void getForwardVector(glm::vec3& result) const;
 
-	virtual void getRightVector(glm::vec3& result);
+	virtual void getRightVector(glm::vec3& result) const;
 
-	virtual void getUpVector(glm::vec3& result);
+	virtual void getUpVector(glm::vec3& result) const;
 
 	virtual void setPitch(float angle);
 
@@ -58,7 +64,15 @@ public:
 
 	virtual void decomposeTransform(glm::vec3& translation, glm::vec3& scale, glm::quat& rotation) const;
 
-	virtual void getCameraMatrix(glm::vec3& dst) const;
+	virtual void getCameraMatrix(glm::mat4& dst) const;
+
+	virtual void lookAt(const glm::vec3& position);
+
+	virtual void orbit(float radius, float theta, float rho, const glm::vec3& pos);
+
+	virtual void yaw(float angle);
+
+	virtual void pitch(float angle);
 
 }; // </ATransformable>
 

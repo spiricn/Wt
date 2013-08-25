@@ -128,7 +128,7 @@ public:
 			//ADemo::onUpdate(dt);
 		}
 		else{
-			getScene()->getCamera().setPosition(
+			getScene()->getCamera().setTranslation(
 				mOrbs[mFollowing]->getPosition());
 		}
 	}
