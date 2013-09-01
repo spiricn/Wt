@@ -7,7 +7,7 @@
 namespace wt{
 
 ParticleEffect::ParticleEffect(Scene* parent, uint32_t id, const String& name) : ASceneActor(parent, ASceneActor::eTYPE_PARTICLE_EFFECT, id, name),
-	mTimeDelta(0.0f){
+	mTimeDelta(0.0f), mVisible(true){
 }
 
 ParticleEffect::~ParticleEffect(){

@@ -11,7 +11,7 @@
 namespace wt{
 
 
-class ModelledActor : public ASceneActor, public lua::Object<ModelledActor>{
+class ModelledActor : public ASceneActor{
 public:
 	ModelledActor(Scene* parent, uint32_t id, const String& name="");
 
@@ -36,7 +36,7 @@ public:
 	void update(float dt);
 
 	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
-
+	 
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque);
 
 	ATransformable* getTransformable();
@@ -45,18 +45,6 @@ public:
 		PhysicsActor::Desc pxDesc;
 		bool phyiscs;
 	};
-
-
-	// Lua bindings
-	void generateMetaTable();
-
-	glm::vec3 lua_getPosition();
-
-	lua::LuaObject lua_getTransform();
-
-	void lua_playAnimation(const char* name, bool loop);
-
-	void lua_move(const glm::vec3& offset);
 
 private:
 	Model* mModel;

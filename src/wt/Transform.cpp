@@ -244,9 +244,14 @@ Transform operator*(const glm::mat4& mat, const Transform& transform){
 	return Transform(mat*m);
 }
 
+glm::vec3 Transform::lua_getForwardVec() const{
+	return getForwardVec();
+}
+
 void Transform::generateMetaTable(){
 	expose("setPosition", (void (Transform::*)(float, float, float))&Transform::setPosition);
 	expose("getPosition", &Transform::getPosition);
+	expose("getForwardVec", &Transform::lua_getForwardVec);
 }
 
 }; // </math>

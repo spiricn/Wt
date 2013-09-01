@@ -55,9 +55,9 @@ void SceneView::update(float dt){
 
 		float speed = 50;
 
-		mScene->getCamera().moveForward(disp.z * speed * dt);
+		mScene->getCamera().moveForward(-disp.z * speed * dt);
 		mScene->getCamera().moveUp(disp.y * speed * dt);
-		mScene->getCamera().strife(disp.x * speed * dt);
+		mScene->getCamera().strife(-disp.x * speed * dt);
 	}
 
 	repaint();
@@ -134,8 +134,9 @@ void SceneView::mouseMoveEvent(QMouseEvent* evt){
 		QCursor::setPos(mapToGlobal(QPoint(width()/2, height()/2)));
 
 		if(mScene){
-			mScene->getCamera().yaw(-dx);
-			mScene->getCamera().pitch(-dy);
+			
+			mScene->getCamera().yaw( -(dx/width()) * 360.0f );
+			mScene->getCamera().pitch( -(dy/height()) * 360.0f );
 		}
 	}
 

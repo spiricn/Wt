@@ -46,7 +46,17 @@ public:
 
 	ATransformable* getTransformable();
 
+	void setVisible(bool state){
+		mVisible = state;
+	}
+
+	bool isVisible() const{
+		return mVisible;
+	}
+
 private:
+	bool mVisible;
+
 	typedef std::map<String, ParticleLayer*> LayerMap;
 
 	LayerMap mLayers;

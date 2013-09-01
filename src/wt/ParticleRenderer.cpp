@@ -56,6 +56,9 @@ void ParticleRenderer::render(Scene* scene, math::Camera* camera, PassType pass)
 	for(Scene::ParticleEffectSet::const_iterator iter=scene->getParticleEffects().cbegin(); iter!=scene->getParticleEffects().cend(); iter++){
 		// TODO fix this
 		ParticleEffect* effect = const_cast<ParticleEffect*>(*iter);
+		if(!effect->isVisible()){
+			continue;
+		}
 
 		glm::mat4 modelMat;
 		effect->getTransformable()->getTransformMatrix(modelMat);

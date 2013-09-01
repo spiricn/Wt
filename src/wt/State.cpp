@@ -17,6 +17,11 @@ State::State(bool registerLogging) : mState(true /*init standard library*/){
 		getGlobals().RegisterDirect("LOGW", lua::logw);
 		getGlobals().RegisterDirect("LOG", lua::log);
 	}
+
+	// TODO use module loaders
+	mState->DoString(
+		"package.path = package.path .. \";d:/Documents/prog/c++/workspace/Wt/lua/?.lua\"\n"
+	);
 }
 
 ScriptPtr State::createScript(const char* scriptFile){
@@ -25,6 +30,7 @@ ScriptPtr State::createScript(const char* scriptFile){
 
 	script->getState().Set("__index", mState->GetGlobal("_G"));
 	script->getState().SetMetaTable(script->getState());
+
 
 	if(mState->DoFile(scriptFile, script->getState()) != 0){
 		WT_THROW("Error executing script \"%s\"", getErrorString().c_str());

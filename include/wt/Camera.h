@@ -70,6 +70,8 @@ public:
 
 	void getUpVector(glm::vec3& result) const;
 
+	void lookAt(const glm::vec3& position);
+
 private:
 	void rebuildProjectionMatrix();
 

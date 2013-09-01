@@ -86,6 +86,10 @@ public:
 
 	void setBBox(PhysicsActor* box);
 
+	Scene* getScene() const{
+		return mParent;
+	}
+
 	/**
 	 * Updates the bounding box physics actor with the new dimensons
 	 *

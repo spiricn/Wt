@@ -10,10 +10,18 @@ namespace wt
 namespace math
 {
 
-	Camera::Camera() : mTranslation(0.0f, 0.0f, 0.0f), mForwardVector(kFORWARD_VEC), mRightVector(kRIGHT_VEC), mUpVector(kUP_VEC){
-
+Camera::Camera() : mTranslation(0.0f, 0.0f, 0.0f), mForwardVector(kFORWARD_VEC), mRightVector(kRIGHT_VEC), mUpVector(kUP_VEC){
 	setProjectionType(ePROJECTION_PERSPECTIVE);
 	rebuildProjectionMatrix();
+}
+
+void Camera::lookAt(const glm::vec3& position){
+	mForwardVector = position-mTranslation;
+	mForwardVector = glm::normalize(mForwardVector);
+
+	mRightVector = glm::normalize( glm::vec3(mForwardVector.z, 0, -mForwardVector.x) );
+
+	mUpVector = glm::normalize( glm::cross(mForwardVector, mRightVector) );
 }
 
 void Camera::setTranslation(const glm::vec3& translation){

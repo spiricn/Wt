@@ -129,6 +129,8 @@ public:
 
 	void setShaderLightUniforms(Scene* scene, gl::ShaderProgram& prog);
 
+	void setRenderAxes(bool state);
+
 private:
 	/** Render entire scene in a single pass */
 	void render(Scene& scene, ARenderer::PassType pass);
@@ -170,6 +172,7 @@ private:
 
 	bool mRenderBones;
 	bool mRenderBoundingBoxes;
+	bool mRenderAxes;
 
 	float mBoneWidth;
 

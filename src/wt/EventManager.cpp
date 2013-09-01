@@ -264,15 +264,4 @@ void EventManager::queueEvent(const char* type, LuaObject data){
 	mRegisteredEvents.find(type)->second->queueFromScript(data);
 }
 
-
-void EventManager::generateMetaTable(){
-	expose("addScriptListener", &EventManager::addScriptListener);
-
-	expose("registerScriptEvent", &EventManager::registerScriptEvent);
-
-	// Removing ambiguity
-	typedef void (EventManager::*a)(const char*, LuaObject);
-	expose("queueEvent", (a)(&EventManager::queueEvent));
-}
-
 }; // </wt>

@@ -55,7 +55,7 @@ const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_spri
 
 Renderer::Renderer(EventManager* eventManager) : mClearColor(0.5, 0, 0, 1.0f),
 	mGodrayPass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(NULL, 0, "", Texture2D::eRECT_TEXTURE),
-	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL){
+	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL), mRenderAxes(true){
 
 	mEventManager->registerListener(this, SceneLightUpdated::TYPE);
 	mEventManager->registerListener(this, SceneLightDeleted::TYPE);
@@ -595,6 +595,7 @@ void Renderer::render(const ATransformable* tf, math::Camera* camera){
 	glm::vec3 start = pos;
 	glm::vec3 end;
 
+	glColor3f(1.0f, 0.0f, 0.0f);
 	{
 		glBegin(GL_LINES);
 
@@ -723,6 +724,9 @@ void Renderer::setFaceCulling(Culling mode){
 	gl( CullFace(mode) );
 }
 
+void Renderer::setRenderAxes(bool state){
+	mRenderAxes = state;
+}
 
 void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& clr){
 	gl( UseProgram(0) );
@@ -840,13 +844,13 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 			glEnable(GL_DEPTH_TEST);
 		}
 
-		//if(mRenderAxis){
+		if(mRenderAxes){
 			glDisable(GL_DEPTH_TEST);
 			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
 				render(i->second->getTransformable(), &scene.getCamera());
 			}
 			glEnable(GL_DEPTH_TEST);
-		//}
+		}
 	}
 
 	// Final pass (render the resulting texture to the screen)

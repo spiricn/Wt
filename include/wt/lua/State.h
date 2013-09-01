@@ -41,6 +41,9 @@ public:
 
 	LuaObject getGlobals();
 
+	template<class T>
+	void expose(T& obj, const String& name);
+
 private:
 	LuaStateOwner mState;
 }; // </State>
@@ -76,6 +79,11 @@ LuaPlus::LuaObject State::box(T& instance){
 
 		return luaObj;
 	}
+}
+
+template<class T>
+void State::expose(T& obj, const String& name){
+	getGlobals().Set(name.c_str(), static_cast<void*>(&obj));
 }
 
 }; // </lua>

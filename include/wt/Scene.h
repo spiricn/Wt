@@ -29,7 +29,7 @@ class Renderer;
 
 class ARenderer;
 
-class Scene : public lua::Object<Scene>{
+class Scene{
 friend class Renderer;
 friend class ARenderer;
 
@@ -150,24 +150,13 @@ public:
 
 	void clear();
 
-	/**********************/
-	/**** Lua bindings ****/
-	/**********************/
-	void lua_removeActor(LuaObject obj);
-
-	LuaObject lua_findModelledActor(const char* name);
-
-	LuaObject lua_findParticleEffect(const char* name);
-
-	void generateMetaTable();
-
-	uint32_t lua_createActor();
+	Assets* getAssets(){
+		return mAssets;
+	}
 
 private:
 	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
 
-
-private:
 	/** Master actor list */
 	ActorMap mActors;
 

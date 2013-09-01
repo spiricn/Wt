@@ -82,4 +82,86 @@ int main(){
 
 #else
 
+#include "wt/lua/State.h"
+#include "wt/lua/Object.h"
+
+wt::lua::State state;
+
+
+class B{
+public:
+	virtual void pureVirtualFnc() = 0;
+
+	void baseFnc(){
+		TRACEI("");
+	}
+
+	virtual void virtualFnc(){
+		TRACEI("");
+	}
+
+	template<class DerivedClass>
+	void baseRegister(LuaObject* obj){
+		obj->RegisterObjectDirect<DerivedClass>("pureVirtualFnc", (DerivedClass*)0, &DerivedClass::pureVirtualFnc);
+
+		obj->RegisterObjectDirect("baseFnc", (B*)0, &B::baseFnc);
+	}
+
+};
+
+class Test : public wt::lua::Object<Test>, public B{
+public:
+	Test(){
+		
+	}
+
+	void pureVirtualFnc(){
+		TRACEI("");
+	}
+
+	/*virtual void virtualFnc(){
+		TRACEI("");
+	}*/
+
+	float derivedFnc(float a){
+		TRACEI("");
+		return a+1;
+	}
+	
+	void generateMetaTable(){
+		baseRegister<Test>(getMetaInfo()->meta);
+
+		expose("derivedFnc", &Test::derivedFnc);
+
+		//expose("virtualFnc", &Test::virtualFnc);
+
+		exposeBase<B>("virtualFnc",  &B::virtualFnc);
+	}
+};
+
+float Test_derivedFnc(void* test, float a){
+	return static_cast<Test*>(test)->derivedFnc(a);
+}
+
+int main(){
+	Test* instance = new Test;
+
+	void* ptrInstance = instance;;
+
+	B* objBase = reinterpret_cast<B*>(ptrInstance);
+
+	objBase->virtualFnc();
+
+
+	
+
+	//state.getGlobals().RegisterDirect("Test_derivedFnc", Test_derivedFnc);
+
+	//state.getGlobals().Set("obj", &obj);
+
+	//wt::lua::ScriptPtr s = state.createScript("test.lua");
+
+	//LuaFunction<void>( s->getState().Get("main") ) ();
+}
+
 #endif

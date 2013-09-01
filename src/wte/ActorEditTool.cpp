@@ -342,7 +342,7 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	glm::vec3 eyePos;
 	mScene->getCamera().getTranslation(eyePos);
 
-	glm::vec3 dir = glm::normalize(pos - eyePos);
+	/*glm::vec3 dir = glm::normalize(pos - eyePos);
 	float distance = glm::length(pos - eyePos);
 	const float d=50.0f;
 	if(distance > d){
@@ -350,7 +350,7 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 			pos - dir*d);
 	}
 
-	mScene->getCamera().lookAt(pos);
+	mScene->getCamera().lookAt(pos);*/
 
 	if(actor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
 		// We don't want this to emit a signal

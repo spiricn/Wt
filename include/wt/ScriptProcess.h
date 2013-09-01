@@ -10,6 +10,8 @@ class ScriptProcess : public AProcess, public lua::Object<ScriptProcess>{
 public:
 	ScriptProcess(lua::ScriptPtr);
 
+	~ScriptProcess();
+
 	void onProcUpdate(float dt);
 
 	void onProcStart();

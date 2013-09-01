@@ -5,13 +5,15 @@
 
 #define TD_TRACE_TAG "TestDemo"
 
-
 #include "wt/ParticleEffect.h"
 #include "wt/SceneLoader.h"
-
+#include "wt/lua/LuaActor.h"
 #include "wt/ScriptProcess.h"
 #include "wt/lua/LuaUtils.h"
-#include <wt/IcosphereBuilder.h>
+#include "wt/IcosphereBuilder.h"
+
+#include "wt/lua/LuaModule.h"
+#include "wt/lua/LuaBindings.h"
 
 namespace wt{
 
@@ -38,35 +40,6 @@ public:
 		getPhysics()->update(dt);
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
-
-		const glm::vec3 start(206, 6, 205);
-		const glm::vec3 end(84, 21, 205);
-		const float speed = 10;
-
-		static bool headingBack = false;
-
-		glm::vec3 pos;
-		mMainActor->getTransformable()->getTranslation(pos);
-
-		if(headingBack){
-
-			if( glm::length(pos-start) < 2 ){
-				headingBack = false;
-			}
-			else{
-				glm::vec3 dir = glm::normalize(start-pos);
-				mMainActor->getTransformable()->translate(dir*speed*dt);
-			}
-		}
-		else{
-			if( glm::length(pos-end) < 2 ){
-				headingBack = true;
-			}
-			else{
-				glm::vec3 dir = glm::normalize(end-pos);
-				mMainActor->getTransformable()->translate(dir*speed*dt);
-			}
-		}
 	}
 
 	void onKeyDown(VirtualKey c){
@@ -83,6 +56,7 @@ public:
 		loader.load("scene.lua");
 
 	
+#if 0
 		{
 			Model* model = getAssets()->getModelManager()->create("orb");
 
@@ -122,45 +96,19 @@ public:
 
 			model->create();
 		}
+#endif
+		getRenderer()->setRenderAxes(false);
 
-		{
-			ModelledActor* actor = getScene()->createModelledActor();
-			actor->setModel(getAssets()->getModelManager()->find("orb"), "main");
-			mMainActor = actor;
-			actor->getTransformable()->setTranslation(glm::vec3(206, 6, 205));
+		// Expose objects
 
-			getScene()->findActorByName("lighty")->attach(mMainActor, "");
-			getScene()->findActorByName("firy")->attach(mMainActor, "");
-		}
+		getManager()->getLuaState()->expose(*getScene(), "Scene");
+		getManager()->getLuaState()->expose(*getEventManager(), "EventManager");
 
-		{
-			Sound* sound = getScene()->createSound("");
+		lua::LuaBindings_expose(getManager()->getLuaState()->getGlobals());
 
-			sound->setSound( getAssets()->getSoundSystem()->createSound("$ROOT/test") );
-
-			sound->getSound()->setLoop(true);
-			sound->getSound()->setRelativeToListener(false);
-			sound->getSound()->play();
-
-
-			sound->attach(mMainActor, "");
-		}
-
-		// Assemble fire
-		{
-			ModelledActor* model = dynamic_cast<ModelledActor*>( getScene()->findActorByName("model_fire") );
-			Sound* sound = dynamic_cast<Sound*>( getScene()->findActorByName("sound_fire") );
-			ParticleEffect* effect = dynamic_cast<ParticleEffect*>( getScene()->findActorByName("particle_fire") );
-			PointLight* light = dynamic_cast<PointLight*>( getScene()->findActorByName("light_fire") );
-
-			sound->attach(model, "");
-			effect->attach(model, "");
-			light->attach(model, "");
-
-			mMainActor = model;
-		}
-
-		loader.save("tmp_saved_scene.lua");
+		// Create script process
+		lua::ScriptPtr mainScript;
+		getProcManager().attach( new ScriptProcess( mainScript = getManager()->getLuaState()->createScript("workspace/assets/scripts/main.lua") ) );
 	}
 
 	String getConfigFile() const{

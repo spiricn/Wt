@@ -87,6 +87,8 @@ public:
 
 	void getRotation(glm::quat& result) const;
 
+	glm::vec3 lua_getForwardVec() const;
+
 private:
 	glm::vec3 mPosition, mScale;
 	glm::quat mRotation;

@@ -196,29 +196,4 @@ void ModelledActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObjec
 	}
 }
 
-glm::vec3 ModelledActor::lua_getPosition(){
-	return mTransform.getPosition();
-}
-
-void ModelledActor::lua_move(const glm::vec3& offset){
-	mTransform.translate(offset);
-}
-
-void ModelledActor::lua_playAnimation(const char* name, bool loop){
-	getAnimationPlayer()->play(name, loop);
-}
-
-lua::LuaObject ModelledActor::lua_getTransform(){
-	return getLuaState()->box(mTransform);
-}
-
-void ModelledActor::generateMetaTable(){
-	expose("setSkin", (void (ModelledActor::*)(const String&))(&ModelledActor::setSkin));
-	expose("move", &ModelledActor::lua_move);
-	expose("getPosition", &ModelledActor::lua_getPosition);
-	expose("playAnimation", &ModelledActor::lua_playAnimation);
-	expose("getTransform", &ModelledActor::lua_getTransform);
-	exposeBase<ASceneActor>("getId", &ASceneActor::getId);
-}
-
 }; // </wt>

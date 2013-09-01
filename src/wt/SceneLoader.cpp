@@ -169,7 +169,7 @@ void SceneLoader::load(AIOStream& stream){
 		// Rotation
 		glm::quat rot;
 		lua::luaConv(cameraTable.Get("rot"), rot);
-		//mScene->getCamera().setRotation(rot);
+		mScene->getCamera().setRotation(rot);
 	}
 }
 

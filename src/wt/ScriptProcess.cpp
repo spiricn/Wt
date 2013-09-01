@@ -7,16 +7,18 @@
 namespace wt{
 
 ScriptProcess::ScriptProcess(lua::ScriptPtr script) : mScript(script),
-	mStartFnc( script->getState().Get("onStart") ), mEndFnc( script->getState().Get("onEnd") ),
-	mUpdateFnc( script->getState().Get("onUpdate") ){
+	mStartFnc(script->getState().Get("onProcessStart")), mEndFnc(script->getState().Get("onProcessEnd")), mUpdateFnc(script->getState().Get("onProcessUpdate")){
+}
+
+ScriptProcess::~ScriptProcess(){
 }
 
 void ScriptProcess::onProcUpdate(float dt){
-	mUpdateFnc(dt);
-	/*String err = mScript->getParent()->getErrorString();
-	if(err.size()){
-		TRACEE("Script error occured on update \"%s\"", err.c_str());
-	}*/
+	try{
+		mUpdateFnc(dt);
+	}catch(...){
+		TRACEE("Script error ocurred %s", mScript->getParent()->getErrorString().c_str());
+	}
 }
 
 void ScriptProcess::stopProcess(){
@@ -33,14 +35,23 @@ void ScriptProcess::generateMetaTable(){
 }
 
 void ScriptProcess::onProcStart(){
-	LuaObject obj = mScript->getParent()->box(*this);
+	try{
+		LuaObject obj = mScript->getParent()->box(*this);
 	
-	mScript->getState().Set("Process", obj);
-	mStartFnc();
+		mScript->getState().Set("Process", obj);
+
+		mStartFnc();
+	}catch(...){
+		TRACEE("Script error ocurred %s", mScript->getParent()->getErrorString().c_str());
+	}
 }
 
 void ScriptProcess::onProcEnd(){
-	mEndFnc();
+	try{
+		mEndFnc();
+	}catch(...){
+		TRACEE("Script error ocurred %s", mScript->getParent()->getErrorString().c_str());
+	}
 }
 
 }; // </wt>

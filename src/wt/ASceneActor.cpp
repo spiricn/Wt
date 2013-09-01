@@ -151,7 +151,13 @@ void ASceneActor::update(float /*dt*/){
 		glm::mat4 tf;
 		mAttachPoint.actor->getAttachPointTransform(mAttachPoint.pointId, tf);
 
-		getTransformable()->setTransformMatrix(tf);
+		glm::vec3 pos, scale;
+		glm::quat rot;
+
+		math::decomposeMatrix(tf, rot, pos, scale);
+		glm::mat4 mat = glm::translate(pos) * glm::mat4_cast(rot);
+
+		getTransformable()->setTransformMatrix(mat);
 	}
 }
 

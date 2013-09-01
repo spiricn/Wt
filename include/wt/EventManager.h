@@ -53,7 +53,7 @@ public:
 }; // </MemberCallback>
 
 
-class EventManager : public lua::Object<EventManager>{
+class EventManager{
 WT_DISALLOW_COPY(EventManager)
 
 public:
