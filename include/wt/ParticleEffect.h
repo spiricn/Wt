@@ -30,6 +30,10 @@ public:
 
 	void render();
 
+	void kill();
+
+	bool isEmitting() const;
+
 	float getTimeDelta() const;
 
 	void create(ParticleEffectResource* rsrc);

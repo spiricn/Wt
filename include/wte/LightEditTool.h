@@ -7,8 +7,9 @@
 
 #include "wte/ResourcePickerDialog.h"
 #include "wte/SceneView.h"
+#include "wte/ATool.h"
 
-class LightEditTool : public QDialog{
+class LightEditTool : public QDialog, public ATool{
 Q_OBJECT;
 
 private:
@@ -18,12 +19,12 @@ private:
 	wt::Scene* mScene;
 
 public:
-	LightEditTool(SceneView* scene, QWidget*);
+	LightEditTool(SceneView* scene, AToolManager* manager, QWidget*);
 
 private:
 
 protected slots:
-	void onAssetsLoaded();
+	void onSceneLoaded();
 
 	void onColorClicked();
 

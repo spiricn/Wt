@@ -5,7 +5,8 @@
 namespace wt{
 
 
-ParticleLayer::ParticleLayer(ParticleEffect* parent, const String& name, ParticleLayerResource* layerRsrc) : mParent(parent), mName(name), mLayerRsrc(NULL){
+ParticleLayer::ParticleLayer(ParticleEffect* parent, const String& name, ParticleLayerResource* layerRsrc) : mParent(parent),
+	mName(name), mLayerRsrc(NULL), mKillScheduled(false), mKilled(false){
 	create(layerRsrc);
 }
 
@@ -14,6 +15,21 @@ ParticleLayer::~ParticleLayer(){
 
 void ParticleLayer::setName(const String& name){
 	mName = name;
+}
+
+void ParticleLayer::kill(){
+	mKilled = true;
+	mKillScheduled = true;
+}
+
+bool ParticleLayer::isKillScheduled(){
+	if(mKillScheduled){
+		mKillScheduled  = false;
+		return true;
+	}
+	else{
+		return false;
+	}
 }
 
 const String& ParticleLayer::getName() const{
@@ -89,7 +105,20 @@ void ParticleLayer::create(ParticleLayerResource* rsrc){
 	delete[] particles;
 }
 
+bool ParticleLayer::isDead(){
+	return mKilled;
+}
+
+uint32_t ParticleLayer::numActiveParticles() const{
+	return mPrimittivesWritten - 1;
+}
+
 void ParticleLayer::update(){
+	// Stop emitting
+	if(mPrimittivesWritten == 1 && mKilled){
+		return;
+	}
+
 	mQuery.begin(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 
 	mBatches[mCurrBatch].render( &mBatches[(mCurrBatch+1)%2].getVertexBuffer(), NULL, 0, 0, mPrimittivesWritten);
@@ -114,6 +143,10 @@ void ParticleCalculationShader::create(){
 	);
 
 	link();
+
+	use();
+
+	setUniformVal("uAlive", (int)1);
 }
 
 }; // </wt>

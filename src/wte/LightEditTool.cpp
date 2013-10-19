@@ -4,7 +4,7 @@
 
 #include "wte/LightEditTool.h"
 
-LightEditTool::LightEditTool(SceneView* scene, QWidget* parent) : QDialog(parent){
+LightEditTool::LightEditTool(SceneView* scene, AToolManager* manager, QWidget* parent) : QDialog(parent), ATool(manager){
 	setWindowFlags(Qt::Tool);
 
 	ui.setupUi(this);
@@ -18,9 +18,6 @@ LightEditTool::LightEditTool(SceneView* scene, QWidget* parent) : QDialog(parent
 
 	ui.diffuseItensitySlider->setValue(30);
 	onDiffuseIntensityChanged(ui.diffuseItensitySlider->value());
-
-	connect(parent, SIGNAL(assetsLoaded()),
-		this, SLOT(onAssetsLoaded()));
 }
 
 void LightEditTool::onColorChanged(){
@@ -42,7 +39,7 @@ void LightEditTool::onSetDirection(){
 	mScene->setDirectionalLightDesc(desc);
 }
 
-void LightEditTool::onAssetsLoaded(){
+void LightEditTool::onSceneLoaded(){
 	wt::DirectionalLight::Desc desc = mScene->getDirectionalLight()->getDesc();
 
 	ui.ambientIntensitySlider->setValue( (desc.ambientIntensity/2.0f) * 100);

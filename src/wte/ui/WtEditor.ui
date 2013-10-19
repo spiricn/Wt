@@ -59,32 +59,34 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="menuAssets">
     <property name="title">
-     <string>File</string>
+     <string>Assets</string>
     </property>
-    <addaction name="actionNewResources"/>
-    <addaction name="actionOpenResources"/>
+    <addaction name="actionAssetsNew"/>
+    <addaction name="actionAssetsOpen"/>
     <addaction name="separator"/>
-    <addaction name="actionSaveResources"/>
+    <addaction name="actionAssetsSave"/>
+    <addaction name="actionAssetsSaveAs"/>
     <addaction name="separator"/>
-    <addaction name="actionReloadResources"/>
+    <addaction name="actionAssetsReload"/>
+    <addaction name="actionAssetsClear"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuScene">
     <property name="title">
      <string>Scene</string>
     </property>
-    <addaction name="actionLoadScene"/>
-    <addaction name="actionSaveScene"/>
-    <addaction name="actionSaveSceneAs"/>
+    <addaction name="actionSceneNew"/>
+    <addaction name="actionSceneOpen"/>
     <addaction name="separator"/>
-    <addaction name="actionClear"/>
+    <addaction name="actionSceneSave"/>
+    <addaction name="actionSceneSaveAs"/>
     <addaction name="separator"/>
-    <addaction name="actionSet_sky_box"/>
-    <addaction name="actionCreate_terrain"/>
-    <addaction name="actionScreenshot"/>
+    <addaction name="actionSceneReload"/>
+    <addaction name="actionSceneClear"/>
    </widget>
-   <addaction name="menuFile"/>
+   <addaction name="menuAssets"/>
    <addaction name="menuScene"/>
   </widget>
   <widget class="QDockWidget" name="logDock">
@@ -99,7 +101,7 @@
     </layout>
    </widget>
   </widget>
-  <action name="actionSaveResources">
+  <action name="actionAssetsSave">
    <property name="icon">
     <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
      <normaloff>:/icons/Actions-document-save-icon.png</normaloff>:/icons/Actions-document-save-icon.png</iconset>
@@ -111,7 +113,7 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionNewResources">
+  <action name="actionAssetsNew">
    <property name="text">
     <string>New</string>
    </property>
@@ -119,7 +121,7 @@
     <string>Ctrl+N, Ctrl+S</string>
    </property>
   </action>
-  <action name="actionOpenResources">
+  <action name="actionAssetsOpen">
    <property name="text">
     <string>Open</string>
    </property>
@@ -127,17 +129,17 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionReloadResources">
+  <action name="actionAssetsReload">
    <property name="text">
     <string>Reload</string>
    </property>
   </action>
-  <action name="actionLoadScene">
+  <action name="actionSceneOpen">
    <property name="text">
     <string>Open</string>
    </property>
   </action>
-  <action name="actionSaveScene">
+  <action name="actionSceneSave">
    <property name="icon">
     <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
      <normaloff>:/icons/Actions-document-save-icon.png</normaloff>:/icons/Actions-document-save-icon.png</iconset>
@@ -146,7 +148,7 @@
     <string>Save</string>
    </property>
   </action>
-  <action name="actionClear">
+  <action name="actionSceneClear">
    <property name="text">
     <string>Clear</string>
    </property>
@@ -166,9 +168,29 @@
     <string>Screenshot</string>
    </property>
   </action>
-  <action name="actionSaveSceneAs">
+  <action name="actionSceneSaveAs">
    <property name="text">
     <string>Save as..</string>
+   </property>
+  </action>
+  <action name="actionAssetsSaveAs">
+   <property name="text">
+    <string>Save as</string>
+   </property>
+  </action>
+  <action name="actionSceneNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionSceneReload">
+   <property name="text">
+    <string>Reload</string>
+   </property>
+  </action>
+  <action name="actionAssetsClear">
+   <property name="text">
+    <string>Clear</string>
    </property>
   </action>
  </widget>
@@ -178,10 +200,10 @@
  </resources>
  <connections>
   <connection>
-   <sender>actionSaveResources</sender>
+   <sender>actionAssetsClear</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onBtnSaveClick()</slot>
+   <slot>onAssetsClear()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -194,10 +216,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionNewResources</sender>
+   <sender>actionAssetsNew</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onNew()</slot>
+   <slot>onAssetsNew()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -210,10 +232,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionOpenResources</sender>
+   <sender>actionAssetsOpen</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onOpen()</slot>
+   <slot>onAssetsOpen()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -226,10 +248,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionReloadResources</sender>
+   <sender>actionAssetsReload</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onReload()</slot>
+   <slot>onAssetsReload()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -242,10 +264,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionSaveScene</sender>
+   <sender>actionAssetsSave</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onSaveScene()</slot>
+   <slot>onAssetsSave()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -258,10 +280,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionLoadScene</sender>
+   <sender>actionAssetsSaveAs</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onLoadScene()</slot>
+   <slot>onAssetsSaveAs()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -274,10 +296,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionSet_sky_box</sender>
+   <sender>actionSceneClear</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onSetSkybox()</slot>
+   <slot>onSceneClear()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -290,10 +312,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionCreate_terrain</sender>
+   <sender>actionSceneNew</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onCreateTerrain()</slot>
+   <slot>onSceneNew()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -306,10 +328,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionClear</sender>
+   <sender>actionSceneOpen</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onClearScene()</slot>
+   <slot>onSceneOpen()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -322,10 +344,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionScreenshot</sender>
+   <sender>actionSceneReload</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onScreenshot()</slot>
+   <slot>onSceneReload()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -338,10 +360,26 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionSaveSceneAs</sender>
+   <sender>actionSceneSave</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onSaveSceneAs()</slot>
+   <slot>onSceneSave()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSceneSaveAs</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onSceneSaveAs()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -358,16 +396,17 @@
   <slot>onBtnSaveClick()</slot>
   <slot>onTreeContextMenu(QPoint)</slot>
   <slot>onTreeItemActivated(QTreeWidgetItem*,int)</slot>
-  <slot>onNew()</slot>
-  <slot>onBtnClearAllClick()</slot>
-  <slot>onOpen()</slot>
-  <slot>onReload()</slot>
-  <slot>onLoadScene()</slot>
-  <slot>onSaveScene()</slot>
-  <slot>onScreenshot()</slot>
-  <slot>onCreateTerrain()</slot>
-  <slot>onClearScene()</slot>
-  <slot>onSetSkybox()</slot>
-  <slot>onSaveSceneAs()</slot>
+  <slot>onAssetsNew()</slot>
+  <slot>onAssetsOpen()</slot>
+  <slot>onAssetsSave()</slot>
+  <slot>onAssetsSaveAs()</slot>
+  <slot>onAssetsReload()</slot>
+  <slot>onAssetsClear()</slot>
+  <slot>onSceneNew()</slot>
+  <slot>onSceneOpen()</slot>
+  <slot>onSceneSave()</slot>
+  <slot>onSceneSaveAs()</slot>
+  <slot>onSceneReload()</slot>
+  <slot>onSceneClear()</slot>
  </slots>
 </ui>

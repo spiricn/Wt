@@ -32,6 +32,10 @@ void TerrainRenderer::create(){
 }
 
 void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
+	if(scene->getTerrainSet().empty()){
+		return;
+	}
+
 	Terrain* terrain = (Terrain*)(*scene->getTerrainSet().begin());
 
 	// Render terrain

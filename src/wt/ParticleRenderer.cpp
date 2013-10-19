@@ -70,6 +70,13 @@ void ParticleRenderer::render(Scene* scene, math::Camera* camera, PassType pass)
 			// Update particles (TODO move this elsewhere)
 			mParticleCalcShader.use();
 
+			if(layer->isKillScheduled() || layer->isDead()){
+				mParticleCalcShader.setUniformVal("uAlive", (int)0);
+			}
+			else{
+				mParticleCalcShader.setUniformVal("uAlive", (int)1);
+			}
+
 			// Upload uniforms
 			//mParticleCalcShader.setUniformVal("uPosition", effect->getTransform().getPosition());
 			mParticleCalcShader.setUniformVal("uDt", effect->getTimeDelta());

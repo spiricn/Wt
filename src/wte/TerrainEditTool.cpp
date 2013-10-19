@@ -4,6 +4,7 @@
 
 #include "wte/TerrainEditTool.h"
 #include "wte/HeightmapCreateDialog.h"
+#include "wte/TerrainEditDialog.h"
 
 #define TD_TRACE_TAG "TerrainEditTool"
 
@@ -15,37 +16,53 @@ TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolMan
 	connect(mSceneView, SIGNAL(onMouseDown(QMouseEvent*)),
 		 this, SLOT(onMouseDown(QMouseEvent*)));
 
-	connect(parent, SIGNAL(onTerrainCreated()),
-		this, SLOT(onSceneInitialized()));
-
 	connect(mSceneView, SIGNAL(onMouseDrag(float,float,Qt::MouseButton)),
 		this, SLOT(onMouseDrag(float,float,Qt::MouseButton)));
 
 	mPhysics = mScene->getPhysics();
 }
 
-void TerrainEditTool::setTarget(wt::Terrain* terrain){
-	// TODO upon terrain loading scene target texture probably needs to be reloaded
 
+void TerrainEditTool::setTarget(wt::Terrain* terrain){
 	mTerrain = terrain;
 
-	if(terrain){
-		if(mFrameBuffer.isCreated()){
-			mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, (GLuint)0, GL_TEXTURE_2D);
-			mFrameBuffer.destroy();
+	if(mFrameBuffer.isCreated()){
+		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, (GLuint)0, GL_TEXTURE_2D);
+		mFrameBuffer.destroy();
+	}
+
+	mFrameBuffer.create();
+
+	mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, mTerrain->getMapTexture());
+
+	WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete framebuffer");
+
+	mTerrain->getMapTexture()->generateMipmap();
+
+	mFrameBuffer.unbind(wt::gl::FrameBuffer::eMODE_DRAW);
+}
+
+void TerrainEditTool::onSceneLoaded(){
+	// TODO upon terrain loading scene target texture probably needs to be reloaded
+	wt::Terrain* terrain = NULL;
+	// Find terrain
+	for(wt::Scene::ActorMap::iterator iter=mScene->getActorMap().begin(); iter!=mScene->getActorMap().end(); iter++){
+		if(iter->second->getActorType() == wt::ASceneActor::eTYPE_TERRAIN){
+			mTerrain = static_cast<wt::Terrain*>(iter->second);
+			break;
 		}
+	}
 
-		mFrameBuffer.create();
-
-		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, mTerrain->getMapTexture());
-
-		WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete framebuffer");
-
-		mTerrain->getMapTexture()->generateMipmap();
-
-		mFrameBuffer.unbind(wt::gl::FrameBuffer::eMODE_DRAW);
+	if(terrain){
+		setTarget(terrain);
 	}
 }
+
+void TerrainEditTool::onSceneUnloaded(){
+	// TODO
+	mTerrain = NULL;
+}
+
 
 void TerrainEditTool::onSaveTexture(){
 	QString path = mTerrain->getMapTexture()->getUri().c_str();
@@ -335,5 +352,24 @@ void TerrainEditTool::editAt(float x, float y){
 void TerrainEditTool::onMouseDown(QMouseEvent* evt){
 	if(isToolFocused()){
 		editAt(evt->x(), evt->y());
+	}
+}
+
+
+void TerrainEditTool::onCreateNewTerrain(){
+	// TODO move terrain creation to TerrainTool
+	wt::TerrainDesc desc;
+	
+	if(!TerrainEditDialog::editTerrain(this, mAssets, desc)){
+		return;
+	}
+
+	wt::Terrain* terrain = mScene->createTerrain();
+	try{
+		terrain->create(desc);
+
+		setTarget(terrain);
+	}catch(wt::Exception& e){
+		QMessageBox::critical(this, "Error", QString("Error creating terrain\n") + e.getDescription().c_str());
 	}
 }

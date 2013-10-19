@@ -21,8 +21,7 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 
 	connect(mSceneView, SIGNAL(onMouseDown(QMouseEvent*)),
 		 this, SLOT(onMousePress(QMouseEvent*)));
-	 
-
+	
 	mScene = sceneView->getScene();
 	mPhysics = mScene->getPhysics();
 
@@ -62,6 +61,10 @@ void ActorEditTool::onScaleChanged(){
 			ui.transform->getScale()
 		);
 	}
+}
+
+void ActorEditTool::onBeforeSceneUnload(){
+	selectActor(NULL);
 }
 
 
@@ -248,6 +251,7 @@ void ActorEditTool::onBBoxGeometryChanged(){
 void ActorEditTool::onDeleteActor(){
 	if(mSelectedActor){
 		mScene->deleteActor(mSelectedActor);
+		selectActor(NULL);
 	}
 }
 
@@ -438,6 +442,12 @@ void ActorEditTool::onNewActor(){
 
 	wt::ASceneActor* sceneActor = NULL;
 
+	glm::vec3 eyePos, eyeFw;
+
+	mScene->getCamera().getTranslation(eyePos);
+
+	mScene->getCamera().getForwardVector(eyeFw);
+
 	if(res.ok){
 		if(res.type == wt::ASceneActor::eTYPE_MODELLED){
 			wt::ModelledActor* actor = mScene->createModelledActor(res.name.toStdString());
@@ -447,7 +457,9 @@ void ActorEditTool::onNewActor(){
 			// Create physics actor
 			if(res.modelledActor.physicsDesc.geometryType != wt::PhysicsActor::eGEO_TYPE_NONE){
 				// Initial transform
-				actor->getTransformable()->getTransformMatrix(res.modelledActor.physicsDesc.pose);
+				//actor->getTransformable()->getTransformMatrix(res.modelledActor.physicsDesc.pose);
+				res.modelledActor.physicsDesc.pose = glm::translate(eyePos - eyeFw*3.0f);
+
 				try{
 					mPhysics->createActor(actor, res.modelledActor.physicsDesc);
 				}catch(wt::Exception& e){
@@ -491,15 +503,8 @@ void ActorEditTool::onNewActor(){
 		}
 
 		if(sceneActor){
-			glm::vec3 eyePos, eyeFw;
-
-			mScene->getCamera().getTranslation(eyePos);
-
-			mScene->getCamera().getForwardVector(eyeFw);
-
-
 			sceneActor->getTransformable()->setTranslation(
-				 eyePos + eyeFw*10.0f);
+				 eyePos - eyeFw*10.0f);
 
 			mPhysics->createBBox(sceneActor);
 		}

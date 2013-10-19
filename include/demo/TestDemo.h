@@ -43,8 +43,12 @@ public:
 	}
 
 	void onKeyDown(VirtualKey c){
-
-		ADemo::onKeyDown(c);
+		if(c == VirtualKey::KEY_y){
+			getScene()->clear();
+		}
+		else{
+			ADemo::onKeyDown(c);
+		}
 	}
 
 	void onStart(const LuaObject& config){

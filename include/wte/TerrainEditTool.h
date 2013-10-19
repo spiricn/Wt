@@ -44,12 +44,18 @@ public:
 
 	void setTarget(wt::Terrain* terrain);
 
+	void onSceneLoaded();
+
+	void onSceneUnloaded();
+
 private:
 	void editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode);
 
 	void editAt(float x, float y);
 
 protected slots:
+	void onCreateNewTerrain();
+
 	void onMouseDown(QMouseEvent*);
 
 	void onSaveTexture();

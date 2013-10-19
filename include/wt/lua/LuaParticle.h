@@ -13,6 +13,8 @@ void Particle_expose(LuaObject obj);
 
 void Particle_setVisible(void* ptr, bool state);
 
+void Particle_kill(void* ptr);
+
 } // </lua>
 
 } // </wt>

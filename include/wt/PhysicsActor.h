@@ -4,16 +4,18 @@
 using namespace physx;
 
 #include "wt/Lua.h"
+#include "wt/ATransformable.h"
+#include "wt/Model.h"
 
 namespace wt{
 
 class ASceneActor;
 class Physics;
 
-class PhysicsActor{
+class PhysicsActor : public ATransformable{
 friend class Physics;
-
 public:
+
 	enum ActorType{
 		eACTOR_TYPE_NONE,
 		eSTATIC_ACTOR,
@@ -50,8 +52,7 @@ public:
 		uint32_t collisionMask;
 		ControlMode controlMode;
 
-		Desc() : type(eACTOR_TYPE_NONE), geometryType(eGEO_TYPE_NONE), controlMode(eCTRL_MODE_NONE), collisionMask(0xFFFFFFFF), group(0x01){
-		}
+		Desc();
 
 		union GeometryDesc{
 			struct BoxGeometry{
@@ -94,148 +95,52 @@ public:
 
 		} controllerDesc;
 
+		void serialize(LuaPlus::LuaObject& table);
 
+		void deserialize(const LuaPlus::LuaObject& table);
 
-		void serialize(LuaPlus::LuaObject& table){
-			// Actor type
-			table.Set("type", type == eSTATIC_ACTOR ? "static" : "dynamic");
+		bool isValid() const;
 
-			// Controll
-			table.Set("group", group);
-			table.Set("collision_mask", collisionMask);
+	}; // </Desc>
 
+public:
+	PhysicsActor(uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
+		PxController* controller, ASceneActor* sceneActor);
 
-			// Physics-controlled
-			if(controlMode == ePHYSICS_MODE){
-				table.Set("ctrl.mode", "physics");
+	ControlMode getControlMode() const;
 
-				// Box
-				if(geometryType == eBOX_GEOMETRY){
-					table.Set("geo.shape", "box");
-					table.Set("geo.hx", geometryDesc.boxGeometry.hx);
-					table.Set("geo.hy", geometryDesc.boxGeometry.hy);
-					table.Set("geo.hz", geometryDesc.boxGeometry.hz);
-				}
-				// Sphere
-				else if(geometryType == eSPHERE_GEOMETRY){
-					table.Set("geo.shape", "sphere");
-					table.Set("geo.rad", geometryDesc.sphereGeometry.radius);
-				}
-				else if(geometryType == eHEIGHTMAP_GEOMETRY){
-					table.Set("geo.shape", "heightmap");
-				}
-				else if(geometryType == eMESH_GEOMETRY){
-					table.Set("geo.shape", "mesh");
-				}
-				else{
-					WT_THROW("TODO");
-				}
-			}
-			// Controller-controlled
-			else if(controlMode == eCONTROLLER_MODE){
-				table.Set("ctrl.mode", "controller");
+	bool isControlled() const;
 
-				if(controllerDesc.geometryType == eCAPSULE_CONTROLLER){
-					table.Set("ctrl.shape", "capsule");
-					table.Set("ctrl.rad", controllerDesc.geometryDesc.capsuleController.radius);
-					table.Set("ctrl.height", controllerDesc.geometryDesc.capsuleController.height);
-				}
-				else if(controllerDesc.geometryType == eBOX_CONTROLLER){
-					table.Set("ctrl.shape", "box");
-					table.Set("ctrl.hx", controllerDesc.geometryDesc.boxController.hx);
-					table.Set("ctrl.hy", controllerDesc.geometryDesc.boxController.hy);
-					table.Set("ctrl.hz", controllerDesc.geometryDesc.boxController.hz);
-				}
-				else{
-					WT_THROW("TODO");
-				}
-			}
-			else{
-				WT_THROW("TODO");
-			}
-		}
+	PxController* getController();
 
+	PxActor* getPxActor();
 
-		void deserialize(const LuaPlus::LuaObject& table){
-			String type, ctrlMode;
-			lua::luaConv(table.Get("type"), type);
-			lua::luaConv(table.Get("ctrl.mode"), ctrlMode);
+	const String& getName() const;
 
-			if(!type.compare("static")){
-				this->type = eSTATIC_ACTOR;
-			}
-			else if(!type.compare("dynamic")){
-				this->type = eDYNAMIC_ACTOR;
-			}
-			else{
-				WT_THROW("TODO");
-			}
+	ActorType getType() const;
 
-			// Physics-controlled
-			if(!ctrlMode.compare("physics")){
-				controlMode = ePHYSICS_MODE;
+	ASceneActor* getSceneActor() const;
 
-				String shape;
-				lua::luaConv(table.Get("geo.shape"), shape);
+	uint32_t getId() const;
 
-				if(!shape.compare("box")){
-					this->geometryType = eBOX_GEOMETRY;
+	const Desc& getDesc() const;
 
-					lua::luaConv(table.Get("geo.hx"), geometryDesc.boxGeometry.hx);
-					lua::luaConv(table.Get("geo.hy"), geometryDesc.boxGeometry.hy);
-					lua::luaConv(table.Get("geo.hz"), geometryDesc.boxGeometry.hz);
-				}
-				else if(!shape.compare("sphere")){
-					this->geometryType = eSPHERE_GEOMETRY;
+	void setTranslation(const glm::vec3& translation);
 
-					lua::luaConv(table.Get("geo.rad"), geometryDesc.sphereGeometry.radius);
-				}
-				else if(!shape.compare("mesh")){
-					this->geometryType = eMESH_GEOMETRY;
-				}
-				else if(!shape.compare("heightmap")){
-					this->geometryType = eHEIGHTMAP_GEOMETRY;
-				}
-				else{
-					WT_THROW("TODO");
-				}
-			}
-			// Controller-controlled
-			else if(!ctrlMode.compare("controller")){
-				controlMode = eCONTROLLER_MODE;
+	void setRotation(const glm::quat& rotation);
 
-				String shape;
-				lua::luaConv(table.Get("ctrl.shape"), shape);
+	void setScale(const glm::vec3& scale);
 
-				if(!shape.compare("capsule")){
-					this->controllerDesc.geometryType = eCAPSULE_CONTROLLER;
-					lua::luaConv(table.Get("ctrl.rad"), controllerDesc.geometryDesc.capsuleController.radius);
-					lua::luaConv(table.Get("ctrl.height"), controllerDesc.geometryDesc.capsuleController.height);
-				}
-				else if(!shape.compare("box")){
-					this->controllerDesc.geometryType = eBOX_CONTROLLER;
-					lua::luaConv(table.Get("ctrl.hx"), controllerDesc.geometryDesc.boxController.hx);
-					lua::luaConv(table.Get("ctrl.hy"), controllerDesc.geometryDesc.boxController.hy);
-					lua::luaConv(table.Get("ctrl.hz"), controllerDesc.geometryDesc.boxController.hz);
-				}
-				else{
-					WT_THROW("TODO");
-				}
-			}
-			else{
-				WT_THROW("TODO");
-			}
-		}
+	void getScale(glm::vec3& result) const;
 
-		bool isValid() const{
-			if(geometryType == eMESH_GEOMETRY){
-				return geometryDesc.meshGeometry.model != NULL;
-			}
-			else{
-				return true;
-			}
-		}
-	};
+	void getTranslation(glm::vec3& result) const;
+
+	void getRotation(glm::quat& result) const;
+
+protected:
+	void setController(PxController* ctrl);
+
+	void setDesc(const Desc& desc);
 
 private:
 	ActorType mActorType;
@@ -247,58 +152,6 @@ private:
 	void* mUserData;
 	uint32_t mId;
 	Desc mDesc;
-
-protected:
-	void setController(PxController* ctrl){
-		mPxController = ctrl;
-	}
-
-	void setDesc(const Desc& desc){
-		mDesc = desc;
-	}
-public:
-	ControlMode getControlMode() const{
-		return mControlMode;
-	}
-
-	bool isControlled() const{
-		return mControlMode == eCONTROLLER_MODE;
-	}
-
-	PxController* getController(){
-		return mPxController;
-	}
-
-
-	PxActor* getPxActor(){
-		return mPxActor;
-	}
-
-	const String& getName() const{
-		return mName;
-	}
-
-	ActorType getType() const{
-		return mActorType;
-	}
-
-	ASceneActor* getSceneActor() const{
-		return mSceneActor;
-	}
-
-	uint32_t getId() const{
-		return mId;
-	}
-
-	const Desc& getDesc() const{
-		return mDesc;
-	}
-
-	PhysicsActor(uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
-		PxController* controller, ASceneActor* sceneActor) : mActorType(type), mControlMode(mode),
-		mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id){
-	}
-
 }; // </PhysicsActor>
 
 }; // </wt>

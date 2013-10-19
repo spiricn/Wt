@@ -23,50 +23,57 @@
 	
 
 WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager) : QMainWindow(parent),
-	mSelectedActor(NULL), mAssets(assets), mScene(scene), mEventManager(evtManager){
-	 ui.setupUi(this);
+		mAssets(assets), mScene(scene), mEventManager(evtManager){
+	ui.setupUi(this);
 
-	 // Scene setup
-	 ui.sceneView->setScene(mScene);
-
-	// actor tool
-	 mActorEditTool = new ActorEditTool(ui.sceneView, this, this, mAssets);
-	 ui.actorEditToolDock->setWidget(mActorEditTool);
-	 mTools.push_back(mActorEditTool);
-
-	 //ui.actorEditToolDock->setVisible(false);
-
-	 // Terrain tool
-	 mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this, mScene, mAssets);
-	 mTerrainEditTool->setModal(false);
-	 ui.terrainToolDock->setWidget(mTerrainEditTool);
-	 mTools.push_back(mTerrainEditTool);
-	 ui.terrainToolDock->setVisible(false);
-
-	 //// light tool
-	 mLightTool = new LightEditTool(ui.sceneView, this);
-	 mLightTool->setModal(false);
-	 ui.lightToolDock->setWidget(mLightTool);
-	 ui.lightToolDock->setVisible(false);
+	// Scene setup
+	ui.sceneView->setScene(mScene);
 
 
-	 GodrayTool* godTool = new GodrayTool(this, mScene, mAssets);
-	 ui.godrayToolDock->setWidget(godTool);	 
-	
-#if 0
-	 // fog tool
-	 mFogTool = new FogTool(ui.sceneView, this);
-	 ui.fogToolDock->setWidget(mFogTool);
-#endif
-	 ui.fogToolDock->setVisible(false);
+	addTool(
+		ui.actorEditToolDock,
+		mActorEditTool = new ActorEditTool(ui.sceneView, this, this, mAssets)
+	);
 
-	 // main loop timer
-	 connect(&mTimer, SIGNAL(timeout()),
-		 this, SLOT(onTimeout()));
+	addTool(
+		ui.terrainToolDock,
+		mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this, mScene, mAssets)
+	);
 
-	 mTimer.start( (1.0/FPS)*1000 );
+	addTool(
+		ui.lightToolDock,
+		mLightTool = new LightEditTool(ui.sceneView, this, this)
+	);
 
-	 createToolbar();
+	addTool(
+		ui.godrayToolDock,
+		mGodrayTool = new GodrayTool(this, this, mScene, mAssets)
+	);
+
+	addTool(
+		ui.fogToolDock,
+		mFogTool = new FogTool(ui.sceneView, this, this)
+	);
+
+	// main loop timer
+	connect(&mTimer, SIGNAL(timeout()),
+		this, SLOT(onTimeout()));
+
+	mTimer.start( (1.0/FPS)*1000 );
+}
+
+void WorldEditTab::requestFocus(ATool* tool){
+	for(ToolList::Iterator i=mTools.begin(); i!=mTools.end(); i++){
+		if(*i != tool){
+			(*i)->onToolLostFocus();
+		}
+	}
+
+	tool->onToolGainFocus();
+}
+
+void WorldEditTab::giveupFocus(ATool* tool){
+	tool->onToolLostFocus();
 }
 
 WorldEditTab::~WorldEditTab(){
@@ -75,6 +82,10 @@ WorldEditTab::~WorldEditTab(){
 	// (the context is probably deleted before the object itself)
 
 	delete mTerrainEditTool;
+}
+
+void WorldEditTab::onToggleGodrayTool(){
+	ui.godrayToolDock->setVisible( !ui.godrayToolDock->isVisible() );
 }
 
 void WorldEditTab::onToggleToolTerrain(){
@@ -103,21 +114,10 @@ void WorldEditTab::onTimeout(){
 	mScene->getCamera().getForwardVector(eyeFw);
 	mScene->getCamera().getTranslation(eyePos);
 
-	mAssets->getSoundSystem()->setListenerForwardVec( eyeFw );
-	mAssets->getSoundSystem()->setListenerPosition( eyePos );	
-}
-
-void WorldEditTab::createToolbar(){
 #if 0
-	QAction* terrainEdit = new QAction(QIcon(":/icons/placeholder"), "Terrain editor", this);
-	connect(terrainEdit, SIGNAL(triggered(bool)),
-		this, SLOT(onShowTerrainTool(bool)));
-	ui.toolBar->addAction(terrainEdit);
-
-	QAction* lightEdit = new QAction(QIcon(":/icons/placeholder"), "Light tool", this);
-	connect(lightEdit, SIGNAL(triggered(bool)),
-		this, SLOT(onShowLightEditor(bool)));
-	ui.toolBar->addAction(lightEdit);
+	// FIXME causing errors if no scene has been loaded
+	mAssets->getSoundSystem()->setListenerForwardVec( eyeFw );
+	mAssets->getSoundSystem()->setListenerPosition( eyePos );
 #endif
 }
 
@@ -151,68 +151,6 @@ void WorldEditTab::onScreenshot(){
 			"Error saving screenshot \"%s\"", e.getFullDescription().c_str());
 	}
 
-	/*QProcess* p = new QProcess();
-	p->execute(path);*/
-}
-
-
-void WorldEditTab::saveScene(const QString& path){
-	wt::SceneLoader loader(mScene, mAssets);
-
-	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_WRITE);
-
-	try{
-		loader.save(stream);
-	}catch(...){
-		QMessageBox::critical(this, "Error", "Error saving scene to \"" + path + "\"");
-	}
-}
-
-void WorldEditTab::loadScene(const QString& path){
-	mScene->clear();
-
-	wt::SceneLoader loader(mScene, mAssets);
-
-	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_READ);
-
-	try{
-		loader.load(stream);
-	}catch(...){
-		QMessageBox::critical(this, "Error", "Error loading scene from \"" + path + "\"");
-	}
-
-	// Find terrain
-	wt::Terrain* terrain = NULL;
-	for(wt::Scene::ActorMap::iterator iter=mScene->getActorMap().begin(); iter!=mScene->getActorMap().end(); iter++){
-		if(iter->second->getActorType() == wt::ASceneActor::eTYPE_TERRAIN){
-			terrain = static_cast<wt::Terrain*>(iter->second);
-			break;
-		}
-	}
-
-	mTerrainEditTool->setTarget(terrain);
-
-
-	emit sceneLoaded();
-}
-
-void WorldEditTab::loadResources(const QString& path){
-
-	ui.sceneView->makeCurrent();
-
-	LuaPlus::LuaStateOwner state;
-	state->DoFile(path.toStdString().c_str());
-
-	try{
-		mAssets->load( state->GetGlobal("ASSETS") );
-	}catch(...){
-		QMessageBox::critical(this, "Error", "Error loading assets from \"" + path + "\"");
-		return;
-	}
-
-	
-	emit assetsLoaded();
-	emit onTerrainCreated();
 }
 
 void WorldEditTab::onGLContextCreated(){
@@ -234,70 +172,6 @@ void WorldEditTab::onGrabInputChecked(int state){
 	ui.sceneView->grabInput(state);
 }
 
-void WorldEditTab::onRotSliderMoved(int d){
-	if(mSelectedActor){
-		float factor = d/100.0f;
-		mSelectedActor->getTransformable()->setRotation(
-			glm::vec3(0, 1, 0), factor*360.0f
-		);
-
-		ui.sceneView->update();
-	}
-}
-
-void WorldEditTab::onTreeItemActivated(void* data){
-	//wt::SceneActor* actor = static_cast<wt::SceneActor*>(data);
-	//mSelectedActor = actor;
-
-	//const glm::vec3& pos = actor->getTransform().getPosition();
-	//glm::vec4 rot;
-	//wt::math::quatToAxisAngle(actor->getTransform().getQuat(), rot);
-
-	//char bfr[256];
-
-	//sprintf(bfr, "%f, %f, %f", pos.x, pos.y, pos.z);
-	//ui.posEdit->setText(bfr);
-
-	//sprintf(bfr, "%f, %f, %f, %f", rot.x, rot.y, rot.z, rot.w);
-	//ui.rotEdit->setText(bfr);
-
-	//ui.horizontalSlider->setValue(
-	//	(rot.w/360.0)*100.0f);
-}
-
-void WorldEditTab::onClearAll(){
-	unloadLevel();
-}
-
-void WorldEditTab::onSave(){
-	
-}
-
-void WorldEditTab::unloadLevel(){
-	mScene->clear();
-}
-
-void WorldEditTab::onCreateTerrain(){
-	wt::TerrainDesc desc;
-	
-	
-	if(!TerrainEditDialog::editTerrain(this, mAssets, desc)){
-		return;
-	}
-
-	wt::Terrain* terrain = mScene->createTerrain();
-	try{
-		terrain->create(desc);
-
-		mTerrainEditTool->setTarget(terrain);
-
-		emit onTerrainCreated();
-	}catch(wt::Exception& e){
-		QMessageBox::critical(this, "Error", QString("Error creating terrain\n") + e.getDescription().c_str());
-	}
-
-}
-
 void WorldEditTab::onToggleBones(){
 	// TODO fix this
 	static bool bones = false;
@@ -310,4 +184,42 @@ void WorldEditTab::onToggleBoundingBoxes(){
 	static bool boxes = false;
 	boxes = !boxes;
 	ui.sceneView->getRenderer()->setRenderBoundingBoxes(boxes);
+}
+
+void WorldEditTab::onAssetsLoaded(){
+	// New assets have been loaded
+	for(ToolList::Iterator iter=mTools.begin(); iter!=mTools.end(); iter++){
+	}
+}
+
+void WorldEditTab::onBeforeAssetsUnload(){
+	// Handle everything before assets are unloaded
+	for(ToolList::Iterator iter=mTools.begin(); iter!=mTools.end(); iter++){
+	}
+}
+
+void WorldEditTab::onBeforeSceneUnload(){
+	// Handle everything before scnee is unloaded
+	for(ToolList::Iterator iter=mTools.begin(); iter!=mTools.end(); iter++){
+		(*iter)->onBeforeSceneUnload();
+	}
+}
+
+void WorldEditTab::onSceneLoaded(){
+	// New scene has been loaded
+	for(ToolList::Iterator iter=mTools.begin(); iter!=mTools.end(); iter++){
+		(*iter)->onSceneLoaded();
+	}
+}
+
+void WorldEditTab::onAfterSceneUnload(){
+	for(ToolList::Iterator iter=mTools.begin(); iter!=mTools.end(); iter++){
+		(*iter)->onAfterSceneUnload();
+	}
+}
+
+void WorldEditTab::onAfterAssetsUnload(){
+	for(ToolList::Iterator iter=mTools.begin(); iter!=mTools.end(); iter++){
+		(*iter);
+	}
 }

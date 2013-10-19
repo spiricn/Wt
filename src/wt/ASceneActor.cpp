@@ -1,7 +1,6 @@
 #include "wt/stdafx.h"
 #include "wt/ASceneActor.h"
 #include "wt/PhysicsActor.h"
-
 #include "wt/Scene.h"
 
 namespace wt{
@@ -9,6 +8,11 @@ namespace wt{
 
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
 	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL), mBoundingBoxColor(Color::Green()), mLuaState(NULL){
+}
+
+void ASceneActor::detach(){
+	mAttachPoint.actor = NULL;
+	mAttachPoint.pointId = "";
 }
 
 void ASceneActor::setBoundingBoxColor(const Color& color){

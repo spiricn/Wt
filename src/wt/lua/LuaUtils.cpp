@@ -15,23 +15,23 @@ static const char* kDEFAULT_TAG = "LuaScript";
 #define LUA_LOG(arg1, arg2, level) do{ td_logMessage( arg2.IsString() ? arg1.ToString() : kDEFAULT_TAG, level, arg2.IsString() ? arg2.ToString() : arg1.ToString() ); }while(0)
 
 void logi(LuaObject arg1, LuaObject arg2){
-	LUA_LOG(arg1, arg2, eTD_LVL_INFO);
+	LUA_LOG(arg1, arg2, eTD_LEVEL_INFO);
 }
 
 void loge(LuaObject arg1, LuaObject arg2){
-	LUA_LOG(arg1, arg2, eTD_LVL_ERROR);
+	LUA_LOG(arg1, arg2, eTD_LEVEL_ERROR);
 }
 
 void logd(LuaObject arg1, LuaObject arg2){
-	LUA_LOG(arg1, arg2, eTD_LVL_DEBUG);
+	LUA_LOG(arg1, arg2, eTD_LEVEL_DEBUG);
 }
 
 void logw(LuaObject arg1, LuaObject arg2){
-	LUA_LOG(arg1, arg2, eTD_LVL_WARNING);
+	LUA_LOG(arg1, arg2, eTD_LEVEL_WARNING);
 }
 
 void logv(LuaObject arg1, LuaObject arg2){
-	LUA_LOG(arg1, arg2, eTD_LVL_VERBOSE);
+	LUA_LOG(arg1, arg2, eTD_LEVEL_VERBOSE);
 }
 
 void log(LuaObject arg1, LuaObject arg2){

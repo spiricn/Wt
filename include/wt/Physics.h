@@ -10,6 +10,7 @@
 #include "wt/PhysicsActor.h"
 #include "wt/TimeAccumulator.h"
 #include "wt/EventEmitter.h"
+#include "wt/PxWt.h"
 
 using namespace physx;
 
@@ -21,15 +22,6 @@ namespace math{
 }
 
 
-void pxConvert(const glm::vec3& src, physx::PxVec3& dst);
-
-void pxConvert(const glm::vec3& src, physx::PxExtendedVec3& dst);
-
-void pxConvert(const physx::PxExtendedVec3& src, glm::vec3& dst);
-
-void pxConvert(const PxTransform& src, math::Transform& dst);
-
-void pxConvert(const math::Transform& src, PxTransform& dst);
 
 class RaycastHitEvent : public Event{
 protected:
@@ -119,10 +111,6 @@ private:
 	EventEmitter mEventEmitter;
 
 	TimeAccumulator mTimeAccumulator;
-
-    static void convertTransform(const PxTransform& src, ATransformable& dst);
-
-	static void convertTransform(const ATransformable& src, PxTransform& dst);
 
 	Sp<PxGeometry> createGeometry(const PhysicsActor::Desc& desc);
 

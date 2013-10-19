@@ -2,6 +2,8 @@
 
 #include "wt/lua/LuaActor.h"
 
+#define GET_THIS ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+
 namespace wt
 {
 
@@ -19,25 +21,50 @@ void Actor_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, Actor_yaw);
 	MODULE_EXPOSE(obj, Actor_getRightVec);
 	MODULE_EXPOSE(obj, Actor_pitch);
+	MODULE_EXPOSE(obj, Actor_getAttachPointPosition);
+	MODULE_EXPOSE(obj, Actor_detach);
+}
+
+void Actor_detach(void* ptr){
+	GET_THIS;
+
+	thiz->detach();
+}
+
+glm::vec3 Actor_getAttachPointPosition(void* ptr, const char* id){
+	GET_THIS;
+
+	glm::mat4 res;
+	if(!thiz->getAttachPointTransform(id, res)){
+		TRACEE("Error getting attach point position - invalid point ID \"%s\" for actor \"%s\"", id, thiz->getName().c_str());
+		return glm::vec3(1.0f);
+	}
+	else{
+		glm::vec3 pos, scale;
+		glm::quat rot;
+		math::decomposeMatrix(res, rot, pos, scale);
+
+		return pos;
+	}
 }
 
 void Actor_pitch(void* ptr, float angle){
-	ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
+
 	thiz->getTransformable()->pitch(angle);
 }
 
 void Actor_setPosition(void* ptr, LuaObject luaPos){
-	ASceneActor* actor = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
 
 	glm::vec3 pos;
 	luaConv(luaPos, pos);
 
-	actor->getTransformable()->setTranslation(pos);
-
+	thiz->getTransformable()->setTranslation(pos);
 }
 
 glm::vec3 Actor_getPosition(void* ptr){
-	ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
 
 	glm::vec3 pos;
 	thiz->getTransformable()->getTranslation(pos);
@@ -46,7 +73,7 @@ glm::vec3 Actor_getPosition(void* ptr){
 }
 
 glm::vec3 Actor_getForwardVec(void* ptr){
-	ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
 
 	glm::vec3 fw;
 	thiz->getTransformable()->getForwardVector(fw);
@@ -56,7 +83,7 @@ glm::vec3 Actor_getForwardVec(void* ptr){
 
 
 glm::vec3 Actor_getRightVec(void* ptr){
-	ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
 
 	glm::vec3 right;
 	thiz->getTransformable()->getRightVector(right);
@@ -65,15 +92,19 @@ glm::vec3 Actor_getRightVec(void* ptr){
 }
 
 uint32_t Actor_getId(void* ptr){
-	return static_cast<ASceneActor*>(ptr)->getId();
+	GET_THIS;
+
+	return thiz->getId();
 }
 
 const char* Actor_getName(void* ptr){
-	return static_cast<ASceneActor*>(ptr)->getName().c_str();
+	GET_THIS;
+
+	return thiz->getName().c_str();
 }
 
 bool Actor_attach(void* ptr, void* dst, const char* point){
-	ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
 
 	ASceneActor* actor = static_cast<ASceneActor*>(dst);
 
@@ -81,13 +112,13 @@ bool Actor_attach(void* ptr, void* dst, const char* point){
 }
 
 void Actor_delete(void* ptr){
-	ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
 
 	thiz->getScene()->deleteActor(thiz);
 }
 
 void Actor_yaw(void* ptr, float angle){
-	ASceneActor* thiz = static_cast<ASceneActor*>(ptr);
+	GET_THIS;
 
 	thiz->getTransformable()->yaw(angle);
 }

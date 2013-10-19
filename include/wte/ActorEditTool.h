@@ -45,6 +45,8 @@ private:
 
 protected slots:
 
+	void onBeforeSceneUnload();
+
 	void onNewActor();
 
 	void onAnimationSelected(QString);

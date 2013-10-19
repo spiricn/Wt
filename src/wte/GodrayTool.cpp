@@ -5,7 +5,9 @@
 
 #define TD_TRACE_TAG "GodrayTool"
 
-GodrayTool::GodrayTool(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets) : QWidget(parent), mScene(scene), mAssets(assets), mInitializing(true){
+GodrayTool::GodrayTool(QWidget* parent, AToolManager* manager, wt::Scene* scene, wt::AResourceSystem* assets) : 
+	QWidget(parent), mScene(scene), mAssets(assets), mInitializing(true), ATool(manager){
+
     ui.setupUi(this);
 
 	// Size
@@ -31,9 +33,6 @@ GodrayTool::GodrayTool(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* a
 
 	// Sample number
 	ui.sampleNumber->setValueRange(1, 300);
-
-	connect(parent, SIGNAL(sceneLoaded()),
-		this, SLOT(onAssetsLoaded()));
 }
 
 void GodrayTool::loadParams(){
@@ -59,7 +58,7 @@ void GodrayTool::loadParams(){
 	mInitializing = false;
 }
 
-void GodrayTool::onAssetsLoaded(){
+void GodrayTool::onSceneLoaded(){
 	loadParams();
 }
 

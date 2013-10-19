@@ -70,6 +70,8 @@ protected:
 	void setLuaState(lua::State* state);
 
 public:
+	void detach();
+
 	lua::State* getLuaState();
 
 	virtual ATransformable* getTransformable() = 0;

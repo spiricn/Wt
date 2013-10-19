@@ -17,6 +17,13 @@ namespace lua
 
 void Particle_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, Particle_setVisible);
+	MODULE_EXPOSE(obj, Particle_kill);
+}
+
+void Particle_kill(void* ptr){
+	GET_THIS;
+
+	thiz->kill();
 }
 
 void Particle_setVisible(void* ptr, bool state){

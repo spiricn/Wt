@@ -4,6 +4,6 @@
 
 #define TD_TRACE_TAG "FogTool"
 
-FogTool::FogTool(SceneView* sceneView, QWidget* parent) : QDialog(parent), mSceneView(sceneView){
+FogTool::FogTool(SceneView* sceneView, AToolManager* manager, QWidget* parent) : QDialog(parent), mSceneView(sceneView), ATool(manager){
     ui.setupUi(this);
 }

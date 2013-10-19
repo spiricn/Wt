@@ -19,7 +19,12 @@ Model* ModelledActor::getModel() const{
 }
 
 ATransformable* ModelledActor::getTransformable(){
-	return &mTransform;
+	if(getPhysicsActor() != NULL){
+		return getPhysicsActor();
+	}
+	else{
+		return &mTransform;
+	}
 }
 
 void ModelledActor::setModel(Model* model, const String& skin){

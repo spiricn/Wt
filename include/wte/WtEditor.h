@@ -38,7 +38,6 @@ private:
 	WorldEditTab* mWorldEdit;
 	QSettings* mSettings;
 
-
 	wt::lua::State mLuaState;
 	wt::EventManager mEventManager;
 	wt::Scene mScene;
@@ -47,8 +46,10 @@ private:
 
 	Ui::WtEditorClass ui;
 
-	QString mWorkspaceFilePath;
-	QString mScenePath;
+	QString mAssetsFilePath;
+	QString mSceneFilePath;
+	
+	bool mAssetsLoaded, mSceneLoaded;
 
 	typedef std::vector<ARsrcManagerTab*> TabList;
 
@@ -56,38 +57,50 @@ private:
 
 	void addTab(ARsrcManagerTab* tab, const QString& name);
 
-	void unloadLevel();
 
-	void loadLevel(const QString&);
+	void clearScene();
+
 
 	void loadScene(const QString&);
 
+	void loadAssets(const QString&);
+
+	void saveScene(const QString&);
+
+	void saveAssets(const QString&);
+
+	void unloadAssets();
+
+	void unloadScene();
+
 protected slots:
-	void onBtnSaveClick();
+	void onAssetsNew();
 
-	void onNew();
+	void onAssetsOpen();
 
-	void onOpen();
+	void onAssetsSave();
 
-	void onLoadScene();
+	void onAssetsSaveAs();
 
-	void onSaveScene();
+	void onAssetsClear();
 
-	void onAssetsLoaded();
-	
+	void onAssetsReload();
+
+
+	void onSceneNew();
+
+	void onSceneOpen();
+
+	void onSceneSave();
+
+	void onSceneSaveAs();
+
+	void onSceneClear();
+
+	void onSceneReload();
+
+
 	void onOpenGLContextCreated();
-
-	void onCreateTerrain();
-
-	void onClearScene();
-
-	void onSetSkybox();
-
-	void onScreenshot();
-
-	void onReload();
-
-	void onSaveSceneAs();
 };
 
 #endif // WTEDITOR_H

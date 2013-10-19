@@ -15,6 +15,8 @@ namespace lua
 
 void Actor_expose(LuaObject obj);
 
+void Actor_detach(void* ptr);
+
 void Actor_pitch(void* ptr, float angle);
 
 void Actor_setPosition(void* ptr, LuaObject luaPos);
@@ -36,6 +38,8 @@ bool Actor_attach(void* ptr, void* dst, const char* point);
 void Actor_delete(void* ptr);
 
 void Actor_yaw(void* ptr, float angle);
+
+glm::vec3 Actor_getAttachPointPosition(void* ptr, const char* id);
 
 } // </lua>
 

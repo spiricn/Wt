@@ -219,62 +219,6 @@ uint32_t Physics::createRegion(const String& name, const glm::vec3& position, fl
 	return actor->getId();
 }
 
-
-void pxConvert(const physx::PxExtendedVec3& src, glm::vec3& dst){
-	dst.x = src.x;
-	dst.y = src.y;
-	dst.z = src.z;
-}
-
-void pxConvert(const glm::vec3& src, physx::PxVec3& dst){
-	dst.x = src.x;
-	dst.y = src.y;
-	dst.z = src.z;
-}
-
-void pxConvert(const glm::vec3& src, physx::PxExtendedVec3& dst){
-	dst.x = src.x;
-	dst.y = src.y;
-	dst.z = src.z;
-}
-
-void pxConvert(const PxTransform& src, math::Transform& dst){
-	dst.setPosition( glm::vec3(src.p.x, src.p.y, src.p.z) );
-    dst.setQuat( src.q.x, src.q.y, src.q.z, src.q.w );
-}
-
-void pxConvert(const math::Transform& src, PxTransform& dst){
-	dst.p.x = src.getPosition().x;
-	dst.p.y = src.getPosition().y;
-	dst.p.z = src.getPosition().z;
-
-	dst.q.x = src.getQuat().x;
-	dst.q.y = src.getQuat().y;
-	dst.q.z = src.getQuat().z;
-	dst.q.w = src.getQuat().w;
-}
-
-void Physics::convertTransform(const PxTransform& src, ATransformable& dst){
-	dst.setTranslation( glm::vec3(src.p.x, src.p.y, src.p.z) );
-	dst.setRotation( glm::vec3(src.q.x, src.q.y, src.q.z), src.q.w );
-}
-
-void Physics::convertTransform(const ATransformable& src, PxTransform& dst){
-	glm::vec3 pos;
-	glm::quat rot;
-	src.getTranslation(pos);
-	src.getRotation(rot);
-
-	dst.p.x = pos.x;
-	dst.p.y = pos.y;
-	dst.p.z = pos.z;
-
-	dst.q.x = rot.x;
-	dst.q.y = rot.y;
-	dst.q.z = rot.z;
-	dst.q.w = rot.w;
-}
-
 bool Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout){
 	#ifdef PX_SUPPORT_VISUAL_DEBUGGER
 	// Physx Visual Debugger
@@ -335,7 +279,7 @@ void Physics::update(float dt){
 			actor->getSceneActor()->getTransformable()->setTranslation(glm::vec3(pos.x, pos.y, pos.z));
 		}
 		else if(actor->getSceneActor()){
-			convertTransform(activeTransforms[i].actor2World,
+			pxConvert(activeTransforms[i].actor2World,
 				*actor->getSceneActor()->getTransformable()
 				);
 		}

@@ -4,8 +4,9 @@
 #include "ui_FogTool.h"
 
 #include "wte/SceneView.h"
+#include "wte/ATool.h"
 
-class FogTool : public QDialog{
+class FogTool : public QDialog, public ATool{
 Q_OBJECT
 
 private:
@@ -13,7 +14,7 @@ private:
 	SceneView* mSceneView;
 
 public:
-    FogTool(SceneView*, QWidget* parent);
+    FogTool(SceneView*, AToolManager* manager, QWidget* parent);
 
 protected slots:
 

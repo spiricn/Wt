@@ -75,6 +75,14 @@ public:
 
 	void render();
 
+	void kill();
+
+	bool isDead();
+
+	bool isKillScheduled();
+
+	uint32_t numActiveParticles() const;
+
 	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst);
 
 protected:
@@ -95,6 +103,7 @@ private:
 	ParticleLayerResource* mLayerRsrc;
 	gl::Query mQuery;
 	String mName;
+	bool mKilled, mKillScheduled;
 
 	/** Copy constructor disabled */
 	ParticleLayer(const ParticleLayer&);

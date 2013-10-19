@@ -15,9 +15,13 @@ namespace lua
 
 void ModelledActor_expose(LuaObject obj);
 
+bool ModelledActor_isAnimationPlaying(void* ptr);
+
 void ModelledActor_playAnimation(void* ptr, const char* name, bool loop);
 
 void ModelledActor_setAnimationSpeed(void* ptr, float speed);
+
+float ModelledActor_getAnimationPos(void* ptr);
 
 } // </lua>
 

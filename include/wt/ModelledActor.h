@@ -13,6 +13,15 @@ namespace wt{
 
 class ModelledActor : public ASceneActor{
 public:
+	struct Desc{
+		Model* model;
+		const String skin;
+		const String animation;
+		float animationSpeed;
+		float animationPos;
+		bool animationLoop;
+	}; // </Desc>
+
 	ModelledActor(Scene* parent, uint32_t id, const String& name="");
 
 	bool hasAnimation() const;

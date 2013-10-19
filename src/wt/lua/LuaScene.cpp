@@ -79,7 +79,7 @@ void* Scene_findParticleEffect(void* ptr, const char* name){
 
 	ASceneActor* res = thiz->findActorByName(name);
 
-	return res->getActorType() == ASceneActor::eTYPE_PARTICLE_EFFECT ? res : NULL;
+	return res == NULL ? NULL : res->getActorType() == ASceneActor::eTYPE_PARTICLE_EFFECT ? res : NULL;
 }
 
 void* Scene_findPointLight(void* ptr, const char* name){
@@ -87,7 +87,7 @@ void* Scene_findPointLight(void* ptr, const char* name){
 
 	ASceneActor* res = thiz->findActorByName(name);
 
-	return res->getActorType() == ASceneActor::eTYPE_POINT_LIGHT ? res : NULL;
+	return res == NULL ? NULL : res->getActorType() == ASceneActor::eTYPE_POINT_LIGHT ? res : NULL;
 }
 
 void* Scene_findSound(void* ptr, const char* name){
@@ -95,7 +95,7 @@ void* Scene_findSound(void* ptr, const char* name){
 
 	ASceneActor* res = thiz->findActorByName(name);
 
-	return res->getActorType() == ASceneActor::eTYPE_SOUND ? res : NULL;
+	return res == NULL ? NULL : res->getActorType() == ASceneActor::eTYPE_SOUND ? res : NULL;
 }
 
 void* Scene_findModelledActor(void* ptr, const char* name){
@@ -103,7 +103,7 @@ void* Scene_findModelledActor(void* ptr, const char* name){
 
 	ASceneActor* res = thiz->findActorByName(name);
 
-	return res->getActorType() == ASceneActor::eTYPE_MODELLED ? res : NULL;
+	return res == NULL ? NULL : res->getActorType() == ASceneActor::eTYPE_MODELLED ? res : NULL;
 }
 
 

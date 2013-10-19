@@ -47,6 +47,8 @@ uniform mat4 uModelMat;
 
 uniform int uWorldSpaceSim;
 
+uniform int uAlive;
+
 int seed;
 
 #define TYPE_EMITTER 1.0f
@@ -92,7 +94,7 @@ void main(){
 		// need to emit more than one particle (e.g. if dt == 1 and emission rate is 4 we need to emit 4 particles, not one)
 
 		// Emit a new particle if the emiter died
-		if(life <= 0.0){
+		if(life <= 0.0 && uAlive == 1){
 			// Get 3 random numbers for misc usage
 			vec3 r = randomSample();
 

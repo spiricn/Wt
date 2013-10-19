@@ -31,6 +31,15 @@ public:
 	bool isToolFocused() const{
 		return mIsFocused;
 	}
+
+	virtual void onSceneLoaded(){
+	}
+
+	virtual void onBeforeSceneUnload(){
+	}
+
+	virtual void onAfterSceneUnload(){
+	}
 };
 
 class AToolManager{

@@ -47,6 +47,18 @@ void ParticleEffect::update(float dt){
 void ParticleEffect::render(){
 }
 
+void ParticleEffect::kill(){
+	for(LayerMap::iterator iter=mLayers.begin(); iter!=mLayers.end(); iter++){
+		// Create layer instances
+		iter->second->kill();
+	}
+}
+
+bool ParticleEffect::isEmitting() const{
+	// TODO
+	return true;
+}
+
 float ParticleEffect::getTimeDelta() const{
 	return mTimeDelta;
 }

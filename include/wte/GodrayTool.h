@@ -6,11 +6,13 @@
 #include <wt/Scene.h>
 #include <wt/AResourceSystem.h>
 
-class GodrayTool : public QWidget{
+#include "wte/ATool.h"
+
+class GodrayTool : public QWidget, public ATool{
 Q_OBJECT
 
 public:
-    GodrayTool(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets);
+    GodrayTool(QWidget* parent, AToolManager* manager, wt::Scene* scene, wt::AResourceSystem* assets);
 
 protected slots:
 
@@ -18,7 +20,7 @@ protected slots:
 
 	void onPickTexture();
 
-	void onAssetsLoaded();
+	void onSceneLoaded();
 
 	void onReset();
 

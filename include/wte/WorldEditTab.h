@@ -3,30 +3,22 @@
 
 #include "stdafx.h"
 
+#include <wt/EventManager.h>
+
 #include "ui_WorldEdit.h"
 
 #include "wte/ATool.h"
-#include <wt/EventManager.h>
+
 
 class TerrainEditTool;
 class LightEditTool;
 class ActorEditTool;
 class FogTool;
+class GodrayTool;
 
 namespace wt{
-
 	class Assets;
-
 }; // </wt>
-
-
-
-struct World{
-	//wt::EventManager* eventManager;
-	wt::Scene* scene;	
-	wt::Physics* physics;	
-};
-
 
 class WtEditor;
 
@@ -39,15 +31,18 @@ protected:
 	Ui::WorldEdit ui;
 
 private:
-	wt::ASceneActor* mSelectedActor;
-	wt::math::Camera mCamera;
+	// TODO There's probably a generalized way of doing this (don't save references to all tools, instead use their interfaces via the ToolList
 	TerrainEditTool* mTerrainEditTool;
 	LightEditTool* mLightTool;
 	ActorEditTool* mActorEditTool;
 	FogTool* mFogTool;
+	GodrayTool* mGodrayTool;
+
 	wt::AResourceSystem* mAssets;
 	wt::Scene* mScene;
 	wt::EventManager* mEventManager;
+
+	// Main loop timer
 	QTimer mTimer;
 
 	typedef QVector<ATool*> ToolList;
@@ -58,35 +53,41 @@ public:
 
 	~WorldEditTab();
 
-	void requestFocus(ATool* tool){
-		for(ToolList::Iterator i=mTools.begin(); i!=mTools.end(); i++){
-			if(*i != tool){
-				(*i)->onToolLostFocus();
-			}
-		}
+	void requestFocus(ATool* tool);
 
-		tool->onToolGainFocus();
-	}
+	void giveupFocus(ATool* tool);
 
-	void giveupFocus(ATool* tool){
-		tool->onToolLostFocus();
-	}
+	void onAssetsLoaded();
+
+	void onBeforeAssetsUnload();
+
+	void onBeforeSceneUnload();
+
+	void onAfterSceneUnload();
+
+	void onAfterAssetsUnload();
+
+	void onSceneLoaded();
 
 private:
 	void createToolbar();
 
+	template<class T>
+	void addTool(QDockWidget* dock, T* obj){
+		QWidget* widget = dynamic_cast<QWidget*>(obj);
+		ATool* tool = dynamic_cast<ATool*>(obj);
 
-// TODO protect these
-public slots:
+		dock->setWidget(widget);
+		dock->setVisible(false);
+
+		mTools.push_back(tool);
+	}
+
+protected slots:
 	void onScreenshot();
 	
 	void onSetSkybox();
 
-	void onClearAll();
-
-	void onCreateTerrain();
-
-protected slots:
 	void onTimeout();
 
 	void onGLContextCreated();
@@ -95,17 +96,11 @@ protected slots:
 
 	void onSetTransClicked();
 
-	void onTreeItemActivated(void*);
-
-	void onRotSliderMoved(int);
-	
 	void onShowTerrainTool(bool);
 
 	void onMouseDown(QMouseEvent*);
 
 	void onShowLightEditor(bool);
-
-	void onSave();
 
 	void onToggleToolTerrain();
 
@@ -116,23 +111,10 @@ protected slots:
 	void onToggleBones();
 
 	void onToggleBoundingBoxes();
-public:
 
-	void loadResources(const QString&);
-
-	void loadScene(const QString&);
-
-	void saveScene(const QString&);
-
-	void unloadLevel();
+	void onToggleGodrayTool();
 
 signals:
-	void assetsLoaded();
-
-	void sceneLoaded();
-
-	void onTerrainCreated();
-
 	void initialized();
 
 }; // </WorldEditTab>
