@@ -276,12 +276,18 @@ void Physics::update(float dt){
 
 		if(actor->isControlled()){
 			const PxExtendedVec3& pos = actor->getController()->getFootPosition();
-			actor->getSceneActor()->getTransformable()->setTranslation(glm::vec3(pos.x, pos.y, pos.z));
+
+			// Since we're the controller of the object we need to const cast this in order to change it
+			ATransformable* transformable = const_cast<ATransformable*>(actor->getSceneActor()->getTransformable());
+			transformable->setTranslation(glm::vec3(pos.x, pos.y, pos.z));
 		}
 		else if(actor->getSceneActor()){
+			// Since we're the controller of the object we need to const cast this in order to change it
+			ATransformable* transformable = const_cast<ATransformable*>(actor->getSceneActor()->getTransformable());
+
 			pxConvert(activeTransforms[i].actor2World,
-				*actor->getSceneActor()->getTransformable()
-				);
+				*transformable
+			);
 		}
 		else{
 			LOGW("No scene actor associated with physx actor!");

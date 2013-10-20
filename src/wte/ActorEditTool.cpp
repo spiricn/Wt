@@ -57,7 +57,7 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 
 void ActorEditTool::onScaleChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getTransformable()->setScale(
+		mSelectedActor->getController()->setScale(
 			ui.transform->getScale()
 		);
 	}
@@ -70,7 +70,7 @@ void ActorEditTool::onBeforeSceneUnload(){
 
 void ActorEditTool::onTranslationChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getTransformable()->setTranslation(
+		mSelectedActor->getController()->setTranslation(
 			ui.transform->getTranslation()
 		);
 	}
@@ -78,7 +78,7 @@ void ActorEditTool::onTranslationChanged(){
 
 void ActorEditTool::onRotationChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getTransformable()->setRotation(
+		mSelectedActor->getController()->setRotation(
 			ui.transform->getRotation()
 		);
 	}
@@ -142,9 +142,9 @@ void ActorEditTool::updateSelectionStats(){
 	glm::vec3 pos;
 	glm::vec3 scale;
 
-	mSelectedActor->getTransformable()->getRotation(rotAxis, rotAngle);
-	mSelectedActor->getTransformable()->getTranslation(pos);
-	mSelectedActor->getTransformable()->getScale(scale);
+	mSelectedActor->getController()->getRotation(rotAxis, rotAngle);
+	mSelectedActor->getController()->getTranslation(pos);
+	mSelectedActor->getController()->getScale(scale);
 
 	ui.transform->setRotation(rotAxis, rotAngle);
 
@@ -174,14 +174,14 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 
 			if(wt::AGameInput::isKeyDown('X')){
 				if(shiftDown){
-					mSelectedActor->getTransformable()->rotate(
+					mSelectedActor->getController()->rotate(
 						glm::vec3(1.0, 0.0, 0.0), evt.dx * smoothFactor
 					);
 
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getTransformable()->translate(
+					mSelectedActor->getController()->translate(
 						glm::vec3(1.0, 0.0, 0.0) * evt.dx * smoothFactor
 					);
 
@@ -189,18 +189,18 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 				}
 			}
 			else if(wt::AGameInput::isKeyDown('F')){
-				mSelectedActor->getTransformable()->scale( glm::vec3(1, 1, 1) * evt.dy * 0.01f );
+				mSelectedActor->getController()->scale( glm::vec3(1, 1, 1) * evt.dy * 0.01f );
 			}
 			else if(wt::AGameInput::isKeyDown('Y')){
 				if(shiftDown){
-					mSelectedActor->getTransformable()->rotate(
+					mSelectedActor->getController()->rotate(
 						glm::vec3(0.0, 1.0, 0.0), evt.dx * smoothFactor
 					);
 
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getTransformable()->translate(
+					mSelectedActor->getController()->translate(
 						glm::vec3(0.0, 1.0, 0.0) * evt.dy * smoothFactor
 					);
 
@@ -209,14 +209,14 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 			}
 			else if(wt::AGameInput::isKeyDown('Z')){
 				if(shiftDown){
-					mSelectedActor->getTransformable()->rotate(
+					mSelectedActor->getController()->rotate(
 						glm::vec3(0.0, 0.0, 1.0), evt.dx * smoothFactor
 					);
 
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getTransformable()->translate(
+					mSelectedActor->getController()->translate(
 						glm::vec3(0.0, 0.0, 1.0) * evt.dy * smoothFactor
 					);
 
@@ -231,7 +231,7 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 						// TODO handle this better 
 						if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){
 							// condition checks if the hit actor isn't the selected actor (prevents the user from moving the actor to a point that's on itself)
-							mSelectedActor->getTransformable()->setTranslation(
+							mSelectedActor->getController()->setTranslation(
 								res.mImpact);
 							statsChanged  = true;
 						}
@@ -341,7 +341,7 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	wt::Scene& scene = *mScene;
 
 	glm::vec3 pos;
-	mSelectedActor->getTransformable()->getTranslation(pos);
+	mSelectedActor->getController()->getTranslation(pos);
 
 	glm::vec3 eyePos;
 	mScene->getCamera().getTranslation(eyePos);
@@ -457,7 +457,7 @@ void ActorEditTool::onNewActor(){
 			// Create physics actor
 			if(res.modelledActor.physicsDesc.geometryType != wt::PhysicsActor::eGEO_TYPE_NONE){
 				// Initial transform
-				//actor->getTransformable()->getTransformMatrix(res.modelledActor.physicsDesc.pose);
+				//actor->getController()->getTransformMatrix(res.modelledActor.physicsDesc.pose);
 				res.modelledActor.physicsDesc.pose = glm::translate(eyePos - eyeFw*3.0f);
 
 				try{
@@ -503,7 +503,7 @@ void ActorEditTool::onNewActor(){
 		}
 
 		if(sceneActor){
-			sceneActor->getTransformable()->setTranslation(
+			sceneActor->getController()->setTranslation(
 				 eyePos - eyeFw*10.0f);
 
 			mPhysics->createBBox(sceneActor);

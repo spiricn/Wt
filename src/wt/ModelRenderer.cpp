@@ -44,6 +44,7 @@ void ModelRenderer::create(){
 	mShader.bindAttribLocation(Model::eATTRIB_BONE_WEIGHT, "inWeights");
 
 #else
+
 	// Geometry pass shader
 	mShader.createFromFiles("shaders/model_deferred.vp",
 		"shaders/model_deferred.fp");

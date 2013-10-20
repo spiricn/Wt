@@ -728,7 +728,7 @@ void Renderer::setRenderAxes(bool state){
 	mRenderAxes = state;
 }
 
-void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& clr){
+void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& clr, bool flipVertically){
 	gl( UseProgram(0) );
 
 	gl( Viewport(0, 0, viewport.x, viewport.y) );
@@ -739,15 +739,20 @@ void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float 
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
 	// bind texture
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex->getTexHandle());
 
+	if(flipVertically){
+		glMatrixMode(GL_TEXTURE);
+		glLoadIdentity();
+		glScalef(1.0f, -1.0f, 1.0f);
+	}
+
 	// draw textured quad
 	glBegin(GL_QUADS);
 
-	glColor4f(clr.red, clr.green, clr.blue, clr.alpha);
+	glColor4f(clr.red, clr.green, clr.blue, clr.alpha);	
 
 	glVertex2f(x,	y);		glTexCoord2f(1.0, 0.0);
 	glVertex2f(x+w, y);		glTexCoord2f(1.0, 1.0);
@@ -755,6 +760,12 @@ void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float 
 	glVertex2f(x,	y+h);	glTexCoord2f(0.0, 0.0);
 
 	glEnd();
+
+	if(flipVertically){
+		// Revert
+		glMatrixMode(GL_TEXTURE);
+		glLoadIdentity();
+	}
 }
 
 void Renderer::setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog){
@@ -813,7 +824,7 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 
 	mDeferredRenderer->doLightPass(&scene, &scene.getCamera());
 
-	const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT3 };
+	const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT4 };
 	gl( DrawBuffers(1, drawBuffers) );
 	gl( Disable(GL_BLEND) );
 	gl( Enable(GL_DEPTH_TEST) );
@@ -858,7 +869,7 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	mDeferredRenderer->getFrameBuffer()->blit(
 		glm::vec4(0, 0, mViewPort.x, mViewPort.y),
 		glm::vec4(0, 0, mViewPort.x, mViewPort.y),
-			GL_COLOR_ATTACHMENT3, GL_COLOR_BUFFER_BIT, GL_LINEAR
+			GL_COLOR_ATTACHMENT4, GL_COLOR_BUFFER_BIT, GL_LINEAR
 	);
 	
 #if 0
@@ -895,6 +906,36 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	glm::vec4 viewport(0, 0, mViewPort.x, mViewPort.y);
 	glm::vec3 sunScreenPos = glm::project(godrayParams.sourcePosition, modelview, scene.getCamera().getProjectionMatrix(), viewport);
 	bool sunVisible = sunScreenPos.x >= 0.0f && sunScreenPos.y >= 0.0f && sunScreenPos.x <= mViewPort.x && sunScreenPos.y <= mViewPort.y;
+
+	// TODO refactor this
+
+	TRACED("%d", sunVisible);
+	
+
+	{ 
+		if(!target){
+			// Default framebuffer
+			gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
+
+			GLint doubleBuffered; 
+			gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
+
+			GLenum defaultBfrs[1];
+			defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
+
+			gl( DrawBuffers(1, defaultBfrs) );
+		}
+		else{
+			target->bind();
+		}
+
+
+		gl( Clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) );
+		
+		gl( Enable(GL_CULL_FACE) );
+		gl( Disable(GL_BLEND) );
+		render(scene, ARenderer::ePASS_NORMAL);
+	}
 
 	if(godrayParams.enabled){ 
 		// pass 1 (render scene without textures/lighting)
@@ -943,17 +984,23 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 		mSunBatch.render();
 
-		gl( Disable(GL_BLEND) );
+		
 
+#if 0
 		// render the entire scene (without textures and lighting)
 		gl( Enable(GL_CULL_FACE) );
 		render(scene, ARenderer::ePASS_GODRAY);
+#endif
 
+
+		gl( Enable(GL_BLEND) );
+		gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
+		gl( BlendEquation(GL_FUNC_ADD) );
+
+		render(mDeferredRenderer->getGTexture(DeferredRender::eGTEX_GODRAY), mViewPort, 0, 0, mViewPort.x, mViewPort.y, Color::White(), true);
 
 		//mGodrayPass1.dump("pass1.bmp");
-	}
 
-	if(godrayParams.enabled){ 
 		// pass 2 (do the 2D post processing effect)
 
 		const GLenum pass2Buffers[] = {GL_COLOR_ATTACHMENT1};
@@ -984,39 +1031,17 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		gl( Disable(GL_CULL_FACE) );
 		mGodrayBatch.render();
 
-
-		//mGodrayPass2.dump("pass2.bmp");
-	}
-	
-
-	{ 
-		// pass 3
-		if(!target){
-			// Default framebuffer
-			gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
-
-			 GLint doubleBuffered; 
-			gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
-
-			GLenum defaultBfrs[1];
-			defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
-
-			gl( DrawBuffers(1, defaultBfrs) );
-		}
-		else{
-			target->bind();
-		}
-
-
-		gl( Clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) );
-		
-		gl( Enable(GL_CULL_FACE) );
-		gl( Disable(GL_BLEND) );
-		render(scene, ARenderer::ePASS_NORMAL);
-	}
-
-	if(godrayParams.enabled){
 		// pass 4 (apply post processing effect)
+			// Default framebuffer
+		gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
+
+		GLint doubleBuffered; 
+		gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
+
+		GLenum defaultBfrs[1];
+		defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
+
+		gl( DrawBuffers(1, defaultBfrs) );
 
 		mRectShader.use();
 
@@ -1034,17 +1059,6 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 		mGodrayBatch.render();
 	}
-	/*glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-
-	float s=100.0f;
-	float x = sunScreenPos.x - s/2;
-	float y = (mViewPort.y - sunScreenPos.y) - s/2;
-
-	render(TextureManager::getSingleton().getFromPath("$ROOT/brushes/circle_hard"), mViewPort,
-		x < 0 ? 0 : x+s > mViewPort.x ? mViewPort.x-s : x,
-		y < 0 ? 0 : y+s > mViewPort.y ? mViewPort.y-s : y,
-		s, s, Color::green());*/
 }
 
 }; // </wt

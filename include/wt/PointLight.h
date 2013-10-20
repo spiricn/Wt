@@ -33,8 +33,9 @@ public:
 
 	void setDesc(const Desc& desc) const;
 
-	// Transformable interface
-	ATransformable* getTransformable();
+	ATransformable* getController();
+
+	const ATransformable* getTransformable() const;
 
 	virtual void setTranslation(const glm::vec3& translation);
 

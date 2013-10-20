@@ -115,7 +115,7 @@ public:
 
 	void setFaceCulling(Culling mode);
 
-	void render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color=Color::White());
+	void render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color=Color::White(), bool flipVertically=false);
 
 	void render(Scene* scene, Model* model, Mesh* mesh, ARenderer::PassType pass);
 

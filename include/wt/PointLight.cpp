@@ -43,8 +43,12 @@ PointLight::Desc::Desc(){
 	attenuation.quadratic = 0.3f;
 }
 
-ATransformable* PointLight::getTransformable(){
-	return static_cast<ATransformable*>(this);
+ATransformable* PointLight::getController(){
+	return this;
+}
+
+const ATransformable* PointLight::getTransformable() const{
+	return this;
 }
 
 PointLight::PointLight(Scene* parent, uint32_t id, const String& name) : ALight(parent, id, ALight::eTYPE_POINT), ASceneActor(parent, ASceneActor::eTYPE_POINT_LIGHT, id, name){

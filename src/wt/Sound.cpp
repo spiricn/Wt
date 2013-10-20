@@ -12,7 +12,7 @@ namespace wt
 Sound::Sound(Scene* parent, uint32_t id, const String& name) : ASceneActor(parent, ASceneActor::eTYPE_SOUND, id, name){
 }
 
-ATransformable* Sound::getTransformable(){
+const ATransformable* Sound::getTransformable() const{
 	return this;
 }
 

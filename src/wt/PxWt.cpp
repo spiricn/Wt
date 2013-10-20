@@ -34,7 +34,14 @@ void pxConvert(const glm::vec3& src, physx::PxExtendedVec3& dst){
 
 void pxConvert(const PxTransform& src, ATransformable& dst){
 	dst.setTranslation( glm::vec3(src.p.x, src.p.y, src.p.z) );
-	dst.setRotation( glm::vec3(src.q.x, src.q.y, src.q.z), src.q.w );
+
+	glm::quat q;
+	q.x = src.q.x;
+	q.y = src.q.y;
+	q.z = src.q.z;
+	q.w = src.q.w;
+
+	dst.setRotation(q);
 }
 
 void pxConvert(const ATransformable& src, PxTransform& dst){

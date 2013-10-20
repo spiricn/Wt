@@ -58,7 +58,7 @@ public:
 
 		if(c == KEY_t){
 			spawnBox(
-				pos, fw*30.0f, 0x800000 /* collide only with terrain */);
+				pos, fw*30.0f /* collide only with terrain */);
 		}
 		else if(c == KEY_p){
 			mPhysicsPaused = !mPhysicsPaused;
@@ -77,18 +77,18 @@ public:
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-		{
-			const glm::vec3 regPos = glm::vec3(200, 0, 200);
-			const float regSize = 10;
+		//{
+		//	const glm::vec3 regPos = glm::vec3(200, 0, 200);
+		//	const float regSize = 10;
 
-			getPhysics()->createRegion("test", regPos, regSize);
+		//	getPhysics()->createRegion("test", regPos, regSize);
 
-			ModelledActor* actor = getScene()->createModelledActor();
-			actor->getTransformable()->setTranslation(regPos);
-			actor->getTransformable()->setScale(glm::vec3(regSize, regSize, regSize));
+		//	ModelledActor* actor = getScene()->createModelledActor();
+		//	actor->getTransformable()->setTranslation(regPos);
+		//	actor->getTransformable()->setScale(glm::vec3(regSize, regSize, regSize));
 
-			actor->setModel(getAssets()->getModelManager()->find("sphere"), "default");
-		}
+		//	actor->setModel(getAssets()->getModelManager()->find("sphere"), "default");
+		//}
 		//// Create some stuff
 		//spawnBoxStack(glm::vec3(200, 1, 200), 2, 2, 3);
 
@@ -119,10 +119,11 @@ public:
 		ModelledActor* sceneActor = getScene()->createModelledActor();
 
 		//sceneActor->getModel()->get
-		sceneActor->getTransformable()->setTranslation(position);
+		sceneActor->getController()->setTranslation(position);
 
-		
+	
 		sceneActor->setModel( getAssets()->getModelManager()->find("cube"), "crate" );
+
 
 		// Create physics actor
 		PhysicsActor::Desc desc;
@@ -139,9 +140,9 @@ public:
 
 		PhysicsActor* physicsActor = getScene()->getPhysics()->createActor(sceneActor, desc);
 
-		PxRigidDynamic* pxActor = (PxRigidDynamic*)physicsActor->getPxActor();
+		/*PxRigidDynamic* pxActor = (PxRigidDynamic*)physicsActor->getPxActor();
 		pxActor->setLinearVelocity(
-			PxVec3(velocity.x, velocity.y, velocity.z));
+			PxVec3(velocity.x, velocity.y, velocity.z));*/
 
 		return sceneActor;
 	}
@@ -150,7 +151,7 @@ public:
 		// Create scene actor
 		ModelledActor* sceneActor = getScene()->createModelledActor();
 
-		sceneActor->getTransformable()->setTranslation(position);
+		sceneActor->getController()->setTranslation(position);
 
 		sceneActor->setModel( getAssets()->getModelManager()->find("sphere"), "default" );
 
@@ -203,13 +204,10 @@ public:
 		LOGI("PhysicsDemo", "*************************");
 	}
 
-	String getConfigFile() const{
+	String getScriptPath() const{
 		return "assets/PhysicsDemoConfig.lua";
 	}
 
-	String getLevelFile() const{
-		return "assets/demo/PhyscsDemo/level.lua";
-	}
 }; // </PhysicsDemo>
 
 WT_DECLARE_DEMO(PhysicsDemo)

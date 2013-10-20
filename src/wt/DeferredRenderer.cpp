@@ -21,7 +21,12 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		mTextures[i].setData(width, height, GL_RGB, GL_RGB32F, NULL, GL_FLOAT, false);
+		if(i== eGTEX_GODRAY){
+			mTextures[i].setData(width, height, GL_RGBA, GL_RGBA32F, NULL, GL_FLOAT, false);
+		}
+		else{
+			mTextures[i].setData(width, height, GL_RGB, GL_RGB32F, NULL, GL_FLOAT, false);
+		}
 		mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT0 + i, mTextures + i);
 	}
 
@@ -40,7 +45,7 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	mFinalTexture.setData(width, height, GL_RGB, GL_RGBA, NULL, GL_FLOAT, false);
-	mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT3, &mFinalTexture);
+	mFrameBuffer.addAttachment(GL_COLOR_ATTACHMENT4, &mFinalTexture);
 
 	WT_ASSERT(mFrameBuffer.isComplete(), "Incomplete frame buffer");
 
@@ -232,7 +237,12 @@ void DeferredRender::resize(uint32_t width, uint32_t height){
 	mHeight = height;
 
 	for(uint32_t i=0; i<eGTEX_MAX; i++){
-		mTextures[i].setData(mWidth, mHeight, GL_RGB, GL_RGB32F, NULL, GL_FLOAT, false);
+		if(i== eGTEX_GODRAY){
+			mTextures[i].setData(width, height, GL_RGBA, GL_RGBA32F, NULL, GL_FLOAT, false);
+		}
+		else{
+			mTextures[i].setData(width, height, GL_RGB, GL_RGB32F, NULL, GL_FLOAT, false);
+		}
 	}
 
 	mDepthTexture.setData(mWidth, mHeight, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
@@ -247,10 +257,10 @@ void DeferredRender::resize(uint32_t width, uint32_t height){
 }
 
 void DeferredRender::bindForGeometryPass(){
-	// Destination of the geometry pass are the 3 textures (position, color and normals)
+	// Destination of the geometry pass are the 4 textures (position, color, normals, godray geometry)
 	mFrameBuffer.bindDraw();
-	const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 }; 
-	gl( DrawBuffers(3, drawBuffers) );
+	const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3}; 
+	gl( DrawBuffers(4, drawBuffers) );
 }
 
 void DeferredRender::debugBlit(const glm::vec2& screenSize){
@@ -275,19 +285,23 @@ void DeferredRender::debugBlit(const glm::vec2& screenSize){
 	mFrameBuffer.blit(
 		glm::vec4(0, 0,  mWidth, mHeight),
 		glm::vec4(0, screenSize.y/2, screenSize.x/2, screenSize.y),
-		GL_COLOR_ATTACHMENT3
+		GL_COLOR_ATTACHMENT4
 	);
 }
 
 void DeferredRender::bindForLightPass(){
 	// Our target is the final buffer
-	gl( DrawBuffer(GL_COLOR_ATTACHMENT3) );
+	gl( DrawBuffer(GL_COLOR_ATTACHMENT4) );
 		
-	// Our source are the 3 textures from the geometry pass
-	for(uint32_t i=0; i<eGTEX_MAX; i++){
-		gl(ActiveTexture(GL_TEXTURE0 + i));
-		mTextures[i].bind();
-	}
+	// Our source are the 3 textures from the geometry pass (we're not using the godray one)
+	gl(ActiveTexture(GL_TEXTURE0));
+	mTextures[eGTEX_POSITION].bind();
+
+	gl(ActiveTexture(GL_TEXTURE1));
+	mTextures[eGTEX_DIFFUSE].bind();
+
+	gl(ActiveTexture(GL_TEXTURE2));
+	mTextures[eGTEX_NORMAL].bind();
 }
 
 void DeferredRender::bindForFinalPass(){
@@ -297,7 +311,7 @@ void DeferredRender::bindForFinalPass(){
 	// But we're reading from our final texture
 	mFrameBuffer.bindRead();
 
-	glReadBuffer(GL_COLOR_ATTACHMENT3);
+	glReadBuffer(GL_COLOR_ATTACHMENT4);
 }
 
 void DeferredRender::directionalLightPass(Scene* scene, math::Camera* camera){
@@ -474,7 +488,7 @@ void DeferredRender::startFrame(){
 	mFrameBuffer.bindDraw();
 
 	// We're drawing to our final texture
-	gl( DrawBuffer(GL_COLOR_ATTACHMENT3) );
+	gl( DrawBuffer(GL_COLOR_ATTACHMENT4) );
 
 	// Clear our final texture (depth buffer and the other textures are taken care of in geometry pass)
 	glClearColor(0, 0, 0, 0);

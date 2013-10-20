@@ -74,9 +74,11 @@ public:
 
 	lua::State* getLuaState();
 
-	virtual ATransformable* getTransformable() = 0;
+	// Controller interface used for changing the actors position/rotation/scale
+	virtual ATransformable* getController();
 
-	const ATransformable* getTransformable() const;
+	// Transformable interface used exclusivley for reading the actors position/rotatino/scale
+	virtual const ATransformable* getTransformable() const = 0;
 
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
 

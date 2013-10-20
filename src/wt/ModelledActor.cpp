@@ -18,13 +18,18 @@ Model* ModelledActor::getModel() const{
 	return mModel;
 }
 
-ATransformable* ModelledActor::getTransformable(){
+ATransformable* ModelledActor::getController(){
 	if(getPhysicsActor() != NULL){
-		return getPhysicsActor();
+		return ASceneActor::getPhysicsActor();
 	}
 	else{
 		return &mTransform;
 	}
+}
+
+
+const ATransformable* ModelledActor::getTransformable() const{
+	return &mTransform;
 }
 
 void ModelledActor::setModel(Model* model, const String& skin){

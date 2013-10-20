@@ -21,7 +21,7 @@ uint32_t Terrain::getNumRows() const{
 	return mNumXVertices;
 }
 
-ATransformable* Terrain::getTransformable(){
+const ATransformable* Terrain::getTransformable() const{
 	return &mTransform;
 }
 
@@ -373,7 +373,7 @@ void Terrain::getPhysicsDesc(PhysicsActor::Desc& desc){
 	desc.type = PhysicsActor::eSTATIC_ACTOR;
 
 	// TODO
-	desc.group = 0;
+	desc.group = 1;
 
 	desc.geometryType = PhysicsActor::eHEIGHTMAP_GEOMETRY;
 

@@ -4,11 +4,15 @@
 #include <wt/SceneLoader.h>
 
 #include "wte/ModelImporterTab.h"
+#include "wte/FilePicker.h"
 #include "wte/ParticleManagerTab.h"
 #include "wte/WtEditor.h"
 #include "wte/Utils.h"
 
 #define TD_TRACE_TAG "WtEditor"
+
+#define RESOURCE_FILE_EXTENSION "wtr"
+#define SCENE_FILE_EXTENSION	"wts"
 
 using namespace std;
 
@@ -160,9 +164,11 @@ void WtEditor::updateTitle(){
 }
 
 void WtEditor::onWorkspaceSwitch(){
+#if 0
 	if(!askYesNo(this, "Warning: All unsaved assets/scenes are going to be lost. Switch workspace?")){
 		return;
 	}
+#endif
 
 	QString dir = QFileDialog::getExistingDirectory(this, "Browse workspace");
 
@@ -218,7 +224,7 @@ void WtEditor::onAssetsSaveAs(){
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", mWorkspacePath, "Asset files (*.lua)");
+		"Save assets", mWorkspacePath, "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
@@ -247,7 +253,7 @@ void WtEditor::onAssetsSave(){
 
 void WtEditor::onAssetsNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", mWorkspacePath, "Asset files (*.lua)");
+		"Save assets", mWorkspacePath, "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
@@ -270,8 +276,12 @@ void WtEditor::onAssetsNew(){
 }
 
 void WtEditor::onAssetsOpen(){
+#if 0
 	QString path = QFileDialog::getOpenFileName(this,
-		"Load assets", mWorkspacePath, "Asset files (*.lua)");
+		"Load assets", mWorkspacePath, "Asset files (*." RESOURCE_FILE_EXTENSION ")");
+#else
+	QString path = FilePicker::getFile(this, mWorkspacePath, "*." RESOURCE_FILE_EXTENSION);
+#endif
 
 	if(!path.size()){
 		return;
@@ -355,8 +365,12 @@ void WtEditor::onSceneOpen(){
 		return;
 	}
 
+#if 0
 	QString path = QFileDialog::getOpenFileName(this,
-		"Load scene", mWorkspacePath, "Scene files (*.lua)");
+		"Load scene", mWorkspacePath, "Scene files (*." SCENE_FILE_EXTENSION ")");
+#else
+	QString path = FilePicker::getFile(this, mWorkspacePath, "*." SCENE_FILE_EXTENSION);
+#endif
 
 	if(!path.size()){
 		return;
@@ -377,7 +391,7 @@ void WtEditor::onSceneSaveAs(){
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save scene", mWorkspacePath, "Scene files (*.lua)");
+		"Save scene", mWorkspacePath, "Scene files (*." SCENE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
@@ -410,7 +424,7 @@ void WtEditor::onSceneSave(){
 
 void WtEditor::onSceneNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", mWorkspacePath, "Asset files (*.lua)");
+		"Save assets", mWorkspacePath, "Scene files (*." SCENE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;

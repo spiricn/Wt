@@ -54,11 +54,11 @@ public:
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-		getAssets()->load("assets.lua");
 
-		/*SceneLoader loader(getScene(), getAssets());
-		loader.load("scene.lua");*/
-
+		Scene::GodRayParams p;
+		getScene()->getGodRayParams(p);
+		p.enabled = true;
+		getScene()->setGodRayParams(p);
 	
 #if 0
 		{

@@ -2,6 +2,7 @@
 
 #include "wt/PhysicsActor.h"
 #include "wt/PxWt.h"
+#include "wt/ASceneActor.h"
 
 #define TD_TRACE_TAG "PhysicsActor"
 
@@ -25,6 +26,10 @@ void PhysicsActor::setTranslation(const glm::vec3& translation){
 	pxConvert(translation, pose.p);
 
 	pxActor->setGlobalPose(pose, true);
+	
+	if(pxActor->isRigidStatic() && mSceneActor){
+		const_cast<ATransformable*>(mSceneActor->getTransformable())->setTranslation(translation);
+	}
 }
 
 void PhysicsActor::setRotation(const glm::quat& rotation){
@@ -34,6 +39,10 @@ void PhysicsActor::setRotation(const glm::quat& rotation){
 	pxConvert(rotation, pose.q);
 
 	pxActor->setGlobalPose(pose, true);
+
+	if(pxActor->isRigidStatic() && mSceneActor){
+		const_cast<ATransformable*>(mSceneActor->getTransformable())->setRotation(rotation);
+	}
 }
 
 void PhysicsActor::setScale(const glm::vec3& scale){

@@ -11,7 +11,7 @@ class Sound : public ASceneActor, public ATransformable{
 public:
 	Sound(Scene* parent, uint32_t id, const String& name="");
 
-	ATransformable* getTransformable();
+	const ATransformable* getTransformable() const;
 
 	SoundPtr getSound() const;
 

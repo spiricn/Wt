@@ -28,6 +28,7 @@ public:
 		eGTEX_POSITION = 0,
 		eGTEX_DIFFUSE,
 		eGTEX_NORMAL,
+		eGTEX_GODRAY,
 
 		eGTEX_MAX
 	};
@@ -74,6 +75,10 @@ public:
 	void onLightEvent(const SceneLightDeleted* evt);
 	
 	void doLightPass(Scene* scene, math::Camera* camera);
+
+	Texture2D* getGTexture(TextureType type){
+		return &mTextures[type];
+	}
 
 private:
 	Texture2D mTextures[eGTEX_MAX];

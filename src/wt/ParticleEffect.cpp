@@ -18,7 +18,7 @@ ParticleEffect::~ParticleEffect(){
 	mLayers.clear();
 }
 
-ATransformable* ParticleEffect::getTransformable(){
+const ATransformable* ParticleEffect::getTransformable() const{
 	return &mTransform;
 }
 

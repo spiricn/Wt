@@ -18,6 +18,7 @@ in vec2 fsTiledTexCoords;
 out vec3 outWorldPos;
 out vec3 outDiffuse;
 out vec3 outNormal;
+out vec4 outGodray;
 
 void main(){
 
@@ -37,5 +38,7 @@ void main(){
 
 	outNormal = normalize(fsNormal);
 
+	outGodray = vec4(0, 0, 0, 1);
+	 
 	outWorldPos = fsWorldPos;
 }

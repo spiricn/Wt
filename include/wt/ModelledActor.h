@@ -28,6 +28,8 @@ public:
 
 	Model* getModel() const;
 
+	ATransformable* getController();
+
 	void setModel(Model* model, const String& skin);
 
 	SkeletalAnimationPlayer* getAnimationPlayer() const;
@@ -48,7 +50,7 @@ public:
 	 
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque);
 
-	ATransformable* getTransformable();
+	const ATransformable* getTransformable() const;
 
 	struct DeserializationData{
 		PhysicsActor::Desc pxDesc;
