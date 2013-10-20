@@ -11,7 +11,7 @@
 
 namespace wt{
 
-Scene::Scene(Physics* physics, Assets* assets, EventManager* eventManager, lua::State* luaState) :  mSkyBox(NULL), mEventManager(eventManager),
+Scene::Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManager, lua::State* luaState) :  mSkyBox(NULL), mEventManager(eventManager),
 	mAssets(assets), mPhysics(physics), mLuaState(luaState), mDirectionalLight(NULL){
 
 	setCamera(&mDefaultCamera);

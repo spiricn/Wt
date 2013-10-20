@@ -9,7 +9,7 @@
 #define TD_TRACE_TAG "TerrainEditTool"
 
 TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager, wt::Scene* scene, wt::AResourceSystem* assets) 
-	: QDialog(parent), mSceneView(sceneView), ATool(toolManager), mScene(scene), mAssets(assets), mTerrain(NULL){
+	: QDialog(parent), mSceneView(sceneView), ATool(toolManager), mScene(scene), mAssets(assets), mTerrain(NULL), mBrushTexture(NULL){
 	ui.setupUi(this);
 	setWindowFlags(Qt::Tool);
 
@@ -43,18 +43,29 @@ void TerrainEditTool::setTarget(wt::Terrain* terrain){
 }
 
 void TerrainEditTool::onSceneLoaded(){
+	if(mBrushTexture == NULL){
+		// First scene loaded, create a brush texture
+		mBrushTexture = new wt::Texture2D;
+		mAssets->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
+
+		// TODO do this some other way
+	}
+
 	// TODO upon terrain loading scene target texture probably needs to be reloaded
 	wt::Terrain* terrain = NULL;
 	// Find terrain
 	for(wt::Scene::ActorMap::iterator iter=mScene->getActorMap().begin(); iter!=mScene->getActorMap().end(); iter++){
 		if(iter->second->getActorType() == wt::ASceneActor::eTYPE_TERRAIN){
-			mTerrain = static_cast<wt::Terrain*>(iter->second);
+			terrain = static_cast<wt::Terrain*>(iter->second);
 			break;
 		}
 	}
 
 	if(terrain){
 		setTarget(terrain);
+	}
+	else{
+		LOGW("No terrain found in scene");
 	}
 }
 
@@ -65,6 +76,11 @@ void TerrainEditTool::onSceneUnloaded(){
 
 
 void TerrainEditTool::onSaveTexture(){
+	if(mTerrain == NULL){
+		TRACEE("Target not set");
+		return;
+	}
+
 	QString path = mTerrain->getMapTexture()->getUri().c_str();
 
 	if(path.isEmpty()){
@@ -84,6 +100,11 @@ void TerrainEditTool::onSaveTexture(){
 }
 
 void TerrainEditTool::onSaveHeightmap(){
+	if(mTerrain == NULL){
+		TRACEE("Target not set");
+		return;
+	}
+
 	QString path = mTerrain->getDesc().heightmapPath.c_str();
 
 	if(path.isEmpty()){
@@ -106,8 +127,8 @@ void TerrainEditTool::onSaveHeightmap(){
 }
 
 void TerrainEditTool::onResetTexture(){
-	if(!mTerrain){
-		TRACEE("Terrain object not set");
+	if(mTerrain == NULL){
+		TRACEE("Target not set");
 		return;
 	}
 
@@ -174,18 +195,15 @@ void TerrainEditTool::onBrushActivated(){
 }
 
 void TerrainEditTool::onSceneInitialized(){
-	// TODO get this from elsewhere
-	mBrushTexture = new wt::Texture2D;
-	mAssets->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
 }
 
 void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol,
 	uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode){
-	if(!mTerrain){
-		TRACEE("Terrain object not set");
+
+	if(mTerrain == NULL){
+		TRACEE("Target not set");
 		return;
 	}
-
 
 	wt::Buffer<int16_t> samples;
 	samples.create(numRows*numCols);
@@ -250,8 +268,8 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 
 
 void TerrainEditTool::editAt(float x, float y){
-	if(!mTerrain){
-		TRACEE("Terrain object not set");
+	if(mTerrain == NULL){
+		TRACEE("Target not set");
 		return;
 	}
 

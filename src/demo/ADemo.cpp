@@ -1,10 +1,12 @@
 #include "demo/stdafx.h"
 
 #include "demo/ADemo.h"
-
+#include "wt/SceneLoader.h"
 #include "wt/AGameWindow.h"
 #include "wt/AGameInput.h"
+#include "wt/ScriptProcess.h"
 #include "demo/DemoManager.h"
+#include "wt/lua/LuaBindings.h"
 
 #define TD_TRACE_TAG "ADemo"
 
@@ -39,16 +41,22 @@ DemoManager* ADemo::getManager(){
 	return mDemoManager;
 }
 
+lua::State& ADemo::getLuaState(){
+	return mLuaState;
+}
 
 void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* input, EventManager* evtManager){
-	String configPath = getConfigFile();
+	String configPath = getScriptPath();
+
 	if(configPath.empty()){
-		mConfig->DoString(DEFAULT_CONFIG_SCRIPT);
+		LOGW("WARNING: No script file provided, using default");
+		mMainScript = mLuaState.createScriptFromString( DEFAULT_CONFIG_SCRIPT );
 	}
 	else{
-		mConfig->DoFile(configPath.c_str());
+		mMainScript = mLuaState.createScriptFromFile( configPath );
 	}
 
+	
 	mWindow = window;
 
 	mInput = input;
@@ -63,14 +71,14 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 	String typeStr;
 	String rfs;
-	if(!lua::luaConv(mConfig->GetGlobal("fileSystemType"), typeStr)){
+	if(!lua::luaConv(mMainScript->getState().Get("fileSystemType"), typeStr)){
 		type = Assets::eFS_DIR;
 	}
 	else{
 		type = typeStr.compare("DIR") == 0 ?  Assets::eFS_DIR : Assets::eFS_ZIP;
 	}
 
-	if(!lua::luaConv(mConfig->GetGlobal("fileSystemRoot"), rfs)){
+	if(!lua::luaConv(mMainScript->getState().Get("fileSystemRoot"), rfs)){
 		WT_THROW("No file system root specified!");
 	}
 
@@ -79,11 +87,11 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	// Initialize PhysX
 	mPhysics = new Physics(mEventManager);
 
-	if(mConfig->GetGlobal("usePhysxVDB").ToInteger()==1){
+	if(mMainScript->getState().Get("usePhysxVDB").ToInteger()==1){
 		try{
 			mPhysics->connectToVisualDebugger(
-				mConfig->GetGlobal("physxVDBAddress").ToString(), // address
-				mConfig->GetGlobal("physxVDBPort").ToInteger(),	// port
+				mMainScript->getState().Get("physxVDBAddress").ToString(), // address
+				mMainScript->getState().Get("physxVDBPort").ToInteger(),	// port
 				100		// timeout
 				);
 		}catch(Exception& e){
@@ -95,7 +103,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	mScene = new Scene(mPhysics, mAssets, mEventManager, getManager()->getLuaState());
 
 	String cameraMode;
-	if(!lua::luaConv(mConfig->GetGlobal("cameraMode"), cameraMode)){
+	if(!lua::luaConv(mMainScript->getState().Get("cameraMode"), cameraMode)){
 		// default value
 		cameraMode = "fps";
 	}
@@ -116,7 +124,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	mFpsCam.setCamera(&getScene()->getCamera());
 	mTpsCam.setCamera(&getScene()->getCamera());
 
-	mInput->setMouseGrabbed( mConfig->GetGlobal("mouseGrabbed").ToInteger() ? true : false );
+	mInput->setMouseGrabbed( mMainScript->getState().Get("mouseGrabbed").ToInteger() ? true : false );
 
 	{
 		// Camera configuration
@@ -124,9 +132,9 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 		glm::quat rot;
 		float speed;
 
-		lua::luaConv( mConfig->GetGlobal("cameraPosition"), pos);
-		lua::luaConv( mConfig->GetGlobal("cameraRotation"), rot);
-		if(!lua::luaConv(mConfig->GetGlobal("cameraSpeed"), speed)){
+		lua::luaConv( mMainScript->getState().Get("cameraPosition"), pos);
+		lua::luaConv( mMainScript->getState().Get("cameraRotation"), rot);
+		if(!lua::luaConv(mMainScript->getState().Get("cameraSpeed"), speed)){
 			// default
 			speed = 20.0f;
 		}
@@ -137,116 +145,29 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 		//mScene->getCamera().setRotation(rot);
 	}
 
-	mShowGrid = mConfig->GetGlobal("showGrid").ToInteger() ? true : false;
+	mShowGrid = mMainScript->getState().Get("showGrid").ToInteger() ? true : false;
 
-	//// Load level
-	//if(!getLevelFile().empty()){
-	//	lua::LuaStateOwner state;
-	//	Sp<AIOStream> stream = mAssets->getFileSystem()->open(getLevelFile(), AIOStream::eMODE_READ);
-	//	WT_ASSERT(stream->isOpen(), "Error openning demo level file \"%s\"", getLevelFile().c_str());
+	lua::LuaBindings_expose( mLuaState.getGlobals() );
 
-	//	try{
-	//		lua::doStream(state, *stream);
-	//	}catch(LuaPlus::LuaException& e){
-	//		WT_THROW("Error loading level file \"%s\" - \"%s\"", getLevelFile().c_str(), e.GetErrorMessage());
-	//	}
+	// Setup scripting lua state
+	mLuaState.expose(*getScene(), "Scene");
+	mLuaState.expose(*getEventManager(), "EventManager");
 
-	//	const LuaObject& table = state->GetGlobal("WORLD");
-	//	WT_ASSERT(table.IsTable(), "Error loading level - invalid level table");
+	String scenePath, assetsPath;
 
-	//	const LuaObject& assetsTable = table.Get("ASSETS");
+	if(lua::luaConv(mMainScript->getState().Get("loadAssets"), assetsPath)){
+		LOGD("Assets path provided, loading ...");
 
-	//	if(!assetsTable.IsTable()){
-	//		WT_THROW("Error loading level - missing assets table");
-	//	}
+		mAssets->load(assetsPath);
+	}
 
-	//	mAssets->load(assetsTable);
+	if(lua::luaConv(mMainScript->getState().Get("loadScene"), scenePath)){
+		LOGD("Scene path provided, loading ...");
 
-	//	// lights
-	//	LuaObject dirLight = table.Get("directionalLight");
-	//	if(dirLight.IsTable()){
-	//		mScene->getDirectionalLight().deserialize( dirLight );
-	//	}
+		SceneLoader loader(getScene(), getAssets());
 
-	//	LuaObject pointLights = table.Get("pointLights");
-	//	if(pointLights.IsTable()){
-	//		for(LuaPlus::LuaTableIterator iter(pointLights); iter; iter.Next()){
-	//			PointLight pointLight;
-	//			pointLight.deserialize(iter.GetValue());
-	//			mScene->addPointLight(pointLight);
-	//		}
-	//	}
-
-
-	//	// Skybox
-	//	if(table.Get("skybox").IsString()){
-	//		mScene->setSkyBox( mAssets->getSkyBoxManager()->getFromPath(table.Get("skybox").ToString()) );
-	//	}
-
-
-	//	// Terrain
-	//	if(table.Get("terrain").IsTable()){
-	//		Terrain* terrain = mScene->createTerrain();
-	//		terrain->deserialize(mAssets, table.Get("terrain"));
-	//	}
-
-	//	// Actors
-	//	for(LuaTableIterator i(table.Get("ACTORS")); i; i.Next()){
-	//		const char* name = i.GetKey().ToString();
-	//		LuaObject table = i.GetValue();
-	//		const char* type = table.Get("type").ToString();
-
-	//		if(strcmp(type, "DOODAD")==0){
-	//			ModelledActor* sceneActor = mScene->createModelledActor(name);
-
-	//			{
-	//				// Deserialize doodad
-	//				glm::quat rot;
-	//				lua::luaConv(table.Get("rot"), rot);
-	//				sceneActor->getTransform().setRotation(rot);
-
-	//				glm::vec3 pos;
-	//				lua::luaConv(table.Get("pos"), pos);
-	//				sceneActor->getTransform().setPosition(pos);
-
-	//				glm::vec3 scale;
-	//				if(!lua::luaConv(table.Get("scale"), scale)){
-	//					// default
-	//					scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	//				}
-	//				sceneActor->getTransform().setScale(scale);
-
-	//				const char* model = table.Get("model").ToString();
-
-	//				const char* skin = table.Get("skin").ToString();
-
-	//				sceneActor->setModel(
-	//					getAssets()->getModelManager()->getFromPath(model), skin);
-	//			}
-
-	//			// Create physics actor
-	//			{
-	//				PhysicsActor::Desc desc;
-
-	//				desc.pose = sceneActor->getTransform();
-
-	//				desc.type = PhysicsActor::eSTATIC_ACTOR;
-
-	//				desc.controlMode = PhysicsActor::ePHYSICS_MODE;
-
-	//				desc.geometryType = PhysicsActor::eMESH_GEOMETRY;
-	//				desc.geometryDesc.meshGeometry.model = sceneActor->getModel();
-
-	//				mScene->getPhysics()->createActor(sceneActor, desc);
-	//			}
-	//		}
-	//	}
-
-	//}
-}
-
-String ADemo::getLevelFile() const{
-	return "";
+		loader.load(scenePath);
+	}
 }
 
 void ADemo::printHelp(){
@@ -335,7 +256,7 @@ void ADemo::startDemo(){
 
 
 	bool drawFps;
-	if(!lua::luaConv(mConfig->GetGlobal("drawFps"), drawFps)){
+	if(!lua::luaConv(mMainScript->getState().Get("drawFps"), drawFps)){
 		drawFps = true;
 	}
 
@@ -368,7 +289,11 @@ void ADemo::startDemo(){
 #endif
 
 	printHelp();
-	onStart( mConfig->GetGlobals() );
+	onStart( mMainScript->getState() );
+
+	if(mMainScript->getState().Get("startProcess").GetBoolean() ){
+		getProcManager().attach( new ScriptProcess( mMainScript ) );
+	}
 }
 
 
@@ -581,7 +506,7 @@ void ADemo::onStop(){
 void ADemo::onMouseUp(float x, float y, MouseButton btn){
 }
 
-String ADemo::getConfigFile() const{
+String ADemo::getScriptPath() const{
 	return "";
 }
 

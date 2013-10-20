@@ -80,7 +80,7 @@ public:
 		return mParticleEffects;
 	}
 public:
-	Scene(Physics* physics, Assets* assets, EventManager* eventManager, lua::State* luaState);
+	Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManager, lua::State* luaState);
 
 	virtual ~Scene();
 
@@ -150,7 +150,7 @@ public:
 
 	void clear();
 
-	Assets* getAssets(){
+	AResourceSystem* getAssets(){
 		return mAssets;
 	}
 
@@ -196,7 +196,7 @@ private:
 
 	lua::State* mLuaState;
 
-	Assets* mAssets;
+	AResourceSystem* mAssets;
 
 	uint32_t generateActorId();
 

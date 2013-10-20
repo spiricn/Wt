@@ -98,7 +98,7 @@ private:
 
 public:
 	~EventTable(){
-		mEventManager->unregisterGlobalListener(this);
+		//mEventManager->unregisterGlobalListener(this);
 	}
 
 	bool handleEvent(const Sp<Event> e){

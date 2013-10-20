@@ -16,7 +16,7 @@ namespace wt
 namespace lua
 {
 
-void LuaBindings_expose(LuaObject obj){
+inline void LuaBindings_expose(LuaObject obj){
 	Scene_expose(obj);
 	ModelledActor_expose(obj);
 	Actor_expose(obj);

@@ -55,7 +55,7 @@ const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_spri
 
 Renderer::Renderer(EventManager* eventManager) : mClearColor(0.5, 0, 0, 1.0f),
 	mGodrayPass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(NULL, 0, "", Texture2D::eRECT_TEXTURE),
-	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL), mRenderAxes(true){
+	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL), mRenderAxes(false){
 
 	mEventManager->registerListener(this, SceneLightUpdated::TYPE);
 	mEventManager->registerListener(this, SceneLightDeleted::TYPE);

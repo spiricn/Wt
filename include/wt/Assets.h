@@ -35,14 +35,14 @@ namespace wt{
 
 class Assets : public AResourceSystem, public Singleton<Assets>{
 public:
-	enum FileSystemType{
-		eFS_DIR,
-		eFS_ZIP,
-	}; //</FileSystemType>
-
+	
 	Assets(FileSystemType fileSystemType, const String& fileSystemRoot);
 
+	Assets();
+
 	~Assets();
+
+	void setFileSystem(FileSystemType type, const String& rootUri);
 
 	AFileSystem* getFileSystem();
 
@@ -90,6 +90,8 @@ public:
 	void serialize(const String& path);
 
 private:
+	void init();
+
 	Profiler mProfiler;
 
 	ImageManager* mImageManager;

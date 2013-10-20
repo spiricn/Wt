@@ -26,7 +26,11 @@ public:
 
 	State(bool registerLogging=true);
 
-	ScriptPtr createScript(const char* scriptFile);
+	ScriptPtr createScriptFromFile(const String&);
+
+	ScriptPtr createScriptFromString(const String&);
+
+	ScriptPtr createScript();
 
 	void assignTable(LuaObject& obj);
 

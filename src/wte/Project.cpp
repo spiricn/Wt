@@ -14,7 +14,7 @@ void Project::removeScene(ProjectScene::Id sceneId){
 
 void Project::save(const QString& path){
 	wt::lua::State state(false);
-	wt::lua::ScriptPtr script =  state.createScript(path.toStdString().c_str());
+	wt::lua::ScriptPtr script =  state.createScriptFromFile(path.toStdString().c_str());
 
 	LuaPlus::LuaObject scenesTable;
 	state.assignTable(scenesTable);
@@ -43,7 +43,7 @@ void Project::load(const QString& path){
 	mScenes.clear();
 
 	wt::lua::State state(false);
-	wt::lua::ScriptPtr script =  state.createScript(path.toStdString().c_str());
+	wt::lua::ScriptPtr script =  state.createScriptFromFile(path.toStdString().c_str());
 
 	for(LuaPlus::LuaTableIterator iter( script->getState().Get("scenes") ); iter; iter.Next()){
 		ProjectScene* scene = new ProjectScene(this);

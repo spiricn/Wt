@@ -34,6 +34,7 @@
 #include "wt/GUI/gui.h"
 #include "wt/GUI/TextView.h"
 #include "wt/ProcessManager.h"
+#include "wt/lua/State.h"
 
 namespace wt{
 
@@ -48,45 +49,6 @@ public:
 		eCAMERA_TPS
 	};
 
-protected:
-	DemoManager* getManager();
-	
-	void createDemo(DemoManager* manager, AGameWindow* window, AGameInput* input, EventManager* evtManager);
-
-	void destroyDemo();
-
-	void startDemo();
-
-	void setName(const String& name);
-
-	void onKeyDownPriv(VirtualKey code);
-
-	void printHelpPriv();
-
-private:
-	math::FPSCameraControler mFpsCam;
-	math::TPSCameraControler mTpsCam;
-	String mName;
-	DemoManager* mDemoManager;
-	Renderer* mRenderer;
-	Physics* mPhysics;
-	Assets* mAssets;
-	Scene* mScene;
-	AGameInput* mInput;
-	AGameWindow* mWindow;
-	CameraControlMode mCameraCtrlMode;
-	bool mRunning;
-	bool mShowGrid;
-	ProcessManager mProcManager;
-	Gui::UIWindow mUi;
-	FPSCalculator mFpsCalc;
-	Gui::TextView* mFpsTextView;
-	PhysicsActor* mCamController;
-	EventManager* mEventManager;
-	LuaStateOwner mConfig;
-	bool mGuiEnabled;
-	
-public:
 	ADemo();
 
 	virtual ~ADemo();
@@ -94,6 +56,8 @@ public:
 	EventManager* getEventManager() const{
 		return mEventManager;
 	}
+
+	lua::State& getLuaState();
 
 	void update(float dt);
 
@@ -143,9 +107,48 @@ public:
 
 	virtual void onStop();
 
-	virtual String getConfigFile() const;
+	virtual String getScriptPath() const;
 
-	virtual String getLevelFile() const;
+protected:
+	DemoManager* getManager();
+	
+	void createDemo(DemoManager* manager, AGameWindow* window, AGameInput* input, EventManager* evtManager);
+
+	void destroyDemo();
+
+	void startDemo();
+
+	void setName(const String& name);
+
+	void onKeyDownPriv(VirtualKey code);
+
+	void printHelpPriv();
+
+private:
+	lua::ScriptPtr mMainScript;
+	math::FPSCameraControler mFpsCam;
+	math::TPSCameraControler mTpsCam;
+	String mName;
+
+	DemoManager* mDemoManager;
+	Renderer* mRenderer;
+	Physics* mPhysics;
+	Assets* mAssets;
+	Scene* mScene;
+
+	AGameInput* mInput;
+	AGameWindow* mWindow;
+	CameraControlMode mCameraCtrlMode;
+	bool mRunning;
+	bool mShowGrid;
+	ProcessManager mProcManager;
+	Gui::UIWindow mUi;
+	FPSCalculator mFpsCalc;
+	Gui::TextView* mFpsTextView;
+	PhysicsActor* mCamController;
+	EventManager* mEventManager;
+	lua::State mLuaState;
+	bool mGuiEnabled;
 };
 
 #define WT_DECLARE_DEMO(name) static ADemo* createDemoFunc_ ## name(){ return new name; }

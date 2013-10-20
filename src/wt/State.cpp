@@ -24,15 +24,31 @@ State::State(bool registerLogging) : mState(true /*init standard library*/){
 	);
 }
 
-ScriptPtr State::createScript(const char* scriptFile){
+
+ScriptPtr State::createScript(){
 	ScriptPtr script = new Script(this);
 	script->getState().AssignNewTable(mState);
 
 	script->getState().Set("__index", mState->GetGlobal("_G"));
 	script->getState().SetMetaTable(script->getState());
 
+	return script;
+}
 
-	if(mState->DoFile(scriptFile, script->getState()) != 0){
+ScriptPtr State::createScriptFromString(const String& scriptCode){
+	ScriptPtr script = createScript();
+
+	if(mState->DoString(scriptCode.c_str(), script->getState()) != 0){
+		WT_THROW("Error executing script \"%s\"", getErrorString().c_str());
+	}
+
+	return script;
+}
+
+ScriptPtr State::createScriptFromFile(const String& scriptFile){
+	ScriptPtr script = createScript();
+
+	if(mState->DoFile(scriptFile.c_str(), script->getState()) != 0){
 		WT_THROW("Error executing script \"%s\"", getErrorString().c_str());
 	}
 

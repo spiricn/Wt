@@ -48,6 +48,7 @@ private:
 
 	QString mAssetsFilePath;
 	QString mSceneFilePath;
+	QString mWorkspacePath;
 	
 	bool mAssetsLoaded, mSceneLoaded;
 
@@ -60,6 +61,7 @@ private:
 
 	void clearScene();
 
+	void updateTitle();
 
 	void loadScene(const QString&);
 
@@ -98,6 +100,8 @@ protected slots:
 	void onSceneClear();
 
 	void onSceneReload();
+
+	void onWorkspaceSwitch();
 
 
 	void onOpenGLContextCreated();

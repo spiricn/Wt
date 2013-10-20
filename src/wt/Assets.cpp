@@ -7,17 +7,16 @@
 namespace wt
 {
 
-Assets::Assets(FileSystemType fileSystemType, const String& fileSystemRoot) : mRootDir(fileSystemRoot){
-	LOGD("Creating a %s file system, with \"%s\" as root",
-		fileSystemType == eFS_DIR ? "directory" : "zip", fileSystemRoot.c_str());
+Assets::Assets(FileSystemType fileSystemType, const String& fileSystemRoot) : mRootDir(""), mFileSystem(NULL){
+	init();
+	setFileSystem(fileSystemType, fileSystemRoot);
+}
 
-	if(fileSystemType == eFS_DIR){
-		mFileSystem = new LocalFileSystem(fileSystemRoot);
-	}
-	else{
-		mFileSystem = new ZipFileSystem(fileSystemRoot);
-	}
+Assets::Assets() : mRootDir(""), mFileSystem(NULL){
+	init();
+}
 
+void Assets::init(){
 	mImageManager = new ImageManager(this);
 	mTextureManager = new TextureManager(this);
 	mAnimationManager = new AnimationManager(this);
@@ -36,6 +35,25 @@ Assets::Assets(FileSystemType fileSystemType, const String& fileSystemRoot) : mR
 	mAnimationManager->setLoader( &AnimationLoader::getSingleton() );
 	mSoundManager->setLoader( &SFSoundLoader::getSingleton() );
 	mParticleManager->setLoader( NULL );
+}
+
+void Assets::setFileSystem(FileSystemType type, const String& rootUri){
+	mRootDir = rootUri;
+
+	if(mFileSystem){
+		delete mFileSystem;
+		mFileSystem = NULL;
+	}
+
+	LOGD("Creating a %s file system, with \"%s\" as root",
+		type == eFS_DIR ? "directory" : "zip", mRootDir.c_str());
+
+	if(type == eFS_DIR){
+		mFileSystem = new LocalFileSystem(rootUri);
+	}
+	else{
+		mFileSystem = new ZipFileSystem(rootUri);
+	}
 }
 
 void Assets::deserialize(const LuaObject& assets){
@@ -161,7 +179,11 @@ void Assets::load(const String& path){
 		WT_THROW("Error executing asset script");
 	}
 #else
-	Sp<AIOStream> stream = mFileSystem->open(path, AIOStream::eMODE_READ);
+	WT_ASSERT(mFileSystem, "No file system set");
+
+	String relativePath = utils::toRelative(mRootDir, path);
+
+	Sp<AIOStream> stream = mFileSystem->open(relativePath, AIOStream::eMODE_READ);
 	try{
 		lua::doStream(state, *(stream.get()));
 	}catch(...){
@@ -198,12 +220,14 @@ void Assets::serialize(const String& path){
 
 	serialize(assets);
 
-	FileIOStream file(path.c_str(), AIOStream::eMODE_WRITE);
+	WT_ASSERT(mFileSystem, "No file system set");
 
-	file.print("ASSETS=");
-	lua::serializeTable(assets, file);
+	String relativePath = utils::toRelative(mRootDir, path);
 
-	file.close();
+	StreamPtr stream = mFileSystem->open(relativePath, AIOStream::eMODE_WRITE);
+
+	stream->print("ASSETS=");
+	lua::serializeTable(assets, *stream.get());
 }
 
 Assets::~Assets(){
@@ -212,7 +236,9 @@ Assets::~Assets(){
 	delete mModelManager;
 	delete mSkyBoxManager;
 	delete mAnimationManager;
-	delete mFileSystem;
+	if(mFileSystem){
+		delete mFileSystem;
+	}
 	delete mParticleManager;
 	delete mSoundManager;
 }

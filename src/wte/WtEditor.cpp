@@ -14,8 +14,7 @@ using namespace std;
 
 WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	: QMainWindow(parent, flags), mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false),
-	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState),
-	mAssets(wt::Assets::eFS_DIR, "D:\\Documents\\prog\\c++\\workspace\\Wt\\workspace\\"), mRenderer(&mEventManager){
+	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState), mRenderer(&mEventManager){
 
 	ui.setupUi(this);
 
@@ -71,6 +70,13 @@ void WtEditor::onOpenGLContextCreated(){
 	LOG("OpenGL context created");
 
 	showMaximized();
+
+#if 0
+	// Debug scene/assets
+	loadAssets("workspace/assets.lua");
+
+	loadScene("workspace/scene.lua");
+#endif
 }
 
 WtEditor::~WtEditor(){
@@ -127,14 +133,12 @@ void WtEditor::loadAssets(const QString& path){
 	unloadAssets();
 
 	mAssetsFilePath = path;
-	setWindowTitle(path);
-
-	//ui.sceneView->makeCurrent();
+	
+	updateTitle();
 
 	LuaPlus::LuaStateOwner state;
-	state->DoFile(path.toStdString().c_str());
-
 	try{
+		state->DoFile(path.toStdString().c_str());
 		mAssets.load( state->GetGlobal("ASSETS") );
 	}catch(...){
 		QMessageBox::critical(this, "Error", "Error loading assets from \"" + path + "\"");
@@ -143,7 +147,39 @@ void WtEditor::loadAssets(const QString& path){
 
 	mAssetsLoaded = true;
 
+	// Destroy all resource tab items & unload all resources
+	for(TabList::iterator i=mTabs.begin(); i!=mTabs.end(); i++){
+		(*i)->refreshAll();
+	}
+
 	LOGD("Resources loaded OK");
+}
+
+void WtEditor::updateTitle(){
+	ui.statusBar->showMessage( mWorkspacePath + " " + mAssetsFilePath + " " + mSceneFilePath );
+}
+
+void WtEditor::onWorkspaceSwitch(){
+	if(!askYesNo(this, "Warning: All unsaved assets/scenes are going to be lost. Switch workspace?")){
+		return;
+	}
+
+	QString dir = QFileDialog::getExistingDirectory(this, "Browse workspace");
+
+	if(!dir.size()){
+		return;
+	}
+
+	// TODO fix this in the file system class
+	dir = dir + "/";
+
+	unloadAssets();
+
+	mAssets.setFileSystem(wt::AResourceSystem::eFS_DIR, dir.toStdString().c_str());
+
+	mWorkspacePath = dir;
+
+	updateTitle();
 }
 
 void WtEditor::unloadAssets(){
@@ -182,7 +218,7 @@ void WtEditor::onAssetsSaveAs(){
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", "", "Asset files (*.lua)");
+		"Save assets", mWorkspacePath, "Asset files (*.lua)");
 
 	if(!path.size()){
 		return;
@@ -211,7 +247,7 @@ void WtEditor::onAssetsSave(){
 
 void WtEditor::onAssetsNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", "", "Asset files (*.lua)");
+		"Save assets", mWorkspacePath, "Asset files (*.lua)");
 
 	if(!path.size()){
 		return;
@@ -235,7 +271,7 @@ void WtEditor::onAssetsNew(){
 
 void WtEditor::onAssetsOpen(){
 	QString path = QFileDialog::getOpenFileName(this,
-		"Load assets", "", "Asset files (*.lua)");
+		"Load assets", mWorkspacePath, "Asset files (*.lua)");
 
 	if(!path.size()){
 		return;
@@ -296,11 +332,19 @@ void WtEditor::onAssetsReload(){
 	QString scenePath = mSceneFilePath;
 	QString assetsPath = mAssetsFilePath;
 
+	bool sceneLoaded = mSceneLoaded;
+
 	// Unload resources / scene
 	unloadAssets();
 
 	loadAssets(assetsPath);
-	loadScene(scenePath);
+
+	// Load scene if there was one
+	if(sceneLoaded){
+		loadScene(scenePath);
+	}
+
+	updateTitle();
 
 	LOGD("Everything reloaded OK");
 }
@@ -312,7 +356,7 @@ void WtEditor::onSceneOpen(){
 	}
 
 	QString path = QFileDialog::getOpenFileName(this,
-		"Load scene", "", "Scene files (*.lua)");
+		"Load scene", mWorkspacePath, "Scene files (*.lua)");
 
 	if(!path.size()){
 		return;
@@ -333,7 +377,7 @@ void WtEditor::onSceneSaveAs(){
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save scene", "", "Scene files (*.lua)");
+		"Save scene", mWorkspacePath, "Scene files (*.lua)");
 
 	if(!path.size()){
 		return;
@@ -366,7 +410,7 @@ void WtEditor::onSceneSave(){
 
 void WtEditor::onSceneNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", "", "Asset files (*.lua)");
+		"Save assets", mWorkspacePath, "Asset files (*.lua)");
 
 	if(!path.size()){
 		return;

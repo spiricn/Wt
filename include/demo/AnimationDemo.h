@@ -17,7 +17,6 @@ class AnimationDemo : public ADemo{
 private:
 	ModelledActor* mActor;
 	CameraAnimation mCameraAnimation;
-	EventTable<AnimationDemo> mEventTable;
 	Gui::ProgressView* mAniProgress;
 #if RECORDER_ENABLED
 	CameraAnimationBuilder mb;
@@ -37,9 +36,9 @@ public:
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		mCameraAnimation.update(dt);
+		/*mCameraAnimation.update(dt);
 
-		mAniProgress->setProgress( mCameraAnimation.getProgress()*100.0f );
+		mAniProgress->setProgress( mCameraAnimation.getProgress()*100.0f );*/
 	}
 
 	void onMouseDown(float x, float y, MouseButton btn){
@@ -68,23 +67,9 @@ public:
 
 
 	void onStart(const LuaObject& config){
-		mEventTable.init(this, getEventManager());
-
-		getCameraControl()->setCamera(&getScene()->getCamera());
-
-		// Create scene actor
-		mActor = getScene()->createModelledActor();
-		mActor->setModel(getAssets()->getModelManager()->find("character"), "default");
-
-		mActor->getAnimationPlayer()->play("stand", true);
-
-		mActor->getTransformable()->setTranslation(glm::vec3(200, 0, 200));
-		mActor->getTransformable()->setScale(glm::vec3(10, 10, 10));
-
-		// Load camera animation
-		Animation* ani = getAssets()->getAnimationManager()->create("ani_demo_animation");
-		FileIOStream stream("assets/demo/AnimationDemo/camera_animation.wta", AIOStream::eMODE_READ);
-		getAssets()->getAnimationManager()->getLoader()->load(&stream, ani);
+		//// Create scene actor
+		mActor = dynamic_cast<ModelledActor*>( getScene()->findActorByName("actor") );
+		TD_ASSERT(mActor != NULL);
 
 		setupGUI();
 	}
@@ -93,12 +78,11 @@ public:
 		getRenderer()->setRenderBones( ((Gui::Checkbox*)getUi().findView("renderBonesCb"))->isChecked() );
 	}
 
-	bool onPlayAnimation(const Sp<Event>){
+	void onPlayAnimation(){
 		mCameraAnimation = CameraAnimation(  getAssets()->getAnimationManager()->find("ani_demo_animation"), &getScene()->getCamera());
-		return false;
 	}
 
-	bool onNextAnimation(const Sp<Event>){
+	void onNextAnimation(){
 		if(mActor->getAnimationPlayer()->getCurrentAnimation()){
 			String currentAnimation = mActor->getAnimationPlayer()->getCurrentAnimation()->getAnimation()->getName();
 
@@ -117,25 +101,17 @@ public:
 				mActor->getModel()->getAnimations().begin()->second, true);
 		}
 
-
-		return false;
 	}
-
-	String getConfigFile() const{
-		return "assets/AnimationDemoConfig.lua";
+		
+	String getScriptPath() const{
+		return "workspace/demos/animation_demo/main.lua";
 	}
-
-	String getLevelFile() const{
-		return "assets/demo/AnimationDemo/level.lua";
-		//return "world.lua";
-	}
-
 
 	void onAnimationSpeedChanged(){
 		
 		float factor = ((Gui::SliderView*)getUi().findView("animSpeedSlider"))->getValue()/100.0f;
 
-		mActor->getAnimationPlayer()->setSpeed( factor );
+		mActor->getAnimationPlayer()->setSpeed( factor * 2 );
 	}
 
 	void setupGUI(){
@@ -149,8 +125,9 @@ public:
 			v->setText("Next animation");
 			v->setGridLocation(19, 0, 1, 2);
 
-			mEventTable.registerCallback(Gui::ButtonClickedEvent::TYPE,
-				&AnimationDemo::onNextAnimation, v->getId());
+			getEventManager()->registerCallback(
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onNextAnimation), Gui::ButtonClickedEvent::TYPE, true, v->getId()
+				);
 		}
 
 		{
@@ -160,8 +137,9 @@ public:
 			v->setText("Play animation");
 			v->setGridLocation(19, 2, 1, 2);
 
-			mEventTable.registerCallback(Gui::ButtonClickedEvent::TYPE,
-				&AnimationDemo::onPlayAnimation, v->getId());
+			getEventManager()->registerCallback(
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onPlayAnimation), Gui::ButtonClickedEvent::TYPE, true, v->getId()
+				);
 		}
 
 		{
@@ -177,8 +155,9 @@ public:
 			v->setText("Show bones");
 			v->setGridLocation(19, 6, 1, 2);
 
-			mEventTable.registerCallback(Gui::CheckboxClickedEvent::TYPE,
-				&AnimationDemo::onRenderBonesToggle, v->getId());
+			getEventManager()->registerCallback(
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onRenderBonesToggle), Gui::CheckboxClickedEvent::TYPE, true, v->getId()
+			);
 		}
 
 		{
@@ -187,8 +166,9 @@ public:
 
 			v->setGridLocation(18, 0, 1, 2);
 
-			mEventTable.registerCallback(Gui::SliderValueChangedEvent::TYPE,
-				&AnimationDemo::onAnimationSpeedChanged, v->getId());
+			getEventManager()->registerCallback(
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onAnimationSpeedChanged), Gui::SliderValueChangedEvent::TYPE, true, v->getId()
+			);
 		}
 
 		{
@@ -198,14 +178,15 @@ public:
 			v->setText("Toggle model");
 			v->setGridLocation(18, 2, 1, 2);
 
-			mEventTable.registerCallback(Gui::ButtonClickedEvent::TYPE,
-				&AnimationDemo::onToggleModel, v->getId());
+			getEventManager()->registerCallback(
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onToggleModel), Gui::ButtonClickedEvent::TYPE, true, v->getId()
+			);
 		}
 	}
 
 	void onToggleModel(){
-		static const int maxModels = 5;
-		static const char* models[maxModels] = {"character", "ghoul", "wolf", "guard", "tarantula"};
+		static const int maxModels = 1;
+		static const char* models[maxModels] = {"mage"};
 		static int currModel = 0;
 
 		currModel = (currModel+1)%maxModels;
@@ -215,7 +196,7 @@ public:
 			getAssets()->getModelManager()->find(models[currModel])->getSkins().begin()->second->getName()
 			);
 
-		onNextAnimation(0);
+		onNextAnimation();
 	}
 
 }; // </AnimationDemo>

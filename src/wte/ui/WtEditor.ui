@@ -86,6 +86,13 @@
     <addaction name="actionSceneReload"/>
     <addaction name="actionSceneClear"/>
    </widget>
+   <widget class="QMenu" name="menuWorkspace">
+    <property name="title">
+     <string>Workspace</string>
+    </property>
+    <addaction name="actionWorkspaceSwitch"/>
+   </widget>
+   <addaction name="menuWorkspace"/>
    <addaction name="menuAssets"/>
    <addaction name="menuScene"/>
   </widget>
@@ -101,6 +108,7 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionAssetsSave">
    <property name="icon">
     <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
@@ -191,6 +199,16 @@
   <action name="actionAssetsClear">
    <property name="text">
     <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionWorkspaceSwitch">
+   <property name="text">
+    <string>Switch</string>
+   </property>
+  </action>
+  <action name="actionWorkspaceNew">
+   <property name="text">
+    <string>Create new</string>
    </property>
   </action>
  </widget>
@@ -391,6 +409,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionWorkspaceSwitch</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onWorkspaceSwitch()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onBtnSaveClick()</slot>
@@ -408,5 +442,6 @@
   <slot>onSceneSaveAs()</slot>
   <slot>onSceneReload()</slot>
   <slot>onSceneClear()</slot>
+  <slot>onWorkspaceSwitch()</slot>
  </slots>
 </ui>

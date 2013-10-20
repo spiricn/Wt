@@ -26,8 +26,17 @@ class AResourceManager;
 
 class AResourceSystem{
 public:
+	enum FileSystemType{
+		eFS_INVALID = -1,
+
+		eFS_DIR = 0,
+		eFS_ZIP,
+	}; //</FileSystemType>
+
 	virtual ~AResourceSystem(){
 	}
+
+	virtual void setFileSystem(FileSystemType type, const String& rootUri) = 0;
 
 	virtual lua::State* getLuastate() = 0;
 

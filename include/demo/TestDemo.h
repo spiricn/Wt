@@ -54,10 +54,10 @@ public:
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-		getAssets()->load("level1.lua");
+		getAssets()->load("assets.lua");
 
-		SceneLoader loader(getScene(), getAssets());
-		loader.load("scene.lua");
+		/*SceneLoader loader(getScene(), getAssets());
+		loader.load("scene.lua");*/
 
 	
 #if 0
@@ -103,24 +103,20 @@ public:
 #endif
 		getRenderer()->setRenderAxes(false);
 
-		// Expose objects
+		//// Expose objects
 
-		getManager()->getLuaState()->expose(*getScene(), "Scene");
-		getManager()->getLuaState()->expose(*getEventManager(), "EventManager");
+		//getManager()->getLuaState()->expose(*getScene(), "Scene");
+		//getManager()->getLuaState()->expose(*getEventManager(), "EventManager");
 
-		lua::LuaBindings_expose(getManager()->getLuaState()->getGlobals());
+		//lua::LuaBindings_expose(getManager()->getLuaState()->getGlobals());
 
-		// Create script process
-		lua::ScriptPtr mainScript;
-		getProcManager().attach( new ScriptProcess( mainScript = getManager()->getLuaState()->createScript("workspace/assets/scripts/main.lua") ) );
+		//// Create script process
+		//lua::ScriptPtr mainScript;
+		//getProcManager().attach( new ScriptProcess( mainScript = getManager()->getLuaState()->createScript("workspace/assets/scripts/main.lua") ) );
 	}
 
-	String getConfigFile() const{
-		return "assets/TestDemoConfig.lua";
-	}
-
-	String getLevelFile() const{
-		return "";
+	String getScriptPath() const{
+		return "assets/demo/TestDemo/main.lua";
 	}
 
 }; // </TestDemo>
