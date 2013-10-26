@@ -12,7 +12,7 @@ namespace wt{
 
 
 
-namespace Gui{
+namespace gui{
 
 using namespace gl;
 
@@ -400,7 +400,7 @@ public:
 };
 
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>
 

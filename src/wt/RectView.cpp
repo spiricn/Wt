@@ -1,15 +1,15 @@
 #include "wt/stdafx.h"
 
-#include "wt/Gui/RectView.h"
+#include "wt/gui/RectView.h"
 
 #define TD_TRACE_TAG "RectView"
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 const EvtType RectViewClickedEvent::TYPE = "RectViewClicked";
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>

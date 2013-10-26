@@ -4,18 +4,18 @@
 
 #include "wt/stdafx.h"
 
-#include "wt/Gui/Canvas.h"
+#include "wt/gui/Canvas.h"
 #include "wt/HashedString.h"
 #include "wt/EventManager.h"
 #include "wt/AGameInput.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace Gui{
+namespace gui
+{
 
 using namespace gl;
-
-class UIWindow;
 
 #define DIRTY setDirty(true);
 
@@ -41,7 +41,7 @@ public:
 
 
 class View{
-friend class UIWindow;
+friend class Window;
 public:
 
 	struct GridLocation{
@@ -300,7 +300,7 @@ public:
 
 }; // </View>
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>
 

@@ -40,6 +40,7 @@ public:
 
 	void onRender(float dt){
 		getRenderer()->render( *getScene() );
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
 	void onMouseMotion(const MouseMotionEvent* evt){
@@ -53,11 +54,11 @@ public:
 
 
 		if(!mProgressBarPaused){
-			if(math::random() > 0.9){
-				mProgress = fmod(mProgress + math::random()*100*dt, 100.0f);
-			}
-		
-			((Gui::ProgressView*)getUi().findView("PROGRESS_VIEW"))->setProgress(mProgress );
+			mProgress = fmod(mProgress + 10*dt, 100.0f);
+
+			getScene()->getCamera().setRotation( glm::angleAxis( (mProgress/100.0f)*360.0f, glm::vec3(0, 1, 0)) );
+
+			((gui::ProgressView*)getUi().findView("PROGRESS_VIEW"))->setProgress(mProgress );
 		}
 	}
 
@@ -69,56 +70,56 @@ public:
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
 
-		Gui::Button* btn;
+		gui::Button* btn;
 		
 		getUi().setGridSize(20, 10);
-		getUi().setDefaultScaleMode(Gui::View::eGRID);
+		getUi().setDefaultScaleMode(gui::View::eGRID);
 		
 		{
-			btn = getUi().createView<Gui::Button>();
+			btn = getUi().createView<gui::Button>();
 			btn->setGridLocation(2, 2, 1, 2);
 			btn->setText("Change color");
 			
 
 			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnClicked), Gui::ButtonClickedEvent::TYPE, true, btn->getId()
+				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
 				);
 		}
 
 		{
 			
-			btn = getUi().createView<Gui::Button>("");
+			btn = getUi().createView<gui::Button>("");
 
 			btn->setGridLocation(4, 2, 1, 2);
 			btn->setText("Nudge");
 
 			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnNudgeClicked), Gui::ButtonClickedEvent::TYPE, true, btn->getId()
+				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnNudgeClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
 				);
 		}
 
 		{
-			btn = getUi().createView<Gui::Button>();
+			btn = getUi().createView<gui::Button>();
 			btn->setGridLocation(6, 2, 1, 2);
 			btn->setText("Stop demo");
 
 			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnStopClicked), Gui::ButtonClickedEvent::TYPE, true, btn->getId()
+				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnStopClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
 				);
 		}
 
 		{
-			btn = getUi().createView<Gui::Button>();
+			btn = getUi().createView<gui::Button>();
 			btn->setGridLocation(8, 2, 1, 2);
 			btn->setText("Toast !");
 
 			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onToast), Gui::ButtonClickedEvent::TYPE, true, btn->getId()
+				new MemberCallback<GuiDemo>(this, &GuiDemo::onToast), gui::ButtonClickedEvent::TYPE, true, btn->getId()
 				);
 		}
 
 		{
-			Gui::ProgressView* v = getUi().createView<Gui::ProgressView>("PROGRESS_VIEW");
+			gui::ProgressView* v = getUi().createView<gui::ProgressView>("PROGRESS_VIEW");
 
 			v->setGridLocation(10, 2, 1, 2);
 			v->setDrawProgress(true);
@@ -126,7 +127,7 @@ public:
 		}
 		{
 			
-			Gui::TextView* v = getUi().createView<Gui::TextView>("text");
+			gui::TextView* v = getUi().createView<gui::TextView>("text");
 			v->setGridLocation(3, 5, 12, 4);
 			v->setBackgroundColor(Color::Gray());
 			v->setTextColor(Color::Black());
@@ -136,33 +137,46 @@ public:
 
 		{
 			
-			Gui::TextView* v = getUi().createView<Gui::TextView>("clr_text");
+			gui::TextView* v = getUi().createView<gui::TextView>("clr_text");
 			v->setGridLocation(2, 5, 1, 4);
-			v->setScalingMode(Gui::TextView::eAUTO);
+			v->setScalingMode(gui::TextView::eAUTO);
 			v->setBackgroundColor(Color::White());
 			v->setText("Current text color: default");
 			v->setTextColor(Color::Black());
 		}
 		{
 			
-			Gui::SliderView* v = getUi().createView<Gui::SliderView>("slider");
+			gui::SliderView* v = getUi().createView<gui::SliderView>("slider");
 			
 			v->setGridLocation(12, 2, 1, 2);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onSliderChanged), Gui::SliderValueChangedEvent::TYPE, true, v->getId()
+				new MemberCallback<GuiDemo>(this, &GuiDemo::onSliderChanged), gui::SliderValueChangedEvent::TYPE, true, v->getId()
 				);
 		}
 
 		{
-			Gui::Checkbox* v = getUi().createView<Gui::Checkbox>("cb");
-			v->setText("Progress bar paused");
+			gui::Checkbox* v = getUi().createView<gui::Checkbox>("cb");
+			v->setText("Camera rotation paused");
 			v->setGridLocation(14, 2, 1, 2);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onCheckboxClicked), Gui::CheckboxClickedEvent::TYPE, true, v->getId()
+				new MemberCallback<GuiDemo>(this, &GuiDemo::onCheckboxClicked), gui::CheckboxClickedEvent::TYPE, true, v->getId()
 				);
 		}
+
+		{
+			
+			gui::SliderView* v = getUi().createView<gui::SliderView>("camera_slider");
+			
+			v->setGridLocation(16, 2, 1, 2);
+
+			getEventManager()->registerCallback(
+				new MemberCallback<GuiDemo>(this, &GuiDemo::rotateCamera), gui::SliderValueChangedEvent::TYPE, true, v->getId()
+				);
+		}
+
+
 		getRenderer()->setClearColor( Color::Black() );
 
 		getManager()->getInput()->setMouseGrabbed(false);
@@ -173,14 +187,14 @@ public:
 	}
 
 	void onSliderChanged(){
-		float val = ((Gui::SliderView*)getUi().findView("slider"))->getValue()/100.0f;
+		float val = ((gui::SliderView*)getUi().findView("slider"))->getValue()/100.0f;
 
 		setColor(Color::fromHSV(val, 0.5, 0.5));
 	}
 
 	void onToast(){
 		getProcManager().attach(
-			(new Toast(&getUi(), glm::vec2(500, 100), glm::vec2(500, 500), getAssets()->getTextureManager()->find("toast_test")))
+			(new Toast(&getUi(), glm::vec2(500, 100), glm::vec2(500, 500), getAssets()->getTextureManager()->find("toasty")))
 			->setDuration(1)
 			->setFadeInTime(0.3)
 			->setFadeOutTime(0.3)
@@ -193,7 +207,7 @@ public:
 	}
 
 	void onBtnNudgeClicked(){
-		Gui::View* v = getUi().findView("text");
+		gui::View* v = getUi().findView("text");
 		
 		v->setPosition(v->getPosition() + glm::vec2(-5 + math::random()*10, -5 + math::random()*10) );
 	}
@@ -202,20 +216,23 @@ public:
 		String t = "Current text color: ";
 		t.append(clr.hex());
 
-		((Gui::TextView*)getUi().findView("clr_text"))->setText(t);
-		((Gui::TextView*)getUi().findView("text"))->setTextColor(clr);
+		((gui::TextView*)getUi().findView("clr_text"))->setText(t);
+		((gui::TextView*)getUi().findView("text"))->setTextColor(clr);
+	}
+
+	void rotateCamera(){
+		float val = dynamic_cast<gui::SliderView*>(getScene()->getUIWindow()->findView("camera_slider"))->getValue()/100.0f;
+
+		
+		getScene()->getCamera().setRotation( glm::angleAxis(val*360.0f, glm::vec3(0, 1, 0)) );
 	}
 
 	void onBtnClicked(){	
 		setColor(Color::random());
 	}
 
-	String getConfigFile() const{
-		return "";
-	}
-
-	String getLevelFile() const{
-		return "assets/demo/GuiDemo/level.lua";
+	String getScriptPath() const{
+		return "assets/GuiDemoConfig.lua";
 	}
 
 }; // </GuiDemo>

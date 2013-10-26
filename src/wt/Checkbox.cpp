@@ -1,15 +1,15 @@
 #include "wt/stdafx.h"
 
-#include "wt/Gui/Checkbox.h"
+#include "wt/gui/Checkbox.h"
 
 #define TD_TRACE_TAG "Checkbox"
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 const EvtType CheckboxClickedEvent::TYPE = "CheckboxClicked";
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>

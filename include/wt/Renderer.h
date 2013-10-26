@@ -28,7 +28,13 @@
 #include "wt/EventManager.h"
 
 
-namespace wt{
+namespace wt
+{
+
+namespace gui
+{
+	class Window;
+} // </gui>
 
 class DeferredRender;
 
@@ -137,6 +143,10 @@ private:
 
 	/** Render actor's bone and all its predecessors recursivley (used for debugging */
 	void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bone);
+
+	void godrayPass(Scene& scene);
+
+	void render(Scene& scene, gui::Window* window);
 
 private:
 	math::MatrixStack mMatStack;

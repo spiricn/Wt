@@ -468,6 +468,8 @@ void DeferredRender::doLightPass(Scene* scene, math::Camera* camera){
     gl( DepthMask(GL_FALSE) );
 	gl( Enable(GL_STENCIL_TEST ));
 
+	
+
 	for(Scene::PointLightSet::const_iterator iter=scene->getPointLightSet().cbegin(); iter!=scene->getPointLightSet().cend(); iter++){
 		const PointLight* light = *iter;
 		if(light->getDesc().enabled){
@@ -475,7 +477,7 @@ void DeferredRender::doLightPass(Scene* scene, math::Camera* camera){
 			pointLightPass(scene, camera, *iter);
 		}
 	}
-
+	
 	// The directional light does not need a stencil test because its volume
     // is unlimited and the final pass simply copies the texture.
 

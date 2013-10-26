@@ -4,6 +4,7 @@
 #include "wt/DevilImageLoader.h"
 #include "wt/RenderBuffer.h"
 #include "wt/Singleton.h"
+#include "wt/gui/Window.h"
 
 
 #include "wt/ParticleRenderer.h"
@@ -788,6 +789,8 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	mNumRenderedTerrainNodes = 0;
 	gl( PolygonMode(GL_FRONT_AND_BACK, mRenderState.polygonMode) );
 
+	
+
 	gl( Enable(GL_DEPTH_TEST) );
 	//glDisable(GL_BLEND);
 
@@ -804,7 +807,7 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	// Only geometry pass writes to the depth buffer
 	gl( DepthMask(true) );
 	gl( Enable(GL_DEPTH_TEST) );
-
+	
 	// Setup the renderer
 	mDeferredRenderer->startFrame();
 
@@ -828,7 +831,7 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	gl( DrawBuffers(1, drawBuffers) );
 	gl( Disable(GL_BLEND) );
 	gl( Enable(GL_DEPTH_TEST) );
-
+	
 	// Render the non-deferred geometry
 	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
 		if(!(*iter)->isDeferred()){
@@ -890,89 +893,72 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	gl::FrameBuffer::unbind();
 }
 
-void Renderer::render(Scene& scene, RenderTarget* target){
-	setClearColor(mClearColor);
-
-	glm::mat4 modelview;
-	scene.getCamera().getCameraMatrix(modelview);
-
-	modelview[3][0] = 0.0f;
-	modelview[3][1] = 0.0f;
-	modelview[3][2] = 0.0f;
+void Renderer::godrayPass(Scene& scene){
+	// TODO this code should be moved elsewhere (a separate GodrayRenderer class perhaps?)
 
 	Scene::GodRayParams godrayParams;
 	scene.getGodRayParams(godrayParams);
-	
-	glm::vec4 viewport(0, 0, mViewPort.x, mViewPort.y);
-	glm::vec3 sunScreenPos = glm::project(godrayParams.sourcePosition, modelview, scene.getCamera().getProjectionMatrix(), viewport);
-	bool sunVisible = sunScreenPos.x >= 0.0f && sunScreenPos.y >= 0.0f && sunScreenPos.x <= mViewPort.x && sunScreenPos.y <= mViewPort.y;
 
-	// TODO refactor this
-
-	TRACED("%d", sunVisible);
-	
-
-	{ 
-		if(!target){
-			// Default framebuffer
-			gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
-
-			GLint doubleBuffered; 
-			gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
-
-			GLenum defaultBfrs[1];
-			defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
-
-			gl( DrawBuffers(1, defaultBfrs) );
-		}
-		else{
-			target->bind();
-		}
-
-
-		gl( Clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) );
-		
-		gl( Enable(GL_CULL_FACE) );
-		gl( Disable(GL_BLEND) );
-		render(scene, ARenderer::ePASS_NORMAL);
+	if(!godrayParams.enabled){
+		return;
 	}
 
-	if(godrayParams.enabled){ 
-		// pass 1 (render scene without textures/lighting)
-		mGodrayFBO.bind(gl::FrameBuffer::eMODE_DRAW);
+	// Sceen view matrix
+	glm::mat4 viewMatrix;
+	scene.getCamera().getCameraMatrix(viewMatrix);
 
+	viewMatrix[3][0] = 0.0f;
+	viewMatrix[3][1] = 0.0f;
+	viewMatrix[3][2] = 0.0f;
+
+	// Rendering viewport
+	glm::vec4 viewport(0, 0, mViewPort.x, mViewPort.y);
+
+	// Position of the source on the screen
+	glm::vec3 sourceScreenPos = glm::project(godrayParams.sourcePosition, viewMatrix, scene.getCamera().getProjectionMatrix(), viewport);
+
+	// Is the source visible ?
+	bool sunVisible = sourceScreenPos.x >= 0.0f && sourceScreenPos.y >= 0.0f && sourceScreenPos.x <= mViewPort.x && sourceScreenPos.y <= mViewPort.y;
+
+
+	
+
+	// Pass 1
+	{
+		// Setup FBO
+		mGodrayFBO.bind(gl::FrameBuffer::eMODE_DRAW);
 		const GLenum pass1Buffers[] = {GL_COLOR_ATTACHMENT0};
 		gl( DrawBuffers(1, pass1Buffers) );
 
+		// Draw background
 		setClearColor(godrayParams.rayColor);
 		gl( Clear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT) );
 
-		// draw sun
+		// Setup source GL params
 		gl( Enable(GL_BLEND) );
 		gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
 		gl( BlendEquation(GL_FUNC_ADD) );
-		//gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
 
 		gl( Enable(GL_POINT_SPRITE) );
 		gl( Enable(GL_PROGRAM_POINT_SIZE) );
 
+		// Setup source shader
 		mGodraySunShader.use();
-		glColor3f(1, 0, 0);
-		//glm::mat4 sunViewMat;
-		//scene.getCamera().getMatrix(sunViewMat, 1);
+
 		mGodraySunShader.setUniformVal("uModelMat", glm::translate(godrayParams.sourcePosition));
-		mGodraySunShader.setUniformVal("uViewMat", modelview);
+		mGodraySunShader.setUniformVal("uViewMat", viewMatrix);
 		mGodraySunShader.setUniformVal("uProjMat", scene.getCamera().getProjectionMatrix());
 		mGodraySunShader.setUniformVal("uSunSize", godrayParams.sourceSize);
 		mGodraySunShader.setUniformVal("uPlanetTexture", 0);
 		mGodraySunShader.setUniformVal("uSourceColor", godrayParams.sourceColor);
 
-
 		gl( ActiveTexture(GL_TEXTURE0) );
+
 		if(godrayParams.sourceTexture){
 			godrayParams.sourceTexture->bind();
 		}
 		else{
+			// Use default source texture if none is provided
 			mGodraySunTexture.bind();
 		}
 
@@ -980,18 +966,13 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 			godrayParams.sourceColor.green,
 			godrayParams.sourceColor.blue,
 			godrayParams.sourceColor.alpha
-			) );
+		));
 
+		// Render the source
 		mSunBatch.render();
 
-		
-
-#if 0
-		// render the entire scene (without textures and lighting)
-		gl( Enable(GL_CULL_FACE) );
-		render(scene, ARenderer::ePASS_GODRAY);
-#endif
-
+		// Use the godray texture from the deferred renderer to render entire
+		// scene on top of the source/background previously rendered
 
 		gl( Enable(GL_BLEND) );
 		gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
@@ -999,40 +980,101 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 
 		render(mDeferredRenderer->getGTexture(DeferredRender::eGTEX_GODRAY), mViewPort, 0, 0, mViewPort.x, mViewPort.y, Color::White(), true);
 
-		//mGodrayPass1.dump("pass1.bmp");
+	#if 0
+		// Debug dump of the first pass
+		mGodrayPass1.dump("godray_pass1.bmp");
+	#endif
+	}
 
-		// pass 2 (do the 2D post processing effect)
+	// We now have a rendered background (solid color), a rendered source (provided texture) 
+	// and the entire scene rendered in single color on top of it, so we are ready to do
+	// the actual post-processing effect
 
-		const GLenum pass2Buffers[] = {GL_COLOR_ATTACHMENT1};
-		gl( DrawBuffers(1, pass2Buffers) );
+	const GLenum pass2Buffers[] = {GL_COLOR_ATTACHMENT1};
+	gl( DrawBuffers(1, pass2Buffers) );
 
-		mGodRayShader.use();
+	gl( ActiveTexture(GL_TEXTURE0) );
+	mGodrayPass1.bind();
 
-		// pass 1 result texture
-		gl( ActiveTexture(GL_TEXTURE0) );
-		mGodrayPass1.bind();
+	// Setup post-processing shader
+	mGodRayShader.use();
+	mGodRayShader.setUniformVal("uExposure", godrayParams.exposure);
+	mGodRayShader.setUniformVal("uDecay", godrayParams.decay);
+	mGodRayShader.setUniformVal("uDensity", godrayParams.density);
+	mGodRayShader.setUniformVal("uWeight", godrayParams.weight);
+	mGodRayShader.setUniformVal("uNumSamples", (int)godrayParams.sampleNumber);
+	mGodRayShader.setUniformVal("uRectImage", 0);
+	mGodRayShader.setUniformVal("uLightPositionOnScreen", glm::vec2(sourceScreenPos.x, sourceScreenPos.y));
+	mGodRayShader.setUniformVal("uMVPMat", glm::ortho(
+		0.0f, mViewPort.x, 0.0f, mViewPort.y));
 
-		mGodRayShader.use();
-		mGodRayShader.setUniformVal("uExposure", godrayParams.exposure);
-		mGodRayShader.setUniformVal("uDecay", godrayParams.decay);
-		mGodRayShader.setUniformVal("uDensity", godrayParams.density);
-		mGodRayShader.setUniformVal("uWeight", godrayParams.weight);
-		mGodRayShader.setUniformVal("uNumSamples", (int)godrayParams.sampleNumber);
+	gl( Disable(GL_BLEND) );
+	gl( Disable(GL_DEPTH_TEST) );
+	gl( Disable(GL_CULL_FACE) );
 
-		mGodRayShader.setUniformVal("uRectImage", 0);
-		mGodRayShader.setUniformVal("uLightPositionOnScreen", glm::vec2(sunScreenPos.x, sunScreenPos.y));
+	// Do the post-processing effect
+	mGodrayBatch.render();
+
+	// We now have a texture with a complete godray effect
+	// so we just have to render it on top of the normal scene
 
 
-		mGodRayShader.setUniformVal("uMVPMat", glm::ortho(
-			0.0f, mViewPort.x, 0.0f, mViewPort.y));
+	// Use default framebuffer
+	// TODO account for the RenderTarget provided in main render call
+	gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
 
-		gl( Disable(GL_BLEND) );
-		gl( Disable(GL_DEPTH_TEST) );
-		gl( Disable(GL_CULL_FACE) );
-		mGodrayBatch.render();
+	GLint doubleBuffered; 
+	gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
 
-		// pass 4 (apply post processing effect)
-			// Default framebuffer
+	GLenum defaultBfrs[1];
+	defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
+
+	gl( DrawBuffers(1, defaultBfrs) );
+
+	mRectShader.use();
+
+	gl( ActiveTexture(GL_TEXTURE0) );
+	mGodrayPass2.bind();
+
+	mRectShader.setUniformVal("uRectImage", 0);
+	mRectShader.setUniformVal("uMVPMat", glm::ortho(
+		0.0f, mViewPort.x, 0.0f, mViewPort.y));
+
+	gl( Enable(GL_BLEND) );
+	gl( BlendFunc(GL_ONE, GL_ONE) );
+	gl( Disable(GL_DEPTH_TEST) );
+		
+
+	mGodrayBatch.render();
+}
+
+void Renderer::render(Scene& scene, gui::Window* window){
+	// Draw all the elements
+	window->draw();
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+#if 0
+	window->getCanvas().getTexture()->dump("gui_dump.png");
+#endif
+
+	// Render the GUI texture on top of everything
+	render(
+		window->getCanvas().getTexture(),
+		glm::vec2(mViewPort.x, mViewPort.y),
+		0, 0, mViewPort.x, mViewPort.y
+	);
+}
+
+void Renderer::render(Scene& scene, RenderTarget* target){
+	setClearColor(mClearColor);
+	
+	if(!target){
+		// Use default framebuffer
 		gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
 
 		GLint doubleBuffered; 
@@ -1042,22 +1084,28 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
 
 		gl( DrawBuffers(1, defaultBfrs) );
+	}
+	else{
+		target->bind();
+	}
 
-		mRectShader.use();
-
-		gl( ActiveTexture(GL_TEXTURE0) );
-		mGodrayPass2.bind();
-
-		mRectShader.setUniformVal("uRectImage", 0);
-		mRectShader.setUniformVal("uMVPMat", glm::ortho(
-			0.0f, mViewPort.x, 0.0f, mViewPort.y));
-
-		gl( Enable(GL_BLEND) );
-		gl( BlendFunc(GL_ONE, GL_ONE) );
-		gl( Disable(GL_DEPTH_TEST) );
+	gl( Clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) );
 		
+	gl( Enable(GL_CULL_FACE) );
+	gl( Disable(GL_BLEND) );
 
-		mGodrayBatch.render();
+	// Render entire scene
+	//
+	// TODO this seriously needs to be optimized (calling this function with an empty scene cuts down the framerate
+	// from ~1500 to ~200
+	//
+	render(scene, ARenderer::ePASS_NORMAL);
+	
+	// Do the godray post-processing effect if enabled
+	godrayPass(scene);
+
+	if(scene.getUIWindow()){
+		render(scene, scene.getUIWindow());
 	}
 }
 

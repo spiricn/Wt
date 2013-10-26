@@ -1,12 +1,12 @@
 #ifndef WT_BUTTON_H
 #define WT_BUTTON_H
 
-#include "wt/Gui/View.h"
-#include "wt/Gui/RectView.h"
+#include "wt/gui/View.h"
+#include "wt/gui/RectView.h"
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 class Button;
 
@@ -85,7 +85,7 @@ public:
 	}
 }; // </Button>
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>
 

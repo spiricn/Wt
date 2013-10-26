@@ -3,7 +3,7 @@
 
 #include "wt/ProcessManager.h"
 #include "wt/Interpolator.h"
-#include "wt/Gui/Gui.h"
+#include "wt/gui/Window.h"
 
 namespace wt{
 
@@ -17,8 +17,8 @@ public:
 	};
 
 private:
-	Gui::UIWindow* mParent;
-	Gui::View* mView;
+	gui::Window* mParent;
+	gui::View* mView;
 	Interpolator<float> mFadeInterpolator;
 
 	State mState;
@@ -34,11 +34,11 @@ private:
 	}
 
 public:
-	Toast(Gui::UIWindow* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture) : 
+	Toast(gui::Window* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture) : 
 		mParent(parent), mState(eIDLE), mDuration(3), mFadeInTime(0.5), mFadeOutTime(2), mFadeOutVal(0.0f), mFadeInVal(.8f), mLinger(false){
 	
-		Gui::RectView* view = mParent->createView<Gui::RectView>();
-		view->setScalingMode(Gui::View::eFIXED);
+		gui::RectView* view = mParent->createView<gui::RectView>();
+		view->setScalingMode(gui::View::eFIXED);
 
 		view->setPosition(pos);
 		view->setSize(size);

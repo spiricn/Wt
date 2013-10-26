@@ -111,7 +111,7 @@ public:
 
 
 		//getUi().setGridSize(10, 20);
-		//getUi().setDefaultScaleMode(Gui::View::eGRID);
+		//getUi().setDefaultScaleMode(gui::View::eGRID);
 
 		//
 		//try{
@@ -125,12 +125,12 @@ public:
 	}
 
 	void onTargetLost(){
-		Gui::RectView* v = getUi().findView<Gui::RectView>("target");
+		gui::RectView* v = getUi().findView<gui::RectView>("target");
 		v->setBackgroundColor(Color::Blue());
 	}
 
 	void onTargetAcquired(){
-		Gui::RectView* v = getUi().findView<Gui::RectView>("target");
+		gui::RectView* v = getUi().findView<gui::RectView>("target");
 		v->setBackgroundColor(Color::Red());
 	}
 	

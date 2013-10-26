@@ -7,10 +7,10 @@
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 const EvtType ViewClickedEvent::TYPE = "ViewClicked";
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>

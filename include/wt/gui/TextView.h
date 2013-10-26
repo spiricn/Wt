@@ -3,11 +3,11 @@
 
 #include "wt/stdafx.h"
 
-#include "wt/Gui/View.h"
+#include "wt/gui/View.h"
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 
 class TextView : public View{
@@ -68,7 +68,7 @@ public:
 
 }; // </TextView>
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>
 

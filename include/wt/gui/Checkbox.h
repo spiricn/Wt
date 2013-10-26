@@ -1,11 +1,11 @@
 #ifndef WT_CHECKBOX_H
 #define WT_CHECKBOX_H
 
-#include "wt/Gui/View.h"
+#include "wt/gui/View.h"
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 class Checkbox;
 
@@ -92,7 +92,7 @@ public:
 	}
 };
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>
 

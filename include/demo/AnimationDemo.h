@@ -17,7 +17,7 @@ class AnimationDemo : public ADemo{
 private:
 	ModelledActor* mActor;
 	CameraAnimation mCameraAnimation;
-	Gui::ProgressView* mAniProgress;
+	gui::ProgressView* mAniProgress;
 #if RECORDER_ENABLED
 	CameraAnimationBuilder mb;
 #endif
@@ -75,7 +75,7 @@ public:
 	}
 
 	void onRenderBonesToggle(){
-		getRenderer()->setRenderBones( ((Gui::Checkbox*)getUi().findView("renderBonesCb"))->isChecked() );
+		getRenderer()->setRenderBones( ((gui::Checkbox*)getUi().findView("renderBonesCb"))->isChecked() );
 	}
 
 	void onPlayAnimation(){
@@ -109,77 +109,77 @@ public:
 
 	void onAnimationSpeedChanged(){
 		
-		float factor = ((Gui::SliderView*)getUi().findView("animSpeedSlider"))->getValue()/100.0f;
+		float factor = ((gui::SliderView*)getUi().findView("animSpeedSlider"))->getValue()/100.0f;
 
 		mActor->getAnimationPlayer()->setSpeed( factor * 2 );
 	}
 
 	void setupGUI(){
 		getUi().setGridSize(20, 10);
-		getUi().setDefaultScaleMode(Gui::View::eGRID);
+		getUi().setDefaultScaleMode(gui::View::eGRID);
 
 		{
 			// Animation toggle button
-			Gui::Button* v = getUi().createView<Gui::Button>("btnNextAnim");
+			gui::Button* v = getUi().createView<gui::Button>("btnNextAnim");
 
 			v->setText("Next animation");
 			v->setGridLocation(19, 0, 1, 2);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onNextAnimation), Gui::ButtonClickedEvent::TYPE, true, v->getId()
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onNextAnimation), gui::ButtonClickedEvent::TYPE, true, v->getId()
 				);
 		}
 
 		{
 			// Camera animation playback button
-			Gui::Button* v = getUi().createView<Gui::Button>();
+			gui::Button* v = getUi().createView<gui::Button>();
 
 			v->setText("Play animation");
 			v->setGridLocation(19, 2, 1, 2);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onPlayAnimation), Gui::ButtonClickedEvent::TYPE, true, v->getId()
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onPlayAnimation), gui::ButtonClickedEvent::TYPE, true, v->getId()
 				);
 		}
 
 		{
 			// Camera animation progress view
-			mAniProgress = getUi().createView<Gui::ProgressView>();
+			mAniProgress = getUi().createView<gui::ProgressView>();
 
 			mAniProgress->setGridLocation(19, 4, 1, 2);
 		}
 
 		{
 			// Render bones toggle checkbox
-			Gui::Checkbox* v = getUi().createView<Gui::Checkbox>("renderBonesCb");
+			gui::Checkbox* v = getUi().createView<gui::Checkbox>("renderBonesCb");
 			v->setText("Show bones");
 			v->setGridLocation(19, 6, 1, 2);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onRenderBonesToggle), Gui::CheckboxClickedEvent::TYPE, true, v->getId()
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onRenderBonesToggle), gui::CheckboxClickedEvent::TYPE, true, v->getId()
 			);
 		}
 
 		{
 			// Animation speed slider
-			Gui::SliderView* v = getUi().createView<Gui::SliderView>("animSpeedSlider");
+			gui::SliderView* v = getUi().createView<gui::SliderView>("animSpeedSlider");
 
 			v->setGridLocation(18, 0, 1, 2);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onAnimationSpeedChanged), Gui::SliderValueChangedEvent::TYPE, true, v->getId()
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onAnimationSpeedChanged), gui::SliderValueChangedEvent::TYPE, true, v->getId()
 			);
 		}
 
 		{
 			// Camera animation playback button
-			Gui::Button* v = getUi().createView<Gui::Button>();
+			gui::Button* v = getUi().createView<gui::Button>();
 
 			v->setText("Toggle model");
 			v->setGridLocation(18, 2, 1, 2);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onToggleModel), Gui::ButtonClickedEvent::TYPE, true, v->getId()
+				new MemberCallback<AnimationDemo>(this, &AnimationDemo::onToggleModel), gui::ButtonClickedEvent::TYPE, true, v->getId()
 			);
 		}
 	}

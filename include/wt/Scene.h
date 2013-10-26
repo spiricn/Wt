@@ -22,7 +22,14 @@
 #include "wt/EventEmitter.h"
 #include "wt/Sound.h"
 
-namespace wt{
+
+namespace wt
+{
+
+namespace gui
+{
+	class Window;
+} // </gui>
 
 class Renderer;
 
@@ -90,6 +97,8 @@ public:
 
 	Physics* getPhysics() const;
 
+	gui::Window* getUIWindow();
+
 	void deleteActor(ASceneActor* actor);
 
 	void getGodRayParams(GodRayParams& dst);
@@ -154,6 +163,8 @@ public:
 		return mAssets;
 	}
 
+	void setUIWindow(gui::Window* window);
+
 private:
 	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
 
@@ -182,6 +193,9 @@ private:
 	Fog mFog;
 	
 	Physics* mPhysics;
+
+
+	gui::Window* mUIWindow;
 
 	Sp<DirectionalLight> mDirectionalLight;
 	

@@ -110,7 +110,7 @@ void DemoManager::initialize(){
 	mEventManager = new EventManager(&mLuaState);
 
 	// game input
-	mInput = new SDLGameInput;
+	mInput = GameInputFactory::create();
 	mInput->hook(mEventManager);
 
 	// Execute init script
@@ -120,14 +120,14 @@ void DemoManager::initialize(){
 	}
 
 	// Create window (get parameters from previously executed script)
-	mWindow = new SDLGameWindow;
-	mWindow->create(AGameWindow::VideoMode(
-		initState->GetGlobal("SCREEN_WIDTH").ToInteger(),
-		initState->GetGlobal("SCREEN_HEIGHT").ToInteger(),
-		initState->GetGlobal("WINDOW_TITLE").ToString(),
-		initState->GetGlobal("VSYNC").ToInteger()==1?true:false,
-		initState->GetGlobal("FULLSCREEN").ToInteger()==1?true:false
-		)
+	mWindow = GameWindowFactory::create(
+		AGameWindow::VideoMode(
+			initState->GetGlobal("SCREEN_WIDTH").ToInteger(),
+			initState->GetGlobal("SCREEN_HEIGHT").ToInteger(),
+			initState->GetGlobal("WINDOW_TITLE").ToString(),
+			initState->GetGlobal("VSYNC").ToInteger()==1?true:false,
+			initState->GetGlobal("FULLSCREEN").ToInteger()==1?true:false
+			)
 	);
 
 	mWindow->hook(mEventManager);

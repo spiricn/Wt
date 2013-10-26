@@ -1,11 +1,11 @@
 #ifndef WT_CIRCLEVIEW_H
 #define WT_CIRCLEVIEW_H
 
-#include "wt/Gui/View.h"
+#include "wt/gui/View.h"
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 class CircleView : public View{
 private:
@@ -35,7 +35,7 @@ public:
 	}
 };
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>
 

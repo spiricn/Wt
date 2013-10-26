@@ -1,15 +1,15 @@
 #include "wt/stdafx.h"
 
-#include "wt/Gui/Button.h"
+#include "wt/gui/Button.h"
 
 #define TD_TRACE_TAG "Button"
 
 namespace wt{
 
-namespace Gui{
+namespace gui{
 
 const EvtType ButtonClickedEvent::TYPE = "ButtonClicked";
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>

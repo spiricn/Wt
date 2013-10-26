@@ -5,24 +5,26 @@
 #include "wt/stdafx.h"
 #include "wt/FrameBuffer.h"
 
-#include "wt/Gui/View.h"
-#include "wt/Gui/ProgressView.h"
-#include "wt/Gui/Button.h"
-#include "wt/Gui/RectView.h"
-#include "wt/Gui/SliderView.h"
-#include "wt/Gui/CircleView.h"
-#include "wt/Gui/Checkbox.h"
+#include "wt/gui/View.h"
+#include "wt/gui/ProgressView.h"
+#include "wt/gui/Button.h"
+#include "wt/gui/RectView.h"
+#include "wt/gui/SliderView.h"
+#include "wt/gui/CircleView.h"
+#include "wt/gui/Checkbox.h"
 
 #include "wt/EventManager.h"
 #include "wt/EventEmitter.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace Gui{
+namespace gui
+{
 
 using namespace gl;
 
-class UIWindow : public EventListener{
+class Window : public EventListener{
 private:
 	View* mFocus;
 	EventEmitter mEventEmitter;
@@ -42,7 +44,7 @@ private:
 
 
 public:
-	UIWindow() : mFocus(NULL), mHoverView(NULL), mClickView(NULL), 
+	Window() : mFocus(NULL), mHoverView(NULL), mClickView(NULL), 
 		mDefaultFont(NULL), mDragView(NULL), mNumGridRows(5), mNumGridColumns(5),
 		mDefaultScaleMode(View::eFIXED), mNeedsRescale(false), mVerticalCellSpacing(5.0f), mHorizontalCellSpacing(5.0f){
 	}
@@ -256,6 +258,8 @@ public:
 	void draw(){
 		mCanvas.getFBO().bind(FrameBuffer::eMODE_DRAW);
 
+		mCanvas.getFBO().unbind(FrameBuffer::eMODE_READ);
+
 		mCanvas.clear();
 
 		static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
@@ -268,6 +272,8 @@ public:
 		glLoadIdentity();
 
 		glm::vec2 cellSize = mCanvas.getSize() / glm::vec2(mNumGridColumns, mNumGridRows);
+
+		gl( ActiveTexture(GL_TEXTURE0) );
 
 #if 0
 		// Cell drawing for debugging purposes
@@ -332,10 +338,10 @@ public:
 		}
 #endif
 
-		mCanvas.getFBO().unbind(FrameBuffer::eMODE_DRAW);
+		mCanvas.getFBO().unbind();
 	}
 
-	~UIWindow(){
+	~Window(){
 		for(ViewMap::iterator i=mViews.begin(); i!=mViews.end(); i++){
 			delete i->second;
 		}
@@ -344,10 +350,11 @@ public:
 
 		mEventManager->unregisterListener(this);
 	}
-};
+
+}; // </Window>
 
 
-}; // </Gui>
+}; // </gui>
 
 }; // </wt>
 

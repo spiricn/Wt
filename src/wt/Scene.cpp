@@ -12,7 +12,7 @@
 namespace wt{
 
 Scene::Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManager, lua::State* luaState) :  mSkyBox(NULL), mEventManager(eventManager),
-	mAssets(assets), mPhysics(physics), mLuaState(luaState), mDirectionalLight(NULL){
+	mAssets(assets), mPhysics(physics), mLuaState(luaState), mDirectionalLight(NULL), mUIWindow(NULL){
 
 	setCamera(&mDefaultCamera);
 
@@ -23,6 +23,14 @@ Scene::Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManag
 	);
 
 	mDirectionalLight = new DirectionalLight(this, 0);
+}
+
+gui::Window* Scene::getUIWindow(){
+	return mUIWindow;
+}
+
+void Scene::setUIWindow(gui::Window* window){
+	mUIWindow = window;
 }
 
 const DirectionalLight* Scene::getDirectionalLight() const{

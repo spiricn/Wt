@@ -31,8 +31,8 @@
 #include "wt/Font.h"
 #include "wt/net/Socket.h"
 #include "wt/Lua.h"
-#include "wt/GUI/gui.h"
-#include "wt/GUI/TextView.h"
+#include "wt/gui/Window.h"
+#include "wt/gui/TextView.h"
 #include "wt/ProcessManager.h"
 #include "wt/lua/State.h"
 
@@ -65,7 +65,7 @@ public:
 
 	Scene* getScene() const;
 
-	Gui::UIWindow& getUi();
+	gui::Window& getUi();
 
 	Physics* getPhysics() const;
 
@@ -142,9 +142,9 @@ private:
 	bool mRunning;
 	bool mShowGrid;
 	ProcessManager mProcManager;
-	Gui::UIWindow mUi;
+	gui::Window mUi;
 	FPSCalculator mFpsCalc;
-	Gui::TextView* mFpsTextView;
+	gui::TextView* mFpsTextView;
 	PhysicsActor* mCamController;
 	EventManager* mEventManager;
 	lua::State mLuaState;

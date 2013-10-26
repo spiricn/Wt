@@ -174,7 +174,7 @@ void ADemo::printHelp(){
 	LOGW("No demo-specific help available");
 }
 
-Gui::UIWindow& ADemo::getUi(){
+gui::Window& ADemo::getUi(){
 	return mUi;
 }
 
@@ -220,23 +220,7 @@ void ADemo::update(float dt){
 
 	onUpdate(dt);
 
-
-	getUi().draw();
-
 	onRender(dt);
-
-	if(mGuiEnabled){
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		getRenderer()->render(
-			getUi().getCanvas().getTexture(),
-			glm::vec2(mWindow->getWidth(), mWindow->getHeight()),
-			0, 0, mWindow->getWidth(), mWindow->getHeight());
-	}
 }
 
 void ADemo::startDemo(){
@@ -254,6 +238,8 @@ void ADemo::startDemo(){
 	mUi.hook(mEventManager);
 	mUi.setDefaultFont( font );
 
+	getScene()->setUIWindow(&mUi);
+
 
 	bool drawFps;
 	if(!lua::luaConv(mMainScript->getState().Get("drawFps"), drawFps)){
@@ -261,11 +247,11 @@ void ADemo::startDemo(){
 	}
 
 	if(drawFps){
-		mFpsTextView = mUi.createView<Gui::TextView>();
+		mFpsTextView = mUi.createView<gui::TextView>();
 
 		mFpsTextView->setPosition(10, 10);
 		mFpsTextView->setSize(200, 30);
-		mFpsTextView->setScalingMode( Gui::TextView::eAUTO );
+		mFpsTextView->setScalingMode( gui::TextView::eAUTO );
 		mFpsTextView->setBackgroundColor( Color(1, 1, 1, 0.3) );
 	}
 	else{
