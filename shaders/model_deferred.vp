@@ -10,6 +10,7 @@ in vec3 inTangent;
 out vec3 fsWorldPos;
 out vec3 fsNormal;
 out vec2 fsTexCoord;
+out vec3 fsTangent;
 
 const int MAX_BONES = 200;
 
@@ -63,6 +64,9 @@ void main(){
 	fsWorldPos = (uModelMat * pos).xyz;
 
 	fsNormal = (uModelMat * normal).xyz;
+
+	// Pass through tangent
+	fsTangent = inTangent;
 
 	gl_Position = modelViewProjMat * pos;
 }

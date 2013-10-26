@@ -159,6 +159,8 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 			// Use the material if the mesh has one
 			Texture2D* texture = i->texture;
 
+			gl(ActiveTexture(GL_TEXTURE0));
+
 			if(texture != NULL){
 				texture->bind();
 			}
@@ -166,6 +168,16 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 				// Use the default one if none is provided
 				mInvalidTexture.bind();
 			}
+
+			if(i->normalMap){
+				gl(ActiveTexture(GL_TEXTURE1));
+				mShader.setUniformVal("uUseNormalMap", 1);
+				i->normalMap->bind();
+			}
+			else{
+				mShader.setUniformVal("uUseNormalMap", 0);
+			}
+			
 
 			// Render the geometry
 			actor->getModel()->getBatch().bind();

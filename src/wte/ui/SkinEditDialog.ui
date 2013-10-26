@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>607</width>
+    <height>264</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,12 +21,17 @@
      </property>
      <column>
       <property name="text">
-       <string>Geometry name</string>
+       <string>Geometry</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Texture path</string>
+       <string>Texture</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Bump map</string>
       </property>
      </column>
     </widget>

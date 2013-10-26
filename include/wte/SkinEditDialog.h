@@ -34,10 +34,17 @@ public:
 		int id=0;
 		for(wt::Model::GeometrySkin::MeshList::iterator i=skin->getMeshList().begin(); i!=skin->getMeshList().end(); i++){
 			QTreeWidgetItem* item = new QTreeWidgetItem(ui.treeWidget);
+
 			item->setText(0, i->geometry->getName().c_str());
+
 			if(i->texture != NULL){
 				item->setText(1, i->texture->getPath().c_str());
 			}
+
+			if(i->normalMap != NULL){
+				item->setText(2, i->normalMap->getPath().c_str());
+			}
+
 			ui.treeWidget->addTopLevelItem(item);
 
 			item->setData(0, Qt::UserRole, QVariant(id++));
@@ -57,12 +64,21 @@ protected slots:
 		
 		wt::Model::GeometrySkin::Mesh& mesh = mSkin->getMeshList()[ item->data(0, Qt::UserRole).toInt() ];
 
-		wt::Texture2D* texture = ResourcePickerDialog::pickResource<wt::Texture2D>(this, mAssets->getTextureManager());
+
+		wt::Texture2D* texture = ResourcePickerDialog::pickResource<wt::Texture2D>(this, mAssets->getTextureManager(), "Texture");
 
 		if(texture){
 			mesh.texture = texture;
 			item->setText(1, texture->getPath().c_str());
 		}
+
+		wt::Texture2D* normalMap = ResourcePickerDialog::pickResource<wt::Texture2D>(this, mAssets->getTextureManager(), "Bump map");
+
+		if(normalMap){
+			mesh.normalMap = normalMap;
+			item->setText(2, normalMap->getPath().c_str());
+		}
+
 	}
 
 }; // </SkinEditDialog>
