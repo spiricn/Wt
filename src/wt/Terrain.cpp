@@ -370,12 +370,12 @@ Terrain::~Terrain(){
 }
 
 void Terrain::getPhysicsDesc(PhysicsActor::Desc& desc){
-	desc.type = PhysicsActor::eSTATIC_ACTOR;
+	desc.type = PhysicsActor::eTYPE_STATIC;
 
 	// TODO
 	desc.group = 1;
 
-	desc.geometryType = PhysicsActor::eHEIGHTMAP_GEOMETRY;
+	desc.geometryType = PhysicsActor::eGEOMETRY_HEIGHTMAP;
 
 	desc.geometryDesc.heightfieldGeometry.heightScale = getHeightScale();
 	desc.geometryDesc.heightfieldGeometry.rowScale = getRowScale();

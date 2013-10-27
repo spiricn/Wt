@@ -98,6 +98,8 @@ protected slots:
 
 	void onShowTerrainTool(bool);
 
+	void onClearSkybox();
+
 	void onMouseDown(QMouseEvent*);
 
 	void onShowLightEditor(bool);

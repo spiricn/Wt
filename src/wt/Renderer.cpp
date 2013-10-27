@@ -1049,6 +1049,10 @@ void Renderer::godrayPass(Scene& scene){
 }
 
 void Renderer::render(Scene& scene, gui::Window* window){
+	if(!window->isVisible()){
+		return;
+	}
+
 	// Draw all the elements
 	window->draw();
 

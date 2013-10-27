@@ -17,6 +17,7 @@ void ATransformable::translate(const glm::vec3& offset){
 }
 
 void ATransformable::rotate(const glm::vec3& axis, float angle){
+#if 0
 	glm::mat4 offset = glm::rotate(angle, axis);
 
 	glm::quat quat;
@@ -27,6 +28,9 @@ void ATransformable::rotate(const glm::vec3& axis, float angle){
 	glm::mat4 newRot = offset*rotation;
 
 	setRotation( glm::quat_cast(newRot) );
+#else
+	rotate( glm::angleAxis(angle, axis) );
+#endif
 }
 
 void ATransformable::rotate(const glm::quat& offset){

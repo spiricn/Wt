@@ -100,20 +100,20 @@ void ActorCreationDialog::onSave(){
 	
 		mResult.ok = true;
 		mResult.modelledActor.skin = mResult.modelledActor.model->getSkin(skinName);
-		mResult.modelledActor.type = ui.isDynamic->isChecked() ? wt::PhysicsActor::eDYNAMIC_ACTOR : wt::PhysicsActor::eSTATIC_ACTOR;
+		mResult.modelledActor.type = ui.isDynamic->isChecked() ? wt::PhysicsActor::eTYPE_DYNAMIC : wt::PhysicsActor::eTYPE_STATIC;
 	
 		wt::PhysicsActor::Desc& pd = mResult.modelledActor.physicsDesc;
 
 		pd.type = mResult.modelledActor.type;
 
 	
-		pd.controlMode = wt::PhysicsActor::ePHYSICS_MODE;
+		pd.controlMode = wt::PhysicsActor::eCTRL_MODE_PHYSICS;
 
 		int geometry = ui.geometry->currentIndex();
 
 		// Box geometry
 		if(geometry == 1){
-			pd.geometryType = wt::PhysicsActor::eBOX_GEOMETRY;
+			pd.geometryType = wt::PhysicsActor::eGEOMETRY_BOX;
 			
 			pd.geometryDesc.boxGeometry.hx = ui.boxHx->value();
 			pd.geometryDesc.boxGeometry.hy = ui.boxHy->value();
@@ -121,17 +121,17 @@ void ActorCreationDialog::onSave(){
 		}
 		// Sphere geometry
 		else if(geometry == 2){
-			pd.geometryType = wt::PhysicsActor::eSPHERE_GEOMETRY;
+			pd.geometryType = wt::PhysicsActor::eGEOMETRY_SPHERE;
 
 			pd.geometryDesc.sphereGeometry.radius = ui.sphereRadius->value();
 		}
 		// Mesh geometry
 		else if(geometry == 3){
-			pd.geometryType = wt::PhysicsActor::eMESH_GEOMETRY;
+			pd.geometryType = wt::PhysicsActor::eGEOMETRY_MESH;
 			pd.geometryDesc.meshGeometry.model = mResult.modelledActor.model;
 		}
 		else{
-			pd.geometryType = wt::PhysicsActor::eGEO_TYPE_NONE;
+			pd.geometryType = wt::PhysicsActor::eGEOMETRY_INVALID;
 		}
 	}
 	// Particle effect

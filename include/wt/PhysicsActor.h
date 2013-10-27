@@ -17,31 +17,33 @@ friend class Physics;
 public:
 
 	enum ActorType{
-		eACTOR_TYPE_NONE,
-		eSTATIC_ACTOR,
-		eDYNAMIC_ACTOR,
-		eREGION,
-		eACTOR_TYPE_BBOX
-	};
+		eTYPE_INVALID = -1,
+		eTYPE_STATIC = 0,
+		eTYPE_DYNAMIC,
+		eTYPE_REGION,
+		eTYPE_BOUNDING_BOX
+	}; // </ActorType>
 
 	enum ControlMode{
-		eCTRL_MODE_NONE,
-		ePHYSICS_MODE,
-		eCONTROLLER_MODE
-	};
+		eCTRL_MODE_INVALID = -1,
+		eCTRL_MODE_NONE = 0,
+		eCTRL_MODE_PHYSICS,
+		eCTRL_MODE_CONTROLLER
+	}; // </ControlMode>
 
 	enum GeometryType{
-		eGEO_TYPE_NONE,
-		eBOX_GEOMETRY,
-		eSPHERE_GEOMETRY,
-		eHEIGHTMAP_GEOMETRY,
-		eMESH_GEOMETRY
-	};
+		eGEOMETRY_INVALID = -1,
+		eGEOMETRY_PLANE = 0,
+		eGEOMETRY_BOX,
+		eGEOMETRY_SPHERE,
+		eGEOMETRY_HEIGHTMAP,
+		eGEOMETRY_MESH
+	}; // </GeometryType>
 
 	enum ControllerGeometry{
-		eCTRL_TYPE_NONE,
-		eBOX_CONTROLLER,
-		eCAPSULE_CONTROLLER
+		eCTRL_GEOMETRY_INVALID = -1,
+		eCTRL_GEOMETRY_BOX,
+		eCTRL_GEOMETRY_CAPSULE,
 	};
 
 	struct Desc{

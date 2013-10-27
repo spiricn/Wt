@@ -455,7 +455,7 @@ void ActorEditTool::onNewActor(){
 			actor->setModel(res.modelledActor.model, res.modelledActor.skin->getName());
 
 			// Create physics actor
-			if(res.modelledActor.physicsDesc.geometryType != wt::PhysicsActor::eGEO_TYPE_NONE){
+			if(res.modelledActor.physicsDesc.geometryType != wt::PhysicsActor::eGEOMETRY_INVALID){
 				// Initial transform
 				//actor->getController()->getTransformMatrix(res.modelledActor.physicsDesc.pose);
 				res.modelledActor.physicsDesc.pose = glm::translate(eyePos - eyeFw*3.0f);

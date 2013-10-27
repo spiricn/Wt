@@ -45,8 +45,8 @@ public:
 				LOG("TOUCH FOUND! %d %d", actor1->getType(), actor2->getType());
 
 				RegionEvent* evt = new RegionEvent(
-					actor1->getType() == PhysicsActor::eREGION ? actor2 : actor1, 
-					actor1->getType() == PhysicsActor::eREGION ? actor1->getId() : actor2->getId(),
+					actor1->getType() == PhysicsActor::eTYPE_REGION ? actor2 : actor1, 
+					actor1->getType() == PhysicsActor::eTYPE_REGION ? actor1->getId() : actor2->getId(),
 					pair.events & PxPairFlag::eNOTIFY_TOUCH_FOUND ? RegionEvent::eACTOR_ENTERED_REGION : RegionEvent::eACTOR_LEFT_REGION
 				);
 
@@ -145,7 +145,7 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f){
     mDefaultMaterial = mSdk->createMaterial(0.5, 0.5, 0.5);
 
     // ground plane
-    PxTransform pose = PxTransform(PxVec3(0.0f, -100.0f, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f))
+    PxTransform pose = PxTransform(PxVec3(0.0f, -1, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f))
         );
     PxRigidStatic* plane = mSdk->createRigidStatic(pose);
     PxShape* shape = plane->createShape(PxPlaneGeometry(), *mDefaultMaterial);
@@ -209,8 +209,8 @@ PxFilterFlags Physics::filterShader(PxFilterObjectAttributes attributes0, PxFilt
 uint32_t Physics::createRegion(const String& name, const glm::vec3& position, float radius){
 	PhysicsActor::Desc desc;
 
-	desc.type = PhysicsActor::eREGION;
-	desc.geometryType = PhysicsActor::eSPHERE_GEOMETRY;
+	desc.type = PhysicsActor::eTYPE_REGION;
+	desc.geometryType = PhysicsActor::eGEOMETRY_SPHERE;
 	desc.geometryDesc.sphereGeometry.radius = radius;
 	desc.pose = glm::translate(position);
 
@@ -548,26 +548,28 @@ bool Physics::pick(math::Camera& camera, const glm::vec2& screenPos,
 Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 
 	switch(desc.geometryType){
-		case PhysicsActor::eBOX_GEOMETRY:
+		case PhysicsActor::eGEOMETRY_BOX:
 			return new PxBoxGeometry(
 				desc.geometryDesc.boxGeometry.hx,
 				desc.geometryDesc.boxGeometry.hy, 
 				desc.geometryDesc.boxGeometry.hz);
 			break;
 
-		case PhysicsActor::eSPHERE_GEOMETRY:
+		case PhysicsActor::eGEOMETRY_SPHERE:
 			return new PxSphereGeometry(
 				desc.geometryDesc.sphereGeometry.radius
 				);
 			break;
 
-		case PhysicsActor::eMESH_GEOMETRY:
+		case PhysicsActor::eGEOMETRY_MESH:
 			return new PxTriangleMeshGeometry(
 				cook( desc.geometryDesc.meshGeometry.model->getBatch() )
 				);
 			break;
-
-		case PhysicsActor::eHEIGHTMAP_GEOMETRY:{
+		case PhysicsActor::eGEOMETRY_PLANE:
+			return new PxPlaneGeometry;
+			break;
+		case PhysicsActor::eGEOMETRY_HEIGHTMAP:{
 			 //Copy heightmap data
 			const PhysicsActor::Desc::GeometryDesc::HeightfieldGeometry& hfDesc = desc.geometryDesc.heightfieldGeometry;
 
@@ -609,7 +611,7 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 	glm::vec3 pos;
 	math::extractTranslation(desc.pose, pos);
 
-	if(desc.controllerDesc.geometryType == PhysicsActor::eCAPSULE_CONTROLLER){
+	if(desc.controllerDesc.geometryType == PhysicsActor::eCTRL_GEOMETRY_CAPSULE){
 		// Capsule
 		PxCapsuleControllerDesc pxDesc;
 
@@ -623,7 +625,7 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 
 		return mCtrlManager->createController(*mSdk, mScene, pxDesc);
 	}
-	else if(desc.controllerDesc.geometryType == PhysicsActor::eBOX_CONTROLLER){
+	else if(desc.controllerDesc.geometryType == PhysicsActor::eCTRL_GEOMETRY_BOX){
 		// Box
 		PxBoxControllerDesc pxDesc;
 
@@ -662,14 +664,14 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 	filterData.word0 = desc.group;
 	filterData.word1 = desc.collisionMask;
 
-	if(desc.type == PhysicsActor::eREGION){
+	if(desc.type == PhysicsActor::eTYPE_REGION){
 		Sp<PxGeometry> geometry = createGeometry(desc);
 
 		PxRigidStatic* pxActor = mSdk->createRigidStatic(pxTransform);
 
 		PxShape* shape = pxActor->createShape(*geometry, *mDefaultMaterial);
 
-		filterData.setToDefault();
+		//filterData.setToDefault();
 		filterData.word3 = eIG_REGION;
 
 		shape->setQueryFilterData(filterData);
@@ -683,7 +685,7 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 
 		mScene->addActor(*pxActor);
 	}
-	else if(desc.type == PhysicsActor::eSTATIC_ACTOR || desc.type == PhysicsActor::eACTOR_TYPE_BBOX){
+	else if(desc.type == PhysicsActor::eTYPE_STATIC || desc.type == PhysicsActor::eTYPE_BOUNDING_BOX){
 		// static actor
 		Sp<PxGeometry> geometry = createGeometry(desc);
 
@@ -691,10 +693,10 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 
 		PxShape* shape = pxActor->createShape(*geometry, *mDefaultMaterial);
 
-		if(desc.type == PhysicsActor::eACTOR_TYPE_BBOX){
+		if(desc.type == PhysicsActor::eTYPE_BOUNDING_BOX){
 			filterData.word3 = eIG_BBOX;
 		}
-		else if(desc.geometryType == PhysicsActor::eHEIGHTMAP_GEOMETRY){
+		else if(desc.geometryType == PhysicsActor::eGEOMETRY_HEIGHTMAP){
 			// filter data used for heightmap only raycasts
 			filterData.word3 = eIG_HEIGHTMAP;
 		}
@@ -712,7 +714,7 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 		mScene->addActor(*pxActor);
 
 		if(sceneActor){
-			if(desc.type == PhysicsActor::eACTOR_TYPE_BBOX){
+			if(desc.type == PhysicsActor::eTYPE_BOUNDING_BOX){
 				sceneActor->setBBox(createdActor);
 			}
 			else{
@@ -720,16 +722,16 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 			}
 		}
 	}
-	else if(desc.type == PhysicsActor::eDYNAMIC_ACTOR){
+	else if(desc.type == PhysicsActor::eTYPE_DYNAMIC){
 		// dynamic actor
 
-		if(desc.controlMode == PhysicsActor::ePHYSICS_MODE){
+		if(desc.controlMode == PhysicsActor::eCTRL_MODE_PHYSICS){
 			Sp<PxGeometry> geometry = createGeometry(desc);
 
 			PxRigidDynamic* pxActor = mSdk->createRigidDynamic(pxTransform);
 
 			// physics controlled
-			if(desc.geometryType == PhysicsActor::eMESH_GEOMETRY){
+			if(desc.geometryType == PhysicsActor::eGEOMETRY_MESH){
 				pxActor->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, false);		
 			}
 
@@ -750,7 +752,7 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 
 			mScene->addActor(*pxActor);
 		}
-		else if(desc.controlMode == PhysicsActor::eCONTROLLER_MODE){
+		else if(desc.controlMode == PhysicsActor::eCTRL_MODE_CONTROLLER){
 			// controller bound
 			PxController* controller = createController(desc);
 
@@ -762,6 +764,7 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 			
 			controller->getActor()->getShapes((PxShape**)shape, 1);
 
+			// TODO
 			filterData.word0 = 0xAAAA;
 			shape[0]->setQueryFilterData(filterData);
 			shape[0]->setSimulationFilterData(filterData);
@@ -796,9 +799,9 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 void Physics::createBBox(ASceneActor* actor){
 	PhysicsActor::Desc desc;
 
-	desc.type = PhysicsActor::eACTOR_TYPE_BBOX;
+	desc.type = PhysicsActor::eTYPE_BOUNDING_BOX;
 
-	desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
+	desc.geometryType = PhysicsActor::eGEOMETRY_BOX;
 
 	desc.geometryDesc.boxGeometry.hx = 1.0f;
 	desc.geometryDesc.boxGeometry.hy = 1.0f;
@@ -810,6 +813,8 @@ void Physics::createBBox(ASceneActor* actor){
 	desc.pose = glm::translate(pos);
 
 	desc.collisionMask = 0;
+	desc.group = 0;
+
 
 	createActor(actor, desc);
 }

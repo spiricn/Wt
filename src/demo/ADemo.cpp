@@ -263,9 +263,9 @@ void ADemo::startDemo(){
 #if 0
 	// Setup camera controller
 	PhysicsActor::Desc desc;
-	desc.type = PhysicsActor::eDYNAMIC_ACTOR;
-	desc.controlMode = PhysicsActor::eCONTROLLER_MODE;
-	desc.controllerDesc.geometryType = PhysicsActor::eCAPSULE_CONTROLLER;
+	desc.type = PhysicsActor::eTYPE_DYNAMIC;
+	desc.controlMode = PhysicsActor::eCTRL_MODE_CONTROLLER;
+	desc.controllerDesc.geometryType = PhysicsActor::eCTRL_GEOMETRY_CAPSULE;
 	desc.controllerDesc.geometryDesc.capsuleController.height = 1.0f;
 	desc.controllerDesc.geometryDesc.capsuleController.radius = 1.0f;
 	math::Transform t;

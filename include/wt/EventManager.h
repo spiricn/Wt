@@ -134,7 +134,11 @@ public:
 
 	inline bool isRegistered(const EvtType& type);
 
+
 	void registerGlobalListener(EventListener* listener);
+
+	void registerListener(EventListener* listener, const EvtType& eventType);
+
 
 	void registerInternalEvent(const EvtType& eventType);
 
@@ -150,8 +154,6 @@ public:
 	void unregisterGlobalListener(EventListener* listener);
 
 	void unregisterListener(EventListener* listener, const EvtType& eventType);
-
-	void registerListener(EventListener* listener, const EvtType& eventType);
 
 	void registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered=false, uint32_t filterData=0);
 
@@ -174,8 +176,6 @@ public:
 	}
 
 	void generateMetaTable();
-
-
 
 private:
 	static const char* TAG;

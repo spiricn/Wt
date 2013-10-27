@@ -55,15 +55,21 @@ public:
 	}
 
 	void onProcStart(){
-		mState = eFADING_IN;
+		changeState( eFADING_IN );
 
 		mFadeInterpolator = Interpolator<float>(0, mFadeInVal, mFadeInTime, false,
 			Interpolator<float>::eEASE_IN_QUAD);
 	}
 
 	void fadeOutNow(){
-		mState = eDISPLAYING;
+		changeState( eDISPLAYING );
 		mDuration = 0.0f;
+	}
+
+	void changeState(State state){
+		if(mState != state){
+			mState = state;
+		}
 	}
 
 	void onProcUpdate(float dt){
@@ -75,11 +81,14 @@ public:
 
 			if(mFadeInterpolator.isFinished()){
 				if(mState == eFADING_IN){
-					mState = eDISPLAYING;
+					changeState(eDISPLAYING);
 				}
 				else{
 					if(!mLinger){
 						killProcess();
+					}
+					else{
+						mView->setVisible(false);
 					}
 				}
 			}
@@ -89,8 +98,8 @@ public:
 
 			if(mDuration <= 0.0f){
 				mFadeInterpolator = Interpolator<float>(mCurrentAlpha, mFadeOutVal, mFadeOutTime, false,
-					Interpolator<float>::eEASE_IN_QUAD);
-				mState = eFADING_OUT;
+					Interpolator<float>::eLINEAR);
+				changeState( eFADING_OUT );
 			}
 		}
 	}

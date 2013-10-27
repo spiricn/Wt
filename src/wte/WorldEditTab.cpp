@@ -129,6 +129,10 @@ void WorldEditTab::onShowTerrainTool(bool){
 	mTerrainEditTool->setVisible( !mTerrainEditTool->isVisible() );
 }
 
+void WorldEditTab::onClearSkybox(){
+	mScene->setSkyBox(NULL);
+}
+
 void WorldEditTab::onMouseDown(QMouseEvent* e){
 }
 

@@ -196,7 +196,7 @@ void ModelledActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObjec
 			deserData->phyiscs = true;
 			deserData->pxDesc.deserialize(luaDesc);
 
-			if(deserData->pxDesc.geometryType == PhysicsActor::eMESH_GEOMETRY){
+			if(deserData->pxDesc.geometryType == PhysicsActor::eGEOMETRY_MESH){
 				deserData->pxDesc.geometryDesc.meshGeometry.model = mModel;
 			}
 		}

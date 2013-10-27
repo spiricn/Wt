@@ -56,7 +56,7 @@ private:
 	Playlist* mPlaylist;
 
 public:
-	MusicPlayer(ASoundSystem* soundSystem) : mSoundSystem(soundSystem), mVolume(0.3f), mMuted(false), mPlaylist(NULL){
+	MusicPlayer(ASoundSystem* soundSystem) : mSoundSystem(soundSystem), mVolume(1.0f), mMuted(false), mPlaylist(NULL){
 	}
 
 	void play(const String& track){

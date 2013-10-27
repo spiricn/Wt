@@ -388,9 +388,9 @@ public:
 				// Create physics actor
 				PhysicsActor::Desc desc;
 
-				desc.geometryType = PhysicsActor::eBOX_GEOMETRY;
-				desc.controlMode = PhysicsActor::ePHYSICS_MODE;
-				desc.type = PhysicsActor::eDYNAMIC_ACTOR;
+				desc.geometryType = PhysicsActor::eGEOMETRY_BOX;
+				desc.controlMode = PhysicsActor::eCTRL_MODE_PHYSICS;
+				desc.type = PhysicsActor::eTYPE_DYNAMIC;
 				desc.geometryDesc.boxGeometry.hx = 1.0f;
 				desc.geometryDesc.boxGeometry.hy = 1.0f;
 				desc.geometryDesc.boxGeometry.hz = 1.0f;

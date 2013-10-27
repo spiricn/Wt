@@ -79,6 +79,20 @@ void EventManager::registerGlobalListener(EventListener* listener){
 		WT_THROW("Global listener already registered");
 	}
 	else{
+		bool listenerRegistered = false;
+
+		// Check to see if this listener is already registered for some event
+		for(EvtListenerTable::iterator iter=mEvtListenerTable.begin(); iter!=mEvtListenerTable.end(); iter++){
+			if(std::find(iter->second.begin(), iter->second.end(), listener) != iter->second.end()){
+				listenerRegistered = true;
+				break;
+			}
+		}
+
+		if(listenerRegistered){
+			WT_THROW("Global listener already registered for an event"); 
+		}
+
 		mGlobalListeners.push_back(listener);
 	}
 }
@@ -125,6 +139,10 @@ void EventManager::registerListener(EventListener* listener, const EvtType& even
 	if(!isRegistered(eventType)){
 		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
 			eventType.getString().c_str());
+	}
+
+	if(std::find(mGlobalListeners.begin(), mGlobalListeners.end(), listener) != mGlobalListeners.end()){
+		WT_THROW("Listener already registered as global");
 	}
 
 	// find event listener list in the table
@@ -227,7 +245,27 @@ void EventManager::tick(){
 				ListenerList& list = iter->second;
 
 				for(ListenerList::iterator i=list.begin(); i!=list.end(); i++){
+
+#if 0
+					bool isGlobal = false;
+
+					// TODO should optimize this part
+					// perhaps disallow global listeners to register for a events all together?
+					for(ListenerList::iterator globalIter=mGlobalListeners.begin(); globalIter!=mGlobalListeners.end(); globalIter++){
+						if(*globalIter == *i){
+							// This listener is also a global listener so we should skip this
+							// (so that it doesn't get the same event twice)
+							isGlobal = true;
+							break;
+						}
+					}
+
 					
+					if(isGlobal){
+						continue;
+					}
+#endif
+
 					if( ! dispatchEvent(*i, evt) ){
 						break; // listener consumed the event
 					}

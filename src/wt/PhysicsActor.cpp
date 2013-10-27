@@ -16,7 +16,7 @@ PhysicsActor::PhysicsActor(uint32_t id, const String& name, ActorType type, Cont
 	mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id){
 }
 
-PhysicsActor::Desc::Desc() : type(eACTOR_TYPE_NONE), geometryType(eGEO_TYPE_NONE), controlMode(eCTRL_MODE_NONE), collisionMask(0xFFFFFFFF), group(0x01){
+PhysicsActor::Desc::Desc() : type(eTYPE_INVALID), geometryType(eGEOMETRY_INVALID), controlMode(eCTRL_MODE_NONE), collisionMask(0xFFFFFFFF), group(0x01){
 }
 
 void PhysicsActor::setTranslation(const glm::vec3& translation){
@@ -69,7 +69,7 @@ void PhysicsActor::getRotation(glm::quat& result) const{
 
 void PhysicsActor::Desc::serialize(LuaPlus::LuaObject& table){
 	// Actor type
-	table.Set("type", type == eSTATIC_ACTOR ? "static" : "dynamic");
+	table.Set("type", type == eTYPE_STATIC ? "static" : "dynamic");
 
 	// Controll
 	table.Set("group", group);
@@ -78,41 +78,44 @@ void PhysicsActor::Desc::serialize(LuaPlus::LuaObject& table){
 
 
 	// Physics-controlled
-	if(controlMode == ePHYSICS_MODE){
+	if(controlMode == eCTRL_MODE_PHYSICS){
 		table.Set("ctrl.mode", "physics");
 
 		// Box
-		if(geometryType == eBOX_GEOMETRY){
+		if(geometryType == eGEOMETRY_BOX){
 			table.Set("geo.shape", "box");
 			table.Set("geo.hx", geometryDesc.boxGeometry.hx);
 			table.Set("geo.hy", geometryDesc.boxGeometry.hy);
 			table.Set("geo.hz", geometryDesc.boxGeometry.hz);
 		}
 		// Sphere
-		else if(geometryType == eSPHERE_GEOMETRY){
+		else if(geometryType == eGEOMETRY_SPHERE){
 			table.Set("geo.shape", "sphere");
 			table.Set("geo.rad", geometryDesc.sphereGeometry.radius);
 		}
-		else if(geometryType == eHEIGHTMAP_GEOMETRY){
+		else if(geometryType == eGEOMETRY_HEIGHTMAP){
 			table.Set("geo.shape", "heightmap");
 		}
-		else if(geometryType == eMESH_GEOMETRY){
+		else if(geometryType == eGEOMETRY_MESH){
 			table.Set("geo.shape", "mesh");
+		}
+		else if(geometryType == eGEOMETRY_PLANE){
+			table.Set("geo.shape", "plane");
 		}
 		else{
 			WT_THROW("TODO");
 		}
 	}
 	// Controller-controlled
-	else if(controlMode == eCONTROLLER_MODE){
+	else if(controlMode == eCTRL_MODE_CONTROLLER){
 		table.Set("ctrl.mode", "controller");
 
-		if(controllerDesc.geometryType == eCAPSULE_CONTROLLER){
+		if(controllerDesc.geometryType == eCTRL_GEOMETRY_CAPSULE){
 			table.Set("ctrl.shape", "capsule");
 			table.Set("ctrl.rad", controllerDesc.geometryDesc.capsuleController.radius);
 			table.Set("ctrl.height", controllerDesc.geometryDesc.capsuleController.height);
 		}
-		else if(controllerDesc.geometryType == eBOX_CONTROLLER){
+		else if(controllerDesc.geometryType == eCTRL_GEOMETRY_BOX){
 			table.Set("ctrl.shape", "box");
 			table.Set("ctrl.hx", controllerDesc.geometryDesc.boxController.hx);
 			table.Set("ctrl.hy", controllerDesc.geometryDesc.boxController.hy);
@@ -134,10 +137,10 @@ void PhysicsActor::Desc::deserialize(const LuaPlus::LuaObject& table){
 	lua::luaConv(table.Get("ctrl.mode"), ctrlMode);
 
 	if(!type.compare("static")){
-		this->type = eSTATIC_ACTOR;
+		this->type = eTYPE_STATIC;
 	}
 	else if(!type.compare("dynamic")){
-		this->type = eDYNAMIC_ACTOR;
+		this->type = eTYPE_DYNAMIC;
 	}
 	else{
 		WT_THROW("TODO");
@@ -151,28 +154,31 @@ void PhysicsActor::Desc::deserialize(const LuaPlus::LuaObject& table){
 
 	// Physics-controlled
 	if(!ctrlMode.compare("physics")){
-		controlMode = ePHYSICS_MODE;
+		controlMode = eCTRL_MODE_PHYSICS;
 
 		String shape;
 		lua::luaConv(table.Get("geo.shape"), shape);
 
 		if(!shape.compare("box")){
-			this->geometryType = eBOX_GEOMETRY;
+			this->geometryType = eGEOMETRY_BOX;
 
 			lua::luaConv(table.Get("geo.hx"), geometryDesc.boxGeometry.hx);
 			lua::luaConv(table.Get("geo.hy"), geometryDesc.boxGeometry.hy);
 			lua::luaConv(table.Get("geo.hz"), geometryDesc.boxGeometry.hz);
 		}
 		else if(!shape.compare("sphere")){
-			this->geometryType = eSPHERE_GEOMETRY;
+			this->geometryType = eGEOMETRY_SPHERE;
 
 			lua::luaConv(table.Get("geo.rad"), geometryDesc.sphereGeometry.radius);
 		}
 		else if(!shape.compare("mesh")){
-			this->geometryType = eMESH_GEOMETRY;
+			this->geometryType = eGEOMETRY_MESH;
 		}
 		else if(!shape.compare("heightmap")){
-			this->geometryType = eHEIGHTMAP_GEOMETRY;
+			this->geometryType = eGEOMETRY_HEIGHTMAP;
+		}
+		else if(!shape.compare("plane")){
+			this->geometryType = eGEOMETRY_PLANE;
 		}
 		else{
 			WT_THROW("TODO");
@@ -180,18 +186,18 @@ void PhysicsActor::Desc::deserialize(const LuaPlus::LuaObject& table){
 	}
 	// Controller-controlled
 	else if(!ctrlMode.compare("controller")){
-		controlMode = eCONTROLLER_MODE;
+		controlMode = eCTRL_MODE_CONTROLLER;
 
 		String shape;
 		lua::luaConv(table.Get("ctrl.shape"), shape);
 
 		if(!shape.compare("capsule")){
-			this->controllerDesc.geometryType = eCAPSULE_CONTROLLER;
+			this->controllerDesc.geometryType = eCTRL_GEOMETRY_CAPSULE;
 			lua::luaConv(table.Get("ctrl.rad"), controllerDesc.geometryDesc.capsuleController.radius);
 			lua::luaConv(table.Get("ctrl.height"), controllerDesc.geometryDesc.capsuleController.height);
 		}
 		else if(!shape.compare("box")){
-			this->controllerDesc.geometryType = eBOX_CONTROLLER;
+			this->controllerDesc.geometryType = eCTRL_GEOMETRY_BOX;
 			lua::luaConv(table.Get("ctrl.hx"), controllerDesc.geometryDesc.boxController.hx);
 			lua::luaConv(table.Get("ctrl.hy"), controllerDesc.geometryDesc.boxController.hy);
 			lua::luaConv(table.Get("ctrl.hz"), controllerDesc.geometryDesc.boxController.hz);
@@ -206,7 +212,7 @@ void PhysicsActor::Desc::deserialize(const LuaPlus::LuaObject& table){
 }
 
 bool PhysicsActor::Desc::isValid() const{
-	if(geometryType == eMESH_GEOMETRY){
+	if(geometryType == eGEOMETRY_MESH){
 		return geometryDesc.meshGeometry.model != NULL;
 	}
 	else{
@@ -227,7 +233,7 @@ PhysicsActor::ControlMode PhysicsActor::getControlMode() const{
 }
 
 bool PhysicsActor::isControlled() const{
-	return mControlMode == eCONTROLLER_MODE;
+	return mControlMode == eCTRL_MODE_CONTROLLER;
 }
 
 PxController* PhysicsActor::getController(){

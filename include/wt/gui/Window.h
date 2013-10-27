@@ -41,12 +41,22 @@ private:
 	View::ScalingMode mDefaultScaleMode;
 	bool mNeedsRescale;
 	float mVerticalCellSpacing, mHorizontalCellSpacing;
+	bool mVisible;
 
 
 public:
 	Window() : mFocus(NULL), mHoverView(NULL), mClickView(NULL), 
 		mDefaultFont(NULL), mDragView(NULL), mNumGridRows(5), mNumGridColumns(5),
-		mDefaultScaleMode(View::eFIXED), mNeedsRescale(false), mVerticalCellSpacing(5.0f), mHorizontalCellSpacing(5.0f){
+		mDefaultScaleMode(View::eFIXED), mNeedsRescale(false), mVerticalCellSpacing(5.0f),
+		mHorizontalCellSpacing(5.0f), mVisible(true){
+	}
+
+	void setVisible(bool visible){
+		mVisible = visible;
+	}
+
+	bool isVisible() const{
+		return mVisible;
 	}
 
 	void setVerticalCellSpacing(float spacing){
@@ -101,6 +111,22 @@ public:
 	}
 
 	void removeView(View* view){
+		if(mFocus == view){
+			mFocus = NULL;
+		}
+
+		if(mHoverView == view){
+			mHoverView = NULL;
+		}
+
+		if(mClickView == view){
+			mClickView = NULL;
+		}
+
+		if(mDragView == view){
+			mDragView = NULL;
+		}
+
 		mViews.erase( view->getId() );
 		delete view;
 	}
@@ -162,6 +188,10 @@ public:
 
 
 	bool handleEvent(const Sp<Event> evt){
+		if(!mVisible){
+			return true;
+		}
+
 		if(evt->getType() == MousePressEvent::TYPE){
 			const MousePressEvent* e = static_cast<const MousePressEvent*>(evt.get());
 
