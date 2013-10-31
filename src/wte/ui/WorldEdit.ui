@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>599</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -158,7 +158,14 @@
     <addaction name="actionCapture_screenshot"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuCamera">
+    <property name="title">
+     <string>Camera</string>
+    </property>
+    <addaction name="actionCamera_newAnimation"/>
+   </widget>
    <addaction name="menuFasdf"/>
+   <addaction name="menuCamera"/>
   </widget>
   <action name="actionLight_tool">
    <property name="checkable">
@@ -247,6 +254,11 @@
   <action name="actionSkybox_clear">
    <property name="text">
     <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionCamera_newAnimation">
+   <property name="text">
+    <string>New animation</string>
    </property>
   </action>
  </widget>
@@ -390,6 +402,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionCamera_newAnimation</sender>
+   <signal>triggered()</signal>
+   <receiver>WorldEdit</receiver>
+   <slot>onCameraNewAnimation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>39</x>
+     <y>140</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onScreenshot()</slot>
@@ -404,5 +432,6 @@
   <slot>onToggleBones()</slot>
   <slot>onToggleGodrayTool()</slot>
   <slot>onClearSkybox()</slot>
+  <slot>onCameraNewAnimation()</slot>
  </slots>
 </ui>

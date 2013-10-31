@@ -6,6 +6,7 @@
 #include <qprocess.h>
 #include <qmessagebox.h>
 
+#include "wte/CameraAnimationDialog.h"
 #include "wte/MainGLWidget.h"
 #include "wte/WorldEditTab.h"
 #include "wte/ResourcePickerDialog.h"
@@ -119,6 +120,8 @@ void WorldEditTab::onTimeout(){
 	mAssets->getSoundSystem()->setListenerForwardVec( eyeFw );
 	mAssets->getSoundSystem()->setListenerPosition( eyePos );
 #endif
+
+	mProcManager.update(dt);
 }
 
 void WorldEditTab::onShowLightEditor(bool){
@@ -170,6 +173,13 @@ void WorldEditTab::onSetSkybox(){
 }
 
 void WorldEditTab::onSetTransClicked(){
+}
+
+
+void WorldEditTab::onCameraNewAnimation(){
+	CameraAnimationDialog* dlg = new CameraAnimationDialog(this, mScene, &mProcManager);
+
+	dlg->show();
 }
 
 void WorldEditTab::onGrabInputChecked(int state){

@@ -6,7 +6,7 @@
 
 namespace wt{
 
-void ProcessManager::upate(float dt){
+void ProcessManager::update(float dt){
 	ProcList::iterator procEnd = mProcesses.end();
 	ProcList::iterator procIter = mProcesses.begin();
 

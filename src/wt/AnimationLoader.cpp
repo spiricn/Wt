@@ -137,11 +137,11 @@ void AnimationLoader::save(AIOStream* stream, Animation* ani){
 	stream->write((char*)&dur, 4);
 
 	// num_node_anims
-	uint32_t numNodes = ani->mNodeAnimations.size();
+	uint32_t numNodes = ani->getNodeAnimationList().size();
 	stream->write((char*)&numNodes, 4);
 
 	// node_anims
-	for(Animation::NodeAnimationList::iterator i=ani->mNodeAnimations.begin(); i!=ani->mNodeAnimations.end(); i++){
+	for(Animation::NodeAnimationList::iterator i=ani->getNodeAnimationList().begin(); i!=ani->getNodeAnimationList().end(); i++){
 		NodeAnimation* node = *i;
 
 		// node_name_id

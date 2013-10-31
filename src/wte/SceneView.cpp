@@ -115,7 +115,6 @@ void SceneView::grabInput(bool state){
 void SceneView::resizeGL(int w, int h) {
 	makeCurrent();
 	if(mRenderer){
-		TRACED("%d %d", w, h);
 		mRenderer->setViewPort(w <= 0 ? 1 : w, h <= 0 ? 1 : h);
 	}	
 }

@@ -75,11 +75,19 @@ void WtEditor::onOpenGLContextCreated(){
 
 	showMaximized();
 
-#if 0
+#if 1
 	// Debug scene/assets
-	loadAssets("workspace/assets.lua");
 
-	loadScene("workspace/scene.lua");
+#define DEBUG_WORKSPACE "d:/Documents/prog/c++/workspace/Wt/workspace"
+
+	switchWorkspace(DEBUG_WORKSPACE "/");
+
+	loadAssets(DEBUG_WORKSPACE "/assets.wtr");
+
+	loadScene(DEBUG_WORKSPACE "/simple_scene.wts");
+
+#undef DEBUG_WORKSPACE
+
 #endif
 }
 
@@ -108,6 +116,8 @@ void WtEditor::loadScene(const QString& path){
 	mWorldEdit->onSceneLoaded();
 
 	mSceneLoaded = true;
+
+	updateTitle();
 
 	LOGD("Scene loaded OK");
 }
@@ -156,6 +166,8 @@ void WtEditor::loadAssets(const QString& path){
 		(*i)->refreshAll();
 	}
 
+	updateTitle();
+
 	LOGD("Resources loaded OK");
 }
 
@@ -179,11 +191,15 @@ void WtEditor::onWorkspaceSwitch(){
 	// TODO fix this in the file system class
 	dir = dir + "/";
 
+	switchWorkspace(dir);
+}
+
+void WtEditor::switchWorkspace(const QString& path){
 	unloadAssets();
 
-	mAssets.setFileSystem(wt::AResourceSystem::eFS_DIR, dir.toStdString().c_str());
+	mAssets.setFileSystem(wt::AResourceSystem::eFS_DIR, path.toStdString().c_str());
 
-	mWorkspacePath = dir;
+	mWorkspacePath = path;
 
 	updateTitle();
 }

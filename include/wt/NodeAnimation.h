@@ -51,8 +51,6 @@ private:
 	ScaleKeyList mScaleKeys;
 	String mNodeName;
 
-	bool mUseSplines;
-
 	float mDuration;
 
 	int findPosKey(float time) const;
@@ -80,9 +78,9 @@ public:
 
 	ScaleKeyList& getScaleKeys();
 
-	void evaluate(float time, glm::vec3& translation, glm::quat& rotation, glm::vec3& scale) const;
+	void evaluate(float time, glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, bool useSplines=false) const;
 
-	void evaluate(float time, glm::mat4x4& dst) const;
+	void evaluate(float time, glm::mat4x4& dst, bool useSplines=false) const;
 
 }; // </NodeAnimation>
 

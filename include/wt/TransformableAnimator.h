@@ -1,7 +1,7 @@
 #ifndef WT_TRANSFORMABLEANIMATOR_H
 #define WT_TRANSFORMABLEANIMATOR_H
 
-#include "wt/NodeAnimation.h"
+#include "wt/Animation.h"
 #include "wt/ATransformable.h"
 #include "wt/AProcess.h"
 
@@ -20,9 +20,13 @@ public:
 	class IListener{
 	public:
 		virtual void onAnimationStateChanged(TransformableAnimator*, State) {};
+		virtual void onAnimationProgress(TransformableAnimator*, float) {};
+
 	}; // </IListener>
 
 	TransformableAnimator(ATransformable* target, NodeAnimation* animation, bool loop);
+
+	TransformableAnimator(ATransformable* target, Animation* animation, const String& node, bool loop);
 
 	void setSpeed(float speed);
 

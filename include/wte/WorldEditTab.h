@@ -4,6 +4,7 @@
 #include "stdafx.h"
 
 #include <wt/EventManager.h>
+#include <wt/ProcessManager.h>
 
 #include "ui_WorldEdit.h"
 
@@ -41,6 +42,7 @@ private:
 	wt::AResourceSystem* mAssets;
 	wt::Scene* mScene;
 	wt::EventManager* mEventManager;
+	wt::ProcessManager mProcManager;
 
 	// Main loop timer
 	QTimer mTimer;
@@ -95,6 +97,8 @@ protected slots:
 	void onGrabInputChecked(int);
 
 	void onSetTransClicked();
+
+	void onCameraNewAnimation();
 
 	void onShowTerrainTool(bool);
 

@@ -216,7 +216,7 @@ void ADemo::update(float dt){
 		mFpsTextView->setText(bfr);
 	}
 
-	mProcManager.upate(dt);
+	mProcManager.update(dt);
 
 	onUpdate(dt);
 

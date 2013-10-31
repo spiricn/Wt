@@ -21,45 +21,30 @@ To get back to your question, which is the inverseBindPose[] computed off the ab
 
 Now, why does bindPose[] contain relative transformations then? If you look at AnimationPlayer.StartClip, you'll see that the bindPose[] transformations are copied to boneTransforms[] and that these are only replaced in AnimationPlayer.UpdateBoneTransforms when a transform is currently available from the animation for a specific bone. So basically the bindPose[] transforms double as the default transforms the AnimationPlayer uses until the animation starts playing. Since these boneTransforms[] from the animation are relative, the bindPose[] transforms need to be relative too to fill in here.
 */
-namespace wt{
+namespace wt
+{
 
 class Animation : public AResource<Animation> {
 public:
 	typedef std::vector<NodeAnimation*> NodeAnimationList;
 
+	Animation(AResourceManager<Animation>* manager=NULL, ResourceHandle handle=0, const String& name="");
+
+	void setDuration(float dur);
+
+	float getDuration() const;
+
+	NodeAnimation* addNodeAnimation();
+
+	NodeAnimationList& getNodeAnimationList();
+
+	NodeAnimation* findNodeAnimation(const String& name);
+
+	virtual ~Animation();
+
 private:
 	float mDuration;
-
-public:
 	NodeAnimationList mNodeAnimations;
-
-	Animation(AResourceManager<Animation>* manager=NULL, ResourceHandle handle=0, const String& name="") : AResource(manager, handle, name),
-		mDuration(0.0f){
-	}
-
-	void setDuration(float dur){
-		mDuration = dur;
-		for(NodeAnimationList::iterator i=mNodeAnimations.begin(); i!=mNodeAnimations.end(); i++){
-			(*i)->setDuration(dur);
-		}
-	}
-
-	float getDuration() const{
-		return mDuration;
-	}
-
-	NodeAnimation* addNodeAnimation(){
-		NodeAnimation* res = new NodeAnimation();
-		mNodeAnimations.push_back(res);
-		res->setDuration(mDuration);
-		return res;
-	}
-
-	virtual ~Animation(){
-		for(size_t i=0; i<mNodeAnimations.size(); i++){
-			delete mNodeAnimations[i];
-		}
-	}
 
 }; // </Animation>
 
@@ -72,23 +57,6 @@ public:
 	}
 
 }; // </AnimationManager>
-
-
-// TODO move this elsewhere
-class GenericAnimator{
-private:
-	Animation* mAnimation;
-	float mTime;
-public:
-	GenericAnimator(Animation* animation=NULL) : mTime(0.0f), mAnimation(animation){
-	}
-
-	void update(float dt, glm::vec3& position, glm::vec3& scale, glm::quat& rotation){
-		mTime = fmod(mTime+dt, mAnimation->getDuration());
-
-		mAnimation->mNodeAnimations[0]->evaluate(mTime, position, rotation, scale);
-	}
-}; // </GenericAnimator>
 
 }; // </wt>
 

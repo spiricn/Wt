@@ -16,7 +16,7 @@ private:
 public:
 	~ProcessManager();
 
-	void upate(float dt);
+	void update(float dt);
 	
 	void attach(ProcPtr proc);
 

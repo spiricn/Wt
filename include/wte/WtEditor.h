@@ -67,6 +67,8 @@ private:
 
 	void loadAssets(const QString&);
 
+	void switchWorkspace(const QString&);
+
 	void saveScene(const QString&);
 
 	void saveAssets(const QString&);

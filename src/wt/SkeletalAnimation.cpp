@@ -39,11 +39,11 @@ float SkeletalAnimation::getDuration() const{
 }
 
 void SkeletalAnimation::create(){
-	mBoneAnimations.create( mAnimation->mNodeAnimations.size() );
+	mBoneAnimations.create( mAnimation->getNodeAnimationList().size() );
 
 	// pair up animation nodes to our bone animations
-	for(uint32_t i=0; i<mAnimation->mNodeAnimations.size(); i++){
-		NodeAnimation* animationNode = mAnimation->mNodeAnimations[i];
+	for(uint32_t i=0; i<mAnimation->getNodeAnimationList().size(); i++){
+		NodeAnimation* animationNode = mAnimation->getNodeAnimationList()[i];
 		SkeletonBone* animatedBone = mSkeleton->findChildByName(animationNode->getTargetNode(), true);
 
 		WT_ASSERT(animatedBone != NULL, "Unable to match node to bone");

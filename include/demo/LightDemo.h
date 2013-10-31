@@ -10,14 +10,13 @@ namespace wt{
 
 struct LightOrb{
 private:
-	GenericAnimator mAnimator;
 	ModelledActor* mActor;
 	float mColorFactor;
 	float mCycleTime;
 
 public:
 
-	LightOrb(ModelledActor* actor, Animation* anim, float clrCycleTime) : mActor(actor), mColorFactor(0), mAnimator(GenericAnimator(anim)), mCycleTime(clrCycleTime){
+	LightOrb(ModelledActor* actor, Animation* anim, float clrCycleTime) : mActor(actor), mColorFactor(0), mCycleTime(clrCycleTime){
 	}
 
 	void update(float dt){

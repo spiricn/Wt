@@ -11,6 +11,13 @@ TransformableAnimator::TransformableAnimator(ATransformable* target, NodeAnimati
 	mAnimation(animation), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f){
 }
 
+TransformableAnimator::TransformableAnimator(ATransformable* target, Animation* animation, const String& node, bool loop) : mTarget(target),
+	mAnimation(NULL), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f){
+		mAnimation = animation->findNodeAnimation(node);
+
+		WT_ASSERT(mAnimation != NULL, "Invalid node animation name \"%s\" for animatino \"%s\"", node.c_str(), animation->getPath().c_str());
+}
+
 void TransformableAnimator::pause(){
 	if(mState == eSTATE_PLAYING){
 		changeState( eSTATE_PAUSED );
@@ -81,18 +88,23 @@ void TransformableAnimator::onProcUpdate(float dt){
 	if(mLoop){
 		mCurrentTime = glm::mod(mCurrentTime, mAnimation->getDuration());
 	}
-	else{
+	else if(mCurrentTime >= mAnimation->getDuration()){
 		mCurrentTime = mAnimation->getDuration();
 		finished = true;
 	}
 
+	if(mListener){
+		mListener->onAnimationProgress(this, mCurrentTime / mAnimation->getDuration() );
+	}
+
 	glm::mat4 mat;
-	mAnimation->evaluate(mCurrentTime, mat);
+	mAnimation->evaluate(mCurrentTime, mat, true);
 
 	mTarget->setTransformMatrix(mat);
 
 	if(finished){
 		changeState( eSTATE_FINISHED );
+		killProcess();
 	}
 }
 

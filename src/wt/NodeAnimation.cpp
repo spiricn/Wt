@@ -66,7 +66,7 @@ int NodeAnimation::findScaleKey(float time) const{
 	return mScaleKeys.size()-1;
 }
 
-NodeAnimation::NodeAnimation() : mNodeName(""), mDuration(0.0f), mUseSplines(true){
+NodeAnimation::NodeAnimation() : mNodeName(""), mDuration(0.0f){
 }
 
 void NodeAnimation::setTargetNode(const String& target){
@@ -90,7 +90,7 @@ NodeAnimation::ScaleKeyList& NodeAnimation::getScaleKeys(){
 }
 
 void NodeAnimation::evaluate(float time, glm::vec3& translation,
-	glm::quat& rotation, glm::vec3& scale) const{
+	glm::quat& rotation, glm::vec3& scale, bool useSplines) const{
 	/* Translation */
 	int posKey = findPosKey(time);
 	if(posKey != -1){
@@ -118,7 +118,7 @@ void NodeAnimation::evaluate(float time, glm::vec3& translation,
 			factor = (time-k1.time)/timeDiff;
 		}
 
-		if(mUseSplines && 0){
+		if(useSplines){
 			if(timeDiff == 0.0f){
 				translation = k1.position;
 			}
@@ -233,11 +233,11 @@ void NodeAnimation::evaluate(float time, glm::vec3& translation,
 	}
 }
 
-void NodeAnimation::evaluate(float time, glm::mat4x4& dst) const{
+void NodeAnimation::evaluate(float time, glm::mat4x4& dst, bool useSplines) const{
 	glm::vec3 translation, scale;
 	glm::quat rotation;
 
-	evaluate(time, translation, rotation, scale);
+	evaluate(time, translation, rotation, scale, useSplines);
 
 	// TODO remove this after converting all current animations
 	scale = glm::vec3(1, 1, 1);
