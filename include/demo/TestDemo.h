@@ -14,6 +14,7 @@
 
 #include "wt/lua/LuaModule.h"
 #include "wt/lua/LuaBindings.h"
+#include "wt/TransformableAnimator.h"
 
 namespace wt{
 
@@ -54,65 +55,46 @@ public:
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
+		ModelledActor* actor = (ModelledActor*)getScene()->findActorByName("actor");
 
-		Scene::GodRayParams p;
-		getScene()->getGodRayParams(p);
-		p.enabled = true;
-		getScene()->setGodRayParams(p);
-	
-#if 0
-		{
-			Model* model = getAssets()->getModelManager()->create("orb");
+		NodeAnimation* node = new NodeAnimation;
 
-			// Create sphere model
+		NodeAnimation::PositionKey posKey;
 
-			IcosphereBuilder::Vertex* vertices;
-			uint32_t* indices;
-			uint32_t numIndices, numVertices;
 
-			IcosphereBuilder(&vertices, &indices, &numVertices, &numIndices, 1);
+		glm::vec3 startPos;
+		actor->getTransformable()->getTranslation(startPos);
 
-			Buffer<Geometry::Vertex> modelVertices(numVertices);
 
-			model->setSize(numVertices, numIndices);
+		posKey.position = startPos;
+		posKey.time = 0.0f;
+		node->getPositionKeys().push_back(posKey);
 
-			for(uint32_t i=0; i<numVertices; i++){
-				modelVertices[i].x = vertices[i].position.x;
-				modelVertices[i].y = vertices[i].position.y;
-				modelVertices[i].z = vertices[i].position.z;
+		posKey.position += glm::vec3(0, 10, 0);
+		posKey.time = 3.0f;
+		node->getPositionKeys().push_back(posKey);
 
-				modelVertices[i].nx = vertices[i].normal.x;
-				modelVertices[i].nx = vertices[i].normal.y;
-				modelVertices[i].nx = vertices[i].normal.z;
+		posKey.position = startPos;
+		posKey.time = 6.0f;
+		node->getPositionKeys().push_back(posKey);
 
-				modelVertices[i].s = vertices[i].texture.s;
-				modelVertices[i].t = vertices[i].texture.t;
-			}
+		NodeAnimation::RotationKey rotKey;
 
-			Buffer<GLuint> modelIndices(numIndices);
-			memcpy(modelIndices.getData(), indices, numIndices*sizeof(uint32_t));
-		
-			Geometry* geometry = model->addGeometry("main", modelVertices, modelIndices);
+		rotKey.time = 0.0f;
+		rotKey.rotation = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
+		node->getRotationKeys().push_back(rotKey);
 
-			Model::GeometrySkin* skin = model->createSkin("main");
+		rotKey.time = 6.0f;
+		rotKey.rotation = glm::angleAxis(180.0f, glm::vec3(0, 1, 0));
+		node->getRotationKeys().push_back(rotKey);
 
-			skin->addMesh(geometry);
+		node->setDuration(posKey.time);
 
-			model->create();
-		}
-#endif
-		getRenderer()->setRenderAxes(false);
+		TransformableAnimator* animator;
 
-		//// Expose objects
+		getProcManager().attach( animator = new TransformableAnimator(actor->getController(), node, true) );
 
-		//getManager()->getLuaState()->expose(*getScene(), "Scene");
-		//getManager()->getLuaState()->expose(*getEventManager(), "EventManager");
-
-		//lua::LuaBindings_expose(getManager()->getLuaState()->getGlobals());
-
-		//// Create script process
-		//lua::ScriptPtr mainScript;
-		//getProcManager().attach( new ScriptProcess( mainScript = getManager()->getLuaState()->createScript("workspace/assets/scripts/main.lua") ) );
+		animator->setSpeed(5.0f);
 	}
 
 	String getScriptPath() const{

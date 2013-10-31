@@ -2,7 +2,7 @@
 #define WT_LIGHTDEMO_H
 
 #include "demo/ADemo.h"
-#include "wt/CameraAnimation.h"
+//#include "wt/CameraAnimation.h"
 
 #define TD_TRACE_TAG "LightDemo"
 
@@ -47,7 +47,7 @@ public:
 
 class LightDemo : public ADemo{
 private:
-	CameraAnimationBuilder mBuilder;
+	//CameraAnimationBuilder mBuilder;
 	std::vector<Sp<LightOrb>> mOrbs;
 	int mFollowing;
 
@@ -61,19 +61,19 @@ public:
 			static bool fz=false;
 
 			if(fz){
-				mBuilder.addKeyframe();
+				//mBuilder.addKeyframe();
 				LOG("ADD");
 			}
 
 			else{
 				LOG("START");
 				fz = true;
-				mBuilder.start(&getScene()->getCamera(), "ani_demo_1");
+				//mBuilder.start(&getScene()->getCamera(), "ani_demo_1");
 			}
 		}
 		else if(btn == BTN_MIDDLE){
-			mBuilder.stop();
-			mBuilder.saveAnimation("light_animation.wta");
+			//mBuilder.stop();
+			//mBuilder.saveAnimation("light_animation.wta");
 			LOG("DONE");
 		}
 	}

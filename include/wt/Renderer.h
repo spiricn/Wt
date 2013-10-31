@@ -149,52 +149,49 @@ private:
 	void render(Scene& scene, gui::Window* window);
 
 private:
-	math::MatrixStack mMatStack;
-	Scene* mScene;
-	Color mClearColor;
+	struct GodrayTech{
+		GodRayShader shader;
+		Texture2D defaultSourceTexture;
+		gl::Batch sourceBatch;
+		gl::Batch quadBatch;
+		gl::FrameBuffer frameBuffer;
+		Texture2D pass1, pass2;
+		gl::RenderBuffer depthBuffer;
+		gl::ShaderProgram sourceShader;
 
-	GodRayShader mGodRayShader;
-	RectShader mRectShader;
-	gl::ShaderProgram mGodraySunShader;
+		GodrayTech() : pass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), pass2(NULL, 0, "", Texture2D::eRECT_TEXTURE){
+		}
+	} mGodray;
 
-	gl::Batch mFontBatch, mSunBatch;
-
-	GLuint mFontTexture;
-	RenderState mRenderState;
-	glm::vec2 mViewPort;
+	typedef std::vector<ARenderer*> RendererList;
 
 	
-	typedef std::vector<ARenderer*> RendererList;
-	RendererList mSceneRenderers;
-
-
-	Material mDefaultMaterial;
-
-	gl::Batch mCubeBatch;
-
-	// Shadows
-	Texture2D mGodraySunTexture;
-	Texture2D mShadowMap, mGodrayPass1, mGodrayPass2;
-	gl::FrameBuffer mShadowFBO, mGodrayFBO;
-	gl::RenderBuffer mGodrayDepthBuffer;
-
-	gl::Batch mGodrayBatch;
-
-	bool mRenderBones;
-	bool mRenderBoundingBoxes;
-	bool mRenderAxes;
-
-	float mBoneWidth;
-
-	DeferredRender* mDeferredRenderer;
 
 	void setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog);
 
-	uint32_t mNumRenderedTerrainNodes;
-
 	void initGodray();
 
+
+	math::MatrixStack mMatStack;
+	Scene* mScene;
+	Color mClearColor;
+	RectShader mRectShader;
+	gl::Batch mFontBatch;
+	GLuint mFontTexture;
+	RenderState mRenderState;
+	glm::vec2 mViewPort;	
+	RendererList mSceneRenderers;
+	Material mDefaultMaterial;
+	gl::Batch mCubeBatch;
+	bool mRenderBones;
+	bool mRenderBoundingBoxes;
+	bool mRenderAxes;
+	float mBoneWidth;
+	DeferredRender* mDeferredRenderer;
+	uint32_t mNumRenderedTerrainNodes;
 	EventManager* mEventManager;
+
+	
 
 }; // </Renderer>
 

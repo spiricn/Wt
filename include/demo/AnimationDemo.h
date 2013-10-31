@@ -3,7 +3,6 @@
 
 #include "demo/ADemo.h"
 
-#include <wt/CameraAnimation.h>
 #include <wt/EventTable.h>
 
 #define RECORDER_ENABLED 0
@@ -16,7 +15,7 @@ namespace wt{
 class AnimationDemo : public ADemo{
 private:
 	ModelledActor* mActor;
-	CameraAnimation mCameraAnimation;
+	//CameraAnimation mCameraAnimation;
 	gui::ProgressView* mAniProgress;
 #if RECORDER_ENABLED
 	CameraAnimationBuilder mb;
@@ -79,7 +78,7 @@ public:
 	}
 
 	void onPlayAnimation(){
-		mCameraAnimation = CameraAnimation(  getAssets()->getAnimationManager()->find("ani_demo_animation"), &getScene()->getCamera());
+		//mCameraAnimation = CameraAnimation(  getAssets()->getAnimationManager()->find("ani_demo_animation"), &getScene()->getCamera());
 	}
 
 	void onNextAnimation(){

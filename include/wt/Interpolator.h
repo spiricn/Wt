@@ -16,14 +16,6 @@ public:
 		eEASE_IN_QUAD
 	};
 
-private:
-	T mStart, mEnd;
-	float mTime, mDuration;
-	bool mLoop, mFinished;
-	InterpolationType mType;
-	T mValue;
-
-public:
 	Interpolator() : mFinished(true){
 	}
 
@@ -82,6 +74,13 @@ public:
 		}
 		
 	}
+
+private:
+	T mStart, mEnd;
+	float mTime, mDuration;
+	bool mLoop, mFinished;
+	InterpolationType mType;
+	T mValue;
 
 }; // </Interpolator>
 

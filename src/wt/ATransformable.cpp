@@ -17,7 +17,8 @@ void ATransformable::translate(const glm::vec3& offset){
 }
 
 void ATransformable::rotate(const glm::vec3& axis, float angle){
-#if 0
+#if 1
+	// OK for camera
 	glm::mat4 offset = glm::rotate(angle, axis);
 
 	glm::quat quat;
@@ -29,6 +30,7 @@ void ATransformable::rotate(const glm::vec3& axis, float angle){
 
 	setRotation( glm::quat_cast(newRot) );
 #else
+	// Ok for actors
 	rotate( glm::angleAxis(angle, axis) );
 #endif
 }

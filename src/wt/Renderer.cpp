@@ -55,7 +55,6 @@ public:
 const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_sprite GL_ARB_fragment_program GL_ARB_vertex_program";
 
 Renderer::Renderer(EventManager* eventManager) : mClearColor(0.5, 0, 0, 1.0f),
-	mGodrayPass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), mGodrayPass2(NULL, 0, "", Texture2D::eRECT_TEXTURE),
 	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL), mRenderAxes(false){
 
 	mEventManager->registerListener(this, SceneLightUpdated::TYPE);
@@ -105,15 +104,15 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	attachRenderer(new ParticleRenderer);
 
 	LOGV("Compiling godray shader ...");
-	mGodRayShader.create();
+	mGodray.shader.create();
 
 	LOGV("Compiling rect shader ...");
 	mRectShader.create();
 	
 
-	mGodraySunShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
-	mGodraySunShader.bindAttribLocation(0, "inPosition");
-	mGodraySunShader.link();
+	mGodray.sourceShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
+	mGodray.sourceShader.bindAttribLocation(0, "inPosition");
+	mGodray.sourceShader.link();
 
 
 
@@ -135,20 +134,20 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 		// godray sun
 		float vertices[] = {0,0,0};
 		uint32_t indices[] = {0};
-		mSunBatch.create(
+		mGodray.sourceBatch.create(
 			GL_POINTS,
 			vertices, 1, sizeof(float)*3,
 			indices, 1, sizeof(uint32_t)
 		);
 
-		mSunBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
+		mGodray.sourceBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
 	}
 	setClearColor(Color(0.3, 0.3, 0.3));
 
 
 	// TODO acquire this from elsewhere
 	FileIOStream stream("d:\\Documents\\prog\\c++\\workspace\\Wt\\rsrc\\godray_sun.png", AIOStream::eMODE_READ);
-	TextureLoader::getSingleton().load(&stream, &mGodraySunTexture);
+	TextureLoader::getSingleton().load(&stream, &mGodray.defaultSourceTexture);
 
 
 
@@ -181,40 +180,40 @@ bool Renderer::handleEvent(const Sp<Event> evt){
 void Renderer::initGodray(){
 	{ // Godray setup
 		
-		if(mGodrayFBO.isCreated()){
-			mGodrayFBO.destroy();
+		if(mGodray.frameBuffer.isCreated()){
+			mGodray.frameBuffer.destroy();
 
-			mGodrayDepthBuffer.destroy();
+			mGodray.depthBuffer.destroy();
 		}
 
 		// Depth buffer
-		mGodrayDepthBuffer.create();
-		mGodrayDepthBuffer.setStorage(GL_DEPTH_COMPONENT, mViewPort.x, mViewPort.y);
+		mGodray.depthBuffer.create();
+		mGodray.depthBuffer.setStorage(GL_DEPTH_COMPONENT, mViewPort.x, mViewPort.y);
 
-		mGodrayFBO.create();
+		mGodray.frameBuffer.create();
 
-		mGodrayFBO.bind(gl::FrameBuffer::eMODE_DRAW);
+		mGodray.frameBuffer.bind(gl::FrameBuffer::eMODE_DRAW);
 
-		mGodrayPass1.create();
-		mGodrayPass1.bind();
+		mGodray.pass1.create();
+		mGodray.pass1.bind();
 		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
 
 		float portW = mViewPort.x;
 		float portH = mViewPort.y;
-		mGodrayPass1.setData(portW, portH,
+		mGodray.pass1.setData(portW, portH,
 			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
 
-		mGodrayPass2.create();
-		mGodrayPass2.bind();
+		mGodray.pass2.create();
+		mGodray.pass2.bind();
 		gl( PixelStorei(GL_UNPACK_ALIGNMENT, 1) );
-		mGodrayPass2.setData(portW, portH,
+		mGodray.pass2.setData(portW, portH,
 			GL_RGBA, GL_RGBA, NULL, GL_UNSIGNED_BYTE, false);
 
-		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT0, &mGodrayPass1);
-		mGodrayFBO.addAttachment(GL_COLOR_ATTACHMENT1, &mGodrayPass2);
-		mGodrayFBO.addAttachment(GL_DEPTH_ATTACHMENT, mGodrayDepthBuffer);
+		mGodray.frameBuffer.addAttachment(GL_COLOR_ATTACHMENT0, &mGodray.pass1);
+		mGodray.frameBuffer.addAttachment(GL_COLOR_ATTACHMENT1, &mGodray.pass2);
+		mGodray.frameBuffer.addAttachment(GL_DEPTH_ATTACHMENT, mGodray.depthBuffer);
 
-		WT_ASSERT(mGodrayFBO.isComplete(), "Godray FBO incomplete");
+		WT_ASSERT(mGodray.frameBuffer.isComplete(), "Godray FBO incomplete");
 
 		struct vertex{
 			float x,y;
@@ -227,17 +226,17 @@ void Renderer::initGodray(){
 
 		uint32_t indices[4] = {0, 1, 2, 3};
 
-		mGodrayBatch.destroy();
-		mGodrayBatch.create(
+		mGodray.quadBatch.destroy();
+		mGodray.quadBatch.create(
 			GL_QUADS,
 			vertices, 4, sizeof(vertex),
 			indices, 4, sizeof(uint32_t)
 		);
 
 		// inPosition
-		mGodrayBatch.setVertexAttribute(0, 2, GL_FLOAT, offsetof(vertex, x));
+		mGodray.quadBatch.setVertexAttribute(0, 2, GL_FLOAT, offsetof(vertex, x));
 		// inTexCoord
-		mGodrayBatch.setVertexAttribute(1, 2, GL_FLOAT, offsetof(vertex, s));
+		mGodray.quadBatch.setVertexAttribute(1, 2, GL_FLOAT, offsetof(vertex, s));
 	}
 }
 
@@ -704,7 +703,7 @@ void Renderer::setViewPort(uint32_t width, uint32_t height){
 	mViewPort.y = (float)height;
 
 	{
-		if(mGodrayBatch.isGenerated()){
+		if(mGodray.quadBatch.isGenerated()){
 			initGodray();
 		}
 	}
@@ -926,7 +925,7 @@ void Renderer::godrayPass(Scene& scene){
 	// Pass 1
 	{
 		// Setup FBO
-		mGodrayFBO.bind(gl::FrameBuffer::eMODE_DRAW);
+		mGodray.frameBuffer.bind(gl::FrameBuffer::eMODE_DRAW);
 		const GLenum pass1Buffers[] = {GL_COLOR_ATTACHMENT0};
 		gl( DrawBuffers(1, pass1Buffers) );
 
@@ -943,14 +942,14 @@ void Renderer::godrayPass(Scene& scene){
 		gl( Enable(GL_PROGRAM_POINT_SIZE) );
 
 		// Setup source shader
-		mGodraySunShader.use();
+		mGodray.sourceShader.use();
 
-		mGodraySunShader.setUniformVal("uModelMat", glm::translate(godrayParams.sourcePosition));
-		mGodraySunShader.setUniformVal("uViewMat", viewMatrix);
-		mGodraySunShader.setUniformVal("uProjMat", scene.getCamera().getProjectionMatrix());
-		mGodraySunShader.setUniformVal("uSunSize", godrayParams.sourceSize);
-		mGodraySunShader.setUniformVal("uPlanetTexture", 0);
-		mGodraySunShader.setUniformVal("uSourceColor", godrayParams.sourceColor);
+		mGodray.sourceShader.setUniformVal("uModelMat", glm::translate(godrayParams.sourcePosition));
+		mGodray.sourceShader.setUniformVal("uViewMat", viewMatrix);
+		mGodray.sourceShader.setUniformVal("uProjMat", scene.getCamera().getProjectionMatrix());
+		mGodray.sourceShader.setUniformVal("uSunSize", godrayParams.sourceSize);
+		mGodray.sourceShader.setUniformVal("uPlanetTexture", 0);
+		mGodray.sourceShader.setUniformVal("uSourceColor", godrayParams.sourceColor);
 
 		gl( ActiveTexture(GL_TEXTURE0) );
 
@@ -959,7 +958,7 @@ void Renderer::godrayPass(Scene& scene){
 		}
 		else{
 			// Use default source texture if none is provided
-			mGodraySunTexture.bind();
+			mGodray.defaultSourceTexture.bind();
 		}
 
 		gl( Color4f(godrayParams.sourceColor.red, 
@@ -969,7 +968,7 @@ void Renderer::godrayPass(Scene& scene){
 		));
 
 		// Render the source
-		mSunBatch.render();
+		mGodray.sourceBatch.render();
 
 		// Use the godray texture from the deferred renderer to render entire
 		// scene on top of the source/background previously rendered
@@ -994,18 +993,18 @@ void Renderer::godrayPass(Scene& scene){
 	gl( DrawBuffers(1, pass2Buffers) );
 
 	gl( ActiveTexture(GL_TEXTURE0) );
-	mGodrayPass1.bind();
+	mGodray.pass1.bind();
 
 	// Setup post-processing shader
-	mGodRayShader.use();
-	mGodRayShader.setUniformVal("uExposure", godrayParams.exposure);
-	mGodRayShader.setUniformVal("uDecay", godrayParams.decay);
-	mGodRayShader.setUniformVal("uDensity", godrayParams.density);
-	mGodRayShader.setUniformVal("uWeight", godrayParams.weight);
-	mGodRayShader.setUniformVal("uNumSamples", (int)godrayParams.sampleNumber);
-	mGodRayShader.setUniformVal("uRectImage", 0);
-	mGodRayShader.setUniformVal("uLightPositionOnScreen", glm::vec2(sourceScreenPos.x, sourceScreenPos.y));
-	mGodRayShader.setUniformVal("uMVPMat", glm::ortho(
+	mGodray.shader.use();
+	mGodray.shader.setUniformVal("uExposure", godrayParams.exposure);
+	mGodray.shader.setUniformVal("uDecay", godrayParams.decay);
+	mGodray.shader.setUniformVal("uDensity", godrayParams.density);
+	mGodray.shader.setUniformVal("uWeight", godrayParams.weight);
+	mGodray.shader.setUniformVal("uNumSamples", (int)godrayParams.sampleNumber);
+	mGodray.shader.setUniformVal("uRectImage", 0);
+	mGodray.shader.setUniformVal("uLightPositionOnScreen", glm::vec2(sourceScreenPos.x, sourceScreenPos.y));
+	mGodray.shader.setUniformVal("uMVPMat", glm::ortho(
 		0.0f, mViewPort.x, 0.0f, mViewPort.y));
 
 	gl( Disable(GL_BLEND) );
@@ -1013,7 +1012,7 @@ void Renderer::godrayPass(Scene& scene){
 	gl( Disable(GL_CULL_FACE) );
 
 	// Do the post-processing effect
-	mGodrayBatch.render();
+	mGodray.quadBatch.render();
 
 	// We now have a texture with a complete godray effect
 	// so we just have to render it on top of the normal scene
@@ -1034,7 +1033,7 @@ void Renderer::godrayPass(Scene& scene){
 	mRectShader.use();
 
 	gl( ActiveTexture(GL_TEXTURE0) );
-	mGodrayPass2.bind();
+	mGodray.pass2.bind();
 
 	mRectShader.setUniformVal("uRectImage", 0);
 	mRectShader.setUniformVal("uMVPMat", glm::ortho(
@@ -1045,7 +1044,7 @@ void Renderer::godrayPass(Scene& scene){
 	gl( Disable(GL_DEPTH_TEST) );
 		
 
-	mGodrayBatch.render();
+	mGodray.quadBatch.render();
 }
 
 void Renderer::render(Scene& scene, gui::Window* window){
