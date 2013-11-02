@@ -638,6 +638,9 @@ void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color
 	camera->getCameraMatrix(mv);
 	gl( LoadMatrixf( glm::value_ptr(mv) ) );
 
+	gl( Disable(GL_DEPTH_TEST) );
+	gl( Disable(GL_BLEND) );
+
 	PxVec3 center = bounds.getCenter();
 	PxVec3 extents = bounds.getExtents();
 
@@ -838,34 +841,6 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 		}
 	}
 
-	if(pass == ARenderer::ePASS_NORMAL){
-		// Skeleton bones
-		if(mRenderBones){
-			for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
-				if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
-					render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
-				}
-			}
-		}
-
-		// Bounding boxes
-		if(mRenderBoundingBoxes){
-			glDisable(GL_DEPTH_TEST);
-			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-				render(i->second->getBounds(), &scene.getCamera(), i->second->getBoundingBoxColor());
-			}
-			glEnable(GL_DEPTH_TEST);
-		}
-
-		if(mRenderAxes){
-			glDisable(GL_DEPTH_TEST);
-			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-				render(i->second->getTransformable(), &scene.getCamera());
-			}
-			glEnable(GL_DEPTH_TEST);
-		}
-	}
-
 	// Final pass (render the resulting texture to the screen)
 	mDeferredRenderer->bindForFinalPass();
 	mDeferredRenderer->getFrameBuffer()->blit(
@@ -1042,7 +1017,6 @@ void Renderer::godrayPass(Scene& scene){
 	gl( Enable(GL_BLEND) );
 	gl( BlendFunc(GL_ONE, GL_ONE) );
 	gl( Disable(GL_DEPTH_TEST) );
-		
 
 	mGodray.quadBatch.render();
 }
@@ -1107,8 +1081,51 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	// Do the godray post-processing effect if enabled
 	godrayPass(scene);
 
-	if(scene.getUIWindow()){
+	/*if(scene.getUIWindow()){
 		render(scene, scene.getUIWindow());
+	}*/
+
+	if(!target){
+		// Use default framebuffer
+		gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
+
+		GLint doubleBuffered; 
+		gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
+
+		GLenum defaultBfrs[1];
+		defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
+
+		gl( DrawBuffers(1, defaultBfrs) );
+	}
+	else{
+		target->bind();
+	}
+
+	// Render debug info
+	// Skeleton bones
+	if(mRenderBones){
+		for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
+			if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
+				render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
+			}
+		}
+	}
+
+	// Bounding boxes
+	if(mRenderBoundingBoxes){
+		glDisable(GL_DEPTH_TEST);
+		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+			render(i->second->getBounds(), &scene.getCamera(), i->second->getBoundingBoxColor());
+		}
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	if(mRenderAxes){
+		glDisable(GL_DEPTH_TEST);
+		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+			render(i->second->getTransformable(), &scene.getCamera());
+		}
+		glEnable(GL_DEPTH_TEST);
 	}
 }
 

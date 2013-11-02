@@ -16,6 +16,8 @@ public:
 
 	void onAnimationProgress(wt::TransformableAnimator* animator, float progress);
 
+	void onAnimationStateChanged(wt::TransformableAnimator*, wt::TransformableAnimator::State);
+
 private:
 	struct Keyframe{
 		int32_t id;
@@ -39,15 +41,28 @@ private:
 	KeyframeSet mKeyframes;
 	Keyframe* mCurrentKeyframe;
 	wt::NodeAnimation* mNodeAnimation;
+	wt::TransformableAnimator* mAnimationPlayer;
 
 protected slots:
 	void onAnimationSave();
 
 	void onKeyframeAdd();
 
+	Keyframe* addKeyframe(const glm::vec3& pos, const glm::quat& rot, float time);
+
 	void onKeyframeTimeSet(double);
 
 	void onKeyframeSet();
+
+	void onKeyframeGoTo();
+
+	void onClear();
+
+	void onAnimationSeek(int);
+
+	void onStop();
+
+	void onAnimationLoad();
 
 	void onKeyframeSelected();
 

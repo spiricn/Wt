@@ -11,9 +11,6 @@ Animation::Animation(AResourceManager<Animation>* manager, ResourceHandle handle
 
 void Animation::setDuration(float dur){
 	mDuration = dur;
-	for(NodeAnimationList::iterator i=mNodeAnimations.begin(); i!=mNodeAnimations.end(); i++){
-		(*i)->setDuration(dur);
-	}
 }
 
 float Animation::getDuration() const{
@@ -23,7 +20,6 @@ float Animation::getDuration() const{
 NodeAnimation* Animation::addNodeAnimation(){
 	NodeAnimation* res = new NodeAnimation();
 	mNodeAnimations.push_back(res);
-	res->setDuration(mDuration);
 	return res;
 }
 

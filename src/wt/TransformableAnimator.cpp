@@ -7,15 +7,23 @@
 namespace wt
 {
 
-TransformableAnimator::TransformableAnimator(ATransformable* target, NodeAnimation* animation, bool loop) : mTarget(target),
-	mAnimation(animation), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f){
+TransformableAnimator::TransformableAnimator(ATransformable* target, NodeAnimation* animation, bool loop, bool selfDestruct) : mTarget(target),
+	mAnimation(animation), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f), mSelfDestruct(selfDestruct){
 }
 
-TransformableAnimator::TransformableAnimator(ATransformable* target, Animation* animation, const String& node, bool loop) : mTarget(target),
-	mAnimation(NULL), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f){
+TransformableAnimator::TransformableAnimator(ATransformable* target, Animation* animation, const String& node, bool loop, bool selfDestruct) : mTarget(target),
+	mAnimation(NULL), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f), mSelfDestruct(selfDestruct){
 		mAnimation = animation->findNodeAnimation(node);
 
 		WT_ASSERT(mAnimation != NULL, "Invalid node animation name \"%s\" for animatino \"%s\"", node.c_str(), animation->getPath().c_str());
+}
+
+TransformableAnimator::State TransformableAnimator::getState() const{
+	return mState;
+}
+
+NodeAnimation* TransformableAnimator::getNodeAnimation() const{
+	return mAnimation;
 }
 
 void TransformableAnimator::pause(){
@@ -34,6 +42,24 @@ void TransformableAnimator::setSpeed(float speed){
 void TransformableAnimator::reset(){
 	changeState(eSTATE_PLAYING);
 	mCurrentTime = 0.0f;
+}
+
+float TransformableAnimator::getPosition() const{
+	return mCurrentTime;
+}
+
+void TransformableAnimator::setPosition(float pos){
+	if(pos < 0.0f || pos > mAnimation->getDuration()){
+		TRACEE("Invalid position time %f", pos);
+		return;
+	}
+
+	if(mCurrentTime == pos){
+		return;
+	}
+	
+	mCurrentTime = pos;
+	animate();
 }
 
 void TransformableAnimator::play(){
@@ -74,6 +100,13 @@ void TransformableAnimator::onProcEnd(){
 	changeState(eSTATE_FINISHED);
 }
 
+void TransformableAnimator::animate(){
+	glm::mat4 mat;
+	mAnimation->evaluate(mCurrentTime, mat, false);
+
+	mTarget->setTransformMatrix(mat);
+}
+
 void TransformableAnimator::onProcUpdate(float dt){
 	if(mState != eSTATE_PLAYING){
 		return;
@@ -97,14 +130,13 @@ void TransformableAnimator::onProcUpdate(float dt){
 		mListener->onAnimationProgress(this, mCurrentTime / mAnimation->getDuration() );
 	}
 
-	glm::mat4 mat;
-	mAnimation->evaluate(mCurrentTime, mat, true);
-
-	mTarget->setTransformMatrix(mat);
+	animate();
 
 	if(finished){
 		changeState( eSTATE_FINISHED );
-		killProcess();
+		if(mSelfDestruct){
+			killProcess();
+		}
 	}
 }
 

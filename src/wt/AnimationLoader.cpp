@@ -66,10 +66,10 @@ void AnimationLoader::load(AIOStream* stream, Animation* ani){
 			// rotation
 			float rot[4];
 			stream->read((char*)rot, 4*sizeof(float));
-			key.rotation.x = rot[0];
-			key.rotation.y = rot[1];
-			key.rotation.z = rot[2];
-			key.rotation.w = rot[3];
+			key.value.x = rot[0];
+			key.value.y = rot[1];
+			key.value.z = rot[2];
+			key.value.w = rot[3];
 
 			// time
 			stream->read((char*)&key.time, sizeof(float));
@@ -87,7 +87,7 @@ void AnimationLoader::load(AIOStream* stream, Animation* ani){
 			NodeAnimation::ScaleKey key;
 
 			// position
-			stream->read((char*)glm::value_ptr(key.scale), 3*sizeof(float));
+			stream->read((char*)glm::value_ptr(key.value), 3*sizeof(float));
 
 			// time
 			stream->read((char*)&key.time, sizeof(float));
@@ -154,7 +154,7 @@ void AnimationLoader::save(AIOStream* stream, Animation* ani){
 		// pos_keys
 		for(uint32_t j=0; j<numPosKeys; j++){
 			// position
-			stream->write((char*)glm::value_ptr(node->getPositionKeys()[j].position), 3*sizeof(float));
+			stream->write((char*)glm::value_ptr(node->getPositionKeys()[j].value), 3*sizeof(float));
 
 			// time
 			stream->write((char*)&node->getPositionKeys()[j].time, sizeof(float));
@@ -167,10 +167,10 @@ void AnimationLoader::save(AIOStream* stream, Animation* ani){
 		// rot_keys
 		for(NodeAnimation::RotKeyList::iterator i=node->getRotationKeys().begin(); i!=node->getRotationKeys().end(); i++){
 			// rotation
-			float rot[4] = {i->rotation.x,
-				i->rotation.y,
-				i->rotation.z,
-				i->rotation.w};
+			float rot[4] = {i->value.x,
+				i->value.y,
+				i->value.z,
+				i->value.w};
 
 			stream->write((char*)rot, 4*sizeof(float));
 
@@ -185,7 +185,7 @@ void AnimationLoader::save(AIOStream* stream, Animation* ani){
 		// scale_keys
 		for(NodeAnimation::ScaleKeyList::iterator i=node->getScaleKeys().begin(); i!=node->getScaleKeys().end(); i++){
 			// scale
-			stream->write((char*)glm::value_ptr(i->scale), 3*sizeof(float));
+			stream->write((char*)glm::value_ptr(i->value), 3*sizeof(float));
 
 			// time
 			stream->write((char*)&i->time, sizeof(float));

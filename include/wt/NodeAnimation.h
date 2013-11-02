@@ -8,65 +8,52 @@ namespace wt{
 class NodeAnimation{
 public:
 	struct PositionKey{
-		glm::vec3 position;
+		glm::vec3 value;
 		float time;
 
 		PositionKey(float x=0.0f, float y=0.0f, float z=0.0f, float t=0.0f) : time(t){
-			position.x = x;
-			position.y = y;
-			position.z = z;
+			value.x = x;
+			value.y = y;
+			value.z = z;
 		}
-	};
+	}; // </PositionKey>
 
 	struct RotationKey{
-		glm::quat rotation;
+		glm::quat value;
 		float time;
 
 		RotationKey(float x=0.0f, float y=0.0f, float z=0.0f, float w=0.0f, float t=0.0f) : time(t){
-			rotation.x = x;
-			rotation.y = y;
-			rotation.z = z;
-			rotation.w = w;
+			value.x = x;
+			value.y = y;
+			value.z = z;
+			value.w = w;
 		}
-	};
+	}; // </RotationKey>
 
 	struct ScaleKey{
-		glm::vec3 scale;
+		glm::vec3 value;
 		float time;
 
 		ScaleKey(float sx=0.0f, float sy=0.0f, float sz=0.0f, float t=0.0f) : time(t){
-			scale.x = sx;
-			scale.y = sy;
-			scale.z = sz;
+			value.x = sx;
+			value.y = sy;
+			value.z = sz;
 		}
-	};
+	}; // </ScaleKey>
 
 	typedef std::vector<PositionKey> PosKeyList;
+
 	typedef std::vector<RotationKey> RotKeyList;
+
 	typedef std::vector<ScaleKey> ScaleKeyList;
 
-private:
-	PosKeyList mPosKeys;
-	RotKeyList mRotKeys;
-	ScaleKeyList mScaleKeys;
-	String mNodeName;
-
-	float mDuration;
-
-	int findPosKey(float time) const;
-
-	int findRotKey(float time) const;
-
-	int findScaleKey(float time) const;
-
-	void calcTangent(int32_t k, glm::vec3& res) const;
 public:
 
 	NodeAnimation();
 
 	void setTargetNode(const String& target);
 
-	void setDuration(float dur);
+	//void setDuration(float dur);
 
 	float getDuration() const;
 
@@ -82,7 +69,22 @@ public:
 
 	void evaluate(float time, glm::mat4x4& dst, bool useSplines=false) const;
 
+
+private:
+	PosKeyList mPosKeys;
+	RotKeyList mRotKeys;
+	ScaleKeyList mScaleKeys;
+	String mNodeName;
+
+	float mDuration;
+
+	void calcTangent(int32_t k, glm::vec3& res) const;
+
+	NodeAnimation(const NodeAnimation&);
+
 }; // </NodeAnimation>
+
+
 
 }; // </wt>
 

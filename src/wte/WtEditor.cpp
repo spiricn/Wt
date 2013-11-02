@@ -84,7 +84,7 @@ void WtEditor::onOpenGLContextCreated(){
 
 	loadAssets(DEBUG_WORKSPACE "/assets.wtr");
 
-	loadScene(DEBUG_WORKSPACE "/simple_scene.wts");
+	loadScene(DEBUG_WORKSPACE "/scene.wts");
 
 #undef DEBUG_WORKSPACE
 
@@ -505,4 +505,10 @@ void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel le
 
 	thiz->ui.logList->scrollToItem(item);
 	thiz->ui.logList->setCurrentItem(item);
+
+	if(thiz->ui.logList->count() > 10){
+		thiz->ui.logList->removeItemWidget( thiz->ui.logList->item(0) );
+		//delete thiz->ui.logList->takeItem(0);
+	}
+
 }

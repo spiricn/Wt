@@ -7,66 +7,51 @@
 
 #define SPLINE_TENSION 0.8f
 
-namespace wt{
+namespace wt
+{
 	
+template<class T>
+struct AnimationKeyPair{
+	const T* key1;
+	const T* key2;
+
+	int32_t key1Idx;
+	int32_t key2Idx;
+
+	float factor;
+
+	AnimationKeyPair() : key1(NULL), key2(NULL), factor(0.0f), key1Idx(-1), key2Idx(-1){
+	}
+
+}; // </AnimationKeyPair>
+
+template<class T>
+int findAnimationKey(const std::vector<T>& list, float time);
+
+template<const class T>
+void findAnimationKeys(const std::vector<T>& list, float time, AnimationKeyPair<T>* res);
+
+template<class KeyType, class ValType>
+void interpolate(const std::vector<KeyType>& keys, float time, ValType& result);
+
 void NodeAnimation::calcTangent(int32_t k, glm::vec3& res) const{
+	PositionKey* key;
+
 	const PositionKey& prev = mPosKeys[ (k-1)<0?mPosKeys.size()-1:k-1 ];
 	const PositionKey& next = mPosKeys[ (k+1)%mPosKeys.size() ];
 
-	res = SPLINE_TENSION * (next.position - prev.position);
-}
-
-void NodeAnimation::setDuration(float dur){
-	mDuration = dur;
+	res = SPLINE_TENSION * (next.value - prev.value);
 }
 
 float NodeAnimation::getDuration() const{
-	return mDuration;
+	const float pos = mPosKeys.empty() ? 0.0f : mPosKeys[mPosKeys.size()-1].time;
+	const float rot = mRotKeys.empty() ? 0.0f : mRotKeys[mRotKeys.size()-1].time;
+	const float scl = mScaleKeys.empty() ? 0.0f : mScaleKeys[mScaleKeys.size()-1].time;
+
+	return glm::max( glm::max(pos, rot), scl );
 }
 
-int NodeAnimation::findPosKey(float time) const{
-	if(mPosKeys.size()==0){
-		return -1;
-	}
-
-	for(uint32_t i=0; i<mPosKeys.size()-1; i++){
-		if(time < mPosKeys[i+1].time){
-			return i;
-		}
-	}
-
-	return mPosKeys.size()-1;
-}
-
-int NodeAnimation::findRotKey(float time) const{
-	if(mRotKeys.empty()){
-		return -1;
-	}
-
-	for(uint32_t i=0; i<mRotKeys.size()-1; i++){
-		if(time < mRotKeys[i+1].time){
-			return i;
-		}
-	}
-
-	return mRotKeys.size()-1;
-}
-
-int NodeAnimation::findScaleKey(float time) const{
-	if(mScaleKeys.empty()){
-		return -1;
-	}
-
-	for(uint32_t i=0; i<mScaleKeys.size()-1; i++){
-		if(time < mScaleKeys[i+1].time){
-			return i;
-		}
-	}
-
-	return mScaleKeys.size()-1;
-}
-
-NodeAnimation::NodeAnimation() : mNodeName(""), mDuration(0.0f){
+NodeAnimation::NodeAnimation() : mNodeName(""){
 }
 
 void NodeAnimation::setTargetNode(const String& target){
@@ -91,146 +76,30 @@ NodeAnimation::ScaleKeyList& NodeAnimation::getScaleKeys(){
 
 void NodeAnimation::evaluate(float time, glm::vec3& translation,
 	glm::quat& rotation, glm::vec3& scale, bool useSplines) const{
-	/* Translation */
-	int posKey = findPosKey(time);
-	if(posKey != -1){
 
-		const PositionKey& k1 = mPosKeys[posKey];
+	if(useSplines){
+		AnimationKeyPair<PositionKey> keyPair;
+		findAnimationKeys(mPosKeys, time, &keyPair);
 
-		const PositionKey& k2 = mPosKeys[ (posKey+1) % mPosKeys.size() ];
+		if(keyPair.key1 && keyPair.key2){
+			glm::vec3 m1, m2;
+			calcTangent(keyPair.key1Idx, m1);
+			calcTangent(keyPair.key2Idx, m2);
 
-		float factor;
-		float timeDiff;
-
-		if(k2.time < k1.time){
-			//factor = 
-			timeDiff = mDuration-k1.time /* time until the end of the animation */+
-				+ k2.time /* time until the beggining of the first (not always first?) frame */;
-			if(time >= k1.time && time <= mDuration){
-				factor = (time-k1.time)/timeDiff;
-			}
-			else{
-				factor = (timeDiff-time)/timeDiff;
-			}
+			translation.x = math::hermite(keyPair.key1->value.x, keyPair.key2->value.x, m1.x, m2.x, keyPair.factor);
+			translation.y = math::hermite(keyPair.key1->value.y, keyPair.key2->value.y, m1.y, m2.y, keyPair.factor);
+			translation.z = math::hermite(keyPair.key1->value.z, keyPair.key2->value.z, m1.z, m2.z, keyPair.factor);
 		}
 		else{
-			timeDiff = k2.time-k1.time;
-			factor = (time-k1.time)/timeDiff;
-		}
-
-		if(useSplines){
-			if(timeDiff == 0.0f){
-				translation = k1.position;
-			}
-			else{
-				glm::vec3 m1, m2;
-				calcTangent(posKey, m1);
-				calcTangent((posKey+1)%mPosKeys.size(), m2);
-
-		
-
-				translation.x = math::hermite(k1.position.x, k2.position.x, m1.x, m2.x, factor);
-				translation.y = math::hermite(k1.position.y, k2.position.y, m1.y, m2.y, factor);
-				translation.z = math::hermite(k1.position.z, k2.position.z, m1.z, m2.z, factor);
-			}
-		}
-		else{
-			if(timeDiff == 0.0f){
-				translation = k1.position;
-			}
-			else{
-				translation = glm::mix(k1.position, k2.position, factor);
-			}
-		}
-
-	}
-	else if(mPosKeys.size()==1){
-		translation = mPosKeys[0].position;
-	}
-
-	/* Rotation */
-	int rotKey = findRotKey(time);
-	if(rotKey != -1){
-		const RotationKey& k1 = mRotKeys[rotKey];
-
-		const RotationKey& k2 = mRotKeys[ (rotKey+1)%mRotKeys.size() ];
-
-		
-		float factor;
-		float timeDiff;
-
-		if(k2.time < k1.time){
-			//factor = 
-			timeDiff = mDuration-k1.time /* time until the end of the animation */+
-				+ k2.time /* time until the beggining of the first (not always first?) frame */;
-			if(time >= k1.time && time <= mDuration){
-				factor = (time-k1.time)/timeDiff;
-			}
-			else{
-				factor = (timeDiff-time)/timeDiff;
-			}
-
-		}
-		else{
-			timeDiff = k2.time-k1.time;
-			factor = (time-k1.time)/timeDiff;
-		}
-
-
-		if(timeDiff==0.0f){
-			rotation = k1.rotation;
-		}
-		else{
-			/* slerp */
-			rotation = glm::mix(k1.rotation,
-				glm::dot(k1.rotation, k2.rotation)<0?-k2.rotation:k2.rotation, factor);
-		}
-
-	}
-	else if(mRotKeys.size()==1){
-		rotation = mRotKeys[0].rotation;
-	}
-
-	/* Scale */
-
-	int scaleKey = findScaleKey(time);
-	if(scaleKey != -1){
-		const ScaleKey& k1 = mScaleKeys[scaleKey];
-
-		const ScaleKey& k2 = mScaleKeys[ (scaleKey+1)%mScaleKeys.size() ];
-
-		
-		float factor;
-		float timeDiff;
-
-		if(k2.time < k1.time){
-			//factor = 
-			timeDiff = mDuration-k1.time /* time until the end of the animation */+
-				+ k2.time /* time until the beggining of the first (not always first?) frame */;
-			if(time >= k1.time && time <= mDuration){
-				factor = (time-k1.time)/timeDiff;
-			}
-			else{
-				factor = (timeDiff-time)/timeDiff;
-			}
-
-		}
-		else{
-			timeDiff = k2.time-k1.time;
-			factor = (time-k1.time)/timeDiff;
-		}
-
-
-		if(timeDiff==0.0f){
-			scale = k1.scale;
-		}
-		else{
-			scale = glm::mix(k1.scale, k2.scale, factor);
+			interpolate(mPosKeys, time, translation);
 		}
 	}
-	else if(mRotKeys.size()==1){
-		rotation = mRotKeys[0].rotation;
+	else{
+		interpolate(mPosKeys, time, translation);
 	}
+
+	interpolate(mRotKeys, time, rotation);
+	interpolate(mScaleKeys, time, scale);
 }
 
 void NodeAnimation::evaluate(float time, glm::mat4x4& dst, bool useSplines) const{
@@ -245,5 +114,72 @@ void NodeAnimation::evaluate(float time, glm::mat4x4& dst, bool useSplines) cons
 	dst = glm::translate(translation) * ( glm::mat4_cast(rotation) * glm::scale(scale) );
 }
 
+
+template<class T>
+int findAnimationKey(const std::vector<T>& list, float time){
+	if(list.empty()){
+		return -1;
+	}
+
+	const uint32_t numKeys = list.size();
+
+	for(uint32_t i=0; i<numKeys; i++){
+		if(i == numKeys -1 || time < list[i+1].time){
+			return i;
+		}
+	}
+
+	return list.size()-1;
+}
+
+template<const class T>
+void findAnimationKeys(const std::vector<T>& list, float time, AnimationKeyPair<T>* res){
+	int keyPos = findAnimationKey(list, time);
+
+	if(keyPos == -1){
+		res->key1 = NULL;
+		res->key2 = NULL;
+		res->factor = 0.0f;
+	}
+	else if(keyPos == list.size() - 1){
+		res->key1 = &list[keyPos];
+		res->key1Idx = keyPos;
+
+		res->key2 = NULL;
+		res->factor = 0.0f;
+	}
+	else{
+		res->key1 = &list[keyPos];
+		res->key1Idx = keyPos;
+
+		res->key2 = &list[keyPos + 1];
+		res->key2Idx = keyPos + 1;
+
+		const float diff = (res->key2)->time - (res->key1)->time;
+
+		const float pos = time - (res->key1)->time;
+
+		res->factor = pos/diff;
+	}
+}
+
+template<class KeyType, class ValType>
+void interpolate(const std::vector<KeyType>& keys, float time, ValType& result){
+	AnimationKeyPair<KeyType> keyPair;
+	findAnimationKeys(keys, time, &keyPair);
+
+	if(keyPair.key1 && keyPair.key2){
+		result = glm::mix(keyPair.key1->value, keyPair.key2->value, keyPair.factor);
+	}
+	else if(keyPair.key1){
+		result = keyPair.key1->value;
+	}
+#if 0
+	else{
+		// TODO assuming 'result' is already set to its respective identity value
+		result = ValType(0.0f);
+	}
+#endif
+}
 
 }; // </wt>

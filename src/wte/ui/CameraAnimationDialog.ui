@@ -6,75 +6,52 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>651</width>
-    <height>586</height>
+    <width>464</width>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="2" column="0" colspan="3">
+   <item row="4" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Player</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0">
-       <widget class="QPushButton" name="pushButton_4">
-        <property name="text">
-         <string>PushButton</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="text">
-         <string>Play</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="2">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="labelTime">
         <property name="text">
          <string>Time: 0.00s</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="3">
+      <item row="2" column="0">
+       <widget class="QPushButton" name="playPause">
+        <property name="text">
+         <string>Play</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="4">
        <widget class="QSlider" name="horizontalSlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="3">
-    <widget class="QTreeWidget" name="treeWidget">
-     <column>
-      <property name="text">
-       <string>Keyframe</string>
-      </property>
-     </column>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>Add</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="text">
-      <string>Delete</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
+   <item row="5" column="0" colspan="2">
     <widget class="QGroupBox" name="keyframeGroup">
      <property name="title">
       <string>Keyframe</string>
@@ -97,13 +74,50 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton_7">
+        <property name="text">
+         <string>Go to</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="2">
+   <item row="0" column="0" colspan="3">
+    <widget class="QTreeWidget" name="treeWidget">
+     <column>
+      <property name="text">
+       <string>Keyframe</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Add</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="pushButton_8">
+     <property name="text">
+      <string>Load</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
     <widget class="QPushButton" name="pushButton_6">
      <property name="text">
-      <string>Save animation</string>
+      <string>Save</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="text">
+      <string>Clear</string>
      </property>
     </widget>
    </item>
@@ -119,10 +133,10 @@
    <hints>
     <hint type="sourcelabel">
      <x>128</x>
-     <y>392</y>
+     <y>284</y>
     </hint>
     <hint type="destinationlabel">
-     <x>579</x>
+     <x>463</x>
      <y>471</y>
     </hint>
    </hints>
@@ -135,11 +149,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>81</x>
-     <y>527</y>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>320</x>
-     <y>567</y>
+     <y>477</y>
     </hint>
    </hints>
   </connection>
@@ -150,12 +164,12 @@
    <slot>onKeyframeTimeSet(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>168</x>
-     <y>554</y>
+     <x>212</x>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
      <x>334</x>
-     <y>525</y>
+     <y>477</y>
     </hint>
    </hints>
   </connection>
@@ -176,17 +190,17 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_2</sender>
+   <sender>playPause</sender>
    <signal>clicked()</signal>
    <receiver>CameraAnimationDialog</receiver>
    <slot>onPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>333</x>
-     <y>470</y>
+     <x>120</x>
+     <y>362</y>
     </hint>
     <hint type="destinationlabel">
-     <x>489</x>
+     <x>463</x>
      <y>397</y>
     </hint>
    </hints>
@@ -198,12 +212,92 @@
    <slot>onAnimationSave()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>565</x>
-     <y>387</y>
+     <x>290</x>
+     <y>279</y>
     </hint>
     <hint type="destinationlabel">
-     <x>626</x>
+     <x>463</x>
      <y>405</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_7</sender>
+   <signal>clicked()</signal>
+   <receiver>CameraAnimationDialog</receiver>
+   <slot>onKeyframeGoTo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>420</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>282</x>
+     <y>477</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_8</sender>
+   <signal>clicked()</signal>
+   <receiver>CameraAnimationDialog</receiver>
+   <slot>onAnimationLoad()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>366</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>328</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>CameraAnimationDialog</receiver>
+   <slot>onClear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>439</x>
+     <y>434</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>464</x>
+     <y>302</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>CameraAnimationDialog</receiver>
+   <slot>onAnimationSeek(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>194</x>
+     <y>328</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>200</x>
+     <y>295</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>CameraAnimationDialog</receiver>
+   <slot>onStop()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>158</x>
+     <y>361</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>385</y>
     </hint>
    </hints>
   </connection>
@@ -215,5 +309,10 @@
   <slot>onKeyframeSelected()</slot>
   <slot>onPlay()</slot>
   <slot>onAnimationSave()</slot>
+  <slot>onKeyframeGoTo()</slot>
+  <slot>onAnimationLoad()</slot>
+  <slot>onClear()</slot>
+  <slot>onAnimationSeek(int)</slot>
+  <slot>onStop()</slot>
  </slots>
 </ui>

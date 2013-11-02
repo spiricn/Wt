@@ -40,7 +40,7 @@ public:
 
 		getPhysics()->update(dt);
 		getScene()->update(dt);
-		getCameraControl()->handle(dt, getManager()->getInput());
+		//getCameraControl()->handle(dt, getManager()->getInput());
 	}
 
 	void onKeyDown(VirtualKey c){
@@ -66,35 +66,41 @@ public:
 		actor->getTransformable()->getTranslation(startPos);
 
 
-		posKey.position = startPos;
+		posKey.value = startPos;
 		posKey.time = 0.0f;
 		node->getPositionKeys().push_back(posKey);
 
-		posKey.position += glm::vec3(0, 10, 0);
+		posKey.value += glm::vec3(0, 10, 0);
 		posKey.time = 3.0f;
 		node->getPositionKeys().push_back(posKey);
 
-		posKey.position = startPos;
+		posKey.value = startPos;
 		posKey.time = 6.0f;
 		node->getPositionKeys().push_back(posKey);
 
 		NodeAnimation::RotationKey rotKey;
 
 		rotKey.time = 0.0f;
-		rotKey.rotation = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
+		rotKey.value = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
 		node->getRotationKeys().push_back(rotKey);
 
 		rotKey.time = 6.0f;
-		rotKey.rotation = glm::angleAxis(180.0f, glm::vec3(0, 1, 0));
+		rotKey.value = glm::angleAxis(180.0f, glm::vec3(0, 1, 0));
 		node->getRotationKeys().push_back(rotKey);
 
-		node->setDuration(posKey.time);
+		{
+			TransformableAnimator* animator;
 
-		TransformableAnimator* animator;
+			getProcManager().attach( animator = new TransformableAnimator(actor->getController(), node, true) );
 
-		getProcManager().attach( animator = new TransformableAnimator(actor->getController(), node, true) );
+			animator->setSpeed(5.0f);
+		}
 
-		animator->setSpeed(5.0f);
+		{
+			Animation* anim = new Animation;
+			getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera.wta", anim);
+			getProcManager().attach(  new TransformableAnimator(&getScene()->getCamera(), anim, "default", true) );
+		}
 	}
 
 	String getScriptPath() const{
