@@ -87,6 +87,8 @@ void CameraAnimationDialog::onAnimationProgress(wt::TransformableAnimator* anima
 	ui.labelTime->setText(
 		QString("Time: %1 sec").arg(progress*animator->getNodeAnimation()->getDuration())
 	);
+
+	wt::NodeAnimation::PositionKey* key = animator->getNodeAnimation()->getPosKeyAt(progress*animator->getNodeAnimation()->getDuration());
 }
 
 void CameraAnimationDialog::generateNode(wt::NodeAnimation* node){
@@ -95,20 +97,20 @@ void CameraAnimationDialog::generateNode(wt::NodeAnimation* node){
 	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
 		time += (*iter)->time;
 
-		node->getPositionKeys().push_back(wt::NodeAnimation::PositionKey(
-			(*iter)->pos.x,
-			(*iter)->pos.y,
-			(*iter)->pos.z,
-			time
-		));
+		wt::NodeAnimation::PositionKey* posKey = node->addPositionKey();
 
-		node->getRotationKeys().push_back(wt::NodeAnimation::RotationKey(
-			(*iter)->rot.x,
-			(*iter)->rot.y,
-			(*iter)->rot.z,
-			(*iter)->rot.w,
-			time
-		));
+		posKey->value.x = (*iter)->pos.x;
+		posKey->value.y = (*iter)->pos.y;
+		posKey->value.z = (*iter)->pos.z;
+		posKey->time = time;
+
+		wt::NodeAnimation::RotationKey* rotKey = node->addRotationKey();
+
+		rotKey->value.x = (*iter)->rot.x;
+		rotKey->value.y = (*iter)->rot.y;
+		rotKey->value.z = (*iter)->rot.z;
+		rotKey->value.w = (*iter)->rot.w;
+		rotKey->time = time;
 	}
 }
 
@@ -125,24 +127,32 @@ void CameraAnimationDialog::onAnimationLoad(){
 
 	wt::NodeAnimation* node = *anim->getNodeAnimationList().begin();
 
-	WT_ASSERT(node->getPositionKeys().size() == node->getRotationKeys().size(), "Invalid camera animation");
+	WT_ASSERT(node->getNumPosKeys() == node->getNumRotKeys(), "Invalid camera animation");
 
 	float prevTime = 0.0f;
 
-	for(uint32_t i=0; i<node->getPositionKeys().size(); i++){
-		const wt::NodeAnimation::PositionKey& posKey = node->getPositionKeys()[i];
-		const wt::NodeAnimation::RotationKey& rotKey = node->getRotationKeys()[i];
+	wt::NodeAnimation::PosKeyIter posKeyIter = node->getPosKeysBegin();
+	wt::NodeAnimation::RotKeyIter rotKeyIter = node->getRotKeysBegin();
 
-		WT_ASSERT(posKey.time == rotKey.time, "Invalid camera animation");
+	for(uint32_t i=0; i<node->getNumPosKeys(); i++, posKeyIter++, rotKeyIter++){
+		WT_ASSERT((*posKeyIter)->time == (*rotKeyIter)->time, "Invalid camera animation");
 
-		addKeyframe(posKey.value, rotKey.value, posKey.time-prevTime);
+		addKeyframe((*posKeyIter)->value, (*rotKeyIter)->value, (*posKeyIter)->time-prevTime);
 
-		prevTime = posKey.time;
+		prevTime = (*posKeyIter)->time;
 	}
 
 	delete anim;
 
 	LOGI("Animation load form \"%s\"", res.toStdString().c_str());
+}
+
+void CameraAnimationDialog::onKeyframeDelete(){
+	if(!mCurrentKeyframe){
+		return;
+	}
+
+	TRACEW("TODO");
 }
 
 void CameraAnimationDialog::onKeyframeGoTo(){
@@ -165,7 +175,7 @@ void CameraAnimationDialog::onAnimationSave(){
 	wt::NodeAnimation* node = anim->addNodeAnimation();
 	generateNode(node);
 
-	node->setTargetNode("default");
+	node->setName("default");
 
 	mScene->getAssets()->getAnimationManager()->getLoader()->save(res.toStdString(), anim);
 

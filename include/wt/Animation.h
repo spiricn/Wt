@@ -34,7 +34,7 @@ public:
 
 	float getDuration() const;
 
-	NodeAnimation* addNodeAnimation();
+	NodeAnimation* addNodeAnimation(const String& name="");
 
 	NodeAnimationList& getNodeAnimationList();
 

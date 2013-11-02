@@ -7,74 +7,109 @@ namespace wt{
 	
 class NodeAnimation{
 public:
-	struct PositionKey{
-		glm::vec3 value;
+
+	template<class T>
+	class Keyframe{
+	friend class NodeAnimation;
+	public:
+		T value;
 		float time;
 
-		PositionKey(float x=0.0f, float y=0.0f, float z=0.0f, float t=0.0f) : time(t){
-			value.x = x;
-			value.y = y;
-			value.z = z;
+		int32_t getIndex() const{
+			return mIndex;
 		}
-	}; // </PositionKey>
 
-	struct RotationKey{
-		glm::quat value;
-		float time;
-
-		RotationKey(float x=0.0f, float y=0.0f, float z=0.0f, float w=0.0f, float t=0.0f) : time(t){
-			value.x = x;
-			value.y = y;
-			value.z = z;
-			value.w = w;
+	private:
+		Keyframe(int32_t index) : mIndex(index), time(0.0f){
 		}
-	}; // </RotationKey>
 
-	struct ScaleKey{
-		glm::vec3 value;
-		float time;
-
-		ScaleKey(float sx=0.0f, float sy=0.0f, float sz=0.0f, float t=0.0f) : time(t){
-			value.x = sx;
-			value.y = sy;
-			value.z = sz;
+	private:
+		void setIndex(int32_t index){
+			mIndex = index;
 		}
-	}; // </ScaleKey>
 
-	typedef std::vector<PositionKey> PosKeyList;
+		int32_t mIndex;
+	}; // </Keyframe>
 
-	typedef std::vector<RotationKey> RotKeyList;
+	typedef Keyframe<glm::vec3> PositionKey;
 
-	typedef std::vector<ScaleKey> ScaleKeyList;
+	typedef Keyframe<glm::quat> RotationKey;
+
+	typedef Keyframe<glm::vec3> ScaleKey;
+
+	typedef std::vector<PositionKey*> PosKeyList;
+
+	typedef std::vector<RotationKey*> RotKeyList;
+
+	typedef std::vector<ScaleKey*> ScaleKeyList;
+
+	typedef PosKeyList::iterator PosKeyIter;
+
+	typedef ScaleKeyList::iterator ScaleKeyIter;
+
+	typedef RotKeyList::iterator RotKeyIter;
 
 public:
+	NodeAnimation(const String& name="");
 
-	NodeAnimation();
-
-	void setTargetNode(const String& target);
-
-	//void setDuration(float dur);
+	void setName(const String& target);
 
 	float getDuration() const;
 
-	const String& getTargetNode();
+	const String& getName() const;
 
-	RotKeyList& getRotationKeys();
+	void setUserData(void* data);
 
-	PosKeyList& getPositionKeys();
-
-	ScaleKeyList& getScaleKeys();
+	void* getUserData() const;
 
 	void evaluate(float time, glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, bool useSplines=false) const;
 
 	void evaluate(float time, glm::mat4x4& dst, bool useSplines=false) const;
 
+	PositionKey* getPosKeyAt(float time);
+
+	RotationKey* getRotKeyAt(float time);
+
+	ScaleKey* getScaleKeyAt(float time);
+
+	void clear();
+
+	PosKeyIter getPosKeysBegin();
+
+	PosKeyIter getPosKeysEnd();
+
+	RotKeyIter getRotKeysBegin();
+
+	RotKeyIter getRotKeysEnd();
+
+	ScaleKeyIter getScaleKeysBegin();
+
+	ScaleKeyIter getScaleKeysEnd();
+
+	uint32_t getNumPosKeys() const;
+
+	uint32_t getNumRotKeys() const;
+
+	uint32_t getNumScaleKeys() const;
+
+	ScaleKey* addScaleKey();
+
+	RotationKey* addRotationKey();
+
+	PositionKey* addPositionKey();
+
+	void deleteScaleKey(ScaleKey* key);
+
+	void deleteRotationKey(RotationKey* key);
+
+	void deletePositionKey(PositionKey* key);
 
 private:
 	PosKeyList mPosKeys;
 	RotKeyList mRotKeys;
 	ScaleKeyList mScaleKeys;
-	String mNodeName;
+	String mName;
+	void* mUserData;
 
 	float mDuration;
 

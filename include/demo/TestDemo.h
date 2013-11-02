@@ -40,7 +40,7 @@ public:
 
 		getPhysics()->update(dt);
 		getScene()->update(dt);
-		//getCameraControl()->handle(dt, getManager()->getInput());
+		getCameraControl()->handle(dt, getManager()->getInput());
 	}
 
 	void onKeyDown(VirtualKey c){
@@ -59,34 +59,33 @@ public:
 
 		NodeAnimation* node = new NodeAnimation;
 
-		NodeAnimation::PositionKey posKey;
+		NodeAnimation::PositionKey* posKey;
 
 
 		glm::vec3 startPos;
 		actor->getTransformable()->getTranslation(startPos);
 
+		posKey = node->addPositionKey();
+		posKey->value = startPos;
+		posKey->time = 0.0f;
 
-		posKey.value = startPos;
-		posKey.time = 0.0f;
-		node->getPositionKeys().push_back(posKey);
+		posKey = node->addPositionKey();
+		posKey->value = startPos + glm::vec3(0, 10, 0);
+		posKey->time = 3.0f;
 
-		posKey.value += glm::vec3(0, 10, 0);
-		posKey.time = 3.0f;
-		node->getPositionKeys().push_back(posKey);
+		posKey = node->addPositionKey();
+		posKey->value = startPos;
+		posKey->time = 6.0f;
+	
+		NodeAnimation::RotationKey* rotKey;
 
-		posKey.value = startPos;
-		posKey.time = 6.0f;
-		node->getPositionKeys().push_back(posKey);
+		rotKey = node->addRotationKey();
+		rotKey->time = 0.0f;
+		rotKey->value = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
 
-		NodeAnimation::RotationKey rotKey;
-
-		rotKey.time = 0.0f;
-		rotKey.value = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
-		node->getRotationKeys().push_back(rotKey);
-
-		rotKey.time = 6.0f;
-		rotKey.value = glm::angleAxis(180.0f, glm::vec3(0, 1, 0));
-		node->getRotationKeys().push_back(rotKey);
+		rotKey = node->addRotationKey();
+		rotKey->time = 6.0f;
+		rotKey->value = glm::angleAxis(180.0f, glm::vec3(0, 1, 0));
 
 		{
 			TransformableAnimator* animator;
@@ -99,7 +98,7 @@ public:
 		{
 			Animation* anim = new Animation;
 			getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera.wta", anim);
-			getProcManager().attach(  new TransformableAnimator(&getScene()->getCamera(), anim, "default", true) );
+			//getProcManager().attach(  new TransformableAnimator(&getScene()->getCamera(), anim, "default", true) );
 		}
 	}
 

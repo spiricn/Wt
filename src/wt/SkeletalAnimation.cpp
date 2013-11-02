@@ -44,7 +44,7 @@ void SkeletalAnimation::create(){
 	// pair up animation nodes to our bone animations
 	for(uint32_t i=0; i<mAnimation->getNodeAnimationList().size(); i++){
 		NodeAnimation* animationNode = mAnimation->getNodeAnimationList()[i];
-		SkeletonBone* animatedBone = mSkeleton->findChildByName(animationNode->getTargetNode(), true);
+		SkeletonBone* animatedBone = mSkeleton->findChildByName(animationNode->getName(), true);
 
 		WT_ASSERT(animatedBone != NULL, "Unable to match node to bone");
 

@@ -34,13 +34,11 @@ void AnimationLoader::load(AIOStream* stream, Animation* ani){
 
 	// nodes
 	for(uint32_t i=0; i<numNodes; i++){
-		NodeAnimation* node = ani->addNodeAnimation();
-
 		// node_name_id
 		String name;
 		WT_ASSERT(stream->getLine(name, '\0') > 0, "Error reading animation data");
 
-		node->setTargetNode(name);
+		NodeAnimation* node = ani->addNodeAnimation(name);
 
 		// num_pos_keys
 		uint32_t numPosKeys;
@@ -48,11 +46,13 @@ void AnimationLoader::load(AIOStream* stream, Animation* ani){
 
 		// pos_keys
 		for(uint32_t j=0; j<numPosKeys; j++){
-			NodeAnimation::PositionKey key;
+			NodeAnimation::PositionKey* key = node->addPositionKey();
 
-			stream->read((char*)&key, sizeof(NodeAnimation::PositionKey));
+			// position
+			stream->read((char*)glm::value_ptr(key->value), 3*sizeof(float));
 
-			node->getPositionKeys().push_back(key);
+			// time
+			stream->read((char*)&key->time, sizeof(float));
 		}
 
 		// num_rot_keys
@@ -61,20 +61,18 @@ void AnimationLoader::load(AIOStream* stream, Animation* ani){
 
 		// rot_keys
 		for(uint32_t j=0; j<numRotKeys; j++){
-			NodeAnimation::RotationKey key;
+			NodeAnimation::RotationKey* key = node->addRotationKey();
 
 			// rotation
 			float rot[4];
 			stream->read((char*)rot, 4*sizeof(float));
-			key.value.x = rot[0];
-			key.value.y = rot[1];
-			key.value.z = rot[2];
-			key.value.w = rot[3];
+			key->value.x = rot[0];
+			key->value.y = rot[1];
+			key->value.z = rot[2];
+			key->value.w = rot[3];
 
 			// time
-			stream->read((char*)&key.time, sizeof(float));
-
-			node->getRotationKeys().push_back(key);
+			stream->read((char*)&key->time, sizeof(float));
 		}
 
 		// num_scale_keys
@@ -84,15 +82,13 @@ void AnimationLoader::load(AIOStream* stream, Animation* ani){
 
 		// pos_keys
 		for(uint32_t j=0; j<numScaleKeys; j++){
-			NodeAnimation::ScaleKey key;
+			NodeAnimation::ScaleKey* key = node->addScaleKey();
 
-			// position
-			stream->read((char*)glm::value_ptr(key.value), 3*sizeof(float));
+			// scale
+			stream->read((char*)glm::value_ptr(key->value), 3*sizeof(float));
 
 			// time
-			stream->read((char*)&key.time, sizeof(float));
-
-			node->getScaleKeys().push_back(key);
+			stream->read((char*)&key->time, sizeof(float));
 		}
 	}
 
@@ -133,11 +129,11 @@ void AnimationLoader::save(AIOStream* stream, Animation* ani){
 	stream->write(FORMAT_ID, strlen(FORMAT_ID));
 
 	// duration
-	float dur = ani->getDuration();
+	const float dur = ani->getDuration();
 	stream->write((char*)&dur, 4);
 
 	// num_node_anims
-	uint32_t numNodes = ani->getNodeAnimationList().size();
+	const uint32_t numNodes = ani->getNodeAnimationList().size();
 	stream->write((char*)&numNodes, 4);
 
 	// node_anims
@@ -145,50 +141,52 @@ void AnimationLoader::save(AIOStream* stream, Animation* ani){
 		NodeAnimation* node = *i;
 
 		// node_name_id
-		stream->write(node->getTargetNode().c_str(), node->getTargetNode().size()+1);
+		stream->write(node->getName().c_str(), node->getName().size()+1);
 
 		// num_pos_keys
-		uint32_t numPosKeys = node->getPositionKeys().size();
+		uint32_t numPosKeys = node->getNumPosKeys();
 		stream->write((char*)&numPosKeys, 4);
 
 		// pos_keys
-		for(uint32_t j=0; j<numPosKeys; j++){
+		for(NodeAnimation::PosKeyIter iter=node->getPosKeysBegin(); iter!=node->getPosKeysEnd(); iter++){
 			// position
-			stream->write((char*)glm::value_ptr(node->getPositionKeys()[j].value), 3*sizeof(float));
+			stream->write((char*)glm::value_ptr((*iter)->value), 3*sizeof(float));
 
 			// time
-			stream->write((char*)&node->getPositionKeys()[j].time, sizeof(float));
+			stream->write((char*)&(*iter)->time, sizeof(float));
 		}
 
 		// num_rot_keys
-		uint32_t numRotKeys = node->getRotationKeys().size();
+		uint32_t numRotKeys = node->getNumRotKeys();
 		stream->write((char*)&numRotKeys, 4);
 
 		// rot_keys
-		for(NodeAnimation::RotKeyList::iterator i=node->getRotationKeys().begin(); i!=node->getRotationKeys().end(); i++){
+		for(NodeAnimation::RotKeyIter iter=node->getRotKeysBegin(); iter!=node->getRotKeysEnd(); iter++){
 			// rotation
-			float rot[4] = {i->value.x,
-				i->value.y,
-				i->value.z,
-				i->value.w};
+			const float rot[4] = {
+				(*iter)->value.x,
+				(*iter)->value.y,
+				(*iter)->value.z,
+				(*iter)->value.w
+			};
 
 			stream->write((char*)rot, 4*sizeof(float));
 
 			// time
-			stream->write((char*)&i->time, sizeof(float));
+			stream->write((char*)&(*iter)->time, sizeof(float));
 		}
 
 		// num_scale_keys
-		uint32_t numScaleKeys = node->getScaleKeys().size();
+		const uint32_t numScaleKeys = node->getNumScaleKeys();
 		stream->write((char*)&numScaleKeys, 4);
 
 		// scale_keys
-		for(NodeAnimation::ScaleKeyList::iterator i=node->getScaleKeys().begin(); i!=node->getScaleKeys().end(); i++){
+		for(NodeAnimation::ScaleKeyIter iter=node->getScaleKeysBegin(); iter!=node->getScaleKeysEnd(); iter++){
 			// scale
-			stream->write((char*)glm::value_ptr(i->value), 3*sizeof(float));
+			stream->write((char*)glm::value_ptr((*iter)->value), 3*sizeof(float));
 
 			// time
-			stream->write((char*)&i->time, sizeof(float));
+			stream->write((char*)&(*iter)->time, sizeof(float));
 		}
 	}
 }

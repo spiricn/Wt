@@ -17,8 +17,8 @@ float Animation::getDuration() const{
 	return mDuration;
 }
 
-NodeAnimation* Animation::addNodeAnimation(){
-	NodeAnimation* res = new NodeAnimation();
+NodeAnimation* Animation::addNodeAnimation(const String& name){
+	NodeAnimation* res = new NodeAnimation(name);
 	mNodeAnimations.push_back(res);
 	return res;
 }
@@ -35,7 +35,7 @@ Animation::NodeAnimationList& Animation::getNodeAnimationList(){
 
 NodeAnimation* Animation::findNodeAnimation(const String& name){
 	for(NodeAnimationList::iterator iter=mNodeAnimations.begin(); iter!=mNodeAnimations.end(); iter++){
-		if((*iter)->getTargetNode().compare(name) == 0){
+		if((*iter)->getName().compare(name) == 0){
 			return *iter;
 		}
 	}

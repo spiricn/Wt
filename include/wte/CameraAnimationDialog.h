@@ -60,6 +60,8 @@ protected slots:
 
 	void onAnimationSeek(int);
 
+	void onKeyframeDelete();
+
 	void onStop();
 
 	void onAnimationLoad();

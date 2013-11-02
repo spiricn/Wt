@@ -226,36 +226,42 @@ void AssimpModelLoader::convertNodeAnim(const aiAnimation* aAnim, const aiNodeAn
 	// Position keys
 	for(uint32_t i=0; i<aNodeAnim->mNumPositionKeys; i++){
 		const aiVectorKey& aPosKey = aNodeAnim->mPositionKeys[i];
-		nodeAnim.getPositionKeys().push_back( NodeAnimation::PositionKey(aPosKey.mValue.x,
-			aPosKey.mValue.y,
-			aPosKey.mValue.z,
-			aPosKey.mTime/(aAnim->mTicksPerSecond==0.0?DEFAULT_TICKS_PER_SEC:aAnim->mTicksPerSecond))
-		);
+
+		NodeAnimation::PositionKey* key = nodeAnim.addPositionKey();
+
+		key->value.x = aPosKey.mValue.x;
+		key->value.y = aPosKey.mValue.y;
+		key->value.z = aPosKey.mValue.z;
+		key->time = aPosKey.mTime/(aAnim->mTicksPerSecond==0.0?DEFAULT_TICKS_PER_SEC:aAnim->mTicksPerSecond);
 	}
 
 	// Rotation keys
 	for(uint32_t i=0; i<aNodeAnim->mNumRotationKeys; i++){
 		const aiQuatKey& aRotKey = aNodeAnim->mRotationKeys[i];
-		nodeAnim.getRotationKeys().push_back( NodeAnimation::RotationKey(aRotKey.mValue.x,
-			aRotKey.mValue.y,
-			aRotKey.mValue.z,
-			aRotKey.mValue.w,
-			aRotKey.mTime/(aAnim->mTicksPerSecond==0.0?DEFAULT_TICKS_PER_SEC:aAnim->mTicksPerSecond))
-		);
+
+		NodeAnimation::RotationKey* key = nodeAnim.addRotationKey();
+
+		key->value.x = aRotKey.mValue.x;
+		key->value.y = aRotKey.mValue.y;
+		key->value.z = aRotKey.mValue.z;
+		key->value.w = aRotKey.mValue.w;
+
+		key->time = aRotKey.mTime/(aAnim->mTicksPerSecond==0.0?DEFAULT_TICKS_PER_SEC:aAnim->mTicksPerSecond);
 	}
 
 	// Scaling keys
 	for(uint32_t i=0; i<aNodeAnim->mNumScalingKeys; i++){
 		const aiVectorKey& aScaleKey = aNodeAnim->mScalingKeys[i];
-			
-		nodeAnim.getScaleKeys().push_back( NodeAnimation::ScaleKey(aScaleKey.mValue.x,
-			aScaleKey.mValue.y,
-			aScaleKey.mValue.z,
-			aScaleKey.mTime/(aAnim->mTicksPerSecond==0.0?DEFAULT_TICKS_PER_SEC:aAnim->mTicksPerSecond))
-			);
+
+		NodeAnimation::ScaleKey* key = nodeAnim.addScaleKey();
+
+		key->value.x = aScaleKey.mValue.x;
+		key->value.y = aScaleKey.mValue.y;
+		key->value.z = aScaleKey.mValue.z;
+		key->time = aScaleKey.mTime/(aAnim->mTicksPerSecond==0.0?DEFAULT_TICKS_PER_SEC:aAnim->mTicksPerSecond);
 	}
 
-	nodeAnim.setTargetNode( aNodeAnim->mNodeName.data );
+	nodeAnim.setName( aNodeAnim->mNodeName.data );
 }
 
 
