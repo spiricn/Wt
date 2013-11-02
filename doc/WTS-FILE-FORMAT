@@ -1,0 +1,54 @@
+=========================================================
+Structure
+=========
+
+----------------------------------------------------------------------------------------
+name				|	size (bytes)			|	comment								|
+----------------------------------------------------------------------------------------
+format_identifier	|	6						| if a file is valid must be "#WTANI"	|
+animation			|	sizeof(Animation)		| root structure (follow below)			|
+----------------------------------------------------------------------------------------
+
+=========================================================
+Animation
+=========
+
+----------------------------------------------------------------------------------------
+name				|	size (bytes) / type		|	comment								|
+----------------------------------------------------------------------------------------
+duration			|	4 / float				|										|
+num_node_anims		|	4 / unsigned int		|										|
+node_anims			| num_node_anims X NodeAnim |										|
+----------------------------------------------------------------------------------------
+
+
+=========================================================
+NodeAnimation
+=========
+
+----------------------------------------------------------------------------------------
+name				|	size (bytes) / type		|	comment								|
+----------------------------------------------------------------------------------------
+node_name_id		|	NTS						|										|
+num_pos_keys		|	4 / unsigned int		|										|
+pos_keys			| num_pos_keys X PosKey		|										|
+num_rot_keys		|	4 / unsigned int		|										|
+rot_keys			| num_rot_keys x RotKey		|										|
+num_scale_keys		|	4 / unsigned int		|										|
+scale_keys			| num_scale_keys x ScaleKey	|										|
+----------------------------------------------------------------------------------------
+
+struct PositionKey{
+	glm::vec3 position;
+	float time;
+}
+
+struct RotationKey{
+	glm::quat rotation;
+	float time;
+}
+
+struct ScaleKey{
+	glm::vec3 scale;
+	float time;
+}
