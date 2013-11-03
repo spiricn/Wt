@@ -16,9 +16,189 @@
 #include "wt/lua/LuaBindings.h"
 #include "wt/TransformableAnimator.h"
 
-namespace wt{
+namespace wt
+{
+class WaitProcess : public AProcess{
+public:
+	WaitProcess(float time) : mDuration(time), mCurrentTime(0.0f){
+	}
 
-class TestDemo : public ADemo{
+	void onProcUpdate(float dt){
+		mCurrentTime += dt;
+		if(mCurrentTime >= mDuration){
+			killProcess();
+		}
+	}
+
+private:
+	float mCurrentTime;
+	float mDuration;
+
+}; // </WaitProcess>
+
+class AnimationProcess : public AProcess{
+public:
+	AnimationProcess(ModelledActor* actor, const String& animation, float speed, bool blend=true, float blendSpeed=0.1f) : mActor(actor), 
+		mAnimation(animation), mSpeed(speed), mBlendSpeed(blendSpeed), mBlend(blend){
+	}
+
+	void onProcStart(){
+		if(mBlend){
+			mActor->blendToAnimation(mAnimation, mBlendSpeed, false);
+		}
+		else{
+			mActor->getAnimationPlayer()->play(mAnimation, false);
+			mActor->getAnimationPlayer()->setSpeed(mSpeed);
+		}
+	}
+
+	void onProcUpdate(float dt){
+		if(!mActor->isAnimated()){
+			killProcess();
+		}
+	}
+
+private:
+	ModelledActor* mActor;
+	String mAnimation;
+	float mSpeed;
+	bool mBlend;
+	float mBlendSpeed;
+};
+
+class SceneProc : public AProcess{
+public:
+	enum Stage{
+		eSTAGE_0,
+		eSTAGE_1,
+		eSTAGE_2,
+		eSTAGE_3,
+		eSTAGE_4,
+		eSTAGE_TURN_ON_LIGHTS
+	};
+
+	SceneProc(ADemo* demo, Stage stage=eSTAGE_0) : mDemo(demo), mStage(stage){
+	}
+
+	void onProcUpdate(float dt){
+		ModelledActor* mage = (ModelledActor*)mDemo->getScene()->findActorByName("mage");
+
+		if(mStage == eSTAGE_3){
+			 const glm::vec3 endPos = glm::vec3(287.347748, 0.000000, 254.291016);
+			 glm::vec3 currPos;
+
+			 mage->getTransformable()->getTranslation(currPos);
+
+			 if(glm::length(endPos-currPos) <= 1.5f){
+				 setNext(new SceneProc(mDemo, eSTAGE_4));
+				 mage->blendToAnimation("stand1", 0.5f, false);
+				 killProcess();
+			 }
+
+			 glm::vec3 moveVec = glm::normalize(endPos-currPos);
+
+			 const float moveSpeed = 8.5f;
+
+			 currPos += moveVec*moveSpeed*dt;
+			 mage->getController()->setTranslation(currPos);
+		}
+		else if(mStage == eSTAGE_TURN_ON_LIGHTS){
+			float val = 0.0f;
+			if(((Interpolator<float>*)mStageData)->update(dt, val)){
+				delete ((Interpolator<float>*)mStageData);
+				killProcess();
+			}
+			else{
+				LOG("TURNING ON THE FUCKING LIGHTS %f", val);
+				const PointLight* light = (PointLight*)mDemo->getScene()->findActorByName("mage_light");
+				PointLight::Desc desc = light->getDesc();
+				desc.diffuseIntensity = val;
+				light->setDesc(desc);
+			}
+		}
+	}
+
+	void onProcStart(){
+		LOGI("Stage %d started.", mStage);
+
+		ModelledActor* mage = (ModelledActor*)mDemo->getScene()->findActorByName("mage");
+
+		if(mStage == eSTAGE_TURN_ON_LIGHTS){
+			mStageData = new Interpolator<float>(0, 28, 2, false, Interpolator<float>::eEASE_IN_QUAD);
+		}
+		else if(mStage == eSTAGE_0){
+			Animation* anim = new Animation;
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera.wta", anim);
+
+			TransformableAnimator* animator;
+			this
+				->setNext( new WaitProcess(3.0f) )
+				->setNext( animator = new TransformableAnimator(&mDemo->getScene()->getCamera(), anim, "default", false, true) )
+				->setNext( new WaitProcess(2.0f) )
+				->setNext( new SceneProc(mDemo, eSTAGE_TURN_ON_LIGHTS) )
+				->setNext( new WaitProcess(1.0f) )
+				->setNext(new SceneProc(mDemo, eSTAGE_1));
+
+			animator->setSpeed(5);
+
+			killProcess();
+		}
+		else if(mStage == eSTAGE_1){
+			mage->getAnimationPlayer()->play("kneel_end", false);
+			mage->getAnimationPlayer()->setSpeed(0.6);
+		
+
+			Animation* anim = new Animation;
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera2.wta", anim);
+
+			TransformableAnimator* animator1 = new TransformableAnimator(&mDemo->getScene()->getCamera(), anim, "default", false, true);
+
+			this
+				->setNext(animator1)
+				->setNext( new AnimationProcess(mage, "stand3", 0.6) )
+				->setNext( new SceneProc(mDemo, eSTAGE_2)  );
+
+			killProcess();
+		}
+		else if(mStage == eSTAGE_2){
+
+			Animation* cameraAnimation = new Animation;
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera3.wta", cameraAnimation);
+			TransformableAnimator* cameraAnimator = new TransformableAnimator(&mDemo->getScene()->getCamera(), cameraAnimation, "default", false, true);
+			mDemo->getProcManager().attach(cameraAnimator );
+
+			
+			this
+				//->setNext(new AnimationProcess(mage, "stand3", 0.6))
+				->setNext(new SceneProc(mDemo, eSTAGE_3));
+			killProcess();
+		}
+		else if(mStage == eSTAGE_3){
+			//mage->getAnimationPlayer()->play("walk", true);
+			mage->blendToAnimation("walk", 0.3f, true);
+
+			mage->getAnimationPlayer()->setSpeed(0.6f);
+		}
+		else if(mStage == eSTAGE_4){
+			Animation* anim = new Animation;
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera4.wta", anim);
+
+			TransformableAnimator* animator1 = new TransformableAnimator(&mDemo->getScene()->getCamera(), anim, "default", false, true);
+			setNext(animator1);
+			killProcess();
+		}
+	}
+
+	void onProcEnd(){
+	}
+
+private:
+	ADemo* mDemo;
+	Stage mStage;
+	void* mStageData;
+}; 
+
+class TestDemo : public ADemo, public TransformableAnimator::IListener{
 public:
 
 	ASceneActor* mMainActor;
@@ -40,12 +220,26 @@ public:
 
 		getPhysics()->update(dt);
 		getScene()->update(dt);
-		getCameraControl()->handle(dt, getManager()->getInput());
+		//getCameraControl()->handle(dt, getManager()->getInput());
 	}
 
 	void onKeyDown(VirtualKey c){
-		if(c == VirtualKey::KEY_y){
+		if(c == KEY_y){
 			getScene()->clear();
+		}
+		else if(c == KEY_n){
+			static const int numAnims = 2;
+			static const char* anims[numAnims] = {"kneel_loop", "kneel_end"};
+			static int currAnim = 0;
+
+			currAnim = (currAnim + 1) % numAnims;
+
+			LOG("Plaing animation: %s", anims[currAnim]);
+
+			ModelledActor* actor = (ModelledActor*)getScene()->findActorByName("actor");
+			//actor->getAnimationPlayer()->play(anims[currAnim], true);
+			//actor->addAnimationChannel()->play(anims[currAnim], true);
+			//actor->blendToAnimation(anims[currAnim], .5f);
 		}
 		else{
 			ADemo::onKeyDown(c);
@@ -55,51 +249,8 @@ public:
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-		ModelledActor* actor = (ModelledActor*)getScene()->findActorByName("actor");
-
-		NodeAnimation* node = new NodeAnimation;
-
-		NodeAnimation::PositionKey* posKey;
-
-
-		glm::vec3 startPos;
-		actor->getTransformable()->getTranslation(startPos);
-
-		posKey = node->addPositionKey();
-		posKey->value = startPos;
-		posKey->time = 0.0f;
-
-		posKey = node->addPositionKey();
-		posKey->value = startPos + glm::vec3(0, 10, 0);
-		posKey->time = 3.0f;
-
-		posKey = node->addPositionKey();
-		posKey->value = startPos;
-		posKey->time = 6.0f;
-	
-		NodeAnimation::RotationKey* rotKey;
-
-		rotKey = node->addRotationKey();
-		rotKey->time = 0.0f;
-		rotKey->value = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
-
-		rotKey = node->addRotationKey();
-		rotKey->time = 6.0f;
-		rotKey->value = glm::angleAxis(180.0f, glm::vec3(0, 1, 0));
-
-		{
-			TransformableAnimator* animator;
-
-			getProcManager().attach( animator = new TransformableAnimator(actor->getController(), node, true) );
-
-			animator->setSpeed(5.0f);
-		}
-
-		{
-			Animation* anim = new Animation;
-			getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera.wta", anim);
-			//getProcManager().attach(  new TransformableAnimator(&getScene()->getCamera(), anim, "default", true) );
-		}
+		getProcManager().attach(new SceneProc(this) );
+				
 	}
 
 	String getScriptPath() const{

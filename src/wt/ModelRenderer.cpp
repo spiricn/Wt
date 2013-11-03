@@ -145,8 +145,13 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 		// Upload skinning matrices
 		if(actor->getAnimationPlayer()){
 			mShader.setUniformVal("uBones",
+#if 0
 				actor->getAnimationPlayer()->getBoneMatrices(),
 				actor->getAnimationPlayer()->getNumBones()
+#else
+				actor->getBoneMatrices().getData(),
+				actor->getBoneMatrices().getCapacity()
+#endif
 			);
 		}
 	

@@ -84,7 +84,7 @@ void WtEditor::onOpenGLContextCreated(){
 
 	loadAssets(DEBUG_WORKSPACE "/assets.wtr");
 
-	loadScene(DEBUG_WORKSPACE "/scene.wts");
+	loadScene(DEBUG_WORKSPACE "/godray_demo.wts");
 
 #undef DEBUG_WORKSPACE
 

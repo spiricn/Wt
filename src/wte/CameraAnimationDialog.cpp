@@ -9,23 +9,62 @@ CameraAnimationDialog::CameraAnimationDialog(QWidget* parent, wt::Scene* scene, 
 	mScene(scene), mCurrentKeyframe(NULL), mProcManager(procManager), mNodeAnimation(NULL), mAnimationPlayer(NULL){
 
     ui.setupUi(this);
+
+	mNodeAnimation = new wt::NodeAnimation;
+
+	mAnimationPlayer = new wt::TransformableAnimator(&mScene->getCamera(), mNodeAnimation, false, false);
+	mAnimationPlayer->pause();
+
+	mProcManager->attach( mAnimationPlayer );
+
+	mAnimationPlayer->setListener(this);
 }
 
-CameraAnimationDialog::Keyframe* CameraAnimationDialog::addKeyframe(const glm::vec3& pos, const glm::quat& rot, float time){
+float CameraAnimationDialog::getKeyframeAbsTime(Keyframe* kf){
+	float absTime = 0.0f;
+
+	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
+		absTime += (*iter)->time;
+
+		if(*iter == kf){
+			break;
+		}
+	}
+
+	return absTime;
+}
+
+CameraAnimationDialog::Keyframe* CameraAnimationDialog::addKeyframe(const glm::vec3& pos, const glm::quat& rot, float relTime){
 	QTreeWidgetItem* item = new QTreeWidgetItem(ui.treeWidget);
 	
 	item->setText(0, QString("Keyframe %1").arg(mKeyframes.size()+1));
-	item->setData(0, Qt::UserRole, QVariant(mKeyframes.size()));
 
 	Keyframe* kf = new Keyframe;
-	kf->id = mKeyframes.size();
-	kf->time = time;
-	kf->pos = pos;
-	kf->rot = rot;
+
+	kf->id = 0;
+	do{
+		if(findById(kf->id) == NULL){
+			break;
+		}
+		++kf->id;
+	}while(1);
+
+	item->setData(0, Qt::UserRole, QVariant(kf->id));
+
+	kf->time = relTime;
+
+	kf->posKey = mNodeAnimation->addPositionKey();
+	kf->posKey->value = pos;
+
+	kf->rotKey = mNodeAnimation->addRotationKey();
+	kf->rotKey->value = rot;
+	
 
 	kf->widgetItem = item;
 
 	mKeyframes.push_back(kf);
+
+	kf->posKey->time = kf->rotKey->time = getKeyframeAbsTime(kf);
 
 	return kf;
 }
@@ -37,41 +76,56 @@ void CameraAnimationDialog::onAnimationSeek(int pos){
 }
 
 void CameraAnimationDialog::onClear(){
-	ui.treeWidget->clear();
-	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
-		delete *iter;
-	}
+	clear();
 }
 
 void CameraAnimationDialog::onKeyframeAdd(){
 	glm::vec3 pos;
 	glm::quat rot;
-	Keyframe* kf = addKeyframe(pos, rot, 1.0f);
+	Keyframe* kf = addKeyframe(pos, rot, mKeyframes.empty() ? 0.0f : 1.0f);
 
 	selectKeyframe(kf);
 	setKeyframe();
 }
 
-void CameraAnimationDialog::selectKeyframe(Keyframe* kf){
-	mCurrentKeyframe = kf;
+void CameraAnimationDialog::selectKeyframe(Keyframe* newKeyframe){
+	Keyframe* prevKeyframe = mCurrentKeyframe;
 
-	ui.time->setValue(mCurrentKeyframe->time);
+	mCurrentKeyframe = newKeyframe;
 
-	ui.keyframeGroup->setTitle(QString("Keyframe %1").arg(mCurrentKeyframe->id + 1));
+	if(prevKeyframe){
+		prevKeyframe->widgetItem->setBackgroundColor(0, QColor(255, 255, 255));
+	}
+	
+	if(newKeyframe){
+		newKeyframe->widgetItem->setBackgroundColor(0, QColor(0, 255, 0));
+		
+		ui.time->setValue(newKeyframe->time);
+		ui.keyframeGroup->setTitle(QString("Keyframe %1").arg(newKeyframe->id + 1));
+		ui.treeWidget->scrollToItem(newKeyframe->widgetItem, QAbstractItemView::EnsureVisible);
+	}
+	else{
+		ui.time->setValue(0.0f);
+		ui.keyframeGroup->setTitle("");
+	}
 }
-
 
 void CameraAnimationDialog::onKeyframeTimeSet(double val){
 	if(!mCurrentKeyframe){
 		return;
 	}
 
+	if(mCurrentKeyframe->time == val){
+		return;
+	}
+
 	mCurrentKeyframe->time = val;
+	refreshTimes();
 }
 
 void CameraAnimationDialog::setKeyframe(){
-	mScene->getCamera().getTranslation(mCurrentKeyframe->pos);
-	mScene->getCamera().getRotation(mCurrentKeyframe->rot);
+	mScene->getCamera().getTranslation(mCurrentKeyframe->posKey->value);
+	mScene->getCamera().getRotation(mCurrentKeyframe->rotKey->value);
 }
 
 void CameraAnimationDialog::onKeyframeSet(){
@@ -88,30 +142,133 @@ void CameraAnimationDialog::onAnimationProgress(wt::TransformableAnimator* anima
 		QString("Time: %1 sec").arg(progress*animator->getNodeAnimation()->getDuration())
 	);
 
+	// TODO
 	wt::NodeAnimation::PositionKey* key = animator->getNodeAnimation()->getPosKeyAt(progress*animator->getNodeAnimation()->getDuration());
-}
-
-void CameraAnimationDialog::generateNode(wt::NodeAnimation* node){
-	float time = 0.0f;
 
 	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
-		time += (*iter)->time;
-
-		wt::NodeAnimation::PositionKey* posKey = node->addPositionKey();
-
-		posKey->value.x = (*iter)->pos.x;
-		posKey->value.y = (*iter)->pos.y;
-		posKey->value.z = (*iter)->pos.z;
-		posKey->time = time;
-
-		wt::NodeAnimation::RotationKey* rotKey = node->addRotationKey();
-
-		rotKey->value.x = (*iter)->rot.x;
-		rotKey->value.y = (*iter)->rot.y;
-		rotKey->value.z = (*iter)->rot.z;
-		rotKey->value.w = (*iter)->rot.w;
-		rotKey->time = time;
+		if((*iter)->posKey == key){
+			selectKeyframe(*iter);
+			break;
+		}
 	}
+}
+
+// Brute force approach to updating NodeAnimation's keyframe absolute time from our relatives
+void CameraAnimationDialog::refreshTimes(){
+	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
+		const float absTime = getKeyframeAbsTime(*iter);
+		(*iter)->posKey->time = absTime;
+		(*iter)->rotKey->time = absTime;
+	}
+}
+
+void CameraAnimationDialog::onKeyframeDelete(){
+	QList<QTreeWidgetItem*> items = ui.treeWidget->selectedItems();
+
+	for(QList<QTreeWidgetItem*>::Iterator iter=items.begin(); iter!=items.end(); iter++){
+		Keyframe* kf = findById( (*iter)->data(0, Qt::UserRole).toInt() );
+
+		delete ui.treeWidget->takeTopLevelItem( ui.treeWidget->indexOfTopLevelItem( *iter ) );
+
+		mKeyframes.erase( std::find(mKeyframes.begin(), mKeyframes.end(), kf) );
+
+		mNodeAnimation->deletePositionKey(kf->posKey);
+		mNodeAnimation->deleteRotationKey(kf->rotKey);
+
+		bool currentSelected = kf == mCurrentKeyframe;
+
+		delete kf;
+
+		if(currentSelected){
+			mCurrentKeyframe = NULL;
+			selectKeyframe(NULL);
+		}		
+	}
+
+	refreshTimes();
+}
+
+void CameraAnimationDialog::onKeyframeGoTo(){
+	if(!mCurrentKeyframe){
+		return;
+	}
+
+	mScene->getCamera().setTranslation(mCurrentKeyframe->posKey->value);
+	mScene->getCamera().setRotation(mCurrentKeyframe->rotKey->value);
+}
+
+void CameraAnimationDialog::onAnimationStateChanged(wt::TransformableAnimator*, wt::TransformableAnimator::State state){
+}
+
+void CameraAnimationDialog::onPlay(){
+	if(mAnimationPlayer->getState() == wt::TransformableAnimator::eSTATE_PLAYING){
+		mAnimationPlayer->pause();
+	}
+	else if(mAnimationPlayer->getState() == wt::TransformableAnimator::eSTATE_PAUSED 
+		|| mAnimationPlayer->getState() == wt::TransformableAnimator::eSTATE_FINISHED){
+		LOGD("Continue");
+		mAnimationPlayer->play();
+	}
+}
+
+void CameraAnimationDialog::onStop(){
+	mAnimationPlayer->stop();
+}
+
+CameraAnimationDialog::Keyframe* CameraAnimationDialog::findById(int32_t id){
+	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
+		if((*iter)->id == id){
+			return *iter;
+		}
+	}
+
+	return NULL;
+}
+
+
+void CameraAnimationDialog::onKeyframeSelected(){
+	QTreeWidgetItem* item  = ui.treeWidget->currentItem();
+
+	selectKeyframe( findById( item->data(0, Qt::UserRole).toInt() ) );
+}
+
+
+void CameraAnimationDialog::onAnimationSave(){
+	QString res = QFileDialog::getSaveFileName(this, "Save animation", ".", "*.wta");;
+	if(!res.size()){
+		return;
+	}
+
+	wt::Animation* anim = new wt::Animation;
+
+	wt::NodeAnimation* node = anim->addNodeAnimation();
+
+	wt::NodeAnimation::clone(mNodeAnimation, node);
+	
+	node->setName("default");
+
+	mScene->getAssets()->getAnimationManager()->getLoader()->save(res.toStdString(), anim);
+
+	anim->setDuration(node->getDuration());
+
+	delete anim;
+
+	LOGI("Animation saved to \"%s\"", res.toStdString().c_str());
+}
+
+void CameraAnimationDialog::clear(){
+	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
+		delete *iter;
+	}
+
+	mNodeAnimation->clear();
+
+	ui.treeWidget->clear();
+
+	mKeyframes.clear();
+
+	mCurrentKeyframe = NULL;
+	selectKeyframe(NULL);
 }
 
 void CameraAnimationDialog::onAnimationLoad(){
@@ -134,6 +291,8 @@ void CameraAnimationDialog::onAnimationLoad(){
 	wt::NodeAnimation::PosKeyIter posKeyIter = node->getPosKeysBegin();
 	wt::NodeAnimation::RotKeyIter rotKeyIter = node->getRotKeysBegin();
 
+	clear();
+
 	for(uint32_t i=0; i<node->getNumPosKeys(); i++, posKeyIter++, rotKeyIter++){
 		WT_ASSERT((*posKeyIter)->time == (*rotKeyIter)->time, "Invalid camera animation");
 
@@ -145,88 +304,4 @@ void CameraAnimationDialog::onAnimationLoad(){
 	delete anim;
 
 	LOGI("Animation load form \"%s\"", res.toStdString().c_str());
-}
-
-void CameraAnimationDialog::onKeyframeDelete(){
-	if(!mCurrentKeyframe){
-		return;
-	}
-
-	TRACEW("TODO");
-}
-
-void CameraAnimationDialog::onKeyframeGoTo(){
-	if(!mCurrentKeyframe){
-		return;
-	}
-
-	mScene->getCamera().setTranslation(mCurrentKeyframe->pos);
-	mScene->getCamera().setRotation(mCurrentKeyframe->rot);
-}
-
-void CameraAnimationDialog::onAnimationSave(){
-	QString res = QFileDialog::getSaveFileName(this, "Save animation", ".", "*.wta");;
-	if(!res.size()){
-		return;
-	}
-
-	wt::Animation* anim = new wt::Animation;
-
-	wt::NodeAnimation* node = anim->addNodeAnimation();
-	generateNode(node);
-
-	node->setName("default");
-
-	mScene->getAssets()->getAnimationManager()->getLoader()->save(res.toStdString(), anim);
-
-	anim->setDuration(node->getDuration());
-
-	delete anim;
-
-	LOGI("Animation saved to \"%s\"", res.toStdString().c_str());
-}
-
-void CameraAnimationDialog::onAnimationStateChanged(wt::TransformableAnimator*, wt::TransformableAnimator::State state){
-	if(state == wt::TransformableAnimator::eSTATE_FINISHED){
-		mAnimationPlayer = NULL;
-	}
-}
-
-void CameraAnimationDialog::onPlay(){
-	if(mAnimationPlayer && mAnimationPlayer->getState() != wt::TransformableAnimator::eSTATE_FINISHED){
-		if(mAnimationPlayer->getState() == wt::TransformableAnimator::eSTATE_PLAYING){
-			LOGD("Pause");
-			mAnimationPlayer->pause();
-		}
-		else if(mAnimationPlayer->getState() == wt::TransformableAnimator::eSTATE_PAUSED){
-			LOGD("Continue");
-			mAnimationPlayer->play();
-		}
-	}
-	else{
-		LOGD("Play");
-		if(mNodeAnimation){
-			delete mNodeAnimation;
-		}
-
-		mNodeAnimation = new wt::NodeAnimation;
-
-		generateNode(mNodeAnimation);
-
-		LOG("Playing animation %.2f seconds", mNodeAnimation->getDuration());
-
-		mAnimationPlayer = new wt::TransformableAnimator(&mScene->getCamera(), mNodeAnimation, false, false);
-		mProcManager->attach( mAnimationPlayer );
-
-		mAnimationPlayer->setListener(this);
-	}
-}
-
-void CameraAnimationDialog::onStop(){
-}
-
-void CameraAnimationDialog::onKeyframeSelected(){
-	QTreeWidgetItem* item  = ui.treeWidget->currentItem();
-
-	selectKeyframe( mKeyframes[item->data(0, Qt::UserRole).toInt()] );
 }

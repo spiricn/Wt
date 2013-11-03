@@ -38,6 +38,45 @@ template<class T>
 const T* getKeyAt(const std::vector<T*>& list, float time);
 
 void NodeAnimation::clear(){
+	for(PosKeyIter iter=mPosKeys.begin(); iter!=mPosKeys.end(); iter++){
+		delete (*iter);
+	}
+	mPosKeys.clear();
+
+	for(RotKeyIter iter=mRotKeys.begin(); iter!=mRotKeys.end(); iter++){
+		delete (*iter);
+	}
+	mRotKeys.clear();
+
+	for(ScaleKeyIter iter=mScaleKeys.begin(); iter!=mScaleKeys.end(); iter++){
+		delete (*iter);
+	}
+	mScaleKeys.clear();
+}
+
+void NodeAnimation::clone(const NodeAnimation* src, NodeAnimation* dst){
+	dst->clear();
+
+	// Meta data
+	dst->mName = src->mName;
+	dst->mUserData = src->mUserData;
+
+	// Keys
+	for(PosKeyList::const_iterator iter=src->mPosKeys.begin(); iter!=src->mPosKeys.end(); iter++){
+		*dst->addPositionKey() = *(*iter);
+	}
+
+	for(RotKeyList::const_iterator iter=src->mRotKeys.begin(); iter!=src->mRotKeys.end(); iter++){
+		*dst->addRotationKey() = *(*iter);
+	}
+
+	for(ScaleKeyList::const_iterator iter=src->mScaleKeys.begin(); iter!=src->mScaleKeys.end(); iter++){
+		*dst->addScaleKey() = *(*iter);
+	}
+}
+
+NodeAnimation::~NodeAnimation(){
+	clear();
 }
 
 NodeAnimation::PosKeyIter NodeAnimation::getPosKeysBegin(){

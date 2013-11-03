@@ -52,16 +52,34 @@ public:
 
 	const ATransformable* getTransformable() const;
 
+	SkeletalAnimationPlayer* addAnimationChannel();
+
+	void removeAnimationChannel(SkeletalAnimationPlayer* chanel);
+
 	struct DeserializationData{
 		PhysicsActor::Desc pxDesc;
 		bool phyiscs;
 	};
 
+	void blendToAnimation(const String& name, float time, bool loopBlended);
+	
+	const Buffer<glm::mat4>& getBoneMatrices() const;
+
+	bool isAnimated() const;
+
 private:
+	typedef std::vector<SkeletalAnimationPlayer*> AnimationChannelList;
+
+	AnimationChannelList mAnimationChannels;
+	Buffer<glm::mat4> mBoneMatrices;
+
 	Model* mModel;
 	Model::GeometrySkin* mSkin;
 	SkeletalAnimationPlayer* mAnimationPlayer;
 	math::Transform mTransform;
+
+
+	float mBlendTotal, mBlendCurrent;
 
 }; // </ModeledActor>
 

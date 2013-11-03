@@ -52,6 +52,10 @@ public:
 public:
 	NodeAnimation(const String& name="");
 
+	~NodeAnimation();
+
+	static void clone(const NodeAnimation* src, NodeAnimation* dst);
+
 	void setName(const String& target);
 
 	float getDuration() const;
@@ -108,10 +112,9 @@ private:
 	PosKeyList mPosKeys;
 	RotKeyList mRotKeys;
 	ScaleKeyList mScaleKeys;
+
 	String mName;
 	void* mUserData;
-
-	float mDuration;
 
 	void calcTangent(int32_t k, glm::vec3& res) const;
 

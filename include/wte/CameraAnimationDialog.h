@@ -22,16 +22,23 @@ private:
 	struct Keyframe{
 		int32_t id;
 		float time;
-		glm::vec3 pos;
-		glm::quat rot;
 		QTreeWidgetItem* widgetItem;
+		wt::NodeAnimation::PositionKey* posKey;
+		wt::NodeAnimation::RotationKey* rotKey;
 	};
+
+
+	void clear();
+
+	void refreshTimes();
+
+	float getKeyframeAbsTime(Keyframe* kf);
 
 	void selectKeyframe(Keyframe* kf);
 
 	void setKeyframe();
 
-	void generateNode(wt::NodeAnimation* node);
+	Keyframe* findById(int32_t id);
 
 	typedef std::vector<Keyframe*> KeyframeSet;
 

@@ -59,11 +59,13 @@ ProcessManager::~ProcessManager(){
 	mProcesses.clear();
 }
 	
-void ProcessManager::attach(ProcPtr proc){
+ProcPtr ProcessManager::attach(ProcPtr proc){
 	static AProcess::Pid pid=0;
 
 	proc->attach(this, pid++);
 	mProcesses.push_back(proc);
+	
+	return proc;
 }
 
 void ProcessManager::deattach(ProcPtr proc){

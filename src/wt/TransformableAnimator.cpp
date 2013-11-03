@@ -60,6 +60,10 @@ void TransformableAnimator::setPosition(float pos){
 	
 	mCurrentTime = pos;
 	animate();
+
+	/*if(mListener){
+		mListener->onAnimationProgress(this, mCurrentTime);
+	}*/
 }
 
 void TransformableAnimator::play(){
@@ -82,13 +86,19 @@ void TransformableAnimator::setListener(IListener* listener){
 void TransformableAnimator::stop(){
 	if(mState == eSTATE_PLAYING || mState == eSTATE_PAUSED){
 		changeState(eSTATE_FINISHED);
+
+		mCurrentTime = 0.0f;
+		if(mListener){
+			mListener->onAnimationProgress(this, mCurrentTime);
+		}
 	}
 }
 
 void TransformableAnimator::changeState(State state){
+	State oldState = mState;
 	mState = state;
 
-	if(mListener && state != mState){
+	if(mListener && state != oldState){
 		mListener->onAnimationStateChanged(this, state);
 	}
 }

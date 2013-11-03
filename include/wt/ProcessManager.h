@@ -18,7 +18,7 @@ public:
 
 	void update(float dt);
 	
-	void attach(ProcPtr proc);
+	ProcPtr attach(ProcPtr proc);
 
 	void deattach(ProcPtr proc);
 
