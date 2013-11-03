@@ -73,6 +73,8 @@ public:
 	virtual String getRelativeURI(const String& uri) = 0;
 
 	virtual ASoundSystem* getSoundSystem() = 0;
+
+	virtual String getFileSystemRoot() = 0;
 };
 
 }; // </wt>

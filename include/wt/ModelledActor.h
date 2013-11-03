@@ -61,7 +61,7 @@ public:
 		bool phyiscs;
 	};
 
-	void blendToAnimation(const String& name, float time, bool loopBlended);
+	SkeletalAnimationPlayer* blendToAnimation(const String& name, float time, bool loopBlended);
 	
 	const Buffer<glm::mat4>& getBoneMatrices() const;
 

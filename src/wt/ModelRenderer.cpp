@@ -20,7 +20,7 @@ namespace wt
 gl::Batch gSphere;
 
 
-ModelRenderer::ModelRenderer(){
+ModelRenderer::ModelRenderer() : mSkipper(0.0f){
 }
 
 bool ModelRenderer::isDeferred() const{
@@ -137,9 +137,11 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 	mShader.setUniformVal("uProjMat", camera->getProjectionMatrix());
 	glActiveTexture(GL_TEXTURE0);
 
+
 	// Render the geometry
 	for(Scene::ModelledActorSet::const_iterator iter=scene->getModelledActors().cbegin(); iter!=scene->getModelledActors().cend(); iter++){
 		const ModelledActor* actor = *iter;
+
 		mShader.use();
 
 		// Upload skinning matrices
@@ -160,7 +162,21 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 		((ModelledActor*)actor)->getTransformable()->getTransformMatrix(modelMat);
 		mShader.setUniformVal("uModelMat", modelMat);
 
+#pragma message("-------------- REMOVE THIS!")
+		if(actor->getModel()->getName().compare("nelf") == 0){
+			mSkipper = (mSkipper + 1 ) % actor->getSkin()->getMeshList().size();
+		}
+
+		int cnt = 0;
+
 		for(Model::GeometrySkin::MeshList::iterator i=actor->getSkin()->getMeshList().begin(); i!=actor->getSkin()->getMeshList().end(); i++){
+			if(actor->getModel()->getName().compare("nelf") == 0 && cnt ==0  || cnt == 5){
+				//LOG("skip %d", cnt+1);
+				++cnt;
+				continue;
+			}
+			++cnt;
+
 			// Use the material if the mesh has one
 			Texture2D* texture = i->texture;
 

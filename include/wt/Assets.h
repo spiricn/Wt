@@ -31,7 +31,8 @@
 
 #include "wt/lua/State.h"
 
-namespace wt{
+namespace wt
+{
 
 class Assets : public AResourceSystem, public Singleton<Assets>{
 public:
@@ -88,6 +89,8 @@ public:
 	void serialize(LuaObject& assets);
 
 	void serialize(const String& path);
+
+	String getFileSystemRoot();
 
 private:
 	void init();

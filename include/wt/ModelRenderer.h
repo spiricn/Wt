@@ -27,7 +27,7 @@ private:
 	gl::ShaderProgram mShader;
 	Texture2D mInvalidTexture;
 	DeferredRender* mDeferredRender;
-
+	int mSkipper;
 }; // </ModelRenderer>
 
 }; // </wt>

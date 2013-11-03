@@ -42,15 +42,15 @@ void ModelImporterTab::import(const QString& srcModel){
 	wt::AssimpModelLoader::TextureMap texMap;
 
 	// Load it using Assimp model loader
-	try{
+	/*try{*/
 		wt::AssimpModelLoader::getSingleton().load(srcModel.toStdString(), *model, &animation, &texMap);
-	}catch(wt::Exception& e){
+	/*}catch(wt::Exception& e){
 		QMessageBox::critical(this,
 			QString("Error converting model"),
 			e.getDescription().c_str()
 			);
 		return;
-	}
+	}*/
 
 	// Check if model with this name already exists in workspace
 	QString dstModel = dstDir + "/model/" + model->getName().c_str() + ".wtm";
@@ -63,7 +63,8 @@ void ModelImporterTab::import(const QString& srcModel){
 	// Save the converted model to workspace
 	mAssets->getModelManager()->save(dstModel.toStdString(), model);
 
-	model->setUri(dstModel.toStdString());
+	
+	model->setUri(wt::utils::toRelative(mAssets->getFileSystemRoot(), dstModel.toStdString()));
 
 	// Texture group where the new skin textures are going to be created in
 	wt::TextureGroup* texGroup = mAssets->getTextureManager()->getGroupFromPath("$ROOT/model");
@@ -100,7 +101,9 @@ void ModelImporterTab::import(const QString& srcModel){
 		bool textureExists = false;
 		
 		// check to see if this texture has already been created
-		if(texture && !sameFile(srcTexPath, texture->getUri().c_str())){
+		//mAssets->getRo
+		LOG("1");
+		if(texture && !sameFile(srcTexPath, QString(mAssets->getFileSystemRoot().c_str()) + "/" + texture->getUri().c_str())){
 			// File with this name already exists but its different from
 			// the one we're importing, so we generate a new file name for it
 			QString newTextureName;
@@ -115,7 +118,8 @@ void ModelImporterTab::import(const QString& srcModel){
 				wt::Texture2D* newTexture = texGroup->find(newTextureName.toStdString(), false);
 
 				if(newTexture){
-					if(sameFile(srcTexPath, newTexture->getUri().c_str())){
+					LOG("2");
+					if(sameFile(srcTexPath, QString(mAssets->getFileSystemRoot().c_str()) + "/" + newTexture->getUri().c_str())){
 						// We can use this texture
 						textureExists = true;
 						texture = newTexture;
@@ -129,6 +133,7 @@ void ModelImporterTab::import(const QString& srcModel){
 					dstTexPath = dstDir + "/image/" + newTextureName + "." + extension;
 					if(QFile::exists(dstTexPath)){
 						// Check if this is the same file as we're trying to import
+						LOG("3");
 						if(sameFile(dstTexPath, srcTexPath)){
 							LOGI("File already exists, skipping copy");
 						}
@@ -149,6 +154,7 @@ void ModelImporterTab::import(const QString& srcModel){
 			dstTexPath = dstDir + "/image/" + srcTexName + "." + extension;
 			if(QFile::exists(dstTexPath)){
 				// Check if this is the same file as we're trying to import
+				LOG("4");
 				if(sameFile(dstTexPath, srcTexPath)){
 					LOGI("File already exists, skipping copy");
 				}
@@ -172,7 +178,7 @@ void ModelImporterTab::import(const QString& srcModel){
 
 			// create texture
 			texture = texGroup->create(dstTexName.toStdString());
-			texture->setUri(dstTexPath.toStdString());
+			texture->setUri(wt::utils::toRelative(mAssets->getFileSystemRoot(), dstTexPath.toStdString()));
 		}
 		else{
 			LOGI("Texture already exists");
@@ -191,9 +197,9 @@ void ModelImporterTab::import(const QString& srcModel){
 bool ModelImporterTab::sameFile(const QString& path1, const QString& path2){
 	QFile file1(path1), file2(path2);
 
-	if(!file1.open(QIODevice::ReadOnly) || !file2.open(QIODevice::ReadOnly)){
-		LOGE("Error comparing files (open file failed)");
-	}
+	WT_ASSERT(file1.open(QIODevice::ReadOnly), "Error comparing files (open file failed \"%s\")", path1.toStdString().c_str());
+		
+	WT_ASSERT(file2.open(QIODevice::ReadOnly), "Error comparing files (open file failed \"%s\")", path2.toStdString().c_str());
 	
 	if(file1.size() != file2.size()){
 		LOGW("Same file name, different sizes");
@@ -239,21 +245,20 @@ void ModelImporterTab::onBatchConvert(){
 	for(QStringList::Iterator i=ls.begin(); i!=ls.end(); i++){
 		bool err=false;
 		QString file = *i;
-
-		// create new geo model / skinned model and model skin
+		 //d model and model skin
 		wt::Model model;
 		wt::Animation animation;
 
 		// load it using Assimp model loader
-		try{
+		/*try{*/
 			wt::AssimpModelLoader::getSingleton().load(file.toStdString(), model, &animation);
-		}catch(wt::Exception& e){
+		/*}catch(wt::Exception& e){
 			QMessageBox::critical(this,
 				QString("Error converting model \"" + file + "\""),
 				e.getDescription().c_str()
 				);
 			continue;
-		}
+		}*/
 
 		Uint32 e = file.toStdString().rfind(".");
 
@@ -261,28 +266,28 @@ void ModelImporterTab::onBatchConvert(){
 
 		std::string convModelName = baseName+".wtm";
 		
-		try{
+		/*try{*/
 			mAssets->getModelManager()->save(convModelName, &model);
 			LOGI("Converted model saved to \"%s\"", convModelName.c_str());
-		}catch(wt::Exception& e){
+		/*}catch(wt::Exception& e){
 			QMessageBox::critical(this,
 				QString("Error saving converted model to \"" + QString(convModelName.c_str()) + "\""),
 				e.getDescription().c_str()
 				);
 			err=true;
-		}
+		}*/
 
 		std::string convAniName = baseName+".wta";
-		try{
+		/*try{*/
 			mAssets->getAnimationManager()->save(convAniName, &animation);
 			LOGI("Converted animation saved to \"%s\"", convAniName.c_str());
-		}catch(wt::Exception& e){
+	/*	}catch(wt::Exception& e){
 			QMessageBox::critical(this,
 				QString("Error saving converted animation to \"" + QString(convAniName.c_str()) + "\""),
 				e.getDescription().c_str()
 				);
 			err=true;
-		}
+		}*/
 		cnt += err ? 0 : 1;
 	}
 

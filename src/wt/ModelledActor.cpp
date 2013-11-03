@@ -18,11 +18,14 @@ Model* ModelledActor::getModel() const{
 	return mModel;
 }
 
-void ModelledActor::blendToAnimation(const String& name, float time, bool loopBlended){
+SkeletalAnimationPlayer* ModelledActor::blendToAnimation(const String& name, float time, bool loopBlended){
 	mBlendTotal = time;
 	mBlendCurrent = 0.0f;
 
-	addAnimationChannel()->play(name, loopBlended);
+	SkeletalAnimationPlayer* res = addAnimationChannel();
+	res->play(name, loopBlended);
+
+	return res;
 }
 
 ATransformable* ModelledActor::getController(){

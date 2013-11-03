@@ -16,6 +16,9 @@
 #include "wt/lua/LuaBindings.h"
 #include "wt/TransformableAnimator.h"
 
+#define ANIM_DIR "c:/Users/Nikola/Desktop"
+
+#define ANIMATION_SPEED ( 0.6f )
 namespace wt
 {
 class WaitProcess : public AProcess{
@@ -44,7 +47,7 @@ public:
 
 	void onProcStart(){
 		if(mBlend){
-			mActor->blendToAnimation(mAnimation, mBlendSpeed, false);
+			mActor->blendToAnimation(mAnimation, mBlendSpeed, false)->setSpeed( mSpeed );
 		}
 		else{
 			mActor->getAnimationPlayer()->play(mAnimation, false);
@@ -84,20 +87,20 @@ public:
 		ModelledActor* mage = (ModelledActor*)mDemo->getScene()->findActorByName("mage");
 
 		if(mStage == eSTAGE_3){
-			 const glm::vec3 endPos = glm::vec3(287.347748, 0.000000, 254.291016);
+			 const glm::vec3 endPos = glm::vec3(287.347748, 0.100000, 254.291016);
 			 glm::vec3 currPos;
 
 			 mage->getTransformable()->getTranslation(currPos);
 
 			 if(glm::length(endPos-currPos) <= 1.5f){
 				 setNext(new SceneProc(mDemo, eSTAGE_4));
-				 mage->blendToAnimation("stand1", 0.5f, false);
+				 mage->blendToAnimation("stand1", 0.5f, false)->setSpeed(ANIMATION_SPEED);
 				 killProcess();
 			 }
 
 			 glm::vec3 moveVec = glm::normalize(endPos-currPos);
 
-			 const float moveSpeed = 8.5f;
+			 const float moveSpeed = 9.0f;
 
 			 currPos += moveVec*moveSpeed*dt;
 			 mage->getController()->setTranslation(currPos);
@@ -124,11 +127,11 @@ public:
 		ModelledActor* mage = (ModelledActor*)mDemo->getScene()->findActorByName("mage");
 
 		if(mStage == eSTAGE_TURN_ON_LIGHTS){
-			mStageData = new Interpolator<float>(0, 28, 2, false, Interpolator<float>::eEASE_IN_QUAD);
+			mStageData = new Interpolator<float>(0, 28, 1.5f, false, Interpolator<float>::eEASE_IN_QUAD);
 		}
 		else if(mStage == eSTAGE_0){
 			Animation* anim = new Animation;
-			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera.wta", anim);
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load(ANIM_DIR "/camera.wta", anim);
 
 			TransformableAnimator* animator;
 			this
@@ -136,10 +139,9 @@ public:
 				->setNext( animator = new TransformableAnimator(&mDemo->getScene()->getCamera(), anim, "default", false, true) )
 				->setNext( new WaitProcess(2.0f) )
 				->setNext( new SceneProc(mDemo, eSTAGE_TURN_ON_LIGHTS) )
-				->setNext( new WaitProcess(1.0f) )
 				->setNext(new SceneProc(mDemo, eSTAGE_1));
 
-			animator->setSpeed(5);
+			//animator->setSpeed(50);
 
 			killProcess();
 		}
@@ -149,7 +151,7 @@ public:
 		
 
 			Animation* anim = new Animation;
-			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera2.wta", anim);
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load(ANIM_DIR "/camera2.wta", anim);
 
 			TransformableAnimator* animator1 = new TransformableAnimator(&mDemo->getScene()->getCamera(), anim, "default", false, true);
 
@@ -163,7 +165,7 @@ public:
 		else if(mStage == eSTAGE_2){
 
 			Animation* cameraAnimation = new Animation;
-			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera3.wta", cameraAnimation);
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load(ANIM_DIR "/camera3.wta", cameraAnimation);
 			TransformableAnimator* cameraAnimator = new TransformableAnimator(&mDemo->getScene()->getCamera(), cameraAnimation, "default", false, true);
 			mDemo->getProcManager().attach(cameraAnimator );
 
@@ -175,13 +177,13 @@ public:
 		}
 		else if(mStage == eSTAGE_3){
 			//mage->getAnimationPlayer()->play("walk", true);
-			mage->blendToAnimation("walk", 0.3f, true);
+			mage->blendToAnimation("walk", 0.3f, true)->setSpeed( ANIMATION_SPEED );
 
 			mage->getAnimationPlayer()->setSpeed(0.6f);
 		}
 		else if(mStage == eSTAGE_4){
 			Animation* anim = new Animation;
-			mDemo->getAssets()->getAnimationManager()->getLoader()->load("c:/Users/Nikola/Desktop/camera4.wta", anim);
+			mDemo->getAssets()->getAnimationManager()->getLoader()->load(ANIM_DIR "/camera4.wta", anim);
 
 			TransformableAnimator* animator1 = new TransformableAnimator(&mDemo->getScene()->getCamera(), anim, "default", false, true);
 			setNext(animator1);

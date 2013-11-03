@@ -16,6 +16,10 @@ Assets::Assets() : mRootDir(""), mFileSystem(NULL){
 	init();
 }
 
+String Assets::getFileSystemRoot(){
+	return mRootDir;
+}
+
 void Assets::init(){
 	mImageManager = new ImageManager(this);
 	mTextureManager = new TextureManager(this);
