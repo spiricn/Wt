@@ -118,8 +118,9 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	
 	// Initialize the scene renderer (must be done after scene creation due to event registration)
 	mRenderer = new Renderer(mEventManager);
-	mRenderer->init(mWindow->getVideoMode().mScreenWidth,
-		mWindow->getVideoMode().mScreenHeigth);
+	mRenderer->init(mWindow->getWidth(),
+		mWindow->getHeight()
+	);
 
 	mFpsCam.setCamera(&getScene()->getCamera());
 	mTpsCam.setCamera(&getScene()->getCamera());

@@ -11,33 +11,17 @@
 #include "wt/ScriptProcess.h"
 #include "wt/lua/LuaUtils.h"
 #include "wt/IcosphereBuilder.h"
-
+#include "wt/WaitProcess.h"
 #include "wt/lua/LuaModule.h"
 #include "wt/lua/LuaBindings.h"
 #include "wt/TransformableAnimator.h"
 
-#define ANIM_DIR "c:/Users/Nikola/Desktop"
+#define ANIM_DIR "d:/Documents/prog/c++/workspace/Wt/workspace/godray"
 
 #define ANIMATION_SPEED ( 0.6f )
 namespace wt
 {
-class WaitProcess : public AProcess{
-public:
-	WaitProcess(float time) : mDuration(time), mCurrentTime(0.0f){
-	}
 
-	void onProcUpdate(float dt){
-		mCurrentTime += dt;
-		if(mCurrentTime >= mDuration){
-			killProcess();
-		}
-	}
-
-private:
-	float mCurrentTime;
-	float mDuration;
-
-}; // </WaitProcess>
 
 class AnimationProcess : public AProcess{
 public:

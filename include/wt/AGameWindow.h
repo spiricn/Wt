@@ -32,84 +32,64 @@ public:
 
 class AGameWindow{
 public:
+	enum Mode{
+		eMODE_INVALID,
 
-	/**
-	Struct containing information about the game window
-	*/
-	struct VideoMode{
+		eMODE_FULLSCREEN,
+		eMODE_WINDOWED,
+		eMODE_WINDOWED_BORDERLESS,
+
+	}; // </Mode>
+
+	struct Desc{
 		// Screen geometry
-		uint32_t mScreenWidth, mScreenHeigth;
+		uint32_t screenWidth;
+		uint32_t screenHeight;
 
 		// Screen position
-		uint32_t mPositionX, mPositionY;
+		uint32_t screenPosX;
+		uint32_t screenPosY;
 	
 		// Pixel depth
-		uint32_t mBPP;
+		uint8_t pixelDepth;
 
 		// Screen title
-		String mTitle;
+		String windowTitle;
 
-		bool mBorderless;
+		bool vsyncEnabled;
 
-		bool mFullscreenEnabled, mVerticalSyncEnabled;
+		Mode mode;
 
-		VideoMode(uint32_t width=1024, uint32_t heigth=768, const String& title="Game Window",
-			bool vsync=true, bool fullscreen=false, uint32_t bpp=32, bool borderless=false) :
-			mScreenWidth(width), mScreenHeigth(heigth), mTitle(title), 
-				mFullscreenEnabled(fullscreen), mVerticalSyncEnabled(vsync), mBorderless(borderless), mBPP(bpp){
+		Desc(uint32_t screenWidth=640, uint32_t screenHeight=480, const String& windowTitle="",
+			bool vsyncEnabled=true, uint8_t pixelDepth=32, Mode mode = eMODE_WINDOWED) : screenWidth(screenWidth), screenHeight(screenHeight), windowTitle(windowTitle), 
+				vsyncEnabled(vsyncEnabled), pixelDepth(pixelDepth){
 		}
-	};
 
-	typedef struct VideoMode VideoMode;
+	}; // <Desc>
 
-protected:
-	VideoMode mVideoMode;
+	virtual ~AGameWindow();
 
-public:
-	AGameWindow(){
-	}
+	uint32_t getWidth() const;
 
-	AGameWindow(const AGameWindow& other){
-		*this = other;
-	}
+	uint32_t getHeight() const;
 
-	virtual ~AGameWindow(){
-	}
+	float getAspectRatio() const;
 
-	uint32_t getWidth() const{
-		return mVideoMode.mScreenWidth;
-	}
+	virtual void hook(EventManager* evtManager) = 0;
 
-	uint32_t getHeight() const{
-		return mVideoMode.mScreenHeigth;
-	}
+	virtual void create(const Desc& mode) = 0;
 
-	virtual void hook(EventManager* evtManager)=0;
-
-	virtual bool create(const VideoMode& mode)=0;
-
-	virtual bool destroy()=0;
+	virtual const Desc& getDesc() const = 0;
 
 	virtual void swapBuffers() = 0;
 
-	virtual bool isFullscreen() const=0;
+	virtual void setScreenSize(uint32_t width, uint32_t height) = 0;
 
-	virtual void setScreenSize(uint32_t width, uint32_t height)=0;
+	virtual void setWindowMode(Mode mode) = 0;
 
-	virtual void setFullscreenEnabled(bool state)=0;
+	virtual void setVsyncEnabled(bool state) = 0;
 
-	virtual void setVsyncEnabled(bool state)=0;
-
-	virtual void setWindowTitle(const String& title)=0;
-
-	const VideoMode& getVideoMode() const{
-		return mVideoMode;
-	}
-
-	float getAspectRatio(){
-		return (float)mVideoMode.mScreenWidth/(float)mVideoMode.mScreenHeigth;
-
-	}
+	virtual void setWindowTitle(const String& title) = 0;
 
 }; // </GameWindow>
 

@@ -4,10 +4,13 @@
 
 #define TD_TRACE_TAG "AProcess"
 
-namespace wt{
+namespace wt
+{
 
+AProcess::AProcess() : mIsAlive(true), mNextProc(NULL), mManager(NULL), mIsAttached(false){
+}
 
-void AProcess::attach(ProcessManager* manager, Pid pid){
+void AProcess::onProcessAttach(ProcessManager* manager, Pid pid){
 	WT_ASSERT(!isAttached(), "Process already attached to a manager");
 
 	mManager = manager;
@@ -17,17 +20,12 @@ void AProcess::attach(ProcessManager* manager, Pid pid){
 	onProcStart();
 }
 
-void AProcess::deattach(){
+void AProcess::detach(){
 	WT_ASSERT(isAttached(), "Process not attached to a manager");
 
 	mIsAttached = false;
 	mManager = NULL;
 	mPid = 0;
-
-	onProcEnd();
-}
-
-AProcess::AProcess() : mIsAlive(true), mNextProc(NULL), mManager(NULL), mIsAttached(false){
 }
 
 AProcess::Pid AProcess::getPid() const{

@@ -121,12 +121,13 @@ void DemoManager::initialize(){
 
 	// Create window (get parameters from previously executed script)
 	mWindow = GameWindowFactory::create(
-		AGameWindow::VideoMode(
+		AGameWindow::Desc(
 			initState->GetGlobal("SCREEN_WIDTH").ToInteger(),
 			initState->GetGlobal("SCREEN_HEIGHT").ToInteger(),
 			initState->GetGlobal("WINDOW_TITLE").ToString(),
 			initState->GetGlobal("VSYNC").ToInteger()==1?true:false,
-			initState->GetGlobal("FULLSCREEN").ToInteger()==1?true:false
+			32,
+			initState->GetGlobal("FULLSCREEN").ToInteger() == 1 ? AGameWindow::eMODE_FULLSCREEN : AGameWindow::eMODE_WINDOWED
 			)
 	);
 

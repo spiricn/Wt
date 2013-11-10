@@ -15,20 +15,7 @@ class AProcess{
 friend class ProcessManager;
 
 public:
-	typedef uint32_t Pid;
-
-private:
-	Pid mPid;
-	ProcessManager* mManager;
-	bool mIsAlive;
-	bool mIsAttached;
-	ProcPtr mNextProc;
-
-protected:
-
-	void attach(ProcessManager* manager, Pid pid);
-
-	void deattach();
+	typedef int32_t Pid;
 
 public:
 	AProcess();
@@ -47,6 +34,8 @@ public:
 
 	void killProcess();
 
+	void detach();
+
 	/** called at every iteration of process manager update */
 	virtual void onProcUpdate(float dt)=0;
 
@@ -57,6 +46,16 @@ public:
 	virtual void onProcEnd();
 
 	virtual ~AProcess();
+
+private:
+
+	void onProcessAttach(ProcessManager* manager, Pid pid);
+
+	Pid mPid;
+	ProcessManager* mManager;
+	bool mIsAlive;
+	bool mIsAttached;
+	ProcPtr mNextProc;
 
 }; // </AProcess>
 

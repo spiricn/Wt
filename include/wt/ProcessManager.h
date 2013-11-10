@@ -9,10 +9,6 @@
 namespace wt{
 
 class ProcessManager{
-private:
-	typedef std::list<ProcPtr> ProcList;
-	ProcList mProcesses;
-
 public:
 	~ProcessManager();
 
@@ -20,7 +16,11 @@ public:
 	
 	ProcPtr attach(ProcPtr proc);
 
-	void deattach(ProcPtr proc);
+private:
+	typedef std::list<ProcPtr> ProcList;
+
+	ProcList mProcesses;
+	AProcess::Pid mPidCounter;
 
 }; // </ProcessManager>
 

@@ -33,6 +33,14 @@ public:
 		eFS_ZIP,
 	}; //</FileSystemType>
 
+	struct Desc{
+		FileSystemType fileSystemType;
+		String fileSystemUri;
+
+		Desc() : fileSystemType(eFS_DIR), /* FIXME */ fileSystemUri("."){
+		}
+	}; // </Desc>
+
 	virtual ~AResourceSystem(){
 	}
 

@@ -14,15 +14,14 @@
 namespace wt
 {
 
-AGameWindow* GameWindowFactory::create(const AGameWindow::VideoMode& desc){
+AGameWindow* GameWindowFactory::create(const AGameWindow::Desc& desc){
 #if defined(USE_SDL_GAME_WINDOW)
 	SDLGameWindow* window = new SDLGameWindow;
 	
-	if(window->create(desc)){
-		return window;
-	}
-	else{
-		delete window;
+	try{
+		window->create(desc);
+	}catch(...){
+		TRACEE("Error creating SDL game window");
 		return NULL;
 	}
 #else

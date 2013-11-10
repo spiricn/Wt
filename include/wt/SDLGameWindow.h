@@ -14,23 +14,13 @@
 
 namespace wt{
 
-class SDLGameWindow : public AGameWindow, public EventListener{
-private:
-	static const char* TAG;
-	EventManager* mEvtManager;
-
-	SDL_Surface* mScreen;
-
-	bool updateVideoMode();
-
+class SDLGameWindow : public AGameWindow{
 public:
 	SDLGameWindow();
 
 	~SDLGameWindow();
 
-	bool create(const VideoMode& mode);
-
-	bool destroy();
+	void create(const AGameWindow::Desc& mode);
 
 	void hook(EventManager* evtManager);
 
@@ -47,6 +37,18 @@ public:
 	void setFullscreenEnabled(bool state);
 
 	void setWindowTitle(const String& title);
+
+	void setWindowMode(AGameWindow::Mode mode);
+
+	const Desc& getDesc() const;
+
+private:
+	EventManager* mEvtManager;
+	SDL_Surface* mScreen;
+
+	void updateVideoMode();
+
+	AGameWindow::Desc mDesc;
 
 }; // </SDLGameWindow>
 

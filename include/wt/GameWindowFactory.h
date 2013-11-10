@@ -9,7 +9,7 @@ namespace wt
 class GameWindowFactory{
 public:
 
-	static AGameWindow* create(const AGameWindow::VideoMode& desc);
+	static AGameWindow* create(const AGameWindow::Desc& desc);
 
 }; // </GameWindowFactory>
 
