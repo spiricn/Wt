@@ -51,7 +51,7 @@ glm::vec3 Actor_getAttachPointPosition(void* ptr, const char* id){
 void Actor_pitch(void* ptr, float angle){
 	GET_THIS;
 
-	thiz->getController()->pitch(angle);
+	thiz->getTransformable()->pitch(angle);
 }
 
 void Actor_setPosition(void* ptr, LuaObject luaPos){
@@ -60,7 +60,7 @@ void Actor_setPosition(void* ptr, LuaObject luaPos){
 	glm::vec3 pos;
 	luaConv(luaPos, pos);
 
-	thiz->getController()->setTranslation(pos);
+	thiz->getTransformable()->setTranslation(pos);
 }
 
 glm::vec3 Actor_getPosition(void* ptr){
@@ -120,7 +120,7 @@ void Actor_delete(void* ptr){
 void Actor_yaw(void* ptr, float angle){
 	GET_THIS;
 
-	thiz->getController()->yaw(angle);
+	thiz->getTransformable()->yaw(angle);
 }
 
 } // </lua>

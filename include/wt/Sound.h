@@ -11,7 +11,7 @@ class Sound : public ASceneActor, public ATransformable{
 public:
 	Sound(Scene* parent, uint32_t id, const String& name="");
 
-	const ATransformable* getTransformable() const;
+	ATransformable* getTransformable() const;
 
 	SoundPtr getSound() const;
 
@@ -19,17 +19,17 @@ public:
 
 	void setSound(SoundPtr sound);
 
-	virtual void setTranslation(const glm::vec3& translation);
+	void setTranslation(const glm::vec3& translation);
 
-	virtual void setRotation(const glm::quat& rotation);
+	void setRotation(const glm::quat& rotation);
 
-	virtual void setScale(const glm::vec3& scale);
+	void setScale(const glm::vec3& scale);
 
-	virtual void getScale(glm::vec3& result) const;
+	void getScale(glm::vec3& result) const;
 
-	virtual void getTranslation(glm::vec3& result) const;
+	void getTranslation(glm::vec3& result) const;
 
-	virtual void getRotation(glm::quat& result) const;
+	void getRotation(glm::quat& result) const;
 
 	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
 

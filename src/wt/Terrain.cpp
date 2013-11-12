@@ -21,8 +21,8 @@ uint32_t Terrain::getNumRows() const{
 	return mNumXVertices;
 }
 
-const ATransformable* Terrain::getTransformable() const{
-	return &mTransform;
+ATransformable* Terrain::getTransformable() const{
+	return const_cast<ATransformable*>( dynamic_cast<const ATransformable*>(&mTransform) );
 }
 
 uint32_t Terrain::getNumCols() const{

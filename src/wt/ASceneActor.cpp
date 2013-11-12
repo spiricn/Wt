@@ -15,8 +15,8 @@ void ASceneActor::detach(){
 	mAttachPoint.pointId = "";
 }
 
-ATransformable* ASceneActor::getController(){
-	return const_cast<ATransformable*>(getTransformable());
+Scene* ASceneActor::getScene() const{
+	return mParent;
 }
 
 void ASceneActor::setBoundingBoxColor(const Color& color){
@@ -72,13 +72,6 @@ ASceneActor::ActorType ASceneActor::getActorType() const{
 	return mType;
 }
 
-const ATransformable* ASceneActor::getTransformable() const{
-	const ATransformable* res = const_cast<ASceneActor*>(this)->getTransformable();
-
-	return res;
-}
-
-
 void* ASceneActor::getUserData() const{
 	return mUserData;
 }
@@ -108,6 +101,11 @@ bool ASceneActor::attach(const ASceneActor* actor, const String& pointId){
 		mAttachPoint.pointId = pointId;
 		return true;
 	}
+}
+
+void ASceneActor::physicsControl(const glm::vec3& translation, const glm::quat& rotation){
+	getTransformable()->setTranslation(translation);
+	getTransformable()->setRotation(rotation);
 }
 
 void ASceneActor::setUserData(void* data){
@@ -166,7 +164,7 @@ void ASceneActor::update(float /*dt*/){
 		math::decomposeMatrix(tf, rot, pos, scale);
 		glm::mat4 mat = glm::translate(pos) * glm::mat4_cast(rot);
 
-		getController()->setTransformMatrix(mat);
+		getTransformable()->setTransformMatrix(mat);
 	}
 }
 
@@ -217,7 +215,7 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 void ASceneActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
 	WT_ASSERT(src.IsTable(), "Error deserializing, object not a table");
 
-	if(!lua::luaConv(src.Get("transform"), *getController())){
+	if(!lua::luaConv(src.Get("transform"), *getTransformable())){
 		WT_THROW("Error deserializing transform");
 	}
 

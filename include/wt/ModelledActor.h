@@ -7,11 +7,12 @@
 #include "wt/FileIOStream.h"
 #include "wt/PhysicsActor.h"
 #include "wt/lua/Object.h"
+#include "wt/ATransformable.h"
 
 namespace wt{
 
 
-class ModelledActor : public ASceneActor{
+class ModelledActor : public ASceneActor, public ATransformable{
 public:
 	struct Desc{
 		Model* model;
@@ -28,8 +29,6 @@ public:
 
 	Model* getModel() const;
 
-	ATransformable* getController();
-
 	void setModel(Model* model, const String& skin);
 
 	SkeletalAnimationPlayer* getAnimationPlayer() const;
@@ -44,13 +43,15 @@ public:
 
 	bool getAttachPointTransform(const String& pointId, glm::mat4& res) const;
 
+	void physicsControl(const glm::vec3& translation, const glm::quat& rotation);
+
 	void update(float dt);
 
 	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
 	 
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque);
 
-	const ATransformable* getTransformable() const;
+	ATransformable* getTransformable() const;
 
 	SkeletalAnimationPlayer* addAnimationChannel();
 
@@ -66,6 +67,18 @@ public:
 	const Buffer<glm::mat4>& getBoneMatrices() const;
 
 	bool isAnimated() const;
+
+	void setTranslation(const glm::vec3& translation);
+
+	void setRotation(const glm::quat& rotation);
+
+	void setScale(const glm::vec3& scale);
+
+	void getScale(glm::vec3& result) const;
+
+	void getTranslation(glm::vec3& result) const;
+
+	void getRotation(glm::quat& result) const;
 
 private:
 	typedef std::vector<SkeletalAnimationPlayer*> AnimationChannelList;

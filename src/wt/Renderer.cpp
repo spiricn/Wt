@@ -1081,9 +1081,9 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	// Do the godray post-processing effect if enabled
 	godrayPass(scene);
 
-	/*if(scene.getUIWindow()){
+	if(scene.getUIWindow()){
 		render(scene, scene.getUIWindow());
-	}*/
+	}
 
 	if(!target){
 		// Use default framebuffer

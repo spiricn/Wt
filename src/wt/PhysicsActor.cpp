@@ -28,7 +28,10 @@ void PhysicsActor::setTranslation(const glm::vec3& translation){
 	pxActor->setGlobalPose(pose, true);
 	
 	if(pxActor->isRigidStatic() && mSceneActor){
-		const_cast<ATransformable*>(mSceneActor->getTransformable())->setTranslation(translation);
+		glm::quat rotation;
+		mSceneActor->getTransformable()->getRotation(rotation);
+
+		const_cast<ASceneActor*>(mSceneActor)->physicsControl(translation, rotation);
 	}
 }
 
@@ -41,7 +44,10 @@ void PhysicsActor::setRotation(const glm::quat& rotation){
 	pxActor->setGlobalPose(pose, true);
 
 	if(pxActor->isRigidStatic() && mSceneActor){
-		const_cast<ATransformable*>(mSceneActor->getTransformable())->setRotation(rotation);
+		glm::vec3 translation;
+		mSceneActor->getTransformable()->getTranslation(translation);
+
+		const_cast<ASceneActor*>(mSceneActor)->physicsControl(translation, rotation);
 	}
 }
 

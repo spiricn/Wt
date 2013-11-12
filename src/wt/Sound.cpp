@@ -12,8 +12,8 @@ namespace wt
 Sound::Sound(Scene* parent, uint32_t id, const String& name) : ASceneActor(parent, ASceneActor::eTYPE_SOUND, id, name){
 }
 
-const ATransformable* Sound::getTransformable() const{
-	return this;
+ATransformable* Sound::getTransformable() const{
+	return const_cast<ATransformable*>( dynamic_cast<const ATransformable*>(this) );
 }
 
 SoundPtr Sound::getSound() const{

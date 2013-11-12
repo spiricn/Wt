@@ -26,7 +26,7 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="modelledActor">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -36,6 +36,9 @@
           <string>Modelled actor properties</string>
          </property>
          <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
           <item row="0" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
@@ -196,13 +199,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="text">
-        <string>Select actor</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="pushButton">
        <property name="text">
         <string>New actor</string>
@@ -220,6 +216,13 @@
       <widget class="QPushButton" name="pushButton_5">
        <property name="text">
         <string>Rename</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_6">
+       <property name="text">
+        <string>Edit</string>
        </property>
       </widget>
      </item>
@@ -276,7 +279,7 @@
    <slot>onNewActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>223</x>
+     <x>182</x>
      <y>445</y>
     </hint>
     <hint type="destinationlabel">
@@ -313,22 +316,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
-     <y>238</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>ActorEditTool</receiver>
-   <slot>onSelectActor()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>145</x>
-     <y>445</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>618</x>
      <y>238</y>
     </hint>
    </hints>
@@ -388,7 +375,7 @@
    <slot>onDeleteActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>301</x>
+     <x>284</x>
      <y>445</y>
     </hint>
     <hint type="destinationlabel">
@@ -404,8 +391,8 @@
    <slot>onEditParticleEffect()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>38</y>
+     <x>27</x>
+     <y>35</y>
     </hint>
     <hint type="destinationlabel">
      <x>14</x>
@@ -420,8 +407,8 @@
    <slot>onLightColorChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>33</y>
+     <x>101</x>
+     <y>17</y>
     </hint>
     <hint type="destinationlabel">
      <x>325</x>
@@ -436,8 +423,8 @@
    <slot>onAmbientIntensityChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>38</y>
+     <x>101</x>
+     <y>22</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -452,8 +439,8 @@
    <slot>onDiffuseIntensityChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>38</y>
+     <x>101</x>
+     <y>27</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -468,8 +455,8 @@
    <slot>onAttenuationChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>38</y>
+     <x>101</x>
+     <y>32</y>
     </hint>
     <hint type="destinationlabel">
      <x>1</x>
@@ -484,7 +471,7 @@
    <slot>onActorRename()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
+     <x>379</x>
      <y>445</y>
     </hint>
     <hint type="destinationlabel">
@@ -500,8 +487,8 @@
    <slot>onVolumeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>314</x>
-     <y>31</y>
+     <x>99</x>
+     <y>17</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -516,8 +503,8 @@
    <slot>onMinDistanceChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>423</x>
-     <y>85</y>
+     <x>99</x>
+     <y>22</y>
     </hint>
     <hint type="destinationlabel">
      <x>483</x>
@@ -532,8 +519,8 @@
    <slot>onSoundAttenuationChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>411</x>
-     <y>122</y>
+     <x>99</x>
+     <y>27</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -548,12 +535,28 @@
    <slot>onPitchChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>300</x>
-     <y>173</y>
+     <x>99</x>
+     <y>32</y>
     </hint>
     <hint type="destinationlabel">
      <x>483</x>
      <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_6</sender>
+   <signal>clicked()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onEditActor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>462</x>
+     <y>437</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>486</x>
+     <y>421</y>
     </hint>
    </hints>
   </connection>
@@ -580,5 +583,6 @@
   <slot>onMinDistanceChanged()</slot>
   <slot>onSoundAttenuationChanged()</slot>
   <slot>onPitchChanged()</slot>
+  <slot>onEditActor()</slot>
  </slots>
 </ui>

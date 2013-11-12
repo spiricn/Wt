@@ -17,23 +17,7 @@ namespace wt
 
 class AEngineFramework : public IEngineServiceLocator{
 public:
-	struct Desc{
-		struct{
-			String filePath;
-		} logging;
-
-		AGameWindow::Desc window;
-
-		String homeDir;
-
-		float mainLoopStep;
-
-		AResourceSystem::Desc assets;
-
-		Desc() : mainLoopStep(1/60.0f), homeDir("."){
-			logging.filePath = "log";
-		}
-	}; // </Desc>
+	struct Desc;
 
 	AEngineFramework();
 
@@ -81,6 +65,37 @@ public:
 	virtual AResourceSystem* getAssets() const;
 
 	virtual Renderer* getRenderer() const;
+
+	struct Desc{
+		struct Logging{
+			String filePath;
+			bool enabled;
+
+			Logging() : filePath("log.txt"), enabled(true){
+			}
+		} logging;
+
+		AGameWindow::Desc window;
+
+		String homeDir;
+
+		float mainLoopStep;
+
+		AResourceSystem::Desc assets;
+
+		struct PhysicsDebugging{
+			String remoteDebuggerURI;
+			uint32_t remoteDebuggerPort;
+
+			bool remoteDebuggingEnabled;
+
+			PhysicsDebugging() : remoteDebuggerURI("127.0.0.1"), remoteDebuggerPort(5425), remoteDebuggingEnabled(false){
+			}
+		} physicsDebugging;
+
+		Desc() : mainLoopStep(1/60.0f), homeDir("."){
+		}
+	}; // </Desc>
 
 private:
 	void mainLoop();

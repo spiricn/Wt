@@ -28,15 +28,6 @@ SkeletalAnimationPlayer* ModelledActor::blendToAnimation(const String& name, flo
 	return res;
 }
 
-ATransformable* ModelledActor::getController(){
-	if(getPhysicsActor() != NULL){
-		return ASceneActor::getPhysicsActor();
-	}
-	else{
-		return &mTransform;
-	}
-}
-
 SkeletalAnimationPlayer* ModelledActor::addAnimationChannel(){
 	SkeletalAnimationPlayer* res = new SkeletalAnimationPlayer(mModel);
 
@@ -49,8 +40,8 @@ void ModelledActor::removeAnimationChannel(SkeletalAnimationPlayer* chanel){
 	mAnimationChannels.erase( std::find(mAnimationChannels.begin(), mAnimationChannels.end(), chanel) );
 }
 
-const ATransformable* ModelledActor::getTransformable() const{
-	return &mTransform;
+ATransformable* ModelledActor::getTransformable() const{
+	return const_cast<ATransformable*>( dynamic_cast<const ATransformable*>(this) );
 }
 
 const Buffer<glm::mat4>& ModelledActor::getBoneMatrices() const{
@@ -276,6 +267,40 @@ void ModelledActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObjec
 			deserData->phyiscs = false;
 		}
 	}
+}
+
+void ModelledActor::physicsControl(const glm::vec3& translation, const glm::quat& rotation){
+	mTransform.setTranslation(translation);
+	mTransform.setRotation(rotation);
+}
+
+void ModelledActor::setTranslation(const glm::vec3& translation){
+	ATransformable* tf = getPhysicsActor() ? dynamic_cast<ATransformable*>(getPhysicsActor()) : &mTransform;
+
+	tf->setTranslation(translation);
+}
+
+void ModelledActor::setRotation(const glm::quat& rotation){
+	ATransformable* tf = getPhysicsActor() ? dynamic_cast<ATransformable*>(getPhysicsActor()) : &mTransform;
+
+	tf->setRotation(rotation);
+}
+
+void ModelledActor::setScale(const glm::vec3& scale){
+	// Scale does not affect the physics actor,
+	mTransform.setScale(scale);
+}
+
+void ModelledActor::getScale(glm::vec3& scale) const{
+	mTransform.getScale(scale);
+}
+
+void ModelledActor::getTranslation(glm::vec3& result) const{
+	mTransform.getTranslation(result);
+}
+
+void ModelledActor::getRotation(glm::quat& result) const{
+	mTransform.getRotation(result);
 }
 
 }; // </wt>

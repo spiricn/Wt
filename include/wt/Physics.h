@@ -168,9 +168,9 @@ public:
 
 	}; // </PickFlags>
 
-	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0x00, PickFlag flags=ePICK_ACTORS);
+	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0xFFFFFFFF, PickFlag flags=ePICK_ACTORS);
 
-	bool pick(math::Camera& camera, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0x00, PickFlag flags=ePICK_ACTORS);
+	bool pick(math::Camera& camera, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0xFFFFFFFF, PickFlag flags=ePICK_ACTORS);
 
 	/**********************/
 	/**** Lua bindings ****/

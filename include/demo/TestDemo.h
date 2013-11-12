@@ -87,7 +87,7 @@ public:
 			 const float moveSpeed = 9.0f;
 
 			 currPos += moveVec*moveSpeed*dt;
-			 mage->getController()->setTranslation(currPos);
+			 mage->getTransformable()->setTranslation(currPos);
 		}
 		else if(mStage == eSTAGE_TURN_ON_LIGHTS){
 			float val = 0.0f;

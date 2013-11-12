@@ -278,16 +278,37 @@ void Physics::update(float dt){
 			const PxExtendedVec3& pos = actor->getController()->getFootPosition();
 
 			// Since we're the controller of the object we need to const cast this in order to change it
+#if 0
 			ATransformable* transformable = const_cast<ATransformable*>(actor->getSceneActor()->getTransformable());
 			transformable->setTranslation(glm::vec3(pos.x, pos.y, pos.z));
+#else
+			// TODO optimize this
+			glm::quat rot;
+			actor->getSceneActor()->getTransformable()->getRotation(rot);
+
+			(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(
+				glm::vec3(pos.x, pos.y, pos.z), rot
+			);
+#endif
 		}
 		else if(actor->getSceneActor()){
 			// Since we're the controller of the object we need to const cast this in order to change it
+#if 0
 			ATransformable* transformable = const_cast<ATransformable*>(actor->getSceneActor()->getTransformable());
 
 			pxConvert(activeTransforms[i].actor2World,
 				*transformable
 			);
+#else
+			glm::vec3 pos;
+			glm::quat rot;
+
+			pxConvert(activeTransforms[i].actor2World.p, pos);
+			pxConvert(activeTransforms[i].actor2World.q, rot);
+
+			(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(pos, rot);
+
+#endif
 		}
 		else{
 			LOGW("No scene actor associated with physx actor!");
@@ -487,10 +508,12 @@ void Physics::removeActor(PhysicsActor* actor){
 
 bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& result, uint32_t groups, PickFlag flags){
 	PxRaycastHit hit;
+
 	PxSceneQueryFilterData f;
 	f.data.setToDefault();
 
-	
+	// bool hit = ( word0 & word0 ) || ( word1 & word1 ) || ( word2 & word2 ) || ( word3 & word3 );
+
 	if(flags & ePICK_BOUNDING_BOXES){
 		f.data.word3 |= eIG_BBOX;
 	}
@@ -547,63 +570,75 @@ bool Physics::pick(math::Camera& camera, const glm::vec2& screenPos,
 
 Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 
-	switch(desc.geometryType){
-		case PhysicsActor::eGEOMETRY_BOX:
-			return new PxBoxGeometry(
-				desc.geometryDesc.boxGeometry.hx,
-				desc.geometryDesc.boxGeometry.hy, 
-				desc.geometryDesc.boxGeometry.hz);
-			break;
+	if(desc.geometryType == PhysicsActor::eGEOMETRY_BOX){
+		PxBoxGeometry* res = new PxBoxGeometry(
+			desc.geometryDesc.boxGeometry.hx,
+			desc.geometryDesc.boxGeometry.hy, 
+			desc.geometryDesc.boxGeometry.hz);
 
-		case PhysicsActor::eGEOMETRY_SPHERE:
-			return new PxSphereGeometry(
-				desc.geometryDesc.sphereGeometry.radius
-				);
-			break;
+		WT_ASSERT(res->isValid(), "Invalid box geometry provided");
 
-		case PhysicsActor::eGEOMETRY_MESH:
-			return new PxTriangleMeshGeometry(
+		return res;
+	}
+	else if(desc.geometryType == PhysicsActor::eGEOMETRY_SPHERE){
+		PxSphereGeometry* res = new PxSphereGeometry(
+			desc.geometryDesc.sphereGeometry.radius
+		);
+
+		WT_ASSERT(res->isValid(), "Invalid sphere geometry provided");
+
+		return res;
+	}
+	else if(desc.geometryType == PhysicsActor::eGEOMETRY_MESH){
+		PxTriangleMeshGeometry* res = new PxTriangleMeshGeometry(
 				cook( desc.geometryDesc.meshGeometry.model->getBatch() )
-				);
-			break;
-		case PhysicsActor::eGEOMETRY_PLANE:
-			return new PxPlaneGeometry;
-			break;
-		case PhysicsActor::eGEOMETRY_HEIGHTMAP:{
-			 //Copy heightmap data
-			const PhysicsActor::Desc::GeometryDesc::HeightfieldGeometry& hfDesc = desc.geometryDesc.heightfieldGeometry;
+		);
 
-			uint32_t numRows = hfDesc.numRows;
-			uint32_t numCols = hfDesc.numCols;
+		WT_ASSERT(res->isValid(), "Invalid mesh geometry provided");
 
-			Buffer<PxHeightFieldSample> samples(numRows*numCols);
-			samples.clearMem();
+		return res;
+	}
+	else if(desc.geometryType == PhysicsActor::eGEOMETRY_PLANE){
+		return new PxPlaneGeometry;
+	}
+	else if(desc.geometryType == PhysicsActor::eGEOMETRY_HEIGHTMAP){
+		//Copy heightmap data
+		const PhysicsActor::Desc::GeometryDesc::HeightfieldGeometry& hfDesc = desc.geometryDesc.heightfieldGeometry;
 
-			for(uint32_t row=0; row<numRows; row++){
-				for(uint32_t col=0; col<numCols; col++){
-					samples[row*numCols + col].height = (*hfDesc.heightmap)[row*numCols + col];
-				}
+		uint32_t numRows = hfDesc.numRows;
+		uint32_t numCols = hfDesc.numCols;
+
+		Buffer<PxHeightFieldSample> samples(numRows*numCols);
+		samples.clearMem();
+
+		for(uint32_t row=0; row<numRows; row++){
+			for(uint32_t col=0; col<numCols; col++){
+				samples[row*numCols + col].height = (*hfDesc.heightmap)[row*numCols + col];
 			}
-
-			// Create description
-			PxHeightFieldDesc pxHfDesc;
-			pxHfDesc.format = PxHeightFieldFormat::eS16_TM;
-			pxHfDesc.nbColumns = numCols;
-			pxHfDesc.nbRows = numRows;
-			pxHfDesc.samples.data = samples.getData();
-			pxHfDesc.samples.stride = sizeof(PxHeightFieldSample);
-
-			WT_ASSERT(pxHfDesc.isValid(), "Invalid height field description");
-
-			PxHeightField* heightfield = mSdk->createHeightField(pxHfDesc);
-
-			return new PxHeightFieldGeometry(heightfield, PxMeshGeometryFlags(),
-				hfDesc.heightScale, hfDesc.rowScale, hfDesc.colScale);
-		};
-
-		default:
-			WT_THROW("Unsupported geometry type %d", desc.geometryType);
 		}
+
+		// Create description
+		PxHeightFieldDesc pxHfDesc;
+		pxHfDesc.format = PxHeightFieldFormat::eS16_TM;
+		pxHfDesc.nbColumns = numCols;
+		pxHfDesc.nbRows = numRows;
+		pxHfDesc.samples.data = samples.getData();
+		pxHfDesc.samples.stride = sizeof(PxHeightFieldSample);
+
+		WT_ASSERT(pxHfDesc.isValid(), "Invalid height field description");
+
+		PxHeightField* heightfield = mSdk->createHeightField(pxHfDesc);
+
+		PxHeightFieldGeometry* res = new PxHeightFieldGeometry(heightfield, PxMeshGeometryFlags(),
+			hfDesc.heightScale, hfDesc.rowScale, hfDesc.colScale);
+
+		WT_ASSERT(res->isValid(), "Invalid heightfield provided geometry");
+
+		return res;
+	}
+	else{
+		WT_THROW("Unsupported geometry type %d", desc.geometryType);
+	}
 }
 
 

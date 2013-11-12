@@ -29,15 +29,6 @@ ActorCreationDialog::ActorCreationDialog(QWidget* parent, wt::AResourceSystem* a
 }
 
 void ActorCreationDialog::setModel(wt::Model* model){
-	mResult.modelledActor.model = model;
-
-	ui.lineEditModel->setText( model->getPath().c_str() );
-
-	ui.comboBoxSkin->clear();
-	for(wt::Model::SkinMap::iterator i=model->getSkins().begin(); i!=model->getSkins().end(); i++){
-		ui.comboBoxSkin->addItem(
-			i->first.c_str(), QVariant(i->first.c_str()));
-	}
 }
 
 void ActorCreationDialog::onActorTypeChanged(int type){
@@ -76,15 +67,10 @@ void ActorCreationDialog::onParticlePick(){
 }
 
 void ActorCreationDialog::onModelPick(){
-	wt::Model* model = ResourcePickerDialog::pickResource<wt::Model>(this, mAssets->getModelManager()); // TODO
-	if(model){
-		setModel(model);
-	}
+	
 }
 
 void ActorCreationDialog::onGeometryChanged(int index){
-	ui.boxGeometryGroup->setEnabled(index==2);
-	ui.sphereGeometryGroup->setEnabled(index==1);
 }
 
 
@@ -96,43 +82,7 @@ void ActorCreationDialog::onSave(){
 	// Modelled actor
 	if(actorType == 0){
 		mResult.type = wt::ASceneActor::eTYPE_MODELLED;
-		wt::String skinName = ui.comboBoxSkin->itemData( ui.comboBoxSkin->currentIndex(), Qt::UserRole).toString().toStdString();
-	
 		mResult.ok = true;
-		mResult.modelledActor.skin = mResult.modelledActor.model->getSkin(skinName);
-		mResult.modelledActor.type = ui.isDynamic->isChecked() ? wt::PhysicsActor::eTYPE_DYNAMIC : wt::PhysicsActor::eTYPE_STATIC;
-	
-		wt::PhysicsActor::Desc& pd = mResult.modelledActor.physicsDesc;
-
-		pd.type = mResult.modelledActor.type;
-
-	
-		pd.controlMode = wt::PhysicsActor::eCTRL_MODE_PHYSICS;
-
-		int geometry = ui.geometry->currentIndex();
-
-		// Box geometry
-		if(geometry == 1){
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_BOX;
-			
-			pd.geometryDesc.boxGeometry.hx = ui.boxHx->value();
-			pd.geometryDesc.boxGeometry.hy = ui.boxHy->value();
-			pd.geometryDesc.boxGeometry.hz = ui.boxHz->value();
-		}
-		// Sphere geometry
-		else if(geometry == 2){
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_SPHERE;
-
-			pd.geometryDesc.sphereGeometry.radius = ui.sphereRadius->value();
-		}
-		// Mesh geometry
-		else if(geometry == 3){
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_MESH;
-			pd.geometryDesc.meshGeometry.model = mResult.modelledActor.model;
-		}
-		else{
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_INVALID;
-		}
 	}
 	// Particle effect
 	else if(actorType == 1){

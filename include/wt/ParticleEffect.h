@@ -48,7 +48,7 @@ public:
 
 	void generateMetaTable();
 
-	const ATransformable* getTransformable() const;
+	ATransformable* getTransformable() const;
 
 	void setVisible(bool state){
 		mVisible = state;

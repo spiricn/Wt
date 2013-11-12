@@ -7,6 +7,7 @@
 #include "wte/ActorCreationDialog.h"
 #include "wte/ActorEditTool.h"
 #include "wte/DoodadEditDialog.h"
+#include "wte/ModelledActorDialog.h"
 
 #define TD_TRACE_TAG "ActorEditTool"
 
@@ -57,10 +58,14 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 
 void ActorEditTool::onScaleChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getController()->setScale(
+		mSelectedActor->getTransformable()->setScale(
 			ui.transform->getScale()
 		);
 	}
+}
+
+void ActorEditTool::onEditActor(){
+	editActor();
 }
 
 void ActorEditTool::onBeforeSceneUnload(){
@@ -70,7 +75,7 @@ void ActorEditTool::onBeforeSceneUnload(){
 
 void ActorEditTool::onTranslationChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getController()->setTranslation(
+		mSelectedActor->getTransformable()->setTranslation(
 			ui.transform->getTranslation()
 		);
 	}
@@ -78,9 +83,50 @@ void ActorEditTool::onTranslationChanged(){
 
 void ActorEditTool::onRotationChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getController()->setRotation(
+		mSelectedActor->getTransformable()->setRotation(
 			ui.transform->getRotation()
 		);
+	}
+}
+
+void ActorEditTool::editActor(){
+	if(!mSelectedActor){
+		return;
+	}
+
+	if(mSelectedActor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
+		wt::ModelledActor* actor = dynamic_cast<wt::ModelledActor*>(mSelectedActor);
+
+		ModelledActorDialog::Result res = ModelledActorDialog::edit(this, actor);
+
+		if(!res.accepted){
+			return;
+		}
+
+		// Remove existing physics actor since we can't edit it on the fly
+		if(actor->getPhysicsActor()){
+			mScene->getPhysics()->removeActor(actor->getPhysicsActor());
+		}
+
+		// Create new physics actor
+		if(res.physics.enabled){
+			// Initial transform
+			actor->getTransformable()->getTransformMatrix(res.physics.desc.pose);
+
+			try{
+				mPhysics->createActor(actor, res.physics.desc);
+			}catch(wt::Exception& e){
+				QMessageBox::critical(this, "Error", 
+					QString("Error creating physics actor\n\n") + e.getDescription().c_str());
+			}
+		}
+
+		// Set new model/skin
+		actor->setModel(res.visual.model, res.visual.skin->getName());
+	}
+	else{
+		// TODO
+		WT_THROW("NOT IMPLEMENTED");
 	}
 }
 
@@ -142,9 +188,9 @@ void ActorEditTool::updateSelectionStats(){
 	glm::vec3 pos;
 	glm::vec3 scale;
 
-	mSelectedActor->getController()->getRotation(rotAxis, rotAngle);
-	mSelectedActor->getController()->getTranslation(pos);
-	mSelectedActor->getController()->getScale(scale);
+	mSelectedActor->getTransformable()->getRotation(rotAxis, rotAngle);
+	mSelectedActor->getTransformable()->getTranslation(pos);
+	mSelectedActor->getTransformable()->getScale(scale);
 
 	ui.transform->setRotation(rotAxis, rotAngle);
 
@@ -174,14 +220,14 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 
 			if(wt::AGameInput::isKeyDown('X')){
 				if(shiftDown){
-					mSelectedActor->getController()->rotate(
+					mSelectedActor->getTransformable()->rotate(
 						glm::vec3(1.0, 0.0, 0.0), evt.dx * smoothFactor
 					);
 
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getController()->translate(
+					mSelectedActor->getTransformable()->translate(
 						glm::vec3(1.0, 0.0, 0.0) * evt.dx * smoothFactor
 					);
 
@@ -189,18 +235,18 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 				}
 			}
 			else if(wt::AGameInput::isKeyDown('F')){
-				mSelectedActor->getController()->scale( glm::vec3(1, 1, 1) * evt.dy * 0.01f );
+				mSelectedActor->getTransformable()->scale( glm::vec3(1, 1, 1) * evt.dy * 0.01f );
 			}
 			else if(wt::AGameInput::isKeyDown('Y')){
 				if(shiftDown){
-					mSelectedActor->getController()->rotate(
+					mSelectedActor->getTransformable()->rotate(
 						glm::vec3(0.0, 1.0, 0.0), evt.dx * smoothFactor
 					);
 
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getController()->translate(
+					mSelectedActor->getTransformable()->translate(
 						glm::vec3(0.0, 1.0, 0.0) * evt.dy * smoothFactor
 					);
 
@@ -209,14 +255,14 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 			}
 			else if(wt::AGameInput::isKeyDown('Z')){
 				if(shiftDown){
-					mSelectedActor->getController()->rotate(
+					mSelectedActor->getTransformable()->rotate(
 						glm::vec3(0.0, 0.0, 1.0), evt.dx * smoothFactor
 					);
 
 					statsChanged  = true;
 				}
 				else{
-					mSelectedActor->getController()->translate(
+					mSelectedActor->getTransformable()->translate(
 						glm::vec3(0.0, 0.0, 1.0) * evt.dy * smoothFactor
 					);
 
@@ -231,7 +277,7 @@ void ActorEditTool::onMouseDrag(MouseDragEvent evt){
 						// TODO handle this better 
 						if(mSelectedActor != res.mPickedActor->getSceneActor()->getUserData()){
 							// condition checks if the hit actor isn't the selected actor (prevents the user from moving the actor to a point that's on itself)
-							mSelectedActor->getController()->setTranslation(
+							mSelectedActor->getTransformable()->setTranslation(
 								res.mImpact);
 							statsChanged  = true;
 						}
@@ -341,7 +387,7 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 	wt::Scene& scene = *mScene;
 
 	glm::vec3 pos;
-	mSelectedActor->getController()->getTranslation(pos);
+	mSelectedActor->getTransformable()->getTranslation(pos);
 
 	glm::vec3 eyePos;
 	mScene->getCamera().getTranslation(eyePos);
@@ -366,23 +412,25 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 
 		wt::ModelledActor* modelledActor = static_cast<wt::ModelledActor*>(actor);
 
-		// Populate the animation combo box with the current actors animations
-		uint32_t index = 1;
-		int32_t activeIndex = -1;
-		for(wt::Model::AnimationMap::iterator i=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().begin(); i!=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().end(); i++){
-			ui.comboBoxAnimation->addItem(i->first.c_str());
+		if(static_cast<wt::ModelledActor*>(actor)->getModel()){
+			// Populate the animation combo box with the current actors animations
+			uint32_t index = 1;
+			int32_t activeIndex = -1;
+			for(wt::Model::AnimationMap::iterator i=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().begin(); i!=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().end(); i++){
+				ui.comboBoxAnimation->addItem(i->first.c_str());
 
-			if(modelledActor->getAnimationPlayer()->getCurrentAnimation() == i->second){
-				activeIndex = index;
+				if(modelledActor->getAnimationPlayer()->getCurrentAnimation() == i->second){
+					activeIndex = index;
+				}
+
+				++index;
 			}
 
-			++index;
-		}
+			ui.comboBoxAnimation->blockSignals(false);
 
-		ui.comboBoxAnimation->blockSignals(false);
-
-		if(activeIndex > 0){
-			ui.comboBoxAnimation->setCurrentIndex(activeIndex);
+			if(activeIndex > 0){
+				ui.comboBoxAnimation->setCurrentIndex(activeIndex);
+			}
 		}
 
 		ui.stackedWidget->setCurrentIndex(0);
@@ -454,20 +502,6 @@ void ActorEditTool::onNewActor(){
 
 			actor->setModel(res.modelledActor.model, res.modelledActor.skin->getName());
 
-			// Create physics actor
-			if(res.modelledActor.physicsDesc.geometryType != wt::PhysicsActor::eGEOMETRY_INVALID){
-				// Initial transform
-				//actor->getController()->getTransformMatrix(res.modelledActor.physicsDesc.pose);
-				res.modelledActor.physicsDesc.pose = glm::translate(eyePos - eyeFw*3.0f);
-
-				try{
-					mPhysics->createActor(actor, res.modelledActor.physicsDesc);
-				}catch(wt::Exception& e){
-					QMessageBox::critical(this, "Error", 
-						QString("Error creating physics actor\n\n") + e.getDescription().c_str());
-				}
-			}
-
 			sceneActor = actor;
 		}
 		else if(res.type == wt::ASceneActor::eTYPE_PARTICLE_EFFECT){
@@ -503,10 +537,13 @@ void ActorEditTool::onNewActor(){
 		}
 
 		if(sceneActor){
-			sceneActor->getController()->setTranslation(
+			sceneActor->getTransformable()->setTranslation(
 				 eyePos - eyeFw*10.0f);
 
 			mPhysics->createBBox(sceneActor);
+
+			selectActor(sceneActor);
+			editActor();
 		}
 	}
 }

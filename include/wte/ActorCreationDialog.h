@@ -25,8 +25,6 @@ public:
 		struct {
 			wt::Model* model;
 			wt::Model::GeometrySkin* skin;
-			wt::PhysicsActor::ActorType type;
-			wt::PhysicsActor::Desc physicsDesc;
 		} modelledActor;
 
 		struct{

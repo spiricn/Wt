@@ -85,7 +85,7 @@ public:
 		// Create scene actor
 		ModelledActor* actor = getScene()->createModelledActor();
 
-		actor->getController()->setTranslation(glm::vec3(195.235229, -3.291626, 216.325455));
+		actor->getTransformable()->setTranslation(glm::vec3(195.235229, -3.291626, 216.325455));
 
 		actor->setModel(
 			getAssets()->getModelManager()->getFromPath("$ROOT/wolf"), "timber");

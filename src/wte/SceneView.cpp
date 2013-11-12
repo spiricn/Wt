@@ -8,6 +8,9 @@
 
 #include "wte/SceneView.h"
 
+#define MOUSE_SENSITIVITY_HORIZONTAL ( 0.1f )
+#define MOUSE_SENSITIVITY_VERTICAL ( 0.1f )
+
 SceneView::SceneView(QWidget* parent) : QGLWidget(parent), mTimer(this), mInputGrabbed(false),
 	mIsLooking(false), mScene(NULL), mFocused(false), mRenderer(NULL){
 
@@ -128,14 +131,16 @@ void SceneView::paintGL(){
 
 void SceneView::mouseMoveEvent(QMouseEvent* evt){
 	if(mIsLooking){
-		float dx = evt->x()-width()/2.0f;
-		float dy = evt->y()-height()/2.0f;
+		// Distance moved from the middle of the screen
+		float dx = evt->x() - ( width()/2.0f );
+		float dy = evt->y() - ( height()/2.0f );
+
+		// Move mouse to  the middle of the widget
 		QCursor::setPos(mapToGlobal(QPoint(width()/2, height()/2)));
 
 		if(mScene){
-			
-			mScene->getCamera().yaw( -(dx/width()) * 360.0f );
-			mScene->getCamera().pitch( -(dy/height()) * 360.0f );
+			mScene->getCamera().yaw( -dx * MOUSE_SENSITIVITY_HORIZONTAL );
+			mScene->getCamera().pitch( -dy * MOUSE_SENSITIVITY_VERTICAL );
 		}
 	}
 

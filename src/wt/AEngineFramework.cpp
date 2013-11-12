@@ -87,7 +87,7 @@ void AEngineFramework::mainLoop(){
 
 		mAssets->getSoundSystem()->update(dt);
 	
-		// Update engine core
+		// Update engine core (user defined)
 		onUpdate(dt);
 
 		// Render scene

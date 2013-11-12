@@ -18,8 +18,8 @@ ParticleEffect::~ParticleEffect(){
 	mLayers.clear();
 }
 
-const ATransformable* ParticleEffect::getTransformable() const{
-	return &mTransform;
+ATransformable* ParticleEffect::getTransformable() const{
+	return const_cast<ATransformable*>( dynamic_cast<const ATransformable*>(&mTransform) );
 }
 
 LuaObject ParticleEffect::lua_getTransform(){

@@ -170,7 +170,7 @@ public:
 
 	~Terrain();
 
-	const ATransformable* getTransformable() const;
+	ATransformable* getTransformable() const;
 
 	void getPhysicsDesc(PhysicsActor::Desc& desc);
 

@@ -38,7 +38,7 @@ public:
 
 
 		ParticleEffect* e =  (ParticleEffect*)getScene()->findActorByName("ef");
-		e->getController()->rotate(glm::vec3(1, 0, 0), 90*dt);
+		e->getTransformable()->rotate(glm::vec3(1, 0, 0), 90*dt);
 
 	}
 
@@ -82,7 +82,7 @@ public:
 
 		e = getScene()->createParticleEffect("ef");
 		e->create(effect);
-		e->getController()->translate(glm::vec3(0, 0, 0));
+		e->getTransformable()->translate(glm::vec3(0, 0, 0));
 
 	/*	e = getScene()->createParticleEffect();
 		e->create(effect);

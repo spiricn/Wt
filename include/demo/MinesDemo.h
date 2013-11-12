@@ -134,7 +134,7 @@ public:
 
 					pos.y = mBaseHeight + mInterpolator.getValue();
 
-					actor->getController()->setTranslation(pos);
+					actor->getTransformable()->setTranslation(pos);
 
 					if(mInterpolator.isFinished()){
 						// remove from list
@@ -367,13 +367,13 @@ public:
 				mGameState.setCellUserData(x, y, actor);
 
 				// Initial actor position
-				actor->getController()->setTranslation(glm::vec3(
+				actor->getTransformable()->setTranslation(glm::vec3(
 					(- (mGameState.getField().getNumColumn() * 2.1f)/2) + x * (2.1),
 					0,
 					(- (mGameState.getField().getNumRows() * 2.1f)/2) + y * (2.1))
 				);
 
-				actor->getController()->setRotation(
+				actor->getTransformable()->setRotation(
 					glm::vec3(0, 1, 0), -90
 				);
 

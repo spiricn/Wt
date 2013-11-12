@@ -43,6 +43,8 @@ private:
 
 	bool mSelectingActor;
 
+	void editActor();
+
 protected slots:
 
 	void onBeforeSceneUnload();
@@ -73,6 +75,8 @@ protected slots:
 
 	void onBBoxGeometryChanged();
 
+	void onEditActor();
+
 	// Point light
 	void onAmbientIntensityChanged();
 
@@ -89,6 +93,8 @@ protected slots:
 	void onSoundAttenuationChanged();
 	
 	void onPitchChanged();
+
+
 
 }; // </ActorEditTool>
 

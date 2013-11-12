@@ -119,7 +119,7 @@ public:
 		ModelledActor* sceneActor = getScene()->createModelledActor();
 
 		//sceneActor->getModel()->get
-		sceneActor->getController()->setTranslation(position);
+		sceneActor->getTransformable()->setTranslation(position);
 
 	
 		sceneActor->setModel( getAssets()->getModelManager()->find("cube"), "crate" );
@@ -151,7 +151,7 @@ public:
 		// Create scene actor
 		ModelledActor* sceneActor = getScene()->createModelledActor();
 
-		sceneActor->getController()->setTranslation(position);
+		sceneActor->getTransformable()->setTranslation(position);
 
 		sceneActor->setModel( getAssets()->getModelManager()->find("sphere"), "default" );
 

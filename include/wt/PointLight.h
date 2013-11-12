@@ -33,9 +33,7 @@ public:
 
 	void setDesc(const Desc& desc) const;
 
-	ATransformable* getController();
-
-	const ATransformable* getTransformable() const;
+	ATransformable* getTransformable() const;
 
 	virtual void setTranslation(const glm::vec3& translation);
 
