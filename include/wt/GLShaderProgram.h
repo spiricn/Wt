@@ -8,29 +8,15 @@
 #include "wt/Exception.h"
 #include "wt/Defines.h"
 #include "wt/Color.h"
+#include "wt/ShaderPreprocessor.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace gl{
+namespace gl
+{
 
 class ShaderProgram{
-private:
-	WT_DISALLOW_COPY(ShaderProgram)
-
-	Shader mVertexShader, mFragmentShader, mGeometryShader;
-	String mLogs, mLog;
-	GLuint mProgHandle;
-	bool mHasGeometryShader;
-	bool mHasFragmentShader;
-
-	void create();
-
-	void destroy();
-
-	void detach(Shader& shader);
-
-	void attach(Shader& shader);
-
 public:
 	ShaderProgram() : mVertexShader(GL_VERTEX_SHADER),
 		mFragmentShader(GL_FRAGMENT_SHADER), mGeometryShader(GL_GEOMETRY_SHADER), mHasGeometryShader(false), mHasFragmentShader(false){
@@ -44,12 +30,13 @@ public:
 
 	void getUniformIndices(uint32_t numUniforms, GLuint* indices, ...);
 
-	void createFromSources(const String& vertex_source, const String& fragment_source="", const String& geometrySource="");
-
-	void getActiveUniforms(uint32_t numIndices, GLuint* indices, GLenum name, GLint* res);
+	void createFromSources(const String& vertex_source, 
+		const String& fragment_source="", const String& geometrySource="", ShaderPreprocessor::ModuleProviderFnc moduleProvider=NULL);
 
 	void createFromFiles(const String& vertexShaderFile,
-		const String& fragmentShaderFile="", const String& geometryShaderFile="");
+		const String& fragmentShaderFile="", const String& geometryShaderFile="", ShaderPreprocessor::ModuleProviderFnc moduleProvider=NULL);
+
+	void getActiveUniforms(uint32_t numIndices, GLuint* indices, GLenum name, GLint* res);
 
 	bool isLinked();
 
@@ -121,6 +108,22 @@ public:
 
 	void use();
 
+private:
+	WT_DISALLOW_COPY(ShaderProgram)
+
+	Shader mVertexShader, mFragmentShader, mGeometryShader;
+	String mLogs, mLog;
+	GLuint mProgHandle;
+	bool mHasGeometryShader;
+	bool mHasFragmentShader;
+
+	void create();
+
+	void destroy();
+
+	void detach(Shader& shader);
+
+	void attach(Shader& shader);
 
 }; // </GLShaderPRogram>
 

@@ -88,7 +88,7 @@ void ShaderProgram::getActiveUniforms(uint32_t numIndices, GLuint* indices, GLen
 	gl( GetActiveUniformsiv(mProgHandle, numIndices, indices, name, res) );
 }
 
-void ShaderProgram::createFromSources(const String& vertexSource, const String& fragmentSource, const String& geometrySource){
+void ShaderProgram::createFromSources(const String& vertexSource, const String& fragmentSource, const String& geometrySource, ShaderPreprocessor::ModuleProviderFnc moduleProvider){
 	create();
 
 	mVertexShader.createFromSource(vertexSource);
@@ -167,8 +167,8 @@ void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
 	va_end(argList);
 }
 
-void ShaderProgram::createFromFiles(const String& vertexPath, const String& fragmentPath,  const String& geometryPath){
-	ShaderPreprocessor preprocessor;
+void ShaderProgram::createFromFiles(const String& vertexPath, const String& fragmentPath,  const String& geometryPath, ShaderPreprocessor::ModuleProviderFnc moduleProvider){
+	ShaderPreprocessor preprocessor(moduleProvider);
 
 	String vertexSource, fragmentSource, geometrySource;
 	String vertexProcessed, fragmentProcessed, geometryProcessed;
