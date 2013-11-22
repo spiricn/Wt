@@ -65,7 +65,7 @@ IcosphereBuilder::IcosphereBuilder(Vertex** vertices, uint32_t** indices, uint32
 
 		for(uint32_t j=0; j<faces->getCapacity(); j++){
 			// replace each triangle of the previous sphere by 4 refined triangles
-			const Face& tri = faces->get(j);
+			const Face& tri = (*faces)[j];
 
 			int a = getMiddlePoint(tri.v1, tri.v2);
 			int b = getMiddlePoint(tri.v2, tri.v3);
@@ -94,9 +94,9 @@ IcosphereBuilder::IcosphereBuilder(Vertex** vertices, uint32_t** indices, uint32
 	}
 
 	for(uint32_t i=0; i<faces->getCapacity(); i++){
-		(*indices)[i*3 + 0] = faces->get(i).v1;
-		(*indices)[i*3 + 1] = faces->get(i).v2;
-		(*indices)[i*3 + 2] = faces->get(i).v3;
+		(*indices)[i*3 + 0] = (*faces)[i].v1;
+		(*indices)[i*3 + 1] = (*faces)[i].v2;
+		(*indices)[i*3 + 2] = (*faces)[i].v3;
 	}
 
 	delete faces;

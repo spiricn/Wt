@@ -198,35 +198,26 @@ void Socket::recvBfr(void* bfr, int size){
 }
 
 void Socket::sendPacket(const net::Packet& packet){
-	uint32_t payloadSize = packet.getPayloadSize();
-	int32_t id = packet.getId();
+	uint32_t payloadSize = packet.getPayload().getCapacity();
 
 	// send payload size
 	sendBfr(&payloadSize, sizeof(uint32_t));
 
-	// send packet ID
-	sendBfr(&id, sizeof(uint32_t));
-
 	// send the actual data
-	sendBfr(packet.getPayload(), packet.getPayloadSize());
+	sendBfr(packet.getPayload().getData(), packet.getPayload().getCapacity());
 }
 
 void Socket::recvPacket(net::Packet& packet){
-	packet.clear();
-
-	uint32_t payloadSize;
-	int32_t id;
+	uint32_t payloadSize = 0;
 
 	// recieve payload size
 	recvBfr(&payloadSize, sizeof(uint32_t));
 
-	// recieve packet ID
-	recvBfr(&id, sizeof(int32_t));
-
 	// initialize payload memory
-	packet = net::Packet(id, NULL, payloadSize);
+	packet.clear();
+	packet.getPayload().grow(payloadSize);
 
-	recvBfr(packet.getPayload(), payloadSize);
+	recvBfr(packet.getPayload().getData(), packet.getPayload().getCapacity());
 }
 
 #else

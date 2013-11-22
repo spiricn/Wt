@@ -5,69 +5,84 @@
 
 #include "wt/Buffer.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace net{
+namespace net
+{
 
 class Packet{
-private:
-	int32_t mId;
-
-	typedef Buffer<unsigned char> ByteBuffer;
-
-	ByteBuffer mData;
-	
-
 public:
-	Packet() : mId(-1){
-	}
+	Packet();
 
-	Packet(int32_t id, const String& data) : mId(id){
-		mData.create(data.size() + 1);
-		mData.put((uint8_t*)data.c_str(), data.size()+1);
-	}
+	Packet(const String& data);
 
-	Packet(const Packet& other){
-		*this = other;
-	}
+	Packet(const void* data, uint32_t size);
 
-	Packet(int32_t id, const char* data, uint32_t size) : mId(id){
-		mData.create(size);
+	void clear();
 
-		if(data){
-			mData.put((uint8_t*)data, size);
-		}
-	}
+	ByteBuffer& getPayload();
 
-	void clear(){
-		mId = -1;
-		mData = ByteBuffer();
-	}
+	const ByteBuffer& getPayload() const;
 
-	void* getPayload() const{
-		return (void*)(mData.getData());
-	}
+	template<class T>
+	void write(const T& val);
 
-	uint32_t getPayloadSize() const{
-		return mData.getSize();
-	}
+	void write(const void* data, uint32_t size);
 
-	int32_t getId() const{
-		return mId;
-	}
+	template<>
+	void write<String>(const String& val);
 
-	Packet& operator=(const Packet& other){
-		mId = other.mId;
-		other.mData.copy(mData);
+	template<class T>
+	void read(T* val);
 
-		return *this;
-	}
+	void read(void* data, uint32_t size);
+
+	template<class T>
+	T read();
+
+	template<>
+	void read<String>(String* val);
+
+private:
+	ByteBuffer mData;
+
 }; // </Packet>
 
 
-}; // </net>
+template<class T>
+void Packet::write(const T& val){
+	mData.put( reinterpret_cast<const uint8_t*>(&val), sizeof(T) );
+}
 
-}; // </wt>
+template<class T>
+void Packet::read(T* val){
+	mData.get( reinterpret_cast<uint8_t*>(val), sizeof(T) );
+}
+
+template<>
+void Packet::write<String>(const String& val){
+	mData.put( reinterpret_cast<const uint8_t*>( val.c_str() ), val.size() + 1);
+}
+
+template<>
+void Packet::read<String>(String* val){
+	// TODO probably not safe
+	*val = String( reinterpret_cast<char*>( mData.getData() + mData.tellg()  ) );
+	mData.seekg( mData.tellg() + val->size() + 1 );
+}
+
+template<class T>
+T Packet::read(){
+	T res;
+	read(&res);
+
+	return res;
+}
+
+} // </net>
+
+} // </wt>
 
 
 #endif // </WT_PACKET_H>

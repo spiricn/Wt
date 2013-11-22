@@ -28,6 +28,8 @@ public:
 
 	void init(const std::string& address="", Uint16 port=0);
 
+	void sendBfr(const ByteBuffer& bfr);
+
 	void sendBfr(const void* bfr, int size);
 
 	void recvBfr(void* bfr, int size);

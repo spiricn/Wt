@@ -10,10 +10,6 @@ namespace wt{
 
 template<class T>
 class Buffer{
-private:
-	T* mData;
-	uint32_t mCapacity, mPosPut, mPosGet;
-
 public:
 	Buffer() : mData(NULL), mCapacity(0), mPosPut(0), mPosGet(0){
 	}
@@ -45,24 +41,16 @@ public:
 		memset(mData, val, getSize());
 	}
 
-	void resize(uint32_t newCapacity){
-		T* newData = new T[newCapacity];
+	void grow(int32_t newCapacity){
+		WT_ASSERT(newCapacity > mCapacity, "Invalid grow capacity");
 
-		memcpy(newData, mData, min(mCapacity, newCapacity)*sizeof(T));
+		T* newData = new T[newCapacity];
+		memcpy(newData, mData, mCapacity*sizeof(T));
+
 		mCapacity = newCapacity;
 
 		T* tmp = mData;
 		mData = newData;
-
-		if(newCapacity < mCapacity){
-			if(mPosGet >= mCapacity){
-				mPosGet = mCapacity-1;
-			}
-
-			if(mPosPut >= mCapacity){
-				mPosPut = mCapacity-1;
-			}
-		}
 
 		delete[] tmp;
 	}
@@ -87,7 +75,7 @@ public:
 
 	void seekp(uint32_t pos){
 		#ifdef WT_CHECKED
-		if(pos >= mCapacity){
+		if(pos > mCapacity){
 			WT_THROW("Seek position out of bounds (bounds=%d, pos=%d)",
 				mCapacity, pos);
 		}
@@ -98,7 +86,7 @@ public:
 
 	void seekg(uint32_t pos){
 		#ifdef WT_CHECKED
-		if(pos >= mCapacity){
+		if(pos > mCapacity){
 			WT_THROW("Seek position out of bounds (bounds=%d, pos=%d)",
 				mCapacity, pos);
 		}
@@ -126,55 +114,29 @@ public:
 		return mData;
 	}
 
-	void put(const T* t, uint32_t count){
-		#ifdef WT_CHECKED
+	void get(T* val, int32_t count){
+		WT_ASSERT(mPosGet+count <= mCapacity, "Buffer underflow");
+
+		memcpy(val, mData+mPosGet, count*sizeof(T));
+		mPosGet += count;
+	}
+
+	void get(T* val){
+		get(val, 1);
+	}
+
+	void put(const T* t, int32_t count){
 		if(mPosPut+count > mCapacity){
-			WT_THROW("Put failed, buffer full (size %d pos %d count %d)", mCapacity, mPosPut, count);
+			// Grow
+			grow(mPosPut+count);
 		}
-		#endif
 
 		memcpy(mData+mPosPut, t, count*sizeof(T));
 		mPosPut += count;
 	}
 
-	const T& get(uint32_t index) const{
-		return get(index);
-	}
-
-	T& get(uint32_t index){
-		#ifdef WT_CHECKED
-		if(index >= mCapacity){
-			WT_THROW("Get failed, position out of bounds (pos=%d bounds=%d)",
-				index, mCapacity);
-		}
-		#endif
-
-		return mData[index];
-	}
-
-	T& get(){
-		#ifdef WT_CHECKED
-		if(mPosGet >= mCapacity){
-			WT_THROW("Get failed, position out of bounds (pos=%d bounds=%d)",
-				mPosGet, mCapacity);
-		}
-		#endif
-
-		return mData[mPosGet++];
-	}
-
-	const T& get() const{
-		return (const T&)get();
-	}
-
 	void put(const T& t){
-		#ifdef WT_CHECKED
-		if(mPosPut>=mCapacity){
-			WT_THROW("Put failed, buffer full (size %d)", mCapacity);
-		}
-		#endif
-
-		mData[mPosPut++] = T(t);
+		put(&t, 1);
 	}
 
 	T& operator[](uint32_t index){
@@ -201,6 +163,10 @@ public:
 	~Buffer(){
 		destroy();
 	}
+
+private:
+	T* mData;
+	int32_t mCapacity, mPosPut, mPosGet;
 
 }; // </Buffer>
 

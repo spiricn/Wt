@@ -24,7 +24,7 @@
 
 using namespace wt;
 
-#if 1
+#if 0
 
 #if defined(WT_DEMO_NO_CONSOLE) && defined(WIN32)
 	#pragma comment(linker, "/SUBSYSTEM:windows")
@@ -81,88 +81,104 @@ int main(){
 	return 0;
 }
 
-#else
+#elif 1
 
-#include "wt/lua/State.h"
-#include "wt/lua/Object.h"
+#include <wt/net/TCPServer.h>
+#include <wt/Thread.h>
 
-wt::lua::State state;
+#include "wt/RemoteFileSystemServer.h"
+#include "wt/RemoteFileSystemClient.h"
 
+class ServerTest : public Thread{
+	void run(){
+		RemoteFileSystemServer server;
+		server.startServer("D:/documents", 8420);
 
-class B{
-public:
-	virtual void pureVirtualFnc() = 0;
-
-	void baseFnc(){
-		TRACEI("");
+		utils::pause();
 	}
-
-	virtual void virtualFnc(){
-		TRACEI("");
-	}
-
-	template<class DerivedClass>
-	void baseRegister(LuaObject* obj){
-		obj->RegisterObjectDirect<DerivedClass>("pureVirtualFnc", (DerivedClass*)0, &DerivedClass::pureVirtualFnc);
-
-		obj->RegisterObjectDirect("baseFnc", (B*)0, &B::baseFnc);
-	}
-
 };
 
-class Test : public wt::lua::Object<Test>, public B{
+#include <wt/Timer.h>
+
+class ClientTest : public Thread{
+
 public:
-	Test(){
+	void run(){
+		RemoteFileSystemClient client;
+		StreamPtr stream = client.open("test.wts", AIOStream::eMODE_READ);
+
+		FILE* local = fopen(
+			"C:/users/nikola/desktop/dl.wts"
+			, "wb");
 		
-	}
+		LOGD("Starting transfer");
 
-	void pureVirtualFnc(){
-		TRACEI("");
-	}
+		Timer t;
+		
+		uint64_t totalRead = 0;
 
-	/*virtual void virtualFnc(){
-		TRACEI("");
-	}*/
+		while(true){
+			static const int kBUFFER_SIZE = 512;
 
-	float derivedFnc(float a){
-		TRACEI("");
-		return a+1;
-	}
-	
-	void generateMetaTable(){
-		baseRegister<Test>(getMetaInfo()->meta);
+			char bfr[kBUFFER_SIZE ];
+			int64_t bytesRead = stream->read(bfr, kBUFFER_SIZE );
 
-		expose("derivedFnc", &Test::derivedFnc);
+			fwrite(bfr, 1, bytesRead, local);
 
-		//expose("virtualFnc", &Test::virtualFnc);
+			totalRead += bytesRead;
 
-		exposeBase<B>("virtualFnc",  &B::virtualFnc);
+			if(bytesRead != kBUFFER_SIZE ){
+				break;
+			}
+		}
+
+		LOGD("%ld", totalRead);
+
+		fclose(local);
+
+		LOGD("done %s / s", utils::formatSize((float)totalRead/t.getSeconds()).c_str());
+		utils::pause();	
 	}
 };
-
-float Test_derivedFnc(void* test, float a){
-	return static_cast<Test*>(test)->derivedFnc(a);
-}
 
 int main(){
-	Test* instance = new Test;
+	net::Socket::initializeLib();
 
-	void* ptrInstance = instance;;
+	ClientTest client;
+	//ServerTest server;
 
-	B* objBase = reinterpret_cast<B*>(ptrInstance);
+	//server.start();
+	client.start();
 
-	objBase->virtualFnc();
+	//server.wait();
+	client.wait();
 
+	return 0;
+}
+#else
 
-	
+#include <wt/net/TCPServer.h>
+#include <wt/Thread.h>
+#include "wt/RemoteFileSystemServer.h"
+#include "wt/RemoteFileSystemClient.h"
 
-	//state.getGlobals().RegisterDirect("Test_derivedFnc", Test_derivedFnc);
+#define TD_TRACE_TAG "RemoteFileServer"
 
-	//state.getGlobals().Set("obj", &obj);
+int main(int argc, char* argv[]){
+	if(argc != 3){
+		LOGI("Usage: rfs <root> <port>");
+		return 0;
+	}
 
-	//wt::lua::ScriptPtr s = state.createScript("test.lua");
+	LOGD("Creating RFS; root=\"%s\"; port=%d", argv[1], atoi(argv[2]));
 
-	//LuaFunction<void>( s->getState().Get("main") ) ();
+	net::Socket::initializeLib();
+
+	RemoteFileSystemServer server;
+	server.startServer(argv[1], atoi(argv[2]));
+
+	LOGI("Server running.");
+	server.wait();
 }
 
 #endif

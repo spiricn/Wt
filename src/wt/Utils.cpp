@@ -21,6 +21,25 @@ bool endsWith(const String& fullString, const String& ending){
 	}
 }
 
+String formatSize(uint64_t size){
+	char res[64];
+
+	if(size < 1024){
+		sprintf(res, "%ld B", size);
+	}
+	else if(size >= 1024 && size < 1024*1024){
+		sprintf(res, "%ld KiB", size/(1024));
+	}
+	else if(size >= 1024*1024 && size < 1024*1024*1024){
+		sprintf(res, "%ld MiB", size/(1024*1024));
+	}
+	else{
+		sprintf(res, "%ld GiB", size/(1024*1024*1024));
+	}
+
+	return res;
+}
+
 String getFileName(const String& inPath){
 	String path = inPath;
 
@@ -361,7 +380,6 @@ void setHomeDir(const String& path){
 }
 
 void pause(){
-	std::cout << "Press any key to continue . . .";
 #if defined(WIN32)
 	_getch();
 #else
@@ -369,8 +387,6 @@ void pause(){
 	#error Not implemented on this platform
 
 #endif
-
-	std::cout << std::endl;
 }
 
 void sleep(float time){

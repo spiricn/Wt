@@ -67,6 +67,8 @@ namespace utils{
 
 	void sleep(float time);
 
+	String formatSize(uint64_t size);
+
 } // </Utils>
 
 } // </wt>
