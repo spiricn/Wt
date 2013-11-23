@@ -402,6 +402,10 @@ void sleep(float time){
 String toRelative(const String& base, const String& path){
 #if defined(WIN32)
 
+	if(base.empty()){
+		return path;
+	}
+
 	String b = base;
 	utils::replacePathSplitters(b, '/');
 	if(b[b.size()-1] != '/'){

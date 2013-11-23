@@ -24,7 +24,7 @@
 
 using namespace wt;
 
-#if 0
+#if 1
 
 #if defined(WT_DEMO_NO_CONSOLE) && defined(WIN32)
 	#pragma comment(linker, "/SUBSYSTEM:windows")
@@ -81,7 +81,7 @@ int main(){
 	return 0;
 }
 
-#elif 1
+#elif 0
 
 #include <wt/net/TCPServer.h>
 #include <wt/Thread.h>
@@ -104,8 +104,9 @@ class ClientTest : public Thread{
 
 public:
 	void run(){
-		RemoteFileSystemClient client;
-		StreamPtr stream = client.open("test.wts", AIOStream::eMODE_READ);
+		RemoteFileSystemClient client(".", "127.0.0.1", 8420);
+
+		StreamPtr stream = client.open("test.jpg", AIOStream::eMODE_READ);
 
 		FILE* local = fopen(
 			"C:/users/nikola/desktop/dl.wts"
@@ -145,12 +146,12 @@ int main(){
 	net::Socket::initializeLib();
 
 	ClientTest client;
-	//ServerTest server;
+	ServerTest server;
 
-	//server.start();
+	server.start();
 	client.start();
 
-	//server.wait();
+	server.wait();
 	client.wait();
 
 	return 0;

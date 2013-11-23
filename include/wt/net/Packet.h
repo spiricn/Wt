@@ -19,6 +19,8 @@ public:
 
 	Packet(const void* data, uint32_t size);
 
+	Packet(const Packet& other);
+
 	void clear();
 
 	ByteBuffer& getPayload();

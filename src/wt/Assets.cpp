@@ -7,17 +7,8 @@
 namespace wt
 {
 
-Assets::Assets(FileSystemType fileSystemType, const String& fileSystemRoot) : mRootDir(""), mFileSystem(NULL){
+Assets::Assets() : mFileSystem(NULL){
 	init();
-	setFileSystem(fileSystemType, fileSystemRoot);
-}
-
-Assets::Assets() : mRootDir(""), mFileSystem(NULL){
-	init();
-}
-
-String Assets::getFileSystemRoot(){
-	return mRootDir;
 }
 
 void Assets::init(){
@@ -41,25 +32,6 @@ void Assets::init(){
 	mParticleManager->setLoader( NULL );
 }
 
-void Assets::setFileSystem(FileSystemType type, const String& rootUri){
-	mRootDir = rootUri;
-
-	if(mFileSystem){
-		delete mFileSystem;
-		mFileSystem = NULL;
-	}
-
-	LOGD("Creating a %s file system, with \"%s\" as root",
-		type == eFS_DIR ? "directory" : "zip", mRootDir.c_str());
-
-	if(type == eFS_DIR){
-		mFileSystem = new LocalFileSystem(rootUri);
-	}
-	else{
-		mFileSystem = new ZipFileSystem(rootUri);
-	}
-}
-
 void Assets::deserialize(const LuaObject& assets){
 	deserialize(mImageManager, "IMAGE_MANAGER", assets);
 	deserialize(mTextureManager, "TEXTURE_MANAGER", assets);
@@ -76,6 +48,10 @@ AFileSystem* Assets::getFileSystem(){
 
 ImageManager* Assets::getImageManager(){
 	return mImageManager;
+}
+
+void Assets::setFileSystem(AFileSystem* fileSystem){
+	mFileSystem = fileSystem;
 }
 
 AResourceManager<ParticleEffectResource>* Assets::getParticleResourceManager(){
@@ -167,7 +143,7 @@ void Assets::reload(){
 }
 
 String Assets::getRelativeURI(const String& uri){
-	return utils::toRelative(mRootDir, uri);
+	return utils::toRelative(mFileSystem->getRoot(), uri);
 }
 
 void Assets::load(const LuaObject& table){
@@ -185,7 +161,7 @@ void Assets::load(const String& path){
 #else
 	WT_ASSERT(mFileSystem, "No file system set");
 
-	String relativePath = utils::toRelative(mRootDir, path);
+	String relativePath = utils::toRelative(mFileSystem->getRoot(), path);
 
 	Sp<AIOStream> stream = mFileSystem->open(relativePath, AIOStream::eMODE_READ);
 	try{
@@ -226,7 +202,7 @@ void Assets::serialize(const String& path){
 
 	WT_ASSERT(mFileSystem, "No file system set");
 
-	String relativePath = utils::toRelative(mRootDir, path);
+	String relativePath = utils::toRelative(mFileSystem->getRoot(), path);
 
 	StreamPtr stream = mFileSystem->open(relativePath, AIOStream::eMODE_WRITE);
 

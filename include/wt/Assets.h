@@ -36,14 +36,11 @@ namespace wt
 
 class Assets : public AResourceSystem, public Singleton<Assets>{
 public:
-	
-	Assets(FileSystemType fileSystemType, const String& fileSystemRoot);
-
 	Assets();
 
 	~Assets();
 
-	void setFileSystem(FileSystemType type, const String& rootUri);
+	void setFileSystem(AFileSystem* fileSystem);
 
 	AFileSystem* getFileSystem();
 
@@ -90,8 +87,6 @@ public:
 
 	void serialize(const String& path);
 
-	String getFileSystemRoot();
-
 private:
 	void init();
 
@@ -115,8 +110,6 @@ private:
 	void deserialize(AResourceManager<T>* manager, const String& name, const lua::LuaObject& table);
 
 	void deserialize(const LuaObject& assets);
-
-	String mRootDir;
 
 }; // </Assets>
 

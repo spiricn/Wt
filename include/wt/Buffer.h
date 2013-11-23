@@ -24,8 +24,11 @@ public:
 
 	void copy(Buffer& dst) const{
 		dst.create(mCapacity);
-		dst.put(mData, mCapacity);
-		dst.seekp(0);
+
+		memcpy(dst.mData, mData, sizeof(T)*mCapacity);
+
+		dst.mPosPut = mPosPut;
+		dst.mPosGet = mPosGet;
 	}
 
 	void create(uint32_t capacity){

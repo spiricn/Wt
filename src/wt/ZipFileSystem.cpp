@@ -5,18 +5,24 @@
 
 namespace wt{
 
-ZipFileSystem::ZipFileSystem(const String& root){
+ZipFileSystem::ZipFileSystem(const String& filePath, const String& root) : mRoot(root){
 	PHYSFS_init(NULL);
 
-	PHYSFS_addToSearchPath(root.c_str(), 0);
+	// TODO handle root directory
+
+	PHYSFS_addToSearchPath(filePath.c_str(), 0);
 }
 
 ZipFileSystem::~ZipFileSystem(){
 	PHYSFS_deinit();
 }
 
-Sp<AIOStream> ZipFileSystem::open(const String& uri, AIOStream::Mode mode){
 
+String ZipFileSystem::getRoot() const{
+	return mRoot;
+}
+
+Sp<AIOStream> ZipFileSystem::open(const String& uri, AIOStream::Mode mode){
 	if(!PHYSFS_exists(uri.c_str())){
 		LOGW("File \"%s\" does not exist in zip archive", uri.c_str());
 	}

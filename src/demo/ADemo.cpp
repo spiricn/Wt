@@ -7,6 +7,7 @@
 #include "wt/ScriptProcess.h"
 #include "demo/DemoManager.h"
 #include "wt/lua/LuaBindings.h"
+#include "wt/FileSystemFactory.h"
 
 #define TD_TRACE_TAG "ADemo"
 
@@ -67,22 +68,28 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 		
 	// Load assets
-	Assets::FileSystemType type;
+	AFileSystem::Desc fsDesc;
 
 	String typeStr;
-	String rfs;
 	if(!lua::luaConv(mMainScript->getState().Get("fileSystemType"), typeStr)){
-		type = Assets::eFS_DIR;
+		fsDesc.type = AFileSystem::eFS_DIR;
 	}
 	else{
-		type = typeStr.compare("DIR") == 0 ?  Assets::eFS_DIR : Assets::eFS_ZIP;
+		fsDesc.type = typeStr.compare("DIR") == 0 ?  AFileSystem::eFS_DIR : AFileSystem::eFS_ZIP;
 	}
 
-	if(!lua::luaConv(mMainScript->getState().Get("fileSystemRoot"), rfs)){
+	if(!lua::luaConv(mMainScript->getState().Get("fileSystemRoot"), fsDesc.dir.root)){
 		WT_THROW("No file system root specified!");
 	}
 
-	mAssets = new Assets(type, rfs);
+	mAssets = new Assets;
+
+	{
+		fsDesc.type = AFileSystem::eFS_REMOTE;
+		fsDesc.remote.root = "";
+	}
+
+	mAssets->setFileSystem( FileSystemFactory::create(fsDesc) );
 
 	// Initialize PhysX
 	mPhysics = new Physics(mEventManager);

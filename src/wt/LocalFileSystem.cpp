@@ -4,9 +4,12 @@
 
 #include "wt/Utils.h"
 
+#define TD_TRACE_TAG "LocalFileSystem"
+
 #define PATH_SEPARATOR "/"
 
-namespace wt{
+namespace wt
+{
 
 LocalFileSystem::LocalFileSystem(const String& root) : mRoot(""){
 	String uri = root;
@@ -22,8 +25,12 @@ LocalFileSystem::LocalFileSystem(const String& root) : mRoot(""){
 	mRoot = uri;
 }
 
+String LocalFileSystem::getRoot() const{
+	return mRoot;
+}
+
 Sp<AIOStream> LocalFileSystem::open(const String& relUri, AIOStream::Mode mode){
 	return new FileIOStream(/* convert to absolute uri */ mRoot + PATH_SEPARATOR +  relUri, mode);
 }
 
-}; // </wt>
+} // </wt>

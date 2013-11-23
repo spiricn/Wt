@@ -6,23 +6,24 @@
 namespace wt
 {
 
-int64_t RemoteFileStream::read(void* dst, int64_t size){
-	// Send request
+static net::Packet createPacket(rfsp::OperationCode code){
 	net::Packet packet;
 
-	// Write ID
-	int32_t packetId = rfsp::eCODE_READ;
-	packet.write(packetId);
+	int32_t opCode = static_cast<int32_t>(code);
+	packet.write(opCode);
+
+	return packet;
+}
+
+
+int64_t RemoteFileStream::read(void* dst, int64_t size){
+	// Send request
+	net::Packet packet = createPacket( rfsp::eCODE_READ );
 
 	// Write size
 	packet.write(size);
 
-	// Send request
-	mSocket->sendPacket(packet);
-
-	// Recieve response
-	packet.clear();
-	mSocket->recvPacket(packet);
+	request(packet);
 
 	int64_t bytesRead = packet.read<int64_t>();
 
@@ -37,23 +38,48 @@ int64_t RemoteFileStream::write(const void* src, int64_t size){
 }
 
 int64_t RemoteFileStream::seek(SeekOrigin origin, int64_t offset){
-	WT_THROW("Not implemented");
-	return 0;
+	net::Packet packet = createPacket( rfsp::eCODE_SEEK );
+
+	int8_t _origin = static_cast<int8_t>(origin);
+
+	packet.write(_origin);
+	packet.write(offset);
+
+	request(packet);
+
+	return packet.read<int64_t>();
 }
 	
 int64_t RemoteFileStream::tell(){
-	WT_THROW("Not implemented");
-	return 0;
+	net::Packet packet = createPacket( rfsp::eCODE_TELL );
+
+	request(packet);
+
+	return packet.read<int64_t>();
 }
 
 int64_t RemoteFileStream::getSize(){
-	WT_THROW("Not implemented");
-	return 0;
+	net::Packet packet = createPacket( rfsp::eCODE_GET_SIZE );
+
+	request(packet);
+
+	return packet.read<int64_t>();
 }
 
+void RemoteFileStream::request(net::Packet& pckt){
+	mSocket->sendPacket(pckt);
+
+	pckt.clear();
+	mSocket->recvPacket(pckt);
+}
+
+
 bool RemoteFileStream::isOpen(){
-	WT_THROW("Not implemented");
-	return false;
+	net::Packet packet = createPacket( rfsp::eCODE_IS_OPEN );
+
+	request(packet);
+
+	return packet.read<int8_t>() == 0 ? false : true;
 }
 
 bool RemoteFileStream::isSeekable(){
@@ -62,11 +88,7 @@ bool RemoteFileStream::isSeekable(){
 }
 
 RemoteFileStream::RemoteFileStream(RemoteFileSystemClient* parent, const String& uri, AIOStream::Mode mode, net::TCPServer::SocketPtr socket) : mParent(parent), mSocket(socket){
-	net::Packet packet;
-
-	// Write code
-	int32_t code = rfsp::eCODE_STREAM_OPEN;
-	packet.write(code);
+	net::Packet packet = createPacket( rfsp::eCODE_STREAM_OPEN );
 
 	// Write URI
 	packet.write(uri);
@@ -84,6 +106,8 @@ RemoteFileStream::RemoteFileStream(RemoteFileSystemClient* parent, const String&
 
 	// Send open request
 	mSocket->sendPacket(packet);
+
+	setMode(mode);
 }
 
 } // </wt>

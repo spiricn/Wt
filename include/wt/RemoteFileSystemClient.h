@@ -10,12 +10,17 @@ namespace wt
 
 class RemoteFileSystemClient : public AFileSystem{
 public:
-	RemoteFileSystemClient();
+	RemoteFileSystemClient(String root, String address, int32_t port);
 
 	StreamPtr open(const String& uri, AIOStream::Mode mode);
 
+	String getRoot() const;
+
 private:
 	net::Socket mSocket;
+	String mServerAddress;
+	uint32_t mServerPort;
+	String mRoot;
 
 }; // </RemoteFileSystemClient>
 

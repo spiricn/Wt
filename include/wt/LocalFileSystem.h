@@ -13,6 +13,8 @@ public:
 
 	Sp<AIOStream> open(const String& uri, AIOStream::Mode mode);
 
+	String getRoot() const;
+
 private:
 	String mRoot;
 }; // </LocalFileSystem>

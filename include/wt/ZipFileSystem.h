@@ -13,11 +13,16 @@ namespace wt{
  */
 class ZipFileSystem : public AFileSystem{
 public:
-	ZipFileSystem(const String& root);
+	ZipFileSystem(const String& filePath, const String& root);
 
 	~ZipFileSystem();
 
 	Sp<AIOStream> open(const String& uri, AIOStream::Mode mode);
+
+	String getRoot() const;
+	
+private:
+	String mRoot;
 
 }; // </ZipFileSystem>
 

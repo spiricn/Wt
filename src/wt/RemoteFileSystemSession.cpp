@@ -28,6 +28,7 @@ void RemoteFileSystemSession::run(){
 
 			mStream = mLocalFileSystem.open(uri, mode);
 			WT_ASSERT(mStream, "Error oppening file %s", uri.c_str());
+			WT_ASSERT(mStream->isOpen(), "Stream not open? %s", uri.c_str());
 		}
 		else if(packetId == rfsp::eCODE_READ){
 			// Requested bytes to be read
@@ -46,14 +47,64 @@ void RemoteFileSystemSession::run(){
 
 			// Write data
 			p.write(bfr, bytesRead);
+			delete[] bfr;
 
 			try{
 				mSocket->sendPacket(p);
 			}catch(...){
 				goto disconnected;
 			}
+		}
+		else if(packetId == rfsp::eCODE_SEEK){
+			int8_t origin = p.read<int8_t>();
 
-			delete[] bfr;
+			int64_t pos = p.read<int64_t>();
+
+			int64_t res = mStream->seek(static_cast<AIOStream::SeekOrigin>(origin), pos);
+
+			p.clear();
+			p.write(res);
+
+			try{
+				mSocket->sendPacket(p);
+			}catch(...){
+				goto disconnected;
+			}
+		}
+		else if(packetId == rfsp::eCODE_TELL){
+			int64_t pos = mStream->tell();
+
+			p.clear();
+			p.write(pos);
+
+			try{
+				mSocket->sendPacket(p);
+			}catch(...){
+				goto disconnected;
+			}
+		}
+		else if(packetId == rfsp::eCODE_IS_OPEN){
+			p.clear();
+			int8_t res = mStream->isOpen() ? 1 : 0;
+			p.write(res);
+
+			try{
+				mSocket->sendPacket(p);
+			}catch(...){
+				goto disconnected;
+			}
+		}
+		else if(packetId == rfsp::eCODE_GET_SIZE){
+			int64_t size = mStream->getSize();
+
+			p.clear();
+			p.write(size);
+
+			try{
+				mSocket->sendPacket(p);
+			}catch(...){
+				goto disconnected;
+			}
 		}
 		else{
 			WT_THROW("Unsupported code recieved %d", packetId);

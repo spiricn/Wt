@@ -18,7 +18,6 @@ public:
 	void run();
 
 private:
-
 	RemoteFileSystemSession(RemoteFileSystemServer* parent, net::TCPServer::SocketPtr socket, const String& root);
 
 	RemoteFileSystemServer* mParent;

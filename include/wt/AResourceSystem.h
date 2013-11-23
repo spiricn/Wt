@@ -26,25 +26,15 @@ class AResourceManager;
 
 class AResourceSystem{
 public:
-	enum FileSystemType{
-		eFS_INVALID = -1,
-
-		eFS_DIR = 0,
-		eFS_ZIP,
-	}; //</FileSystemType>
-
 	struct Desc{
-		FileSystemType fileSystemType;
-		String fileSystemUri;
+		// TODO
 
-		Desc() : fileSystemType(eFS_DIR), /* FIXME */ fileSystemUri("."){
-		}
-	}; // </Desc>
+	}; // <Desc>
 
 	virtual ~AResourceSystem(){
 	}
 
-	virtual void setFileSystem(FileSystemType type, const String& rootUri) = 0;
+	virtual void setFileSystem(AFileSystem* fileSystem) = 0;
 
 	virtual lua::State* getLuastate() = 0;
 
@@ -81,8 +71,6 @@ public:
 	virtual String getRelativeURI(const String& uri) = 0;
 
 	virtual ASoundSystem* getSoundSystem() = 0;
-
-	virtual String getFileSystemRoot() = 0;
 };
 
 }; // </wt>

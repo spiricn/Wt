@@ -31,6 +31,8 @@ public:
 private:
 	RemoteFileStream(RemoteFileSystemClient* parent, const String& uri, AIOStream::Mode mode, net::TCPServer::SocketPtr socket);
 
+	void request(net::Packet& pckt);
+
 	RemoteFileSystemClient* mParent;
 	net::TCPServer::SocketPtr mSocket;
 

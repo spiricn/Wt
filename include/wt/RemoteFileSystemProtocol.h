@@ -10,9 +10,16 @@ namespace rfsp
 enum OperationCode{
 	eCODE_INVALID = -1,
 
-	eCODE_STREAM_OPEN,
-	eCODE_READ
+	eCODE_STREAM_OPEN = 0,
+	eCODE_READ,
+	eCODE_WRITE,
+	eCODE_SEEK,
+	eCODE_TELL,
+	eCODE_IS_OPEN,
+	eCODE_IS_SEEKABLE,
+	eCODE_GET_SIZE,
 
+	eCODE_MAX
 }; // </OperationCode>
 
 }

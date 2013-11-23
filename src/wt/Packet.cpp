@@ -11,6 +11,10 @@ namespace net
 Packet::Packet(){
 }
 
+Packet::Packet(const Packet& other){
+	other.mData.copy( mData );
+}
+
 ByteBuffer& Packet::getPayload(){
 	return mData;
 }
