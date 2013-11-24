@@ -24,6 +24,9 @@ AGameWindow* GameWindowFactory::create(const AGameWindow::Desc& desc){
 		TRACEE("Error creating SDL game window");
 		return NULL;
 	}
+
+	return window;
+
 #else
 	#error No game window module defined
 #endif

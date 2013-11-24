@@ -2,6 +2,7 @@
 
 #include <wt/Utils.h>
 #include <wt/SceneLoader.h>
+#include <wt/FileSystemFactory.h>
 
 #include "wte/ModelImporterTab.h"
 #include "wte/FilePicker.h"
@@ -197,7 +198,12 @@ void WtEditor::onWorkspaceSwitch(){
 void WtEditor::switchWorkspace(const QString& path){
 	unloadAssets();
 
-	mAssets.setFileSystem(wt::AResourceSystem::eFS_DIR, path.toStdString().c_str());
+
+	wt::AFileSystem::Desc fsDesc;
+	fsDesc.type = wt::AFileSystem::eTYPE_LOCAL;
+	fsDesc.dir.root = path.toStdString();
+
+	mAssets.setFileSystem( wt::FileSystemFactory::create(fsDesc) );
 
 	mWorkspacePath = path;
 

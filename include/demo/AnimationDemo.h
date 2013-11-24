@@ -68,7 +68,6 @@ public:
 	void onStart(const LuaObject& config){
 		//// Create scene actor
 		mActor = dynamic_cast<ModelledActor*>( getScene()->findActorByName("actor") );
-		TD_ASSERT(mActor != NULL);
 
 		setupGUI();
 	}

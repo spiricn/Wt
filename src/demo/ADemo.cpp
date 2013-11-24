@@ -72,10 +72,10 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 	String typeStr;
 	if(!lua::luaConv(mMainScript->getState().Get("fileSystemType"), typeStr)){
-		fsDesc.type = AFileSystem::eFS_DIR;
+		fsDesc.type = AFileSystem::eTYPE_LOCAL;
 	}
 	else{
-		fsDesc.type = typeStr.compare("DIR") == 0 ?  AFileSystem::eFS_DIR : AFileSystem::eFS_ZIP;
+		fsDesc.type = typeStr.compare("DIR") == 0 ?  AFileSystem::eTYPE_LOCAL: AFileSystem::eTYPE_ZIP;
 	}
 
 	if(!lua::luaConv(mMainScript->getState().Get("fileSystemRoot"), fsDesc.dir.root)){
@@ -85,7 +85,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	mAssets = new Assets;
 
 	{
-		fsDesc.type = AFileSystem::eFS_REMOTE;
+		fsDesc.type = AFileSystem::eTYPE_REMOTE;
 		fsDesc.remote.root = "";
 	}
 

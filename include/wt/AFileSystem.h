@@ -11,16 +11,18 @@ typedef Sp<AIOStream> StreamPtr;
 
 class AFileSystem{
 public:
-	enum FileSystemType{
-		eFS_INVALID = -1,
+	enum Type{
+		eTYPE_INVALID = -1,
 
-		eFS_DIR = 0,
-		eFS_ZIP,
-		eFS_REMOTE
-	}; //</FileSystemType>
+		eTYPE_LOCAL = 0,
+		eTYPE_ZIP,
+		eTYPE_REMOTE,
+
+		eTYPE_MAX
+	}; //</Type>
 
 	struct Desc{
-		FileSystemType type;
+		Type type;
 
 		struct DirFs{
 			String root;
@@ -46,7 +48,7 @@ public:
 			}
 		} remote;
 
-		Desc() : type(eFS_INVALID){
+		Desc() : type(eTYPE_INVALID){
 		}
 
 	}; // </Desc>

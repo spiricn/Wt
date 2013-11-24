@@ -9,13 +9,13 @@ namespace wt
 {
 
 AFileSystem* FileSystemFactory::create(const AFileSystem::Desc& desc){
-	if(desc.type == AFileSystem::eFS_DIR){
+	if(desc.type == AFileSystem::eTYPE_LOCAL){
 		return new LocalFileSystem(desc.dir.root);
 	}
-	else if(desc.type == AFileSystem::eFS_ZIP){
+	else if(desc.type == AFileSystem::eTYPE_ZIP){
 		return new ZipFileSystem(desc.zip.path, desc.zip.root);
 	}
-	else if(desc.type == AFileSystem::eFS_REMOTE){
+	else if(desc.type == AFileSystem::eTYPE_REMOTE){
 		return new RemoteFileSystemClient(desc.remote.root, desc.remote.serverAddress, desc.remote.serverPort);
 	}
 	else{

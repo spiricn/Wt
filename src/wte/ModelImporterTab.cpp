@@ -64,7 +64,7 @@ void ModelImporterTab::import(const QString& srcModel){
 	mAssets->getModelManager()->save(dstModel.toStdString(), model);
 
 	
-	model->setUri(wt::utils::toRelative(mAssets->getFileSystemRoot(), dstModel.toStdString()));
+	model->setUri(wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), dstModel.toStdString()));
 
 	// Texture group where the new skin textures are going to be created in
 	wt::TextureGroup* texGroup = mAssets->getTextureManager()->getGroupFromPath("$ROOT/model");
@@ -103,7 +103,7 @@ void ModelImporterTab::import(const QString& srcModel){
 		// check to see if this texture has already been created
 		//mAssets->getRo
 		LOG("1");
-		if(texture && !sameFile(srcTexPath, QString(mAssets->getFileSystemRoot().c_str()) + "/" + texture->getUri().c_str())){
+		if(texture && !sameFile(srcTexPath, QString(mAssets->getFileSystem()->getRoot().c_str()) + "/" + texture->getUri().c_str())){
 			// File with this name already exists but its different from
 			// the one we're importing, so we generate a new file name for it
 			QString newTextureName;
@@ -119,7 +119,7 @@ void ModelImporterTab::import(const QString& srcModel){
 
 				if(newTexture){
 					LOG("2");
-					if(sameFile(srcTexPath, QString(mAssets->getFileSystemRoot().c_str()) + "/" + newTexture->getUri().c_str())){
+					if(sameFile(srcTexPath, QString(mAssets->getFileSystem()->getRoot().c_str()) + "/" + newTexture->getUri().c_str())){
 						// We can use this texture
 						textureExists = true;
 						texture = newTexture;
@@ -178,7 +178,7 @@ void ModelImporterTab::import(const QString& srcModel){
 
 			// create texture
 			texture = texGroup->create(dstTexName.toStdString());
-			texture->setUri(wt::utils::toRelative(mAssets->getFileSystemRoot(), dstTexPath.toStdString()));
+			texture->setUri(wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), dstTexPath.toStdString()));
 		}
 		else{
 			LOGI("Texture already exists");
