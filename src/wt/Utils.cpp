@@ -13,7 +13,7 @@ namespace wt
 namespace utils
 {
 	
-bool copmareFiles(const String& file1Path, const String& file2Path){
+bool compareFiles(const String& file1Path, const String& file2Path){
 	bool res = true;
 
 	FILE* file1 = fopen(file1Path.c_str(), "rb");

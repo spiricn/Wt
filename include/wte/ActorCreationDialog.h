@@ -22,11 +22,6 @@ public:
 
 		bool ok;
 
-		struct {
-			wt::Model* model;
-			wt::Model::GeometrySkin* skin;
-		} modelledActor;
-
 		struct{
 			wt::ParticleEffectResource* effect;
 		} particleEffect;

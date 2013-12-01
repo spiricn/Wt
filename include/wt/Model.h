@@ -30,18 +30,6 @@ public:
 		eATTRIB_BONE_WEIGHT
 	};
 
-protected:
-	void setTextureManager(TextureManager* textureManager){
-		mTextureManager = textureManager;
-	}
-
-	void setAnimationManager(AnimationManager* animationManager){
-		mAnimationManager = animationManager;
-	}
-
-public:
-	
-
 	class GeometrySkin{
 	friend class Model;
 
@@ -129,8 +117,7 @@ private:
 	String generateMeshName();
 	SkinMap mSkins;
 	AnimationMap mAnimations;
-	TextureManager* mTextureManager;
-	AnimationManager* mAnimationManager;
+
 public:
 	Model(AResourceManager<Model>* manager=NULL, ResourceHandle handle=0, const String& name="");
 

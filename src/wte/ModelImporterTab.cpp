@@ -17,189 +17,211 @@
 
 #define TD_TRACE_TAG "ModelImporterTab"
 
-void ModelImporterTab::import(const QString& srcModel){
-// TODO rethink this whole concept, this isn't going to work ...
-#if 1
-	// base name of the newly created assets
-	bool ok;
-	wt::String name = QInputDialog::getText(this, "Input",
-		"Model name: ", QLineEdit::Normal, "", &ok).toStdString();
 
-	if(!ok){
-		return;
-	}
+QString generateFileName(const QString& directory, const QString& originalName, const QString& extension){
+	int32_t counter = 0;
+	QString newName = originalName;
+	QString newPath;
 
-	// TODO move this elsewehere
-	mRootDir = mAssets->getFileSystem()->getRoot().c_str();
-	ui.rootDir->setText(mRootDir);
-	mModelDir = mRootDir + "/" + "model";
-	ui.modelDir->setText(mModelDir);
-	mImageDir = mRootDir + "/" + "image";
-	ui.imageDir->setText(mImageDir);
+	do{
+		newName = wt::utils::print("%s_%d.%s",
+			originalName.toStdString().c_str(),
+			counter++,
+			extension.toStdString().c_str()).c_str();
 
-	// location where the assets are going to be copied
-	QString dstDir = mRootDir;
+		newPath = directory + "/" + newName + extension;
 
-	// Directory of the model being imported
-	QString srcDir =  QFileInfo(srcModel).dir().absolutePath();
+	}while( QFile::exists(newPath) );
 
-	// Create new geo model / skinned model and model skin
-	wt::Model* model = mAssets->getModelManager()->create(name);
-	
-	wt::Animation animation;
-	wt::AssimpModelLoader::TextureMap texMap;
+	return newName;
+}
 
-	// Load it using Assimp model loader
-	/*try{*/
-		wt::AssimpModelLoader::getSingleton().load(srcModel.toStdString(), *model, &animation, &texMap);
-	/*}catch(wt::Exception& e){
-		QMessageBox::critical(this,
-			QString("Error converting model"),
-			e.getDescription().c_str()
-			);
-		return;
-	}*/
 
-	// Check if model with this name already exists in workspace
-	QString dstModel = mModelDir + "/" + model->getName().c_str() + ".wtm";
-	if(QFile::exists(dstModel)){
-		QMessageBox::critical(this,
-			QString("Error importing model"), QString("File \"") + dstModel + "\" already exists");
-		return;
-	}
+void ModelImporterTab::importTexture(ImportData& data, const QString& meshName, const QString& textureName){
+	// Full source texture file name
+	const QString sourceTexturePath = data.modelSourceDirectory + "/" + textureName;
 
-	// Save the converted model to workspace
-	mAssets->getModelManager()->save(dstModel.toStdString(), model);
+	// Source texture name (file name without extension)
+	QString sourceTextureName = QFileInfo(sourceTexturePath).completeBaseName();
 
-	
-	model->setUri(wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), dstModel.toStdString()));
+	// Source texture extension
+	const QString sourceTextureExtension = QFileInfo(sourceTexturePath).suffix();
 
-	// Texture group where the new skin textures are going to be created in
-	wt::TextureGroup* texGroup = mAssets->getTextureManager()->getGroupFromPath("$ROOT/model");
-	if(!texGroup){
-		// Create the group if it doesn't exist
-		texGroup = mAssets->getTextureManager()->createGroup("model");
-	}
+	// Full path to where the new texture is going to be imported
+	QString destinationTexturePath;
 
-	// Create a skin
-	wt::Model::GeometrySkin* skin = model->createSkin("default");
+	// Resource name of the texture we're importing
+	QString destinationTextureName = textureName;
 
-	for(wt::AssimpModelLoader::TextureMap::iterator i=texMap.begin(); i!=texMap.end(); i++){
+	wt::Texture2D* resultTexture = NULL;
 
-		// Full source texture file name
-		QString srcTexPath = srcDir + "/" + i->second.c_str();
+	wt::Texture2D* duplicateTexture = data.textureGroup->find(destinationTextureName.toStdString(), false);
 
-		// Source texture name (file name without extension)
-		QString srcTexName = QFileInfo(srcTexPath).completeBaseName();
+	bool textureExists = false;
 
-		// Source texture extension
-		QString extension = QFileInfo(srcTexPath).suffix();
-
-		// Full path to where the new texture is going to be imported
-		QString dstTexturePath;
-
-		// Resource name of the texture we're importing
-		QString dstTexName;
-
-		// Path where the new texture is going to be imported ot
-		QString dstTexPath;
-
-		wt::Texture2D* texture = texGroup->find(srcTexName.toStdString(), false);
-
-		bool textureExists = false;
+	if(duplicateTexture){
+		const QString duplicateTexturePath = mAssets->getFileSystem()->getRoot().c_str() + QString("/") + QString(duplicateTexture->getUri().c_str());
 		
-		// check to see if this texture has already been created
-		//mAssets->getRo
-		if(texture && !wt::utils::copmareFiles(srcTexPath.toStdString(),
-			(QString(mRootDir) + "/" + texture->getUri().c_str()).toStdString())){
-			// File with this name already exists but its different from
-			// the one we're importing, so we generate a new file name for it
-			QString newTextureName;
+		// Compare duplicate texture with the one we're importing
+		if(wt::utils::compareFiles(sourceTexturePath.toStdString(), duplicateTexturePath.toStdString())){
+			// Same files, skip copying the new one
+			resultTexture = duplicateTexture;
+			textureExists = true;
+		}
+		else{
+			// Not the same file so we need to generate a new name
+			int32_t counter = 0;
+			const QString originalName = sourceTextureName;
 
-			int cnt = 0;
 			while(true){
-				char tmp[128];
-				++cnt;
-				sprintf(tmp, "%s_%d", srcTexName.toStdString().c_str(), cnt);
-				newTextureName = tmp;
+				destinationTextureName = wt::utils::print("%s_%d",
+					originalName.toStdString().c_str(), counter++).c_str();
 
-				wt::Texture2D* newTexture = texGroup->find(newTextureName.toStdString(), false);
+				wt::Texture2D* texture = data.textureGroup->find(destinationTextureName.toStdString(), false);
 
-				if(newTexture){
-					LOG("2");
-					if(wt::utils::copmareFiles(srcTexPath.toStdString(),
-						(QString(mRootDir) + "/" + newTexture->getUri().c_str()).toStdString())){
-						// We can use this texture
-						textureExists = true;
-						texture = newTexture;
-						break;
+				if(texture){
+					// Found a texture with this generated name, check if it's the same file
+					if(wt::utils::compareFiles(sourceTexturePath.toStdString(),
+						(mAssets->getFileSystem()->getRoot().c_str() + QString("/") + texture->getUri().c_str()).toStdString())){
+							// Same files we can use this texture instead
+							resultTexture = texture;
+							textureExists = true;
+							break;
 					}
 				}
 				else{
-					// Texture does not exist, we have to import it
-
-					dstTexName = newTextureName;
-					dstTexPath = mImageDir + "/" + newTextureName + "." + extension;
-					if(QFile::exists(dstTexPath)){
-						// Check if this is the same file as we're trying to import
-						LOG("3");
-						if(wt::utils::copmareFiles(dstTexPath.toStdString(), srcTexPath.toStdString())){
-							LOGI("File already exists, skipping copy");
-						}
-						else{
-							// TODO handle this (just generate a new name)
-							TRACEE("TODO handle this");
-							return;
-						}
-					}
+					// Found a free name
 					break;
 				}
 			}
 		}
-		else if(texture == NULL){
-			// Texture does not exist, we have to import it
-			dstTexName = srcTexName;
+	}
 
-			dstTexPath = mImageDir + "/" + srcTexName + "." + extension;
-			if(QFile::exists(dstTexPath)){
-				// Check if this is the same file as we're trying to import
-				if(wt::utils::copmareFiles(dstTexPath.toStdString(), srcTexPath.toStdString())){
-					LOGI("File already exists, skipping copy");
-				}
-				else{
-					// TODO handle this (just generate a new name)
-					TRACEE("TODO handle this");
-					return;
-				}
+	// Texture with that name does not exist, we need to import it
+	if(!textureExists){
+		resultTexture = data.textureGroup->create(destinationTextureName.toStdString());
+
+		// Generate texture path
+		destinationTexturePath = data.imageDir + "/" + destinationTextureName + "." + sourceTextureExtension;
+
+		bool fileExists = false;
+
+		// Path already taken?
+		if(QFile::exists(destinationTexturePath)){
+			// Check if it's the same file we're trying to import
+			if(wt::utils::compareFiles(destinationTexturePath.toStdString(), sourceTexturePath.toStdString())){
+				// Same files, just set the uri to this
+				resultTexture->setUri( wt::utils::toRelative(data.rootDir.toStdString(), destinationTexturePath.toStdString()) );
+				fileExists = true;
+			}
+			// It's not the same file so we need to generate a new name for it
+			else{
+				QString newFileName = generateFileName(data.imageDir, sourceTextureName, sourceTextureExtension);
+
+				destinationTexturePath = data.imageDir + "/" + newFileName + "." + sourceTextureExtension;
 			}
 		}
-		else{
-			// Texture exists we can use thsi one
-			textureExists = true;
+
+		if(!fileExists){
+			// Import the texture to the workspace
+			if(!QFile::copy(sourceTexturePath, destinationTexturePath)){
+				WT_THROW("Copy failed; \"%s\" -> \"%s\"",
+					sourceTexturePath.toStdString().c_str(),
+					destinationTexturePath.toStdString().c_str()
+				);
+			}
+
+			resultTexture->setUri( wt::utils::toRelative(data.rootDir.toStdString(), destinationTexturePath.toStdString()) );
+
+			LOGI("Texture imported \"%s\"", sourceTexturePath.toStdString().c_str());
 		}
+	}
 
-		if(!textureExists){
-			// import the texture fil	e to workspace
-			QFile::copy(srcTexPath, dstTexPath);
+	wt::Model::GeometrySkin::Mesh* mesh = data.skin->findMeshByName(meshName.toStdString());
+    mesh->texture = resultTexture;
+}
 
-			LOGI("Importing \"%s\"", srcTexPath.toStdString().c_str());
+#define WT_MODEL_EXTENSION "wtm"
 
-			// create texture
-			texture = texGroup->create(dstTexName.toStdString());
-			texture->setUri(wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), dstTexPath.toStdString()));
-		}
-		else{
-			LOGI("Texture already exists");
-		}
+void ModelImporterTab::importModel(ImportData& data){
+	// Check if model with this name already exists in workspace
+	QString destinationModelPath = data.modelDir + "/" + data.modelName + "." WT_MODEL_EXTENSION;
 
-		wt::Model::GeometrySkin::Mesh* mesh = skin->findMeshByName(i->first);
-		mesh->texture = texture;
+	if(QFile::exists(destinationModelPath)){
+		destinationModelPath = data.modelDir + "/" + generateFileName(data.modelDir, data.modelName, WT_MODEL_EXTENSION);
+		LOGW("Model file already exists, new name generated");
+	}
+
+	// Save the converted model to workspace
+	mAssets->getModelManager()->save(destinationModelPath.toStdString(), data.model);
+	data.model->setUri(wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), destinationModelPath.toStdString()));
+
+	for(wt::AssimpModelLoader::TextureMap::iterator iter=data.textureMap.begin(); iter!=data.textureMap.end(); iter++){
+		importTexture(data, iter->first.c_str(), iter->second.c_str());
 	}
 
 	QMessageBox::information(this, "Successs", "Model successfuly imported");
-#else
-		QMessageBox::critical(this, "Fail", "TODO: implement this");
-#endif
+}
+
+void ModelImporterTab::import(const QString& srcModel){
+	ImportData data;
+
+	// Get model name
+	bool ok;
+	data.modelName = QInputDialog::getText(this, "Input",
+		"Model name: ", QLineEdit::Normal, "", &ok);
+	if(!ok){
+		return;
+	}
+
+	// Get model group
+	data.modelGroup = ResourcePickerDialog::pickGroup<wt::Model>(this, mAssets->getModelManager(), "Pick model group");
+	if(data.modelGroup == NULL){
+		TRACEW("Group not picked, aborting");
+		return;
+	}
+
+	// Acquire import directories (e.g. model, texture etc..)
+	data.rootDir = mAssets->getFileSystem()->getRoot().c_str();
+	ui.rootDir->setText(data.rootDir);
+
+	data.modelDir = data.rootDir + "/" + "model";
+	ui.modelDir->setText(data.modelDir);
+
+	data.imageDir = data.rootDir + "/" + "image";
+	ui.imageDir->setText(data.imageDir);
+
+	// Directory of the model being imported
+	data.modelSourceDirectory = QFileInfo(srcModel).dir().absolutePath();
+
+	if(data.modelGroup->find(data.modelName.toStdString(), false)){
+		WT_THROW("Model with name \"%s\" already exists in group \"%s\"",
+			data.modelName.toStdString().c_str(),
+			data.modelGroup->getAbsPath().c_str()
+		);
+	}
+	
+	// Create new animation
+	wt::Animation animation;
+
+	// Create new model
+	data.model = data.modelGroup->create(data.modelName.toStdString());
+
+	// Load the animation and the model along with the texture map (used for skinning)
+	wt::AssimpModelLoader::getSingleton().load(srcModel.toStdString(), *data.model, &animation, &data.textureMap);
+
+	// Create a skin
+	data.skin = data.model->createSkin("default");
+
+	// Texture group where the new skin textures are going to be created in
+	// TODO don't hard core this?
+	data.textureGroup = mAssets->getTextureManager()->getGroupFromPath("$ROOT/model");
+	if(!data.textureGroup){
+		// Create the group if it doesn't exist
+		data.textureGroup = mAssets->getTextureManager()->createGroup("model");
+	}
+
+	importModel(data);
 }
 
 ModelImporterTab::ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets) : QWidget(parent), mAssets(assets){

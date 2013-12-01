@@ -26,7 +26,7 @@ namespace utils{
 	};
 
 
-	bool copmareFiles(const String& file1, const String& path2);
+	bool compareFiles(const String& file1, const String& path2);
 
 	String formatSeconds(float seconds, const String& fmt);
 

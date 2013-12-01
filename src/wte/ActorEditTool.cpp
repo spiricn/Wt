@@ -500,8 +500,6 @@ void ActorEditTool::onNewActor(){
 		if(res.type == wt::ASceneActor::eTYPE_MODELLED){
 			wt::ModelledActor* actor = mScene->createModelledActor(res.name.toStdString());
 
-			actor->setModel(res.modelledActor.model, res.modelledActor.skin->getName());
-
 			sceneActor = actor;
 		}
 		else if(res.type == wt::ASceneActor::eTYPE_PARTICLE_EFFECT){

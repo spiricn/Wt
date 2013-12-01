@@ -302,11 +302,11 @@ void Model::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 
 				GeometrySkin::Mesh* mesh = skin->addMesh(NULL);
 
-				mesh->texture = mTextureManager->getFromPath(
+				mesh->texture = getGroup()->getResourceSystem()->getTextureManager()->getFromPath(
 					skinEntry.Get("texture").ToString()
 					);
 
-				mesh->normalMap = mTextureManager->getFromPath(
+				mesh->normalMap = getGroup()->getResourceSystem()->getTextureManager()->getFromPath(
 					skinEntry.Get("normal_map").ToString()
 					);
 
@@ -323,7 +323,7 @@ void Model::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 			const char* animName = animIter.GetKey().ToString();
 			const char* animPath = animIter.GetValue().ToString();
 
-			Animation* animation = mAnimationManager->getFromPath(animPath);
+			Animation* animation = getGroup()->getResourceSystem()->getAnimationManager()->getFromPath(animPath);
 			WT_ASSERT(animation, "No animation \"%s\"", animPath);
 
 			addSkeletalAnimation(animName, animation);
