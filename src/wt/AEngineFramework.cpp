@@ -2,6 +2,7 @@
 
 #include "wt/AEngineFramework.h"
 #include "wt/ResourceSystemFactory.h"
+#include "wt/FileSystemFactory.h"
 
 #define TD_TRACE_TAG "AEngineFramework"
 
@@ -166,6 +167,8 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 
 	// Resource system
 	mAssets = ResourceSystemFactory::create(mDesc.assets);
+
+	mAssets->setFileSystem( FileSystemFactory::create(mDesc.fileSystem) );
 
 	// Scene renderer
 	mRenderer = new Renderer(getEventManager());

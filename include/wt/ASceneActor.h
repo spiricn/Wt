@@ -43,6 +43,10 @@ public:
 
 	virtual ATransformable* getTransformable() const = 0;
 
+	bool isVisible() const;
+
+	void setVisible(bool state);
+
 	virtual void physicsControl(const glm::vec3& translation, const glm::quat& rotation);
 
 	ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name="");
@@ -133,6 +137,7 @@ private:
 
 	void setLuaState(lua::State* state);
 
+	bool mVisible;
 }; // </ASceneActor>
 
 

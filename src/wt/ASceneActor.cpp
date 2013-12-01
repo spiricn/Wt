@@ -7,7 +7,16 @@ namespace wt{
 
 
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
-	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL), mBoundingBoxColor(Color::Green()), mLuaState(NULL){
+	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL),
+	mBoundingBoxColor(Color::Green()), mLuaState(NULL), mVisible(true){
+}
+
+bool ASceneActor::isVisible() const{
+	return mVisible;
+}
+
+void ASceneActor::setVisible(bool state){
+	mVisible = state;
 }
 
 void ASceneActor::detach(){

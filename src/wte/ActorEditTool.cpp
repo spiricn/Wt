@@ -126,7 +126,7 @@ void ActorEditTool::editActor(){
 	}
 	else{
 		// TODO
-		WT_THROW("NOT IMPLEMENTED");
+		TRACEW("NOT IMPLEMENTED");
 	}
 }
 

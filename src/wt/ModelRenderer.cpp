@@ -142,7 +142,7 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 	for(Scene::ModelledActorSet::const_iterator iter=scene->getModelledActors().cbegin(); iter!=scene->getModelledActors().cend(); iter++){
 		const ModelledActor* actor = *iter;
 
-		if(actor->getModel() == NULL){
+		if(actor->getModel() == NULL || !actor->isVisible()){
 			// Nothing to render
 			continue;
 		}

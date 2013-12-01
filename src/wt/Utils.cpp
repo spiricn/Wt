@@ -12,6 +12,62 @@ namespace wt
 
 namespace utils
 {
+	
+bool copmareFiles(const String& file1Path, const String& file2Path){
+	bool res = true;
+
+	FILE* file1 = fopen(file1Path.c_str(), "rb");
+	WT_ASSERT(file1, "Error oppening file1 \"%s\"", file1Path.c_str());
+
+	FILE* file2 = fopen(file2Path.c_str(), "rb");
+	WT_ASSERT(file2, "Error oppening file2 \"%s\"", file2Path.c_str());
+
+	fseek(file1, 0, SEEK_END);
+	int32_t size1 = ftell(file1);
+	rewind(file1);
+
+	fseek(file2, 0, SEEK_END);
+	int32_t size2 = ftell(file2);
+	rewind(file2);
+
+	if(size1 != size2){
+		res = false;
+		goto cleanup;
+	}
+
+	static const int32_t kBUFFER_SIZE = 512;
+	char bfr1[kBUFFER_SIZE];
+	char bfr2[kBUFFER_SIZE];
+
+	while(!feof(file1)){
+		int32_t read1 = fread(bfr1, 1, kBUFFER_SIZE, file1);
+
+		int32_t read2 = fread(bfr2, 1, kBUFFER_SIZE, file2);
+
+		if(read1 != read2){
+			res = false;
+			goto cleanup;
+		}
+
+		if(read1 > 0){
+			if(memcmp(bfr1, bfr2, read1) != 0){
+				res = false;
+				goto cleanup;
+			}
+		}
+	}
+
+cleanup:
+	if(file1){
+		fclose(file1);
+	}
+
+	if(file2){
+		fclose(file2);
+	}
+
+	return res;
+}
 
 bool endsWith(const String& fullString, const String& ending){
 	if (fullString.length() >= ending.length()) {
@@ -19,6 +75,19 @@ bool endsWith(const String& fullString, const String& ending){
 	} else {
 		return false;
 	}
+}
+
+String print(const char* fmt, ...){
+	va_list args;
+	va_start(args, fmt);
+
+	char bfr[1024] = { 0 };
+
+	vsnprintf(bfr, 1024, fmt, args);
+
+	va_end(args);
+
+	return bfr;
 }
 
 String formatSize(uint64_t size){

@@ -91,6 +91,7 @@
      <string>Workspace</string>
     </property>
     <addaction name="actionWorkspaceSwitch"/>
+    <addaction name="actionWorkspaceSave"/>
    </widget>
    <addaction name="menuWorkspace"/>
    <addaction name="menuAssets"/>
@@ -209,6 +210,11 @@
   <action name="actionWorkspaceNew">
    <property name="text">
     <string>Create new</string>
+   </property>
+  </action>
+  <action name="actionWorkspaceSave">
+   <property name="text">
+    <string>Save</string>
    </property>
   </action>
  </widget>
@@ -425,6 +431,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionWorkspaceSave</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onWorkspaceSave()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>305</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onBtnSaveClick()</slot>
@@ -443,5 +465,6 @@
   <slot>onSceneReload()</slot>
   <slot>onSceneClear()</slot>
   <slot>onWorkspaceSwitch()</slot>
+  <slot>onWorkspaceSave()</slot>
  </slots>
 </ui>

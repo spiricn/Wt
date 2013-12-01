@@ -25,13 +25,15 @@
 class WtEditor : public QMainWindow{
 	Q_OBJECT
 public:
-	WtEditor(QWidget *parent = 0, Qt::WFlags flags = 0);
+	WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[]);
 
 	~WtEditor();
 
 	 static void logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message);
 
 private:
+	QString mCmdArg;
+
 	MainGLWidget* mMainGLWidget;
 
 	wt::Assets mAssets;
@@ -105,6 +107,7 @@ protected slots:
 
 	void onWorkspaceSwitch();
 
+	void onWorkspaceSave();
 
 	void onOpenGLContextCreated();
 };

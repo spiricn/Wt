@@ -2,8 +2,10 @@
 
 #include "wt/SceneLoader.h"
 
-namespace wt{
+#define TD_TRACE_TAG "SceneLoader"
 
+namespace wt
+{
 
 SceneLoader::SceneLoader(Scene* scene, AResourceSystem* assets) : mScene(scene), mAssets(assets){
 }
@@ -291,8 +293,8 @@ void SceneLoader::load(const String& uri){
 
 	try{
 		load(*stream.get());
-	}catch(...){
-		TRACEE("Error loading scene from uri \"%s\"", uri.c_str());
+	}catch(std::exception& e){
+		TRACEE("Error loading scene from uri \"%s\" : %s", uri.c_str(), e.what());
 		throw;
 	}
 }

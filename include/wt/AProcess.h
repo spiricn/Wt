@@ -37,7 +37,7 @@ public:
 	void detach();
 
 	/** called at every iteration of process manager update */
-	virtual void onProcUpdate(float dt)=0;
+	virtual void onProcUpdate(float dt);
 
 	/** called when the process is attached to a process manager, before the first update */
 	virtual void onProcStart();

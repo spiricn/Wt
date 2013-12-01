@@ -826,6 +826,18 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 		mActors.insert(
 			std::make_pair(actorId, createdActor)
 		);
+
+		if(sceneActor){
+			// Initial physics control
+			glm::vec3 pos;
+			glm::quat rot;
+
+			PxTransform pose = static_cast<PxRigidActor*>(createdActor->getPxActor())->getGlobalPose();
+			pxConvert(pose.p, pos);
+			pxConvert(pose.q, rot);
+
+			sceneActor->physicsControl(pos, rot);
+		}
 	}
 
 	return createdActor;

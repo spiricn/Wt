@@ -10,6 +10,7 @@
 #include <Wt/Texture.h>
 #include <wt/Model.h>
 #include <wt/Assets.h>
+#include <wt/Utils.h>
 
 #include "wte/ModelImporterTab.h"
 #include "wte/ResourcePickerDialog.h"
@@ -28,9 +29,16 @@ void ModelImporterTab::import(const QString& srcModel){
 		return;
 	}
 
+	// TODO move this elsewehere
+	mRootDir = mAssets->getFileSystem()->getRoot().c_str();
+	ui.rootDir->setText(mRootDir);
+	mModelDir = mRootDir + "/" + "model";
+	ui.modelDir->setText(mModelDir);
+	mImageDir = mRootDir + "/" + "image";
+	ui.imageDir->setText(mImageDir);
+
 	// location where the assets are going to be copied
-	// TODO get root dir from Assets
-	QString dstDir = "d:/Documents/prog/c++/workspace/Wt/workspace/assets";
+	QString dstDir = mRootDir;
 
 	// Directory of the model being imported
 	QString srcDir =  QFileInfo(srcModel).dir().absolutePath();
@@ -53,7 +61,7 @@ void ModelImporterTab::import(const QString& srcModel){
 	}*/
 
 	// Check if model with this name already exists in workspace
-	QString dstModel = dstDir + "/model/" + model->getName().c_str() + ".wtm";
+	QString dstModel = mModelDir + "/" + model->getName().c_str() + ".wtm";
 	if(QFile::exists(dstModel)){
 		QMessageBox::critical(this,
 			QString("Error importing model"), QString("File \"") + dstModel + "\" already exists");
@@ -102,8 +110,8 @@ void ModelImporterTab::import(const QString& srcModel){
 		
 		// check to see if this texture has already been created
 		//mAssets->getRo
-		LOG("1");
-		if(texture && !sameFile(srcTexPath, QString(mAssets->getFileSystem()->getRoot().c_str()) + "/" + texture->getUri().c_str())){
+		if(texture && !wt::utils::copmareFiles(srcTexPath.toStdString(),
+			(QString(mRootDir) + "/" + texture->getUri().c_str()).toStdString())){
 			// File with this name already exists but its different from
 			// the one we're importing, so we generate a new file name for it
 			QString newTextureName;
@@ -119,7 +127,8 @@ void ModelImporterTab::import(const QString& srcModel){
 
 				if(newTexture){
 					LOG("2");
-					if(sameFile(srcTexPath, QString(mAssets->getFileSystem()->getRoot().c_str()) + "/" + newTexture->getUri().c_str())){
+					if(wt::utils::copmareFiles(srcTexPath.toStdString(),
+						(QString(mRootDir) + "/" + newTexture->getUri().c_str()).toStdString())){
 						// We can use this texture
 						textureExists = true;
 						texture = newTexture;
@@ -130,11 +139,11 @@ void ModelImporterTab::import(const QString& srcModel){
 					// Texture does not exist, we have to import it
 
 					dstTexName = newTextureName;
-					dstTexPath = dstDir + "/image/" + newTextureName + "." + extension;
+					dstTexPath = mImageDir + "/" + newTextureName + "." + extension;
 					if(QFile::exists(dstTexPath)){
 						// Check if this is the same file as we're trying to import
 						LOG("3");
-						if(sameFile(dstTexPath, srcTexPath)){
+						if(wt::utils::copmareFiles(dstTexPath.toStdString(), srcTexPath.toStdString())){
 							LOGI("File already exists, skipping copy");
 						}
 						else{
@@ -151,11 +160,10 @@ void ModelImporterTab::import(const QString& srcModel){
 			// Texture does not exist, we have to import it
 			dstTexName = srcTexName;
 
-			dstTexPath = dstDir + "/image/" + srcTexName + "." + extension;
+			dstTexPath = mImageDir + "/" + srcTexName + "." + extension;
 			if(QFile::exists(dstTexPath)){
 				// Check if this is the same file as we're trying to import
-				LOG("4");
-				if(sameFile(dstTexPath, srcTexPath)){
+				if(wt::utils::copmareFiles(dstTexPath.toStdString(), srcTexPath.toStdString())){
 					LOGI("File already exists, skipping copy");
 				}
 				else{
@@ -194,49 +202,17 @@ void ModelImporterTab::import(const QString& srcModel){
 #endif
 }
 
-bool ModelImporterTab::sameFile(const QString& path1, const QString& path2){
-	QFile file1(path1), file2(path2);
-
-	WT_ASSERT(file1.open(QIODevice::ReadOnly), "Error comparing files (open file failed \"%s\")", path1.toStdString().c_str());
-		
-	WT_ASSERT(file2.open(QIODevice::ReadOnly), "Error comparing files (open file failed \"%s\")", path2.toStdString().c_str());
-	
-	if(file1.size() != file2.size()){
-		LOGW("Same file name, different sizes");
-		return false;
-	}
-	else{
-		char bfr1[1024];
-		char bfr2[1024];
-
-		while(true){
-			qint64 read1, read2;
-			read1 = file1.read(bfr1, 1024);
-			read2 = file2.read(bfr2, 1024);
-		
-			if(read1 == -1 || read2 == -1 || read1 != read2){
-				LOGE("Error comparing files (read error)");
-				return false;
-			}
-
-			if(memcmp(bfr1, bfr2, read1) != 0){
-				LOGW("Same file name, same sizes, different content");
-				return false;
-			}
-
-			if(read1 != 1024){
-				break;
-			}
-		}
-	}
-
-	return true;
-}
-
 ModelImporterTab::ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets) : QWidget(parent), mAssets(assets){
 	ui.setupUi(this);
 
 	setAcceptDrops(true);
+
+	// TODO moved this elsewhere since the file system doesn't exist at the point of creation of this tab
+#if 0
+	mRootDir = assets->getFileSystem()->getRoot().c_str();
+	mModelDir = mRootDir + "/" + "model";
+	mImageDir = mRootDir + "/" + "image";
+#endif
 }
 
 void ModelImporterTab::onBatchConvert(){

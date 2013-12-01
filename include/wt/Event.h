@@ -25,9 +25,11 @@ private:
 
 protected:
 
-	virtual void serialize(LuaObject& dst) = 0;
+	virtual void serialize(LuaObject& dst){
+	}
 
-	virtual void deserialize(LuaObject& src) = 0;
+	virtual void deserialize(LuaObject& src){
+	}
 
 	virtual void buildLuaData(lua::State* luaState){
 		if(!mLuaDataBuilt){

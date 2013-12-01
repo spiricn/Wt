@@ -84,6 +84,12 @@ private:
 
 }; // </Interpolator>
 
-}; // </wt>
+typedef Interpolator<float> FloatInterpolator;
+typedef Interpolator<double> DoubleInterpolator;
+typedef Interpolator<int32_t> IntInterpolator;
+typedef Interpolator<glm::vec3> Vec3Interpolator;
+typedef Interpolator<glm::vec2> Vec2Interpolator;
+
+} // </wt>
 
 #endif // </WT_INTERPOLATOR_H>

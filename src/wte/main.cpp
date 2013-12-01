@@ -9,9 +9,9 @@
 int main(int argc, char** argv){
 	QDir::setCurrent("d:/Documents/prog/c++/workspace/wt/");
 
-	QApplication a(argc, argv);
-	WtEditor w;
+	QApplication app(argc, argv);
+	WtEditor w(NULL, 0, argc, argv);
 	w.show();
 
-	return a.exec();
+	return app.exec();
 }

@@ -25,6 +25,9 @@ namespace utils{
 		}
 	};
 
+
+	bool copmareFiles(const String& file1, const String& path2);
+
 	String formatSeconds(float seconds, const String& fmt);
 
 	bool endsWith(const String& fullString, const String& ending);
@@ -37,7 +40,8 @@ namespace utils{
 
 	String getEnv(const String& name);
 
-	
+	String print(const char* fmt, ...);
+
 	void makeCheckboard(Buffer<unsigned char>& bfr, uint32_t w, uint32_t h,
 		uint32_t vf, uint32_t hf, const Color& clr1, const Color& clr2);
 

@@ -20,6 +20,9 @@ void AProcess::onProcessAttach(ProcessManager* manager, Pid pid){
 	onProcStart();
 }
 
+void AProcess::onProcUpdate(float){
+}
+
 void AProcess::detach(){
 	WT_ASSERT(isAttached(), "Process not attached to a manager");
 

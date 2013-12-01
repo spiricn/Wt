@@ -3,6 +3,7 @@
 #include <wt/Utils.h>
 #include <wt/SceneLoader.h>
 #include <wt/FileSystemFactory.h>
+#include <wt/Lua.h>
 
 #include "wte/ModelImporterTab.h"
 #include "wte/FilePicker.h"
@@ -12,15 +13,20 @@
 
 #define TD_TRACE_TAG "WtEditor"
 
-#define RESOURCE_FILE_EXTENSION "wtr"
-#define SCENE_FILE_EXTENSION	"wts"
+#define WORKSPACE_FILE_EXTENSION	"wtw"
+#define RESOURCE_FILE_EXTENSION		"wtr"
+#define SCENE_FILE_EXTENSION		"wts"
 
 using namespace std;
 
-WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
+WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 	: QMainWindow(parent, flags), mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false),
 	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState), mRenderer(&mEventManager){
 
+	if(argc >= 2){
+		mCmdArg = argv[1];
+	}
+	
 	ui.setupUi(this);
 
 	td_setCallbackFnc(logCallback, this);
@@ -71,12 +77,43 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags)
 	}
 }
 
+void WtEditor::onWorkspaceSave(){
+	QString path = QFileDialog::getSaveFileName(this,
+		"Save workspace", mWorkspacePath, "Workspace files (*." WORKSPACE_FILE_EXTENSION ")");
+
+	if(!path.size()){
+		return;
+	}
+
+	wt::lua::State state;
+
+	wt::lua::LuaObject workspace;
+	state.assignTable(workspace);
+
+	wt::String root=mWorkspacePath.toStdString(), assets=mAssetsFilePath.toStdString(), scene=mSceneFilePath.toStdString();
+	wt::utils::replacePathSplitters(root, '/');
+	wt::utils::replacePathSplitters(assets, '/');
+	wt::utils::replacePathSplitters(scene, '/');
+
+	workspace.Set("root", root.c_str());
+	workspace.Set("assets", assets.c_str());
+	workspace.Set("scene", scene.c_str());
+
+	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_WRITE);
+
+	stream.print("WORKSPACE=");
+	wt::lua::serializeTable(workspace, stream);
+
+	LOGI("Workspace saved to \"%s\"", path.toStdString().c_str());
+}
+
 void WtEditor::onOpenGLContextCreated(){
 	LOG("OpenGL context created");
 
+
 	showMaximized();
 
-#if 1
+#if 0
 	// Debug scene/assets
 
 #define DEBUG_WORKSPACE "d:/Documents/prog/c++/workspace/Wt/workspace"
@@ -89,6 +126,37 @@ void WtEditor::onOpenGLContextCreated(){
 
 #undef DEBUG_WORKSPACE
 
+#else
+	if(mCmdArg.size()){
+		LOGI("Loading config from file \"%s\"", mCmdArg.toStdString().c_str());
+
+		wt::lua::State state;
+		state.getStateOwner()->DoFile(mCmdArg.toStdString().c_str());
+
+		wt::LuaObject desc = state.getGlobals().Get("WORKSPACE");
+
+		wt::String root, assets, scene;
+
+		if(!wt::lua::luaConv(desc.Get("root"), root)
+			|| !wt::lua::luaConv(desc.Get("assets"), assets)
+			|| !wt::lua::luaConv(desc.Get("scene"), scene)){
+				LOGE("Invalid wtw file \"%s\"", mCmdArg.toStdString().c_str());
+				return;
+		}
+
+		LOGI("config file parsed; workspace=\"%s\"; assets=\"%s\"; scene=\"%s\"",
+			root.c_str(), assets.c_str(), scene.c_str());
+
+		switchWorkspace(root.c_str());
+#if 0
+		loadAssets(wt::utils::print("%s/%s", root.c_str(), assets.c_str()).c_str());
+		loadScene(wt::utils::print("%s/%s", root.c_str(), scene.c_str()).c_str());
+#else
+		loadAssets(assets.c_str());
+		loadScene(scene.c_str());
+#endif
+
+	}
 #endif
 }
 

@@ -22,8 +22,7 @@ class ModelImporterTab : public QWidget{
 private:
 	wt::AResourceSystem* mAssets;
 	Ui::ModelImporter ui;
-
-	bool sameFile(const QString& file1, const QString& file2);
+	QString mRootDir, mModelDir, mImageDir;
 
 protected:
 	void dropEvent(QDropEvent* evt);

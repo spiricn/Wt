@@ -158,28 +158,10 @@ int main(){
 }
 #else
 
-#include <wt/net/TCPServer.h>
-#include <wt/Thread.h>
-#include "wt/RemoteFileSystemServer.h"
-#include "wt/RemoteFileSystemClient.h"
+#include <wt/Utils.h>
 
-#define TD_TRACE_TAG "RemoteFileServer"
 
 int main(int argc, char* argv[]){
-	if(argc != 3){
-		LOGI("Usage: rfs <root> <port>");
-		return 0;
-	}
-
-	LOGD("Creating RFS; root=\"%s\"; port=%d", argv[1], atoi(argv[2]));
-
-	net::Socket::initializeLib();
-
-	RemoteFileSystemServer server;
-	server.startServer(argv[1], atoi(argv[2]));
-
-	LOGI("Server running.");
-	server.wait();
 }
 
 #endif

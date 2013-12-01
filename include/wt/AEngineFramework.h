@@ -83,6 +83,8 @@ public:
 
 		AResourceSystem::Desc assets;
 
+		AFileSystem::Desc fileSystem;
+
 		struct PhysicsDebugging{
 			String remoteDebuggerURI;
 			uint32_t remoteDebuggerPort;
