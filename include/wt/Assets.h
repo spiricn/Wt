@@ -83,11 +83,85 @@ public:
 
 	void load(const String& path);
 
+	struct ChunkedLoadStatus{
+		uint32_t totalResources;
+		uint32_t resourcesLoaded;
+		bool finished;
+
+		ChunkedLoadStatus() : totalResources(0), resourcesLoaded(0), finished(false){
+		}
+	};
+
+	void chunkedLoadStart(const LuaObject& table);
+
+	void chunkedLoadStart(const String& path);
+
+	ChunkedLoadStatus chunkedLoad();
+
 	void serialize(LuaObject& assets);
 
 	void serialize(const String& path);
 
 private:
+	class IChunkedLoader{
+	public:
+		virtual bool load() = 0;
+		virtual uint32_t getTotalResources() = 0;
+	};
+
+	template<typename T>
+	class ChunkedLoader : public IChunkedLoader{
+	public:
+		ChunkedLoader(AResourceManager<T>* manager) : mManager(manager){
+			mIterator = mManager->getResourceIterator();
+		}
+
+		uint32_t getTotalResources(){
+			return mManager->getNumResources();
+		}
+
+		bool load(){
+			if(mIterator.next()){
+				T* rsrc = *mIterator;
+
+				if(!rsrc->isResourceLoaded() && mManager->getLoader()){
+					if(rsrc->getUri().size()){
+						Sp<AIOStream> stream = mManager->getResourceSystem()->getFileSystem()->open(rsrc->getUri(), AIOStream::eMODE_READ);
+
+						try{
+							mManager->load(stream, rsrc);
+						}catch(...){
+							LOGE("Error loading resource from uri \"%s\"", rsrc->getUri().c_str());
+						}
+					}
+				}
+
+				mIterator++;
+
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+
+	private:
+		AResourceManager<T>* mManager;
+		typename AResourceManager<T>::ResourceIterator mIterator;
+	};
+
+	typedef std::vector<IChunkedLoader*> ChunkedLoaderList;
+
+	struct ChunkedLoadState{
+		bool inProgress;
+		ChunkedLoaderList loaders;
+		uint32_t totalResources;
+		uint32_t currentResource;
+
+		ChunkedLoadState() : inProgress(false), totalResources(0), currentResource(0){
+		}
+	} mChunkedLoadState;
+
 	void init();
 
 	Profiler mProfiler;

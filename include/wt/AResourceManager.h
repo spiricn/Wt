@@ -14,46 +14,56 @@ namespace wt{
 
 class AResourceSystem;
 
-template <class T>
-class AResourceManager : public AResourceAllocator<T>, public AResourceGroup<T>{
-private:
-	ResourceHandle mHandleCount;
-	typedef std::map<ResourceHandle, T*> ResourceMap;
-	AResourceSystem* mResourceSystem;
+class IResourceManager{
+public:
+};
 
+template <class T>
+class AResourceManager : public AResourceAllocator<T>, public AResourceGroup<T>, public IResourceManager{
 public:
 
 	class ResourceIterator{
-	friend class AResourceManager;
-	private:
-		typename ResourceMap::iterator mIterator;
-		typename ResourceMap::iterator mEnd;
-
-	protected:
-		ResourceIterator(typename ResourceMap::iterator start, typename ResourceMap::iterator end) : mIterator(start), mEnd(end){
+	public:
+		ResourceIterator() : mValid(false){
 		}
 
-	public:
-
 		bool next(){
+			WT_ASSERT(mValid, "Invalid iterator");
+
 			return mIterator != mEnd;
 		}
 
 		ResourceIterator operator++(int){
+			WT_ASSERT(mValid, "Invalid iterator");
+
 			mIterator++;
 
 			return *this;
 		}
 
 		T* operator->(){
+			WT_ASSERT(mValid, "Invalid iterator");
+
 			return mIterator->second;
 		}
 
 		T* operator*(){
+			WT_ASSERT(mValid, "Invalid iterator");
+
 			return mIterator->second;
 		}
 
-	};
+	private:
+		bool mValid;
+		typename ResourceMap::iterator mIterator;
+		typename ResourceMap::iterator mEnd;
+
+		friend class AResourceManager;
+
+	protected:
+		ResourceIterator(typename ResourceMap::iterator start, typename ResourceMap::iterator end) : mIterator(start), mEnd(end), mValid(true){
+		}
+	}; // </ResourceIterator>
 
 protected:
 	ResourceMap mResources;
@@ -182,6 +192,10 @@ public:
 		return mResources[handle];
 	}
 
+private:
+	ResourceHandle mHandleCount;
+	typedef std::map<ResourceHandle, T*> ResourceMap;
+	AResourceSystem* mResourceSystem;
 };
 
 
