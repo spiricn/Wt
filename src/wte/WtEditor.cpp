@@ -21,7 +21,7 @@ using namespace std;
 
 WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 	: QMainWindow(parent, flags), mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false),
-	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState), mRenderer(&mEventManager){
+	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState), mRenderer(&mEventManager, &mScene){
 
 	if(argc >= 2){
 		mCmdArg = argv[1];
@@ -158,6 +158,7 @@ void WtEditor::loadScene(const QString& path){
 		mSceneFilePath = path;
 	}catch(...){
 		TRACEE("Error loading scene");
+		mScene.clear();
 		return;
 	}
 

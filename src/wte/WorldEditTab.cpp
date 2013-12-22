@@ -20,7 +20,7 @@
 #include <wt/SFSound.h>
 #include <wt/SceneLoader.h>
 
-#define FPS 50
+#define FPS ( 30 )
 	
 
 WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager) : QMainWindow(parent),
@@ -87,6 +87,10 @@ WorldEditTab::~WorldEditTab(){
 
 void WorldEditTab::onToggleGodrayTool(){
 	ui.godrayToolDock->setVisible( !ui.godrayToolDock->isVisible() );
+}
+
+void WorldEditTab::onToggleToolFog(){
+	ui.fogToolDock->setVisible( !ui.fogToolDock->isVisible() );
 }
 
 void WorldEditTab::onToggleToolTerrain(){

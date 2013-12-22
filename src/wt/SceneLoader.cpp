@@ -160,6 +160,24 @@ void SceneLoader::load(AIOStream& stream){
 		mScene->setGodRayParams(params);
 	}
 
+	// Fog
+	{
+		LuaPlus::LuaObject fogTable = table.Get("fog");
+
+		if(fogTable.IsTable()){
+			FogDesc fog = mScene->getFogDesc();
+
+			lua::luaConv(fogTable.Get("color"), fog.color);
+			lua::luaConv(fogTable.Get("enabled"), fog.enabled);
+			lua::luaConv(fogTable.Get("density"), fog.density);
+
+			mScene->setFogDesc(fog);
+		}
+		else{
+			LOGW("Fog table missing");
+		}
+	}
+
 	// Camera
 	LuaPlus::LuaObject& cameraTable = table.Get("camera");
 	if(cameraTable.IsTable()){
@@ -260,6 +278,20 @@ void SceneLoader::save(AIOStream& stream){
 		}
 
 		sceneTable.Set("godrays", luaGodrays);
+	}
+
+	// Fog
+	{
+		FogDesc fog = mScene->getFogDesc();
+		lua::LuaObject fogTable = mAssets->getLuastate()->newTable();
+		fogTable.Set("enabled", fog.enabled);
+		fogTable.Set("density", fog.density);
+
+		lua::LuaObject colorTable = mAssets->getLuastate()->newTable();
+		lua::luaConv(fog.color, colorTable);
+		fogTable.Set("color", colorTable);
+
+		sceneTable.Set("fog", fogTable);
 	}
 
 	// Camera

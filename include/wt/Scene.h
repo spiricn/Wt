@@ -41,6 +41,23 @@ friend class Renderer;
 friend class ARenderer;
 
 public:
+
+	class IListener{
+	public:
+		virtual void onSceneFogParamsChanged(Scene* scene, const FogDesc& desc){
+		}
+
+		virtual void onSceneLightUpdated(Scene* scene, const ALight& light){
+		}
+
+		virtual void onSceneLightCreated(Scene* scene, const ALight& light){
+		}
+
+		virtual void onSceneLightDeleted(Scene* scene, const ALight& light){
+		}
+
+	}; // </IListener>
+
 	typedef std::map<uint32_t, ASceneActor*> ActorMap;
 
 	typedef std::set<ModelledActor*> ModelledActorSet;
@@ -109,7 +126,9 @@ public:
 
 	const PointLightSet& getPointLightSet() const;
 
-	Fog& getFog();
+	const FogDesc& getFogDesc();
+
+	const void setFogDesc(const FogDesc& desc);
 
 	void setPhysics(Physics* p);
 
@@ -165,7 +184,15 @@ public:
 
 	void setUIWindow(gui::Window* window);
 
+	void registerListener(IListener* listener);
+
+	void unregisterListener(IListener* listener);
+
 private:
+	typedef std::vector<IListener*> ListenerList;
+
+	ListenerList mListeners;
+
 	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
 
 	/** Master actor list */
@@ -190,7 +217,7 @@ private:
 	PointLight* findPointLight(uint32_t id);
 	
 	SkyBox* mSkyBox;
-	Fog mFog;
+	FogDesc mFogDesc;
 	
 	Physics* mPhysics;
 
@@ -216,8 +243,6 @@ private:
 
 	GodRayParams mGodrayParams;
 
-	EventEmitter mEventEmitter;
-
 	void onLightingModified(ALight* light);
 
 	void onLightCreated(ALight* light);
@@ -227,64 +252,6 @@ private:
 	// Lighting
 
 }; // </Scene>
-
-class SceneLightUpdated : public Event{
-protected:
-	void serialize(LuaObject& dst){
-	}
-
-	void deserialize(LuaObject& src){
-	}
-
-public:
-	static const EvtType TYPE;
-
-	enum Type{
-		eTYPE_CREATED,
-		eTYPE_MODIFIED,
-	}; // </Type>
-
-	const ALight* light;
-
-	Type type;
-
-	SceneLightUpdated(Type type, const ALight* light) : light(light), type(type){
-	}
-
-	SceneLightUpdated(){
-	}
-
-	const EvtType& getType() const{
-		return TYPE;
-	}
-
-}; // </SceneLightUpdated>
-
-
-class SceneLightDeleted : public Event{
-protected:
-	void serialize(LuaObject& dst){
-	}
-
-	void deserialize(LuaObject& src){
-	}
-
-public:
-	static const EvtType TYPE;
-
-	Sp<const ALight> light;
-
-	SceneLightDeleted(Sp<const ALight> light) : light(light){
-	}
-
-	SceneLightDeleted(){
-	}
-
-	const EvtType& getType() const{
-		return TYPE;
-	}
-
-}; // </SceneLightingModifiedEvent>
 
 }; // </wt>
 

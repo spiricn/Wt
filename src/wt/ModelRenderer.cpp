@@ -167,19 +167,18 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 
 		for(ModelSkin::MeshList::iterator i=actor->getSkin()->getMeshListBeg(); i!=actor->getSkin()->getMeshListEnd(); i++){
 			ModelSkin::Mesh* mesh = *i;
-			// Use the material if the mesh has one
-			Texture2D* texture = mesh->texture;
 
+			// Setup mesh texture
 			gl(ActiveTexture(GL_TEXTURE0));
-
-			if(texture != NULL){
-				texture->bind();
+			if(mesh->texture != NULL){
+				mesh->texture->bind();
 			}
 			else{
 				// Use the default one if none is provided
 				mInvalidTexture.bind();
 			}
 
+			// Handle normal mapping
 			if(mesh->normalMap){
 				gl(ActiveTexture(GL_TEXTURE1));
 				mShader.setUniformVal("uUseNormalMap", 1);
@@ -189,6 +188,19 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 				mShader.setUniformVal("uUseNormalMap", 0);
 			}
 			
+			// Handle face culling
+			CullMode cull = mesh->material.getCullMode();
+			if(cull != eCULL_NONE){
+				gl( Enable(GL_CULL_FACE) );
+				gl( CullFace( cull == eCULL_FRONT ? GL_FRONT : cull == eCULL_BACK ? GL_BACK : GL_FRONT_AND_BACK ) );
+			}
+			else{
+				gl( Disable(GL_CULL_FACE) );
+			}
+
+			// Alpha testing
+			mShader.setUniformVal("uUseAlphaTest", mesh->material.isAlphaTested() ? 1 : 0);
+
 			// Render the geometry
 			actor->getModel()->getBatch().bind();
 			mesh->geometry->render();

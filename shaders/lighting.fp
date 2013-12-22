@@ -42,6 +42,7 @@ struct Material{
 struct Fog{
 	float density;
 	vec4 color;
+	int enabled;
 }; // </Fog>
 
 uniform DirectionalLight uDirectionalLight;
@@ -125,6 +126,10 @@ vec4 calculateSpotLight(SpotLight light, vec3 normal, vec3 worldPos){
 }
 
 vec4 calcFog(vec4 color, vec3 worldPos){
+	if(uFogParams.enabled == 0){
+		return color;
+	}
+
 	// distance from the camera eye
 	float d = abs(distance(worldPos, uEyePos));
 

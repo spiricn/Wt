@@ -9,15 +9,19 @@
 class FogTool : public QDialog, public ATool{
 Q_OBJECT
 
-private:
-    Ui::FogTool ui;
-	SceneView* mSceneView;
-
 public:
     FogTool(SceneView*, AToolManager* manager, QWidget* parent);
 
 protected slots:
+	void onColorChanged();
 
+	void onDensityChanged();
+
+	void onStateChanged(bool);
+
+private:
+    Ui::FogTool ui;
+	SceneView* mSceneView;
 }; // </FogTool>
 
 #endif

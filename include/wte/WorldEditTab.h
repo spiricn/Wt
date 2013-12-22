@@ -108,6 +108,8 @@ protected slots:
 
 	void onShowLightEditor(bool);
 
+	void onToggleToolFog();
+
 	void onToggleToolTerrain();
 
 	void onToggleToolLight();

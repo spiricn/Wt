@@ -4,7 +4,7 @@
 #include "wt/FrameBuffer.h"
 #include "wt/GLShaderProgram.h"
 #include "wt/GLBatch.h"
-
+#include "wt/Scene.h"
 
 namespace wt
 {
@@ -20,7 +20,7 @@ class DirectionalLight;
 class PointLight;
 class Scene;
 
-class DeferredRender{
+class DeferredRender : public Scene::IListener{
 public:
 	enum TextureType{
 		eGTEX_INVALID = -1,
@@ -64,16 +64,20 @@ public:
 
 	void startFrame();
 
+	void onSceneLightUpdated(Scene* scene, const ALight& light);
+
+	void onSceneLightCreated(Scene* scene, const ALight& light);
+
+	void onSceneLightDeleted(Scene* scene, const ALight& light);
+
+	void onSceneFogParamsChanged(Scene* scene, const FogDesc& desc);
+
 	gl::ShaderProgram* getLightShader(LightPassShader shader);
 
 	gl::FrameBuffer* getFrameBuffer();
 
 	gl::Batch mSphereBatch;
 
-	void onLightEvent(const SceneLightUpdated* evt);
-
-	void onLightEvent(const SceneLightDeleted* evt);
-	
 	void doLightPass(Scene* scene, math::Camera* camera);
 
 	Texture2D* getGTexture(TextureType type){

@@ -13,6 +13,7 @@ out vec4 outGodray;
 uniform sampler2D uTextureSampler;
 uniform sampler2D uNormalMap;
 uniform int uUseNormalMap;
+uniform int uUseAlphaTest;
 
 vec3 calcBumpedNormal(){
 	// Could probably avoid normalizing these
@@ -38,8 +39,8 @@ void main(void) {
 	outWorldPos = fsWorldPos;
 
 	vec4 sample = texture(uTextureSampler, fsTexCoord);
-	 
-	if(sample.a < 0.2){
+	
+	if(uUseAlphaTest == 1 &&  sample.a < 0.2){
 		discard;
 	}
 
@@ -52,6 +53,5 @@ void main(void) {
 		outNormal = normalize(fsNormal);
 	}
 	
-
 	outGodray = vec4(0, 0, 0, 1);
 }

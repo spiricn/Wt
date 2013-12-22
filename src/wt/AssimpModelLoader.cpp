@@ -291,8 +291,7 @@ void AssimpModelLoader::aiConvert(const aiMaterial& src, Material& dst){
 	int aInt;
 
 	if(src.Get(AI_MATKEY_TWOSIDED, aInt) == aiReturn_SUCCESS){
-		dst.setCullMode(aInt==1 ? eCULL_NONE : eCULL_COUNTERCLOCKWISE);
-		LOG("TWOSIDED %d", aInt);
+		dst.setCullMode(aInt==1 ? eCULL_NONE : eCULL_BACK);
 	}
 
 	if(src.Get(AI_MATKEY_COLOR_AMBIENT, aColor) == aiReturn_SUCCESS){
@@ -308,7 +307,6 @@ void AssimpModelLoader::aiConvert(const aiMaterial& src, Material& dst){
 	if(src.Get(AI_MATKEY_ENABLE_WIREFRAME, aInt) == aiReturn_SUCCESS){
 		dst.setWireframe(aInt==1 ? true : false);
 	}
-
 
 	/*if(src.Get(AI_MATKEY_BLEND_FUNC, aInt) == aiReturn_SUCCESS){
 		LOG("BLEND FUNC %s", aInt == aiBlendMode_Additive ? "additive" : aInt == aiBlendMode_Default ? "default" : "uknown");

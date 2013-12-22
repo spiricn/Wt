@@ -16,12 +16,6 @@ Scene::Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManag
 
 	setCamera(&mDefaultCamera);
 
-	mEventEmitter.hook(mEventManager,
-		2,
-		SceneLightUpdated::TYPE,
-		SceneLightDeleted::TYPE
-	);
-
 	mDirectionalLight = new DirectionalLight(this, 0);
 }
 
@@ -33,26 +27,43 @@ void Scene::setUIWindow(gui::Window* window){
 	mUIWindow = window;
 }
 
+void Scene::registerListener(IListener* listener){
+	ListenerList::iterator iter = std::find(mListeners.begin(), mListeners.end(), listener);
+	WT_ASSERT(iter==mListeners.end(), "Listener %p already registered");
+
+	mListeners.push_back(listener);
+}
+
+void Scene::unregisterListener(IListener* listener){
+	ListenerList::iterator iter = std::find(mListeners.begin(), mListeners.end(), listener);
+	WT_ASSERT(iter!=mListeners.end(), "Listener not registered");
+
+	mListeners.erase(iter);
+}
+
 const DirectionalLight* Scene::getDirectionalLight() const{
 	return mDirectionalLight;
 }
 
 void Scene::onLightingModified(ALight* light){
-	mEventManager->queueEvent(
-		new SceneLightUpdated(SceneLightUpdated::eTYPE_MODIFIED, light)
-	);
+	// Notify listeners
+	for(ListenerList::iterator iter=mListeners.begin(); iter!=mListeners.end(); iter++){
+		(*iter)->onSceneLightUpdated(this, *light);
+	}
 }
 
 void Scene::onLightCreated(ALight* light){
-	mEventManager->queueEvent(
-		new SceneLightUpdated(SceneLightUpdated::eTYPE_CREATED, light)
-	);
+	// Notify listeners
+	for(ListenerList::iterator iter=mListeners.begin(); iter!=mListeners.end(); iter++){
+		(*iter)->onSceneLightCreated(this, *light);
+	}
 }
 
 void Scene::onLightDeleted(ALight* light){
-	mEventManager->queueEvent(
-		new SceneLightDeleted(light)
-	);
+	// Notify listeners
+	for(ListenerList::iterator iter=mListeners.begin(); iter!=mListeners.end(); iter++){
+		(*iter)->onSceneLightDeleted(this, *light);
+	}
 }
 
 const Scene::SpotLightSet& Scene::getSpotLightSet() const{
@@ -128,8 +139,17 @@ Scene::~Scene(){
 	destroy();
 }
 
-Fog& Scene::getFog(){
-	return mFog;
+const FogDesc& Scene::getFogDesc(){
+	return mFogDesc;
+}
+
+const void Scene::setFogDesc(const FogDesc& desc){
+	mFogDesc = desc;
+
+	// Notify listeners
+	for(ListenerList::iterator iter=mListeners.begin(); iter!=mListeners.end(); iter++){
+		(*iter)->onSceneFogParamsChanged(this, mFogDesc);
+	}
 }
 
 Scene::ActorMap& Scene::getActorMap(){
@@ -355,9 +375,5 @@ void Scene::setSkyBox(SkyBox* sky){
 SkyBox* Scene::getSkyBox(){
 	return mSkyBox;
 }
-
-const EvtType SceneLightUpdated::TYPE = "SceneLightUpdated";
-
-const EvtType SceneLightDeleted::TYPE = "SceneLightDeleted";
 
 }; // </wt>

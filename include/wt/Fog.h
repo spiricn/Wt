@@ -3,13 +3,15 @@
 
 #include "wt/Color.h"
 
-namespace wt{
+namespace wt
+{
 
-struct Fog{
+struct FogDesc{
 	Color color;
 	float density;
+	bool enabled;
 
-	Fog() : color(Color::Gray()), density(0.008f){
+	FogDesc() : color(Color::Gray()), density(0.008f), enabled(true){
 	}
 
 }; // </Fog>

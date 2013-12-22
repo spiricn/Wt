@@ -118,7 +118,7 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 
 	
 	// Initialize the scene renderer (must be done after scene creation due to event registration)
-	mRenderer = new Renderer(mEventManager);
+	mRenderer = new Renderer(mEventManager, mScene);
 	mRenderer->init(mWindow->getWidth(),
 		mWindow->getHeight()
 	);

@@ -5,8 +5,9 @@ namespace wt{
 
 enum CullMode{
 	eCULL_NONE,
-	eCULL_CLOCKWISE,
-	eCULL_COUNTERCLOCKWISE
+	eCULL_BACK,
+	eCULL_FRONT,
+	eCULL_FRONT_AND_BACK
 }; // </CullMode>
 
 }; // </wt>

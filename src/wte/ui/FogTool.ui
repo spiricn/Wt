@@ -7,13 +7,116 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>193</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="4" column="0">
+    <widget class="SlidedSpinboxWidget" name="density" native="true"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="ColorEditWidget" name="color" native="true"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Fog color</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Fog density</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="enabled">
+     <property name="text">
+      <string>Enabled</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SlidedSpinboxWidget</class>
+   <extends>QWidget</extends>
+   <header>slidedspinboxwidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>ColorEditWidget</class>
+   <extends>QWidget</extends>
+   <header>coloreditwidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>color</sender>
+   <signal>valueChanged()</signal>
+   <receiver>FogTool</receiver>
+   <slot>onColorChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>113</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>density</sender>
+   <signal>valueChanged()</signal>
+   <receiver>FogTool</receiver>
+   <slot>onDensityChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>170</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>376</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>enabled</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>FogTool</receiver>
+   <slot>onStateChanged(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>2</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onColorChanged()</slot>
+  <slot>onDensityChanged()</slot>
+  <slot>onStateChanged(bool)</slot>
+ </slots>
 </ui>

@@ -225,7 +225,9 @@ public:
 
 		//getScene()->setDirectionalLight(light);
 
-		getScene()->getFog().color = Color::Black();
+		FogDesc fog = getScene()->getFogDesc();
+		fog.color = Color::Black();
+		getScene()->setFogDesc(fog);
 	}
 
 	String getConfigFile() const{

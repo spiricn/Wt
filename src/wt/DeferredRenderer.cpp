@@ -4,6 +4,8 @@
 #include "wt/IcosphereBuilder.h"
 #include "wt/Scene.h"
 
+#define TD_TRACE_TAG "DeferredRender"
+
 namespace wt
 {
 
@@ -172,11 +174,54 @@ DeferredRender::ShaderPointLight* DeferredRender::findShaderPointLight(const Poi
 	return NULL;
 }
 
-void DeferredRender::onLightEvent(const SceneLightDeleted* evt){
-	const ALight* aLight = evt->light.get();
+void DeferredRender::onSceneLightUpdated(Scene* scene, const ALight& aLight){
+	if(aLight.getType() == ALight::eTYPE_POINT){
+		const PointLight* light = dynamic_cast<const PointLight*>( &aLight );
 
-	if(aLight->getType() == ALight::eTYPE_POINT){
-		const PointLight* light = (const PointLight*)aLight;
+		ShaderPointLight* shaderLight = findShaderPointLight(light);
+		WT_ASSERT(shaderLight != NULL, "Sanity check fail");
+
+		uploadPointLight(*shaderLight);
+	}
+	else if(aLight.getType() == ALight::eTYPE_DIRECTIONAL){
+		uploadDirectionalLight( dynamic_cast<const DirectionalLight*>( &aLight ) );
+	}
+}
+
+void DeferredRender::onSceneLightCreated(Scene* scene, const ALight& aLight){
+	if(aLight.getType() == ALight::eTYPE_POINT){
+		const PointLight* light = dynamic_cast<const PointLight*>( &aLight );
+
+		for(uint32_t i=0; i<10; i++){
+			if(!mShaderPointLights[i].active){
+				mShaderPointLights[i].active = true;
+				mShaderPointLights[i].light = light;
+				mShaderPointLights[i].index = i;
+				uploadPointLight( mShaderPointLights[i] );
+				break;
+			}
+		}
+	}
+	else if(aLight.getType() == ALight::eTYPE_DIRECTIONAL){
+		uploadDirectionalLight( dynamic_cast<const DirectionalLight*>( &aLight ) );
+	}
+	else{
+		// TODO
+	}
+}
+
+void DeferredRender::onSceneFogParamsChanged(Scene* scene, const FogDesc& desc){
+	gl::ShaderProgram* shader = &mLightShaders[eLIGHT_SHADER_DIRECTIONAL];
+
+	shader->use();
+	shader->setUniformVal("uFogParams.density", desc.density);
+	shader->setUniformVal("uFogParams.color", desc.color);
+	shader->setUniformVal("uFogParams.enabled", desc.enabled);
+}
+
+void DeferredRender::onSceneLightDeleted(Scene* scene, const ALight& aLight){
+	if(aLight.getType() == ALight::eTYPE_POINT){
+		const PointLight* light = dynamic_cast<const PointLight*>(&aLight);
 
 		ShaderPointLight* shaderLight = findShaderPointLight(light);
 		WT_ASSERT(shaderLight != NULL, "Sanity check fail");
@@ -185,46 +230,6 @@ void DeferredRender::onLightEvent(const SceneLightDeleted* evt){
 	}
 	else{
 		// TODO
-	}
-
-}
-
-void DeferredRender::onLightEvent(const SceneLightUpdated* evt){
-	const ALight* aLight = evt->light;
-
-	if(evt->type == SceneLightUpdated::eTYPE_MODIFIED){
-		if(aLight->getType() == ALight::eTYPE_POINT){
-			const PointLight* light = (const PointLight*)aLight;
-
-			ShaderPointLight* shaderLight = findShaderPointLight(light);
-			WT_ASSERT(shaderLight != NULL, "Sanity check fail");
-
-			uploadPointLight(*shaderLight);
-		}
-		else if(aLight->getType() == ALight::eTYPE_DIRECTIONAL){
-			uploadDirectionalLight((const DirectionalLight*)evt->light);
-		}
-	}
-	else if(evt->type == SceneLightUpdated::eTYPE_CREATED){
-		if(aLight->getType() == ALight::eTYPE_POINT){
-			const PointLight* light = (const PointLight*)aLight;
-
-			for(uint32_t i=0; i<10; i++){
-				if(!mShaderPointLights[i].active){
-					mShaderPointLights[i].active = true;
-					mShaderPointLights[i].light = light;
-					mShaderPointLights[i].index = i;
-					uploadPointLight( mShaderPointLights[i] );
-					break;
-				}
-			}
-		}
-		else if(aLight->getType() == ALight::eTYPE_DIRECTIONAL){
-			uploadDirectionalLight((const DirectionalLight*)evt->light);
-		}
-		else{
-			// TODO
-		}
 	}
 }
 

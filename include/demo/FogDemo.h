@@ -31,12 +31,16 @@ public:
 		getCameraControl()->handle(dt, getManager()->getInput());
 
 
+		FogDesc fog = getScene()->getFogDesc();
+
 		if(getManager()->getInput()->isKeyDown(KEY_i)){
-			getScene()->getFog().density += 0.01f * dt;
+			fog.density += 0.01f * dt;
 		}
 		else if(getManager()->getInput()->isKeyDown(KEY_o)){
-			getScene()->getFog().density -= 0.01f * dt;
+			fog.density -= 0.01f * dt;
 		}
+
+		getScene()->setFogDesc(fog);
 	}
 
 	void onKeyDown(VirtualKey c){

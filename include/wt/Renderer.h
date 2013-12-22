@@ -64,7 +64,7 @@ public:
 
 #define MATERIALS_DISABLED
 
-class Renderer : public EventListener{
+class Renderer : public Scene::IListener{
 public:
 	enum PolygonMode {
 		LINE=GL_LINE,
@@ -89,13 +89,11 @@ public:
 	};
 
 public:
-	Renderer(EventManager* eventManager);
+	Renderer(EventManager* eventManager, Scene* scene);
 
-	~Renderer();
+	virtual ~Renderer();
 
 	RenderState& getRenderState();
-
-	bool handleEvent(const Sp<Event> evt);
 
 	void attachRenderer(ARenderer* renderer);
 
@@ -137,6 +135,14 @@ public:
 
 	void setRenderAxes(bool state);
 
+	void onSceneFogParamsChanged(Scene* scene, const FogDesc& desc);
+
+	void onSceneLightUpdated(Scene* scene, const ALight& light);
+
+	void onSceneLightCreated(Scene* scene, const ALight& light);
+
+	void onSceneLightDeleted(Scene* scene, const ALight& light);
+
 private:
 	/** Render entire scene in a single pass */
 	void render(Scene& scene, ARenderer::PassType pass);
@@ -171,9 +177,8 @@ private:
 
 	void initGodray();
 
-
-	math::MatrixStack mMatStack;
 	Scene* mScene;
+	math::MatrixStack mMatStack;
 	Color mClearColor;
 	RectShader mRectShader;
 	gl::Batch mFontBatch;

@@ -171,7 +171,7 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 	mAssets->setFileSystem( FileSystemFactory::create(mDesc.fileSystem) );
 
 	// Scene renderer
-	mRenderer = new Renderer(getEventManager());
+	mRenderer = new Renderer(getEventManager(), mScene);
 
 	mRenderer->init(getWindow()->getWidth(),
 		getWindow()->getHeight()

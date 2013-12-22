@@ -483,9 +483,14 @@ public:
 			->setParam("uSize", glm::vec3(0.5, 0.5, 0.5));
 #endif
 
-		getScene()->getFog().color = Color(1, 201/255.0f, 14/255.0f);
-		getScene()->getFog().density += 0.007f;
 	
+		FogDesc fog = getScene()->getFogDesc();
+
+		fog.color = Color(1, 201/255.0f, 14/255.0f);
+		fog.density += 0.007f;
+
+		getScene()->setFogDesc(fog);
+
 		restart(eEXPERT);
 	}
 

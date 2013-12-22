@@ -59,6 +59,7 @@
    <addaction name="actionTerrain_tool"/>
    <addaction name="actionActor_tool"/>
    <addaction name="actionGodrayTool"/>
+   <addaction name="actionFogTool"/>
    <addaction name="actionToggleBones"/>
    <addaction name="actionToggleBoundingBoxes"/>
   </widget>
@@ -261,6 +262,11 @@
     <string>New animation</string>
    </property>
   </action>
+  <action name="actionFogTool">
+   <property name="text">
+    <string>Fog Tool</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -409,8 +415,24 @@
    <slot>onCameraNewAnimation()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>140</y>
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionFogTool</sender>
+   <signal>triggered()</signal>
+   <receiver>WorldEdit</receiver>
+   <slot>onToggleToolFog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -433,5 +455,6 @@
   <slot>onToggleGodrayTool()</slot>
   <slot>onClearSkybox()</slot>
   <slot>onCameraNewAnimation()</slot>
+  <slot>onToggleToolFog()</slot>
  </slots>
 </ui>

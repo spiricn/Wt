@@ -54,11 +54,16 @@ public:
 
 const char* DependencyChecker::kDEPENDENCIES = "GL_VERSION_3_3 GL_ARB_point_sprite GL_ARB_fragment_program GL_ARB_vertex_program";
 
-Renderer::Renderer(EventManager* eventManager) : mClearColor(0.5, 0, 0, 1.0f),
-	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager), mDeferredRenderer(NULL), mRenderAxes(false){
+Renderer::Renderer(EventManager* eventManager, Scene* scene) : mClearColor(0.5, 0, 0, 1.0f),
+	mRenderBones(false), mBoneWidth(3.0f), mRenderBoundingBoxes(false), mEventManager(eventManager),
+	mDeferredRenderer(NULL), mRenderAxes(false), mScene(scene){
 
+#if 0
 	mEventManager->registerListener(this, SceneLightUpdated::TYPE);
 	mEventManager->registerListener(this, SceneLightDeleted::TYPE);
+#else
+	mScene->registerListener(this);
+#endif
 }
 
 void Renderer::init(uint32_t portW, uint32_t portH ){
@@ -94,6 +99,10 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 
 	LOGV("Initializing deferred renderer");
 	mDeferredRenderer = new DeferredRender(portW, portH);
+	mScene->registerListener(mDeferredRenderer);
+
+	// TODO Cause an initial fog update using this hack (do this some other way)
+	mScene->setFogDesc( mScene->getFogDesc() );
 
 	setViewPort(portW, portH);
 
@@ -160,6 +169,13 @@ Renderer::~Renderer(){
 	}
 
 	mSceneRenderers.clear();
+
+	mScene->unregisterListener(this);
+	mScene->unregisterListener(mDeferredRenderer);
+
+	delete mDeferredRenderer;
+
+	// TODO additional cleanup
 }
 
 void Renderer::attachRenderer(ARenderer* renderer){
@@ -167,16 +183,18 @@ void Renderer::attachRenderer(ARenderer* renderer){
 	mSceneRenderers.push_back(renderer);
 }
 
-bool Renderer::handleEvent(const Sp<Event> evt){
-	if(evt->getType() == SceneLightUpdated::TYPE){
-		mDeferredRenderer->onLightEvent((const SceneLightUpdated*)evt.get());
-	}
-	else if(evt->getType() == SceneLightDeleted::TYPE){
-		mDeferredRenderer->onLightEvent((const SceneLightDeleted*)evt.get());
-	}
-
-	return false;
+void Renderer::onSceneFogParamsChanged(Scene* scene, const FogDesc& desc){
 }
+
+void Renderer::onSceneLightUpdated(Scene* scene, const ALight& light){
+}
+
+void Renderer::onSceneLightCreated(Scene* scene, const ALight& light){
+}
+
+void Renderer::onSceneLightDeleted(Scene* scene, const ALight& light){
+}
+
 void Renderer::initGodray(){
 	{ // Godray setup
 		
