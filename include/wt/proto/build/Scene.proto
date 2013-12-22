@@ -1,0 +1,160 @@
+package wt.pb;
+
+import "Common.proto";
+
+enum PxActorType{
+	ePX_TYPE_DYNAMIC = 0;
+	ePX_TYPE_STATIC = 1;
+}
+
+enum PxControlMode{
+	eCTRL_MODE_PHYSICS = 0;
+	eCTRL_MODE_CONTROLLER = 1;
+}
+
+
+enum PxControlGeometry{
+	eCTRL_GEOMETRY_CAPSULE = 0;
+	eCTRL_GEOMETRY_BOX = 1;
+}
+
+enum PxGeometry{
+	eGEOMETRY_BOX = 0;
+	eGEOMETRY_SPHERE = 1;
+	eGEOMETRY_HEIGHTMAP = 2;
+	eGEOMETRY_MESH = 3;
+	eGEOMETRY_PLANE = 4;
+}
+
+message CapsuleGeometry{
+	required float radius = 1;
+	required float height = 2;
+}
+	
+message BoxGeometry{
+	required Vec3 extents = 1;
+}
+	
+message SphereGeometry{
+	required float radius = 1;
+}
+	
+message ControllerDesc{
+	required PxControlGeometry geometry_type = 1;
+	optional CapsuleGeometry capsule = 2;
+	optional BoxGeometry box = 3;
+}
+
+message ColliderDesc{	
+	required PxGeometry geometry_type = 1;
+	optional BoxGeometry box = 2;
+	optional SphereGeometry sphere = 3;
+}
+
+message PhysicsActor{
+	required PxActorType type = 1;
+	required uint32 group = 2;
+	required uint32 collision_mask = 3;	
+	required PxControlMode control_mode = 4;
+	optional ColliderDesc collider = 5;
+	optional ControllerDesc controller = 6;
+}
+
+enum ActorType{
+	eTYPE_MODELLED = 0;
+	eTYPE_TERRAIN = 1;
+	eTYPE_PARTICLE = 2;
+	eTYPE_POINT_LIGHT = 3;
+	eTYPE_SOUND = 4;
+}
+	
+message SceneActorBase{
+	required Transform transform = 1;
+	required string name = 2;
+	required Vec3 bounding_box = 3;
+}
+
+message ModelledActor{
+	required SceneActorBase base = 1;
+	required string model = 2;
+	required string skin = 3;
+	optional string animation = 4;
+	optional bool animation_loop = 5;
+	optional float animation_position = 6;
+	optional float animation_speed = 7;
+	optional PhysicsActor physics_actor = 8;
+}
+
+message PointLight{
+	message Attenuation{
+		required float constant = 1;
+		required float linear = 2;
+		required float exponential = 3;
+	}
+	required SceneActorBase base = 1;
+	
+	required Attenuation attenuation = 2;
+	required Color color = 3;
+	required float ambient_intensity = 4;
+	required float diffuse_intensity = 5;
+}
+
+message Sound{
+	required SceneActorBase base = 1;
+	
+	required string source = 2;
+	required float attenuation = 3;
+	required float minimum_distance = 4;
+	required float volume = 5;
+	required float pitch = 6;
+}
+
+message ParticleEffect{
+	required SceneActorBase base = 1;
+	
+	required string source = 2;
+}
+
+message Terrain{
+	required SceneActorBase base = 1;
+	
+	required uint32 verts_per_chunk = 2;
+	required uint32 size = 3;
+	required float height_scale = 4;
+	required float row_scale = 5;
+	required float column_scale = 6;
+	required string chunks = 7;
+	required string map = 8;
+	required string texture1 = 9;
+	required string texture2 = 10;
+	required string texture3 = 11;
+}
+
+message Skybox{
+	required string pos_x = 1;
+	required string neg_x = 2;
+	required string pos_y = 3;
+	required string neg_y = 4;
+	required string pos_z = 5;
+	required string neg_z = 6;
+}
+
+message SceneActor{
+	required ActorType type = 1;
+	optional Terrain terrain = 2;
+	optional ParticleEffect particle_effect = 3;
+	optional ModelledActor modelled_actor = 4;
+	optional PointLight point_light = 5;
+	optional Sound sound = 6;
+}
+
+message Camera{
+	required Vec3 position = 1;
+	required Vec4 rotation = 2;
+}
+
+message Scene{
+	repeated SceneActor actors = 1;
+	optional string skybox = 2;
+	required Camera camera = 3;
+}

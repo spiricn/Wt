@@ -148,6 +148,11 @@ struct TerrainDesc{
 	}
 };
 
+namespace pb
+{
+	class Terrain;
+} // </pb>
+
 class Terrain : public ASceneActor{
 public:
 WT_DISALLOW_COPY(Terrain);
@@ -227,6 +232,10 @@ public:
 	TextureArray* getTerrainTexture() const;
 
 	const TerrainNode* getRootNode() const;
+
+	void serialize(pb::Terrain* dst);
+
+	void deserialize(AResourceSystem* assets, const pb::Terrain& src);
 
 }; // </Terrain>
 

@@ -14,7 +14,13 @@
 #include "wt/Transform.h"
 #include "wt/AResourceLoader.h"
 
-namespace wt{
+namespace wt
+{
+
+namespace pb
+{
+	class Skybox;
+} // </pb>
 
 class SkyBoxLoader;
 
@@ -36,13 +42,7 @@ public:
 
 
 protected:
-
-	void setImageManager(ImageManager* imageManager){
-		mImageManager = imageManager;
-	}
-
 private:
-	ImageManager* mImageManager;
 	typedef struct{
 		GLfloat x,y,z;
 	} Vertex;
@@ -94,6 +94,10 @@ public:
 
 	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
+	void serialize(pb::Skybox* dst);
+
+	void deserialize(const pb::Skybox& dst);
+
 	gl::Batch& getBatch();
 };
 
@@ -106,14 +110,6 @@ private:
 
 public:
 	SkyBoxManager(AResourceSystem* assets) : AResourceManager(assets){
-	}
-
-	SkyBox* create(const String& name){
-		SkyBox* res = AResourceManager<SkyBox>::create(name);
-
-		res->setImageManager( (ImageManager*)getResourceSystem()->getImageManager() );
-
-		return res;
 	}
 };
 

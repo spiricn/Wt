@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 #include "wt/SkyBox.h"
 #include "wt/ImageManager.h"
+#include "wt/proto/Scene.pb.h"
 
 #define TD_TRACE_TAG "SkyBox"
 
@@ -17,6 +18,28 @@ SkyBox::~SkyBox(){
 
 void SkyBox::bind(){
 	glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture);
+}
+
+void SkyBox::serialize(pb::Skybox* dst){
+	*dst->mutable_pos_x() = mPosX.getPath();
+	*dst->mutable_neg_x() = mNegX.getPath();
+
+	*dst->mutable_pos_y() = mPosY.getPath();
+	*dst->mutable_neg_y() = mNegY.getPath();
+
+	*dst->mutable_pos_z() = mPosZ.getPath();
+	*dst->mutable_neg_z() = mNegZ.getPath();
+}
+
+void SkyBox::deserialize(const pb::Skybox& src){
+	setImages(
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.pos_x()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.neg_x()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.pos_y()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.neg_y()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.pos_z()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.neg_z())
+	);
 }
 
 void SkyBox::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
@@ -38,12 +61,12 @@ void SkyBox::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 
 void SkyBox::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 	setImages(
-		mImageManager->getFromPath(table.Get("map").Get("pos_x").ToString()),
-		mImageManager->getFromPath(table.Get("map").Get("neg_x").ToString()),
-		mImageManager->getFromPath(table.Get("map").Get("pos_y").ToString()),
-		mImageManager->getFromPath(table.Get("map").Get("neg_y").ToString()),
-		mImageManager->getFromPath(table.Get("map").Get("pos_z").ToString()),
-		mImageManager->getFromPath(table.Get("map").Get("neg_z").ToString())
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("pos_x").ToString()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("neg_x").ToString()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("pos_y").ToString()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("neg_y").ToString()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("pos_z").ToString()),
+		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("neg_z").ToString())
 		);
 }
 

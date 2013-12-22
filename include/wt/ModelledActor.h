@@ -9,6 +9,8 @@
 #include "wt/lua/Object.h"
 #include "wt/ATransformable.h"
 
+#include "wt/proto/Scene.pb.h"
+
 namespace wt{
 
 
@@ -60,7 +62,7 @@ public:
 	struct DeserializationData{
 		PhysicsActor::Desc pxDesc;
 		bool phyiscs;
-	};
+	}; // </DeserializationData>
 
 	SkeletalAnimationPlayer* blendToAnimation(const String& name, float time, bool loopBlended);
 	
@@ -79,6 +81,10 @@ public:
 	void getTranslation(glm::vec3& result) const;
 
 	void getRotation(glm::quat& result) const;
+
+	void serialize(pb::ModelledActor* dst);
+
+	void deserialize(AResourceSystem* assets, const pb::ModelledActor& src);
 
 private:
 	typedef std::vector<SkeletalAnimationPlayer*> AnimationChannelList;

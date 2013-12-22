@@ -15,7 +15,7 @@
 #include "wt/lua/LuaModule.h"
 #include "wt/lua/LuaBindings.h"
 #include "wt/TransformableAnimator.h"
-
+#include "wt/PbSceneLoader.h"
 
 namespace wt
 {
@@ -35,8 +35,8 @@ public:
 		getScene()->getCamera().getForwardVector(fw);
 		getScene()->getCamera().getTranslation(eyePos);
 
-		getAssets()->getSoundSystem()->setListenerForwardVec(fw);
-		getAssets()->getSoundSystem()->setListenerPosition(eyePos);
+		/*getAssets()->getSoundSystem()->setListenerForwardVec(fw);
+		getAssets()->getSoundSystem()->setListenerPosition(eyePos);*/
 
 		getPhysics()->update(dt);
 		getScene()->update(dt);
@@ -49,6 +49,16 @@ public:
 
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
+
+		
+
+		PbSceneLoader loader(getAssets(), getScene());
+
+		loader.save("test.wtpbs");
+
+		getScene()->clear();
+
+		loader.load("test.wtpbs");
 	}
 
 	String getScriptPath() const{

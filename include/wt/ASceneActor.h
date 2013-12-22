@@ -8,9 +8,15 @@
 
 namespace wt{
 
-namespace lua{
+namespace lua
+{
 	class State;
 };
+
+namespace pb
+{
+	class SceneActorBase;
+} // </pb>
 
 class PhysicsActor;
 class Scene;
@@ -111,6 +117,10 @@ public:
 	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
 
 	virtual void destroy();
+
+	void serialize(pb::SceneActorBase* dst);
+
+	void deserialize(const pb::SceneActorBase& src);
 
 private:
 	typedef std::vector<ASceneActor*> ActorList;

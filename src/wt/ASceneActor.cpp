@@ -2,6 +2,9 @@
 #include "wt/ASceneActor.h"
 #include "wt/PhysicsActor.h"
 #include "wt/Scene.h"
+#include "wt/ATransformable.h"
+
+#include "wt/Pb.h"
 
 namespace wt{
 
@@ -9,6 +12,25 @@ namespace wt{
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
 	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL),
 	mBoundingBoxColor(Color::Green()), mLuaState(NULL), mVisible(true){
+}
+
+
+void ASceneActor::serialize(pb::SceneActorBase* dst){
+	// Transform
+	pb::conv(*getTransformable(), dst->mutable_transform());
+
+	// Name
+	dst->set_name(mName);
+
+	// Bounding box
+	glm::vec3 bbox(1, 1, 1);
+	pb::conv(bbox, dst->mutable_bounding_box());
+}
+
+void ASceneActor::deserialize(const pb::SceneActorBase& src){
+	pb::conv(src.transform(), getTransformable());
+
+	mName = src.name();
 }
 
 bool ASceneActor::isVisible() const{
@@ -135,7 +157,6 @@ void ASceneActor::setUserData(void* data){
 
 PhysicsActor* ASceneActor::getPhysicsActor(){
 	return mPhysicsActor;
-	//return NULL;
 }
 
 void ASceneActor::setPhysicsActor(PhysicsActor* actor){

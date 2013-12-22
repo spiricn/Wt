@@ -83,7 +83,33 @@ int main(){
 
 #else
 
+
+class IBase{
+};
+
+template<class T>
+class Base : public IBase{
+public:
+	void baseCall(T* obj){
+		LOGI("%p", obj);
+	}
+};
+
+class Derived : public Base<int>{
+public:
+
+};
+
+template<class A, class B>
+void test(A* obj, B* arg){
+	
+	obj->baseCall(arg);
+}
+
 int main(){
+	int a = 3;
+	Derived d;
+	test(&d, &a);
 }
 
 #endif

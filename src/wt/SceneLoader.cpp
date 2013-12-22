@@ -25,6 +25,7 @@ void SceneLoader::load(AIOStream& stream){
 		WT_THROW("Invalid scene description table (\"SCENE\" table missing)");
 	}
 
+	// Actors
 	for(LuaTableIterator iter(table.Get("ACTORS")); iter; iter.Next()){
 		LuaObject& actorDesc = iter.GetValue();
 
