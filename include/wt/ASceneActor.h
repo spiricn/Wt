@@ -29,14 +29,22 @@ public:
 	};
 
 	struct AttachPoint{
-		const ASceneActor* actor;
+		ASceneActor* actor;
 		String pointId;
 
 		AttachPoint() : actor(NULL), pointId(""){
 		}
 	}; // </AttachPoint>
 
-public:
+	struct AttachDesc{
+		ASceneActor* src;
+		ASceneActor* dst;
+		String pointId;
+
+		AttachDesc() : src(NULL), dst(NULL){
+		}
+	}; // </AttachDesc>
+
 	void detach();
 
 	lua::State* getLuaState();
@@ -80,7 +88,7 @@ public:
 
 	virtual bool validAttachPoint(const String& pointId) const;
 
-	bool attach(const ASceneActor* actor, const String& pointId);
+	bool attach(ASceneActor* actor, const String& pointId);
 
 	void setUserData(void* data);
 
@@ -105,6 +113,9 @@ public:
 	virtual void destroy();
 
 private:
+	typedef std::vector<ASceneActor*> ActorList;
+	ActorList mAttachedActors;
+
 	lua::State* mLuaState;
 
 	/** Owner of the actor (scene which created it) */

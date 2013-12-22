@@ -5,18 +5,10 @@
 
 namespace wt{
 
-void AIOStream::setMode(Mode mode){
-	mMode = mode;
-}
-
-AIOStream::AIOStream() : mMode(eMODE_NONE){
+AIOStream::AIOStream(){
 }
 
 AIOStream::~AIOStream(){
-}
-
-AIOStream::Mode AIOStream::getMode() const{
-	return mMode;
 }
 
 int16_t AIOStream::get(){

@@ -33,11 +33,11 @@ public:
 
 	SkeletalAnimationPlayer* getAnimationPlayer() const;
 
-	Model::GeometrySkin* getSkin() const;
+	ModelSkin* getSkin() const;
 
 	void setSkin(const String& name);
 
-	void setSkin(Model::GeometrySkin* skin);
+	void setSkin(ModelSkin* skin);
 
 	bool validAttachPoint(const String& pointId) const;
 
@@ -87,7 +87,7 @@ private:
 	Buffer<glm::mat4> mBoneMatrices;
 
 	Model* mModel;
-	Model::GeometrySkin* mSkin;
+	ModelSkin* mSkin;
 	SkeletalAnimationPlayer* mAnimationPlayer;
 	math::Transform mTransform;
 

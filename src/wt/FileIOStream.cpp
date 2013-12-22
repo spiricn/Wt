@@ -17,11 +17,15 @@ FileIOStream::FileIOStream() : mFile(NULL), mFileOwned(false), mIStream(NULL), m
 }
 
 FileIOStream::FileIOStream(std::ostream& stdstream) : mFile(NULL), mFileOwned(false), mOStream(&stdstream), mIStream(NULL){
-	setMode(eMODE_WRITE);
+	mMode = eMODE_WRITE;
+}
+
+AIOStream::Mode FileIOStream::getMode() const{
+	return mMode;
 }
 
 FileIOStream::FileIOStream(std::istream& stdstream) : mFile(NULL), mFileOwned(false), mOStream(NULL), mIStream(&stdstream){
-	setMode(eMODE_READ);
+	mMode = eMODE_READ;
 }
 
 FileIOStream::FileIOStream(FILE* fd, Mode mode) : mFile(fd), mFileOwned(false), mIStream(NULL), mOStream(NULL){
@@ -45,7 +49,7 @@ void FileIOStream::open(const String& path, Mode mode){
 
 	mFileOwned = true;
 	
-	setMode(mFile ? mode : eMODE_NONE);
+	mMode = mFile ? mode : eMODE_INVALID;
 }
 
 void FileIOStream::close(){

@@ -1,7 +1,6 @@
 #ifndef WT_EVENT_H
 #define WT_EVENT_H
 
-
 #include "wt/stdafx.h"
 
 #include "wt/HashedString.h"
@@ -9,91 +8,43 @@
 #include "wt/Sp.h"
 #include "wt/lua/State.h"
 
-namespace wt{
+namespace wt
+{
 
 typedef HashedString EvtType;
 
-class EventManager;
-
 class Event{
-friend class EventManager;
-
-private:
-	LuaObject mLuaData;
-	bool mLuaDataBuilt;
-	uint32_t mEmitterData;
-
-protected:
-
-	virtual void serialize(LuaObject& dst){
-	}
-
-	virtual void deserialize(LuaObject& src){
-	}
-
-	virtual void buildLuaData(lua::State* luaState){
-		if(!mLuaDataBuilt){
-			mLuaData = luaState->newTable();
-
-			mLuaData.Set("eventType", getType().getString().c_str());
-
-			serialize(mLuaData);
-			mLuaDataBuilt=true;
-		}
-	}
-
 public:
-	Event() : mLuaDataBuilt(false){
-	}
+	Event();
 
-	Event(LuaObject& data) : mLuaDataBuilt(true), mLuaData(data){
-	}
+	Event(LuaObject& data);
 
-	uint32_t getEmitterData() const{
-		return mEmitterData;
-	}
+	uint32_t getEmitterData() const;
 
-	void setEmitterData(uint32_t data){
-		mEmitterData = data;
-	}
+	void setEmitterData(uint32_t data);
 
-	virtual ~Event(){
-	}
+	virtual ~Event();
 
 	virtual const EvtType& getType() const = 0;
 
-	virtual const LuaObject& getLuaData(){
-		WT_ASSERT(mLuaDataBuilt, "Lua data not built");
+	virtual const LuaObject& getLuaData();
 
-		return mLuaData;
-	}
+protected:
+	virtual void serialize(LuaObject& dst);
 
+	virtual void deserialize(LuaObject& src);
+
+	virtual void buildLuaData(lua::State* luaState);
+
+private:
+	friend class EventManager;
+
+	LuaObject mLuaData;
+	bool mLuaDataBuilt;
+	uint32_t mEmitterData;
 }; // </Event>
 
 typedef Sp<Event> EvtPtr;
-
-class ScriptEvent : public Event{
-private:
-	EvtType mEventType;
-	LuaObject mData;
-
-	void serialize(LuaObject& dst){
-		dst = mData;
-	}
-
-	void deserialize(LuaObject& src){
-		mData = src;
-	}
-
-public:
-	ScriptEvent(EvtType type, LuaObject& data) : mEventType(type), Event(data){
-	}
-
-	const EvtType& getType() const {
-		return mEventType;
-	}
-
-}; // </ScriptEvent>
 
 }; // </wt>
 

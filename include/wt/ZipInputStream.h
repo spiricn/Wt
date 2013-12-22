@@ -36,8 +36,11 @@ public:
 
 	void flush();
 
+	AIOStream::Mode getMode() const;
+
 private:
 	PHYSFS_file* mFile;
+	AIOStream::Mode mMode;
 
 }; // </ZipInputStream>
 

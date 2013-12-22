@@ -12,7 +12,7 @@
 #define TD_TRACE_TAG "ActorEditTool"
 
 ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager, wt::AResourceSystem* assets)
-	: QDialog(parent),  ATool(toolManager), mAssets(assets), mSelectedActor(NULL){
+	: QDialog(parent),  ATool(toolManager), mAssets(assets), mSelectedActor(NULL), mState(eSTATE_NORMAL){
     ui.setupUi(this);
 
 	mSceneView = sceneView;
@@ -72,6 +72,20 @@ void ActorEditTool::onBeforeSceneUnload(){
 	selectActor(NULL);
 }
 
+void ActorEditTool::onAttachBoneChanged(QString bone){
+	if(!mSelectedActor || !mAttachActor){
+		return;
+	}
+
+	mSelectedActor->attach(mAttachActor, bone.toStdString());
+}
+
+void ActorEditTool::onAttach(){
+}
+
+void ActorEditTool::onPickAttachActor(){
+	mState = eSTATE_PICK_ATTACH_ACTOR;
+}
 
 void ActorEditTool::onTranslationChanged(){
 	if(isToolFocused() && mSelectedActor){
@@ -370,118 +384,154 @@ void ActorEditTool::onAttenuationChanged(){
 }
 
 void ActorEditTool::selectActor(wt::ASceneActor* actor){
-	if(mSelectedActor){
-		mSelectedActor->setBoundingBoxColor(wt::Color::Green());
-	}
-
-	mSelectedActor = actor;
-
-	ui.transform->setEnabled(actor!=NULL);
-
-	if(!actor){
-		return;
-	}
-
-	mSelectedActor->setBoundingBoxColor(wt::Color::Red());
-
-	wt::Scene& scene = *mScene;
-
-	glm::vec3 pos;
-	mSelectedActor->getTransformable()->getTranslation(pos);
-
-	glm::vec3 eyePos;
-	mScene->getCamera().getTranslation(eyePos);
-
-	/*glm::vec3 dir = glm::normalize(pos - eyePos);
-	float distance = glm::length(pos - eyePos);
-	const float d=50.0f;
-	if(distance > d){
-		mScene->getCamera().setTranslation(
-			pos - dir*d);
-	}
-
-	mScene->getCamera().lookAt(pos);*/
-
-	if(actor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
-		// We don't want this to emit a signal
-		ui.comboBoxAnimation->blockSignals(true);
-		ui.comboBoxAnimation->clear();
-
-		ui.comboBoxAnimation->setEnabled(true);
-		ui.comboBoxAnimation->addItem("none");
-
-		wt::ModelledActor* modelledActor = static_cast<wt::ModelledActor*>(actor);
-
-		if(static_cast<wt::ModelledActor*>(actor)->getModel()){
-			// Populate the animation combo box with the current actors animations
-			uint32_t index = 1;
-			int32_t activeIndex = -1;
-			for(wt::Model::AnimationMap::iterator i=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().begin(); i!=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().end(); i++){
-				ui.comboBoxAnimation->addItem(i->first.c_str());
-
-				if(modelledActor->getAnimationPlayer()->getCurrentAnimation() == i->second){
-					activeIndex = index;
-				}
-
-				++index;
-			}
-
-			ui.comboBoxAnimation->blockSignals(false);
-
-			if(activeIndex > 0){
-				ui.comboBoxAnimation->setCurrentIndex(activeIndex);
-			}
+	if(mState == eSTATE_NORMAL){
+		if(mSelectedActor){
+			mSelectedActor->setBoundingBoxColor(wt::Color::Green());
 		}
 
-		ui.stackedWidget->setCurrentIndex(0);
+		mSelectedActor = actor;
 
-		ui.comboBoxAnimation->blockSignals(false);
-	}
-	else if(actor->getActorType() == wt::ASceneActor::eTYPE_PARTICLE_EFFECT){
-		ui.stackedWidget->setCurrentIndex(1);
-	}
-	else if(actor->getActorType() == wt::ASceneActor::eTYPE_POINT_LIGHT){
-		ui.stackedWidget->setCurrentIndex(2);
+		ui.transform->setEnabled(actor!=NULL);
 
-		const wt::PointLight* light = static_cast<const wt::PointLight*>(actor);
+		if(!actor){
+			return;
+		}
+
+		mSelectedActor->setBoundingBoxColor(wt::Color::Red());
+
+		wt::Scene& scene = *mScene;
+
+		glm::vec3 pos;
+		mSelectedActor->getTransformable()->getTranslation(pos);
+
+		glm::vec3 eyePos;
+		mScene->getCamera().getTranslation(eyePos);
+
+		/*glm::vec3 dir = glm::normalize(pos - eyePos);
+		float distance = glm::length(pos - eyePos);
+		const float d=50.0f;
+		if(distance > d){
+			mScene->getCamera().setTranslation(
+				pos - dir*d);
+		}
+
+		mScene->getCamera().lookAt(pos);*/
+
+		if(actor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
+			// We don't want this to emit a signal
+			ui.comboBoxAnimation->blockSignals(true);
+			ui.comboBoxAnimation->clear();
+
+			ui.comboBoxAnimation->setEnabled(true);
+			ui.comboBoxAnimation->addItem("none");
+
+			wt::ModelledActor* modelledActor = static_cast<wt::ModelledActor*>(actor);
+
+			if(static_cast<wt::ModelledActor*>(actor)->getModel()){
+				// Populate the animation combo box with the current actors animations
+				uint32_t index = 1;
+				int32_t activeIndex = -1;
+				for(wt::Model::AnimationMap::iterator i=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().begin(); i!=static_cast<wt::ModelledActor*>(actor)->getModel()->getAnimations().end(); i++){
+					ui.comboBoxAnimation->addItem(i->first.c_str());
+
+					if(modelledActor->getAnimationPlayer()->getCurrentAnimation() == i->second){
+						activeIndex = index;
+					}
+
+					++index;
+				}
+
+				ui.comboBoxAnimation->blockSignals(false);
+
+				if(activeIndex > 0){
+					ui.comboBoxAnimation->setCurrentIndex(activeIndex);
+				}
+			}
+
+			ui.stackedWidget->setCurrentIndex(0);
+
+			ui.comboBoxAnimation->blockSignals(false);
+		}
+		else if(actor->getActorType() == wt::ASceneActor::eTYPE_PARTICLE_EFFECT){
+			ui.stackedWidget->setCurrentIndex(1);
+		}
+		else if(actor->getActorType() == wt::ASceneActor::eTYPE_POINT_LIGHT){
+			ui.stackedWidget->setCurrentIndex(2);
+
+			const wt::PointLight* light = static_cast<const wt::PointLight*>(actor);
 		
-		ui.lightAttenuation->setValue(glm::vec3(
-			light->getDesc().attenuation.constant,
-			light->getDesc().attenuation.linear,
-			light->getDesc().attenuation.quadratic
-		));
+			ui.lightAttenuation->setValue(glm::vec3(
+				light->getDesc().attenuation.constant,
+				light->getDesc().attenuation.linear,
+				light->getDesc().attenuation.quadratic
+			));
 
-		ui.lightColor->setColor(
-			light->getDesc().color
-		);
+			ui.lightColor->setColor(
+				light->getDesc().color
+			);
 
-		ui.lightAmbientIntensity->setValue(
-			light->getDesc().ambientIntensity
-		);
+			ui.lightAmbientIntensity->setValue(
+				light->getDesc().ambientIntensity
+			);
 
-		ui.lightDiffuseIntensity->setValue(
-			light->getDesc().diffuseIntensity
-		);
+			ui.lightDiffuseIntensity->setValue(
+				light->getDesc().diffuseIntensity
+			);
+		}
+		else if(actor->getActorType() == wt::ASceneActor::eTYPE_SOUND){
+			ui.stackedWidget->setCurrentIndex(3);
+
+			const wt::Sound* sound = dynamic_cast<const wt::Sound*>(actor);
+
+			ui.volume->setValue( sound->getSound()->getVolume()*100.0f );
+
+			ui.attenuation->setValue( sound->getSound()->getAttenuation() );
+
+			ui.minDistance->setValue( sound->getSound()->getMinimumDistance() );
+
+			ui.pitch->setValue( sound->getSound()->getPitch() );
+		}
+		else{
+			WT_THROW("Unsupported actor type");
+		}
+
+		// Update tarnsform information
+		updateSelectionStats();
 	}
-	else if(actor->getActorType() == wt::ASceneActor::eTYPE_SOUND){
-		ui.stackedWidget->setCurrentIndex(3);
+	else if(mState == eSTATE_PICK_ATTACH_ACTOR){
+		LOGI("eSTATE_PICK_ATTACH_ACTOR");
+		if(actor == NULL){
+			mAttachActor = NULL;
+		}
 
-		const wt::Sound* sound = dynamic_cast<const wt::Sound*>(actor);
+		if(actor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
+			 mAttachActor = dynamic_cast<wt::ModelledActor*>(actor);
 
-		ui.volume->setValue( sound->getSound()->getVolume()*100.0f );
+			 
 
-		ui.attenuation->setValue( sound->getSound()->getAttenuation() );
+			 if(mAttachActor->getModel()->hasSkeleton()){
+				 QList<wt::SkeletonBone*> bones;
+				 bones << mAttachActor->getModel()->getSkeleton();
 
-		ui.minDistance->setValue( sound->getSound()->getMinimumDistance() );
+				 ui.attachBone->clear();
 
-		ui.pitch->setValue( sound->getSound()->getPitch() );
+				 while(!bones.empty()){
+					 wt::SkeletonBone* bone = bones.front();
+					 bones.pop_front();
+
+					 for(uint32_t i=0; i<bone->getNumChildren(false); i++){
+						 bones.push_back(bone->getChildAt(i));
+					 }
+
+					 QString boneName = QString(bone->getName().c_str());
+					 ui.attachBone->addItem( boneName );
+				 }
+			 }
+		}
+		
+		mState = eSTATE_NORMAL;
+		
 	}
-	else{
-		WT_THROW("Unsupported actor type");
-	}
-
-	// Update tarnsform information
-	updateSelectionStats();
 }
 
 

@@ -27,11 +27,20 @@ public:
     ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager*, wt::AResourceSystem* assets);
 
 private:
+	enum State{
+		eSTATE_IVNALID = -1,
+
+		eSTATE_NORMAL,
+		eSTATE_PICK_ATTACH_ACTOR
+	}; // </State>
+
+	State mState;
     Ui::ActorEditTool ui;
 	SceneView* mSceneView;
 	wt::Scene* mScene;
 	wt::Physics* mPhysics;
 	wt::AResourceSystem* mAssets;
+	wt::ModelledActor* mAttachActor;
 
 	ParticleEditDialog* mParticleEditDialog;
 
@@ -46,6 +55,11 @@ private:
 	void editActor();
 
 protected slots:
+	void onAttachBoneChanged(QString);
+
+	void onAttach();
+
+	void onPickAttachActor();
 
 	void onBeforeSceneUnload();
 

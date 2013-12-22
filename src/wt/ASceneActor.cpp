@@ -20,6 +20,16 @@ void ASceneActor::setVisible(bool state){
 }
 
 void ASceneActor::detach(){
+	if(mAttachPoint.actor == NULL){
+		// Not attached to any actors
+		return;
+	}
+
+	ActorList::iterator iter = std::find(mAttachPoint.actor->mAttachedActors.begin(), mAttachPoint.actor->mAttachedActors.end(), this);
+	WT_ASSERT(iter != mAttachPoint.actor->mAttachedActors.end(), "Sanity check");
+
+	mAttachPoint.actor->mAttachedActors.erase(iter);
+
 	mAttachPoint.actor = NULL;
 	mAttachPoint.pointId = "";
 }
@@ -101,13 +111,14 @@ bool ASceneActor::validAttachPoint(const String& pointId) const{
 	return pointId.size() == 0;
 }
 
-bool ASceneActor::attach(const ASceneActor* actor, const String& pointId){
+bool ASceneActor::attach(ASceneActor* actor, const String& pointId){
 	if(!actor->validAttachPoint(pointId)){
 		return false;
 	}
 	else{
 		mAttachPoint.actor = actor;
 		mAttachPoint.pointId = pointId;
+		actor->mAttachedActors.push_back(this);
 		return true;
 	}
 }
@@ -135,6 +146,17 @@ bool ASceneActor::hasUserData() const{
 }
 
 ASceneActor::~ASceneActor(){
+	// Detach from any actors currently attached to
+	detach();
+
+	// Since detaching attached actors from us will modifiy mAttachedActor list we need a copy of it for iteration
+	ActorList tmp;
+	std::copy(mAttachedActors.begin(), mAttachedActors.end(), tmp.begin());
+
+	// Detach all attached actors from us
+	for(ActorList::iterator iter=tmp.begin(); iter!=tmp.end(); iter++){
+		(*iter)->detach();
+	}
 }
 
 uint32_t ASceneActor::getId() const{

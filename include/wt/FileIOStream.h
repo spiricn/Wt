@@ -43,10 +43,13 @@ public:
 	bool isSeekable();
 
 	void flush();
+
+	AIOStream::Mode getMode() const;
 private:
 	FILE* mFile;
 	std::ostream* mOStream;
 	std::istream* mIStream;
+	AIOStream::Mode mMode;
 
 	bool mFileOwned;
 }; // </FileInputStream>

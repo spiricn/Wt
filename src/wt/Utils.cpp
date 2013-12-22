@@ -78,16 +78,42 @@ bool endsWith(const String& fullString, const String& ending){
 }
 
 String print(const char* fmt, ...){
+	int bfrSize = 64;
+
+	char* bfr = static_cast<char*>( malloc(bfrSize) );
+	if(bfr == NULL){
+		WT_THROW("Out of memory");
+	}
+
 	va_list args;
 	va_start(args, fmt);
 
-	char bfr[1024] = { 0 };
+	String res;
+	int rc = 0;
 
-	vsnprintf(bfr, 1024, fmt, args);
+	do{
+		rc = vsnprintf(bfr, bfrSize, fmt, args);
+
+		if(rc >= 0 && rc < bfrSize){
+			res = bfr;
+		}
+		else{
+			bfrSize += bfrSize;
+			char* tmp = static_cast<char*>( realloc(bfr, bfrSize) );
+			if(tmp == NULL){
+				WT_THROW("Out of memory");
+			}
+			else{
+				bfr = tmp;
+			}
+		}
+	}while(rc<0 || rc >= bfrSize);
+
+	free(bfr);
 
 	va_end(args);
 
-	return bfr;
+	return res;
 }
 
 String formatSize(uint64_t size){

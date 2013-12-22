@@ -9,7 +9,7 @@
 
 namespace wt{
 	class Model;
-	class Model::GeometrySkin;
+	class ModelSkin;
 }
 
 class ActorCreationDialog : public QDialog{

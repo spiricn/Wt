@@ -28,7 +28,7 @@ struct ImportData{
 	wt::Model* model;
 	wt::AssimpModelLoader::TextureMap textureMap;
 	QString modelName;
-	wt::Model::GeometrySkin* skin;
+	wt::ModelSkin* skin;
 	wt::TextureGroup* textureGroup;
 };
 

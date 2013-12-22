@@ -83,12 +83,6 @@ void ADemo::createDemo(DemoManager* manager, AGameWindow* window, AGameInput* in
 	}
 
 	mAssets = new Assets;
-
-	{
-		fsDesc.type = AFileSystem::eTYPE_REMOTE;
-		fsDesc.remote.root = "";
-	}
-
 	mAssets->setFileSystem( FileSystemFactory::create(fsDesc) );
 
 	// Initialize PhysX

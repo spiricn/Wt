@@ -113,20 +113,6 @@ void WtEditor::onOpenGLContextCreated(){
 
 	showMaximized();
 
-#if 0
-	// Debug scene/assets
-
-#define DEBUG_WORKSPACE "d:/Documents/prog/c++/workspace/Wt/workspace"
-
-	switchWorkspace(DEBUG_WORKSPACE "/");
-
-	loadAssets(DEBUG_WORKSPACE "/assets.wtr");
-
-	loadScene(DEBUG_WORKSPACE "/simple_scene.wts");
-
-#undef DEBUG_WORKSPACE
-
-#else
 	if(mCmdArg.size()){
 		LOGI("Loading config from file \"%s\"", mCmdArg.toStdString().c_str());
 
@@ -148,16 +134,9 @@ void WtEditor::onOpenGLContextCreated(){
 			root.c_str(), assets.c_str(), scene.c_str());
 
 		switchWorkspace(root.c_str());
-#if 0
-		loadAssets(wt::utils::print("%s/%s", root.c_str(), assets.c_str()).c_str());
-		loadScene(wt::utils::print("%s/%s", root.c_str(), scene.c_str()).c_str());
-#else
 		loadAssets(assets.c_str());
 		loadScene(scene.c_str());
-#endif
-
 	}
-#endif
 }
 
 WtEditor::~WtEditor(){

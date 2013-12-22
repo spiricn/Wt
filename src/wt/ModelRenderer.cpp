@@ -147,8 +147,6 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 			continue;
 		}
 
-		mShader.use();
-
 		// Upload skinning matrices
 		if(actor->getAnimationPlayer()){
 			mShader.setUniformVal("uBones",
@@ -167,9 +165,10 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 		((ModelledActor*)actor)->getTransformable()->getTransformMatrix(modelMat);
 		mShader.setUniformVal("uModelMat", modelMat);
 
-		for(Model::GeometrySkin::MeshList::iterator i=actor->getSkin()->getMeshList().begin(); i!=actor->getSkin()->getMeshList().end(); i++){
+		for(ModelSkin::MeshList::iterator i=actor->getSkin()->getMeshListBeg(); i!=actor->getSkin()->getMeshListEnd(); i++){
+			ModelSkin::Mesh* mesh = *i;
 			// Use the material if the mesh has one
-			Texture2D* texture = i->texture;
+			Texture2D* texture = mesh->texture;
 
 			gl(ActiveTexture(GL_TEXTURE0));
 
@@ -181,10 +180,10 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 				mInvalidTexture.bind();
 			}
 
-			if(i->normalMap){
+			if(mesh->normalMap){
 				gl(ActiveTexture(GL_TEXTURE1));
 				mShader.setUniformVal("uUseNormalMap", 1);
-				i->normalMap->bind();
+				mesh->normalMap->bind();
 			}
 			else{
 				mShader.setUniformVal("uUseNormalMap", 0);
@@ -192,7 +191,7 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 			
 			// Render the geometry
 			actor->getModel()->getBatch().bind();
-			i->geometry->render();
+			mesh->geometry->render();
 		}
 	}
 
@@ -311,9 +310,12 @@ void ModelRenderer::render(Scene* scene, ModelledActor* actor, math::Camera* cam
 	// TODO materials, normal maps, blending not yet implemented
 	actor->getModel()->getBatch().bind();
 
-	for(Model::GeometrySkin::MeshList::iterator i=actor->getSkin()->getMeshList().begin(); i!=actor->getSkin()->getMeshList().end(); i++){
+	for(ModelSkin::MeshList::iterator i=actor->getSkin()->getMeshListBeg(); i!=actor->getSkin()->getMeshListEnd(); i++){
+		ModelSkin::Mesh* mesh = *i;
+
 		// Use the material if the mesh has one
-		Texture2D* texture = i->texture;
+
+		Texture2D* texture = mesh->texture;
 
 		if(texture != NULL){
 			texture->bind();
@@ -324,7 +326,7 @@ void ModelRenderer::render(Scene* scene, ModelledActor* actor, math::Camera* cam
 		}
 
 		// Render the geometry
-		i->geometry->render();
+		mesh->geometry->render();
 	}
 }
 

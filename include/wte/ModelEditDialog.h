@@ -84,7 +84,7 @@ protected slots:
 	}
 
 	void onSkinActivated(void* item){
-		SkinEditDialog::edit(this, mAssets, (wt::Model::GeometrySkin*)item);
+		SkinEditDialog::edit(this, mAssets, (wt::ModelSkin*)item);
 	}
 
 	void onAddAnimation(){
@@ -110,7 +110,7 @@ protected slots:
 	}
 	
 	void onDeleteSkin(){
-		wt::Model::GeometrySkin* skin = (wt::Model::GeometrySkin*)ui.skinTree->getSelectedItem();
+		wt::ModelSkin* skin = (wt::ModelSkin*)ui.skinTree->getSelectedItem();
 
 		mModel->deleteSkin(skin);
 		ui.skinTree->deleteItem(skin);

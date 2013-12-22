@@ -28,11 +28,14 @@ public:
 
 	bool isSeekable();
 
+	AIOStream::Mode getMode() const;
+
 private:
 	RemoteFileStream(RemoteFileSystemClient* parent, const String& uri, AIOStream::Mode mode, net::TCPServer::SocketPtr socket);
 
 	void request(net::Packet& pckt);
 
+	AIOStream::Mode mMode;
 	RemoteFileSystemClient* mParent;
 	net::TCPServer::SocketPtr mSocket;
 

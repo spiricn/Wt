@@ -8,7 +8,8 @@
 #include "wt/Singleton.h"
 #include "wt/Buffer.h"
 
-namespace wt{
+namespace wt
+{
 
 class Geometry{
 public:
@@ -41,53 +42,17 @@ public:
 		/* tangent vector (relevant if normal map is present) */
 		float tx, ty, tz;
 
-		Vertex() : x(0.0f), y(0.0f), z(0.0f), s(0.0f), t(0.0f),
-			nx(0.0f), ny(0.0f), nz(0.0f), tx(0.0f), ty(0.0f), tz(0.0f){
+		Vertex();
 
-			for(uint32_t i=0; i<4; i++){
-				weights[i] = 0.0f;
-				// bone index of value MAX_BONES indicates that the slot is not taken
-				bones[i] = MAX_BONES; 
-			}
-		}
-
-		void addBone(int32_t index, float weight){
-#ifdef WT_CHECKED
-			if(index < 0 || index >= MAX_BONES){
-				WT_THROW("Bone infdex out of valid range %d (min=0, max=%d)", index, MAX_BONES);
-			}
-#endif
-
-			// find the first bone slot that's not taken
-			for(uint32_t i=0; i<4; i++){
-				if(bones[i]==MAX_BONES){
-					// assign the index and weight
-					bones[i]=index;
-					weights[i]=weight;
-					return;
-				}
-			}
-#ifdef WT_CHECKED
-			WT_THROW("Vertex supports max 4 bones (attempted to add 5th)");
-#endif
-		}
+		void addBone(int32_t index, float weight);
 	};
 	#pragma pack(pop)
 
 	typedef Buffer<Vertex> VertexBuffer;
+
 	typedef Buffer<uint32_t> IndexBuffer;
-private:
-	String mName;
-	gl::Batch* mBatch;
-	gl::SubBatch mSubBatch;
-	VertexBuffer mVertices;
-	IndexBuffer mIndices;
 
-public:
-
-	gl::Batch* getBatch(){
-		return mBatch;
-	}
+	gl::Batch* getBatch();
 
 	VertexBuffer& getVertices();
 
@@ -109,8 +74,16 @@ public:
 	void render();
 
 	const gl::SubBatch& getSubBatch() const;
-};
 
-}; // </wt>
+private:
+	String mName;
+	gl::Batch* mBatch;
+	gl::SubBatch mSubBatch;
+	VertexBuffer mVertices;
+	IndexBuffer mIndices;
+
+}; // </Geometry>
+
+} // </wt>
 
 #endif

@@ -219,28 +219,34 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 
 	for(uint32_t row=startRow; row<startRow+numRows; row++){
 		for(uint32_t col=startCol; col<startCol+numCols; col++){
+			// Current height at the given point
+			const int16_t currentHeight = heightmap[row*totalCols + col];
+
+			// Resulting height
 			int16_t finalSample=0;
+
+			// Normalized distance from center (1 being the closest, and 0 the farthest)
+			const float factor = 1.0f - ( glm::length(center - glm::vec2(row, col)) / maxDistance );
+
+			// Minimum height delta
+			const float quantFactor = terrain.getHeightScale();
 
 			switch(mode){
 			case eELEVATE:
 			case eLOWER:{
-					// normalized distance from center (0 being the closest, and 1 the farthest)
-					float factor = glm::length(center - glm::vec2(row, col)) / maxDistance;
+					int16_t minDelta = 1;
+					int16_t maxDelta = 20;
 
-					float quantFactor = terrain.getHeightScale(); // minimum delta
-		
-					int16_t currentHeight = heightmap[row*totalCols + col];
+					int16_t delta = factor * ( minDelta + pressure*(maxDelta-minDelta) );
 
-					float maxHeightDelta = 1.0;
-					int16_t maxQuantDelta = maxHeightDelta/quantFactor;
-					float delta = glm::floor( (1.0f - factor) * ( pressure * (maxQuantDelta-1.0f) + 1.0f ) ) * (mode == eELEVATE ? 1.0 : -1.0 );
+					delta *= mode == eELEVATE ? 1 : -1;
 
 					finalSample = currentHeight + delta;
 				}
 				break;
 
 			case eSMOOTHEN:{
-				int kernelSize= 2;
+				int kernelSize= 10;
 				int n=0;
 				float sum = 0.0f;
 

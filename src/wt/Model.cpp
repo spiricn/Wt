@@ -15,6 +15,28 @@ Model::AnimationMap& Model::getAnimations(){
 	return mAnimations;
 }
 
+bool Model::hasAnimation(const String& name) const{
+	return mAnimations.find(name)!=mAnimations.end();
+}
+
+bool Model::hasAnimation(const Animation* animation) const{
+	for(AnimationMap::const_iterator i=mAnimations.cbegin(); i!=mAnimations.cend(); i++){
+		if(i->second->getAnimation()->getHandle() == animation->getHandle()){
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void Model::deleteSkin(const String& name){
+	deleteSkin( getSkin(name) );
+}
+
+void Model::deleteSkin(ModelSkin* skin){
+	mSkins.erase( mSkins.find(skin->getName()) );
+}
+
 SkeletalAnimation* Model::getSkeletalAnimation(const String& name){
 	AnimationMap::iterator i = mAnimations.find(name);
 	return i==mAnimations.end() ? NULL : i->second;
@@ -40,19 +62,23 @@ SkeletonBone* Model::getSkeleton(){
 	return mRootBone;
 }
 
-Model::GeometrySkin* Model::getSkin(const String& name){
+ModelSkin* Model::getSkin(const String& name){
 	SkinMap::iterator i=mSkins.find(name);
 	return i==mSkins.end() ? NULL : i->second;
 }
 
-Model::GeometrySkin* Model::createSkin(const String& name){
-	GeometrySkin* res;
+ModelSkin* Model::createSkin(const String& name){
+	ModelSkin* res;
 
 	WT_ASSERT(
 		mSkins.find(name) == mSkins.end(), "Skin named \"%s\" already exists for model \"%s\"",
 		name.c_str(), getName().c_str());
 
-	mSkins.insert( std::make_pair(name, res = new GeometrySkin(this, name)) );
+	mSkins.insert( std::make_pair(name, res = new ModelSkin(this, name)) );
+
+	for(GeoList::iterator i=mGeometry.begin(); i!=mGeometry.end(); i++){
+		res->createMesh(*i);
+	}
 
 	return res;
 }
@@ -89,7 +115,7 @@ void Model::removeGeometry(const String& name){
 	}
 
 	for(SkinMap::iterator i=mSkins.begin(); i!=mSkins.end(); i++){
-		i->second->removeMesh(*geometry);
+		i->second->deleteMesh( i->second->findMeshByGeometry(*geometry) );
 	}
 
 	mGeometry.erase(geometry);
@@ -187,7 +213,7 @@ Geometry* Model::findGeometryByName(const String& name){
 }
 
 void Model::createHwBuffers(){
-	/* allocate a hardware buffer */
+	// Allocate a hardware buffer
 	mBatch.create(
 		GL_TRIANGLES,
 		NULL, mNumVertices, sizeof(Geometry::Vertex),
@@ -195,44 +221,43 @@ void Model::createHwBuffers(){
 		GL_UNSIGNED_INT
 	);
 
-	/* position stream */
+	// Position stream
 	mBatch.setVertexAttribute(eATTRIB_POSITION, 3, GL_FLOAT, offsetof(Geometry::Vertex, x));
 
-	/* texture coordinate stream */
+	// Texture coordinate stream
 	mBatch.setVertexAttribute(eATTRIB_TEXCOORD, 2, GL_FLOAT, offsetof(Geometry::Vertex, s));
 
-	/* bone IDs stream */
+	// Bbone IDs stream
 	mBatch.setVertexAttribute(eATTRIB_BONE_ID, 4, GL_UNSIGNED_BYTE, offsetof(Geometry::Vertex, bones));
 
-	/* normal stream */
+	// Normal stream
 	mBatch.setVertexAttribute(eATTRIB_NORMAL, 3, GL_FLOAT, offsetof(Geometry::Vertex, nx));
 
-	/* tangent stream */
+	// Tangent stream
 	mBatch.setVertexAttribute(eATTRIB_TANGENT, 3, GL_FLOAT, offsetof(Geometry::Vertex, tx));
 
-	/* bone weight stream  */
+	// Bone weight stream
 	mBatch.setVertexAttribute(eATTRIB_BONE_WEIGHT, 4, GL_FLOAT, offsetof(Geometry::Vertex, weights));
 
 	
-
 	uint32_t vertexOffset=0;
 	uint32_t indexOffset=0;
 
-	/* copy every individual mesh data to hardware buffer */
+	// Copy each individual mesh data to hardware buffer
 	for(GeoList::iterator i=mGeometry.begin(); i!=mGeometry.end(); i++){
 
+		// Copy vertex data
 		const Geometry::VertexBuffer& vertices = (*i)->getVertices();
-		Geometry::IndexBuffer& indices = (*i)->getIndices();
+		mBatch.getVertexBuffer().setSubData(vertexOffset*sizeof(Geometry::Vertex), vertices.getData(), vertices.getSize());
 
+		// Copy offset index data
+		Geometry::IndexBuffer& indices = (*i)->getIndices();
 		for(uint32_t j=0; j<indices.getCapacity(); j++){
 			indices[j] += indexOffset;
 		}
-
-		mBatch.getVertexBuffer().setSubData(vertexOffset*sizeof(Geometry::Vertex),
-			vertices.getData(), vertices.getSize());
-
 		mBatch.getIndexBuffer().setSubData(indexOffset*sizeof(uint32_t),
 			indices.getData(), indices.getSize());
+
 
 		vertexOffset += vertices.getCapacity();
 		indexOffset += indices.getCapacity();
@@ -243,64 +268,60 @@ void Model::createHwBuffers(){
 void Model::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 	AResource::serialize(luaState, dst);
 
-	// skin
+	// Skins
 	lua::LuaObject skins = getManager()->getResourceSystem()->getLuastate()->newTable();
 
 	dst.Set("skins", skins);
 	for(SkinMap::iterator i=mSkins.begin(); i!=mSkins.end(); i++){
-
+		// Create a skin table
 		lua::LuaObject skin = getManager()->getResourceSystem()->getLuastate()->newTable();
-		skins.Set(
-			i->first.c_str(),
-			skin);
+		skins.Set(i->first.c_str(), skin);
 
-		for(GeometrySkin::MeshList::iterator j=i->second->getMeshList().begin(); j!=i->second->getMeshList().end(); j++){
+		for(ModelSkin::MeshList::iterator j=i->second->getMeshListBeg(); j!=i->second->getMeshListEnd(); j++){
+			ModelSkin::Mesh* mesh = *j;
+
 			lua::LuaObject skinEntry = getManager()->getResourceSystem()->getLuastate()->newTable();
 
-			skin.Set(
-				j->geometry->getName().c_str(),
-				skinEntry);
+			skin.Set(mesh->geometry->getName().c_str(), skinEntry);
 
-			skinEntry.Set(
-				"texture",
-				j->texture ? j->texture->getPath().c_str() : "");
+			skinEntry.Set("texture", mesh->texture ? mesh->texture->getPath().c_str() : "");
 
-			skinEntry.Set(
-				"normal_map",
-				j->normalMap? j->normalMap->getPath().c_str() : "");
+			skinEntry.Set("normal_map", mesh->normalMap? mesh->normalMap->getPath().c_str() : "");
 		}
 	}
 
-	// animations
+	// Animations
 	lua::LuaObject animations = getManager()->getResourceSystem()->getLuastate()->newTable();
 	dst.Set("animations", animations);
 
 	for(AnimationMap::iterator i=mAnimations.begin(); i!=mAnimations.end(); i++){
-		animations.Set(
-			i->first.c_str(),
-			i->second->getAnimation()->getPath().c_str()
-			);
+		animations.Set(i->first.c_str(), i->second->getAnimation()->getPath().c_str());
 	}
 }
 
 void Model::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 	AResource::deserialize(luaState, table);
 
-	// skins
+	// Create skins
 	LuaObject& luaSkins = table.Get("skins");
 
 	if(luaSkins.IsTable()){
-
 		for(LuaTableIterator skinIter(luaSkins); skinIter; skinIter.Next()){
 			const char* skinName = skinIter.GetKey().ToString();
 			LuaObject& luaSkin = skinIter.GetValue();
-			GeometrySkin* skin = createSkin(skinName);
 
+			WT_ASSERT(getSkin(skinName) == NULL, "Skin already exists; (model=%s, skin=%s)",
+				getPath().c_str(), skinName);
+
+
+			ModelSkin* skin = createSkin(skinName);
+
+			// Iterate over all geometry components of the skin
 			for(LuaTableIterator entryIter(luaSkin); entryIter; entryIter.Next()){
 				const char* meshName = entryIter.GetKey().ToString();
 				LuaObject& skinEntry = entryIter.GetValue();
 
-				GeometrySkin::Mesh* mesh = skin->addMesh(NULL);
+				ModelSkin::Mesh* mesh = skin->createMesh(NULL);
 
 				mesh->texture = getGroup()->getResourceSystem()->getTextureManager()->getFromPath(
 					skinEntry.Get("texture").ToString()
@@ -315,7 +336,7 @@ void Model::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 		}
 	}
 
-	// animations
+	// Animations
 	LuaObject& luaAnims = table.Get("animations");
 	if(luaAnims.IsTable()){
 
@@ -345,13 +366,15 @@ void Model::create(){
 	
 	// create skins
 	for(SkinMap::iterator i=mSkins.begin(); i!=mSkins.end(); i++){
-		GeometrySkin* skin = i->second;
+		ModelSkin* skin = i->second;
 
-		for(GeometrySkin::MeshList::iterator j=skin->getMeshList().begin(); j!=skin->getMeshList().end(); j++){
+		for(ModelSkin::MeshList::iterator j=skin->getMeshListBeg(); j!=skin->getMeshListEnd(); j++){
+			ModelSkin::Mesh* mesh = *j;
+
 			// Alrady set ?
-			if(j->geometry == NULL){
-				j->geometry = findGeometryByName(j->geometryName);
-				j->geometryName.clear();
+			if(mesh->geometry == NULL){
+				mesh->geometry = findGeometryByName(mesh->geometryName);
+				mesh->geometryName.clear();
 			}
 		}
 	}

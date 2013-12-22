@@ -137,7 +137,7 @@ void ModelImporterTab::importTexture(ImportData& data, const QString& meshName, 
 		}
 	}
 
-	wt::Model::GeometrySkin::Mesh* mesh = data.skin->findMeshByName(meshName.toStdString());
+	wt::ModelSkin::Mesh* mesh = data.skin->findMeshByName(meshName.toStdString());
     mesh->texture = resultTexture;
 }
 

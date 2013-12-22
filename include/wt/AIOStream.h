@@ -9,9 +9,9 @@ namespace wt{
 class AIOStream{
 public:
 	enum Mode{
+		eMODE_INVALID = -1,
 		eMODE_READ,
 		eMODE_WRITE,
-		eMODE_NONE
 	}; // </Mode>
 
 	enum SeekOrigin{
@@ -20,18 +20,11 @@ public:
 		eSEEK_CURRENT
 	}; // </SeekOrigin>
 
-private:
-	Mode mMode;
-
-protected:
-	void setMode(Mode mode);
-
-public:
 	AIOStream();
 
 	virtual ~AIOStream();
 
-	Mode getMode() const;
+	virtual Mode getMode() const = 0;
 
 	virtual int16_t get();
 

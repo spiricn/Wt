@@ -87,6 +87,10 @@ bool RemoteFileStream::isSeekable(){
 	return false;
 }
 
+AIOStream::Mode RemoteFileStream::getMode() const{
+	return mMode;
+}
+
 RemoteFileStream::RemoteFileStream(RemoteFileSystemClient* parent, const String& uri, AIOStream::Mode mode, net::TCPServer::SocketPtr socket) : mParent(parent), mSocket(socket){
 	net::Packet packet = createPacket( rfsp::eCODE_STREAM_OPEN );
 
@@ -107,7 +111,7 @@ RemoteFileStream::RemoteFileStream(RemoteFileSystemClient* parent, const String&
 	// Send open request
 	mSocket->sendPacket(packet);
 
-	setMode(mode);
+	mMode = mode;
 }
 
 } // </wt>

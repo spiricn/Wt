@@ -4,8 +4,8 @@
 
 namespace wt{
 
-ZipInputStream::ZipInputStream(PHYSFS_file* file) : mFile(file){
-	AIOStream::setMode(eMODE_READ);
+ZipInputStream::ZipInputStream(PHYSFS_file* file) : mFile(file), mMode(eMODE_INVALID){
+	mMode = eMODE_READ;
 }
 
 ZipInputStream::~ZipInputStream(){
@@ -13,6 +13,10 @@ ZipInputStream::~ZipInputStream(){
 		PHYSFS_close(mFile);
 		mFile = NULL;
 	}
+}
+
+AIOStream::Mode ZipInputStream::getMode() const{
+	return mMode;
 }
 
 int64_t ZipInputStream::read(void* dst, int64_t size){

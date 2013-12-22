@@ -85,7 +85,7 @@ SkeletalAnimationPlayer* ModelledActor::getAnimationPlayer() const{
 	return mAnimationPlayer;
 }
 
-Model::GeometrySkin* ModelledActor::getSkin() const{
+ModelSkin* ModelledActor::getSkin() const{
 	return mSkin;
 }
 
@@ -93,7 +93,7 @@ void ModelledActor::setSkin(const String& name){
 	setSkin( mModel->getSkin(name) );
 }
 
-void ModelledActor::setSkin(Model::GeometrySkin* skin){
+void ModelledActor::setSkin(ModelSkin* skin){
 	WT_ASSERT(skin != NULL, "Can't set NULL skin for actor \"%s\"", getName().c_str());
 
 	mSkin = skin;

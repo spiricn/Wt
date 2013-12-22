@@ -24,25 +24,27 @@ public:
 private:
 	Ui::SkinEditDialog ui;
 	EditResult mResult;
-	wt::Model::GeometrySkin* mSkin;
+	wt::ModelSkin* mSkin;
 	wt::Assets* mAssets;
 
 public:
-	SkinEditDialog(QWidget* parent, wt::Assets* assets, wt::Model::GeometrySkin* skin) : QDialog(parent), mSkin(skin), mAssets(assets){
+	SkinEditDialog(QWidget* parent, wt::Assets* assets, wt::ModelSkin* skin) : QDialog(parent), mSkin(skin), mAssets(assets){
 		ui.setupUi(this);
 
 		int id=0;
-		for(wt::Model::GeometrySkin::MeshList::iterator i=skin->getMeshList().begin(); i!=skin->getMeshList().end(); i++){
+		for(wt::ModelSkin::MeshList::iterator i=skin->getMeshListBeg(); i!=skin->getMeshListEnd(); i++){
+			wt::ModelSkin::Mesh* mesh = *i;
+
 			QTreeWidgetItem* item = new QTreeWidgetItem(ui.treeWidget);
 
-			item->setText(0, i->geometry->getName().c_str());
+			item->setText(0, mesh->geometry->getName().c_str());
 
-			if(i->texture != NULL){
-				item->setText(1, i->texture->getPath().c_str());
+			if(mesh->texture != NULL){
+				item->setText(1, mesh->texture->getPath().c_str());
 			}
 
-			if(i->normalMap != NULL){
-				item->setText(2, i->normalMap->getPath().c_str());
+			if(mesh->normalMap != NULL){
+				item->setText(2, mesh->normalMap->getPath().c_str());
 			}
 
 			ui.treeWidget->addTopLevelItem(item);
@@ -51,7 +53,7 @@ public:
 		}
 	}
 
-	static EditResult edit(QWidget* parent, wt::Assets* assets, wt::Model::GeometrySkin* skin){
+	static EditResult edit(QWidget* parent, wt::Assets* assets, wt::ModelSkin* skin){
 		SkinEditDialog dlg(parent, assets, skin);
 
 		dlg.exec();
@@ -62,20 +64,20 @@ public:
 protected slots:
 	void onItemActivated(QTreeWidgetItem* item, int){
 		
-		wt::Model::GeometrySkin::Mesh& mesh = mSkin->getMeshList()[ item->data(0, Qt::UserRole).toInt() ];
+		wt::ModelSkin::Mesh* mesh = *(mSkin->getMeshListBeg() + item->data(0, Qt::UserRole).toInt() );
 
 
 		wt::Texture2D* texture = ResourcePickerDialog::pickResource<wt::Texture2D>(this, mAssets->getTextureManager(), "Texture");
 
 		if(texture){
-			mesh.texture = texture;
+			mesh->texture = texture;
 			item->setText(1, texture->getPath().c_str());
 		}
 
 		wt::Texture2D* normalMap = ResourcePickerDialog::pickResource<wt::Texture2D>(this, mAssets->getTextureManager(), "Bump map");
 
 		if(normalMap){
-			mesh.normalMap = normalMap;
+			mesh->normalMap = normalMap;
 			item->setText(2, normalMap->getPath().c_str());
 		}
 

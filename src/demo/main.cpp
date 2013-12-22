@@ -81,87 +81,9 @@ int main(){
 	return 0;
 }
 
-#elif 0
-
-#include <wt/net/TCPServer.h>
-#include <wt/Thread.h>
-
-#include "wt/RemoteFileSystemServer.h"
-#include "wt/RemoteFileSystemClient.h"
-
-class ServerTest : public Thread{
-	void run(){
-		RemoteFileSystemServer server;
-		server.startServer("D:/documents", 8420);
-
-		utils::pause();
-	}
-};
-
-#include <wt/Timer.h>
-
-class ClientTest : public Thread{
-
-public:
-	void run(){
-		RemoteFileSystemClient client(".", "127.0.0.1", 8420);
-
-		StreamPtr stream = client.open("test.jpg", AIOStream::eMODE_READ);
-
-		FILE* local = fopen(
-			"C:/users/nikola/desktop/dl.wts"
-			, "wb");
-		
-		LOGD("Starting transfer");
-
-		Timer t;
-		
-		uint64_t totalRead = 0;
-
-		while(true){
-			static const int kBUFFER_SIZE = 512;
-
-			char bfr[kBUFFER_SIZE ];
-			int64_t bytesRead = stream->read(bfr, kBUFFER_SIZE );
-
-			fwrite(bfr, 1, bytesRead, local);
-
-			totalRead += bytesRead;
-
-			if(bytesRead != kBUFFER_SIZE ){
-				break;
-			}
-		}
-
-		LOGD("%ld", totalRead);
-
-		fclose(local);
-
-		LOGD("done %s / s", utils::formatSize((float)totalRead/t.getSeconds()).c_str());
-		utils::pause();	
-	}
-};
-
-int main(){
-	net::Socket::initializeLib();
-
-	ClientTest client;
-	ServerTest server;
-
-	server.start();
-	client.start();
-
-	server.wait();
-	client.wait();
-
-	return 0;
-}
 #else
 
-#include <wt/Utils.h>
-
-
-int main(int argc, char* argv[]){
+int main(){
 }
 
 #endif

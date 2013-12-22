@@ -20,7 +20,7 @@ public:
 
 		struct Visual{
 			wt::Model* model;
-			wt::Model::GeometrySkin* skin;
+			wt::ModelSkin* skin;
 
 			Visual() : model(NULL), skin(NULL){
 			}
