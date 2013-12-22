@@ -6,6 +6,8 @@
 #include <wt/EventManager.h>
 #include <wt/ProcessManager.h>
 
+#include <qdockwidget.h>
+
 #include "ui_WorldEdit.h"
 
 #include "wte/ATool.h"
@@ -74,14 +76,25 @@ public:
 private:
 	void createToolbar();
 
+	QDockWidget* mPrevDockWidget;
 	template<class T>
-	void addTool(QDockWidget* dock, T* obj){
+	void addTool(QString title, T* obj){
 		QWidget* widget = dynamic_cast<QWidget*>(obj);
 		ATool* tool = dynamic_cast<ATool*>(obj);
 
-		dock->setWidget(widget);
-		dock->setVisible(false);
+		QDockWidget* dock = new QDockWidget(this);
 
+		dock->setFeatures(0x00);
+		dock->setWidget(widget);
+		dock->setVisible(true);
+
+		dock->setWindowTitle(title);
+
+		addDockWidget(Qt::LeftDockWidgetArea, dock);
+		if(mPrevDockWidget){
+			this->tabifyDockWidget(mPrevDockWidget, dock);
+		}
+		mPrevDockWidget = dock;
 		mTools.push_back(tool);
 	}
 

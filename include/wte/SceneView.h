@@ -77,6 +77,7 @@ private:
 	bool mIsLooking;
 	Qt::MouseButton mMouseClicked;
 	float mLastX, mLastY;
+	bool mIgnoreMouseMove;
 
 }; // </SceneView>
 

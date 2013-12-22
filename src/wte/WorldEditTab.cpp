@@ -24,7 +24,7 @@
 	
 
 WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager) : QMainWindow(parent),
-		mAssets(assets), mScene(scene), mEventManager(evtManager){
+		mAssets(assets), mScene(scene), mEventManager(evtManager), mPrevDockWidget(NULL){
 	ui.setupUi(this);
 
 	// Scene setup
@@ -32,27 +32,27 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 
 
 	addTool(
-		ui.actorEditToolDock,
+		"Actor",
 		mActorEditTool = new ActorEditTool(ui.sceneView, this, this, mAssets)
 	);
 
 	addTool(
-		ui.terrainToolDock,
+		"Terrain",
 		mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this, mScene, mAssets)
 	);
 
 	addTool(
-		ui.lightToolDock,
+		"Light",
 		mLightTool = new LightEditTool(ui.sceneView, this, this)
 	);
 
 	addTool(
-		ui.godrayToolDock,
+		"Godray",
 		mGodrayTool = new GodrayTool(this, this, mScene, mAssets)
 	);
 
 	addTool(
-		ui.fogToolDock,
+		"Fog",
 		mFogTool = new FogTool(ui.sceneView, this, this)
 	);
 
@@ -86,23 +86,23 @@ WorldEditTab::~WorldEditTab(){
 }
 
 void WorldEditTab::onToggleGodrayTool(){
-	ui.godrayToolDock->setVisible( !ui.godrayToolDock->isVisible() );
+	//ui.godrayToolDock->setVisible( !ui.godrayToolDock->isVisible() );
 }
 
 void WorldEditTab::onToggleToolFog(){
-	ui.fogToolDock->setVisible( !ui.fogToolDock->isVisible() );
+	//ui.fogToolDock->setVisible( !ui.fogToolDock->isVisible() );
 }
 
 void WorldEditTab::onToggleToolTerrain(){
-	ui.terrainToolDock->setVisible( !ui.terrainToolDock->isVisible() );
+	//ui.terrainToolDock->setVisible( !ui.terrainToolDock->isVisible() );
 }
 
 void WorldEditTab::onToggleToolLight(){
-	ui.lightToolDock->setVisible( !ui.lightToolDock->isVisible() );
+	//ui.lightToolDock->setVisible( !ui.lightToolDock->isVisible() );
 }
 
 void WorldEditTab::onToggleToolActor(){
-	ui.actorEditToolDock->setVisible( !ui.actorEditToolDock->isVisible() );
+	//ui.actorEditToolDock->setVisible( !ui.actorEditToolDock->isVisible() );
 }
 
 void WorldEditTab::onTimeout(){

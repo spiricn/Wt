@@ -12,7 +12,7 @@
 #define MOUSE_SENSITIVITY_VERTICAL ( 0.1f )
 
 SceneView::SceneView(QWidget* parent) : QGLWidget(parent), mTimer(this), mInputGrabbed(false),
-	mIsLooking(false), mScene(NULL), mFocused(false), mRenderer(NULL){
+	mIsLooking(false), mScene(NULL), mFocused(false), mRenderer(NULL), mIgnoreMouseMove(false){
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -131,12 +131,20 @@ void SceneView::paintGL(){
 
 void SceneView::mouseMoveEvent(QMouseEvent* evt){
 	if(mIsLooking){
+		// Ignore mouse event caused by previous call to QCursor::setPos
+		if(mIgnoreMouseMove){
+			mIgnoreMouseMove = false;
+			return;
+		}
+
 		// Distance moved from the middle of the screen
 		float dx = evt->x() - ( width()/2.0f );
 		float dy = evt->y() - ( height()/2.0f );
 
 		// Move mouse to  the middle of the widget
-		QCursor::setPos(mapToGlobal(QPoint(width()/2, height()/2)));
+		QCursor::setPos(mapToGlobal(QPoint(width()/2.0f, height()/2.0f)));
+
+		mIgnoreMouseMove = true;
 
 		if(mScene){
 			mScene->getCamera().yaw( -dx * MOUSE_SENSITIVITY_HORIZONTAL );
@@ -162,10 +170,12 @@ void SceneView::mousePressEvent(QMouseEvent* evt){
 	mLastY = evt->y();
 
 	if(evt->button() == Qt::RightButton){
-		// move the cursor to the middle of the widget
+		mIgnoreMouseMove = true;
+
+		// Move the cursor to the middle of the widget
 		QCursor::setPos(mapToGlobal(QPoint(width()/2, height()/2)));
 
-		// hide cursor
+		// Hide cursor
 		setCursor(QCursor(Qt::BlankCursor));
 
 		mIsLooking = true;
