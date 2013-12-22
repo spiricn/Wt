@@ -12,6 +12,8 @@ Q_OBJECT
 public:
     FogTool(SceneView*, AToolManager* manager, QWidget* parent);
 
+	void onSceneLoaded();
+
 protected slots:
 	void onColorChanged();
 

@@ -443,7 +443,7 @@ void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bo
 			
 			glColor3f(1.0, 0.0, 0.0);
 			glVertex3f(p.x, p.y, p.z);
-		gl( End() );
+		glEnd();
 	}
 	
 	for(SkeletonBone::Iterator i=bone->getBeg(); i!=bone->getEnd(); i++){

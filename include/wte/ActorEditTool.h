@@ -57,6 +57,8 @@ private:
 protected slots:
 	void onAttachBoneChanged(QString);
 
+	void onActorVisibilityChange(bool);
+
 	void onAttach();
 
 	void onPickAttachActor();

@@ -56,6 +56,12 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 	selectActor(NULL);
 }
 
+void ActorEditTool::onActorVisibilityChange(bool visible){
+	if(isToolFocused() && mSelectedActor){
+		mSelectedActor->setVisible(visible);
+	}
+}
+
 void ActorEditTool::onScaleChanged(){
 	if(isToolFocused() && mSelectedActor){
 		mSelectedActor->getTransformable()->setScale(
@@ -206,11 +212,15 @@ void ActorEditTool::updateSelectionStats(){
 	mSelectedActor->getTransformable()->getTranslation(pos);
 	mSelectedActor->getTransformable()->getScale(scale);
 
+	ui.transform->blockSignals(true);
+
 	ui.transform->setRotation(rotAxis, rotAngle);
 
 	ui.transform->setTranslation( pos );
 
-	ui.transform->setScale( scale );	
+	ui.transform->setScale( scale );
+
+	ui.transform->blockSignals(false);
 }
 
 void ActorEditTool::onMouseDrag(MouseDragEvent evt){
@@ -406,16 +416,6 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 
 		glm::vec3 eyePos;
 		mScene->getCamera().getTranslation(eyePos);
-
-		/*glm::vec3 dir = glm::normalize(pos - eyePos);
-		float distance = glm::length(pos - eyePos);
-		const float d=50.0f;
-		if(distance > d){
-			mScene->getCamera().setTranslation(
-				pos - dir*d);
-		}
-
-		mScene->getCamera().lookAt(pos);*/
 
 		if(actor->getActorType() == wt::ASceneActor::eTYPE_MODELLED){
 			// We don't want this to emit a signal

@@ -217,6 +217,13 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 	float maxDistance = glm::length( glm::vec2(numRows/2.0, numCols/2.0) );
 	glm::vec2 center(startRow + numRows/2.0f, startCol + numCols/2.0f);
 
+	enum BrushShape{
+		eSHAPE_CIRCLE,
+		eSHAPE_SQUARE
+	};
+
+	BrushShape shape = static_cast<BrushShape>(ui.brushShape->currentIndex());
+
 	for(uint32_t row=startRow; row<startRow+numRows; row++){
 		for(uint32_t col=startCol; col<startCol+numCols; col++){
 			// Current height at the given point
@@ -237,7 +244,7 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 					int16_t minDelta = 1;
 					int16_t maxDelta = 20;
 
-					int16_t delta = factor * ( minDelta + pressure*(maxDelta-minDelta) );
+					int16_t delta = shape == eSHAPE_CIRCLE ? factor : 1.0f * ( minDelta + pressure*(maxDelta-minDelta) );
 
 					delta *= mode == eELEVATE ? 1 : -1;
 

@@ -27,31 +27,6 @@ class WtEditor;
 
 class WorldEditTab : public QMainWindow, public AToolManager{
 	Q_OBJECT;
-
-friend class WtEditor;
-
-protected:
-	Ui::WorldEdit ui;
-
-private:
-	// TODO There's probably a generalized way of doing this (don't save references to all tools, instead use their interfaces via the ToolList
-	TerrainEditTool* mTerrainEditTool;
-	LightEditTool* mLightTool;
-	ActorEditTool* mActorEditTool;
-	FogTool* mFogTool;
-	GodrayTool* mGodrayTool;
-
-	wt::AResourceSystem* mAssets;
-	wt::Scene* mScene;
-	wt::EventManager* mEventManager;
-	wt::ProcessManager mProcManager;
-
-	// Main loop timer
-	QTimer mTimer;
-
-	typedef QVector<ATool*> ToolList;
-	ToolList mTools;
-
 public:
 	WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager);
 
@@ -74,9 +49,29 @@ public:
 	void onSceneLoaded();
 
 private:
+	Ui::WorldEdit ui;
+
+	// TODO There's probably a generalized way of doing this (don't save references to all tools, instead use their interfaces via the ToolList
+	TerrainEditTool* mTerrainEditTool;
+	LightEditTool* mLightTool;
+	ActorEditTool* mActorEditTool;
+	FogTool* mFogTool;
+	GodrayTool* mGodrayTool;
+
+	wt::AResourceSystem* mAssets;
+	wt::Scene* mScene;
+	wt::EventManager* mEventManager;
+	wt::ProcessManager mProcManager;
+
+	// Main loop timer
+	QTimer mTimer;
+
+	typedef QVector<ATool*> ToolList;
+	ToolList mTools;
+	QDockWidget* mPrevDockWidget;
+
 	void createToolbar();
 
-	QDockWidget* mPrevDockWidget;
 	template<class T>
 	void addTool(QString title, T* obj){
 		QWidget* widget = dynamic_cast<QWidget*>(obj);
@@ -91,12 +86,17 @@ private:
 		dock->setWindowTitle(title);
 
 		addDockWidget(Qt::LeftDockWidgetArea, dock);
+		
+		// Stack widgets
 		if(mPrevDockWidget){
 			this->tabifyDockWidget(mPrevDockWidget, dock);
 		}
 		mPrevDockWidget = dock;
+
 		mTools.push_back(tool);
 	}
+
+	friend class WtEditor;
 
 protected slots:
 	void onScreenshot();
@@ -119,21 +119,10 @@ protected slots:
 
 	void onMouseDown(QMouseEvent*);
 
-	void onShowLightEditor(bool);
-
-	void onToggleToolFog();
-
-	void onToggleToolTerrain();
-
-	void onToggleToolLight();
-
-	void onToggleToolActor();
-
 	void onToggleBones();
 
 	void onToggleBoundingBoxes();
 
-	void onToggleGodrayTool();
 
 signals:
 	void initialized();

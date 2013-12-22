@@ -85,26 +85,6 @@ WorldEditTab::~WorldEditTab(){
 	delete mTerrainEditTool;
 }
 
-void WorldEditTab::onToggleGodrayTool(){
-	//ui.godrayToolDock->setVisible( !ui.godrayToolDock->isVisible() );
-}
-
-void WorldEditTab::onToggleToolFog(){
-	//ui.fogToolDock->setVisible( !ui.fogToolDock->isVisible() );
-}
-
-void WorldEditTab::onToggleToolTerrain(){
-	//ui.terrainToolDock->setVisible( !ui.terrainToolDock->isVisible() );
-}
-
-void WorldEditTab::onToggleToolLight(){
-	//ui.lightToolDock->setVisible( !ui.lightToolDock->isVisible() );
-}
-
-void WorldEditTab::onToggleToolActor(){
-	//ui.actorEditToolDock->setVisible( !ui.actorEditToolDock->isVisible() );
-}
-
 void WorldEditTab::onTimeout(){
 	float dt = 1.0f/FPS;
 
@@ -126,10 +106,6 @@ void WorldEditTab::onTimeout(){
 #endif
 
 	mProcManager.update(dt);
-}
-
-void WorldEditTab::onShowLightEditor(bool){
-	mLightTool->setVisible( !mLightTool->isVisible() );
 }
 
 void WorldEditTab::onShowTerrainTool(bool){

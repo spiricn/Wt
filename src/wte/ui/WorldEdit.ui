@@ -55,11 +55,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionLight_tool"/>
-   <addaction name="actionTerrain_tool"/>
-   <addaction name="actionActor_tool"/>
-   <addaction name="actionGodrayTool"/>
-   <addaction name="actionFogTool"/>
    <addaction name="actionToggleBones"/>
    <addaction name="actionToggleBoundingBoxes"/>
   </widget>
@@ -96,42 +91,6 @@
    <addaction name="menuFasdf"/>
    <addaction name="menuCamera"/>
   </widget>
-  <action name="actionLight_tool">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
-     <normaloff>:/icons/Utilities-icon.png</normaloff>:/icons/Utilities-icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Light tool</string>
-   </property>
-  </action>
-  <action name="actionTerrain_tool">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
-     <normaloff>:/icons/Utilities-icon.png</normaloff>:/icons/Utilities-icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Terrain tool</string>
-   </property>
-  </action>
-  <action name="actionActor_tool">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
-     <normaloff>:/icons/Utilities-icon.png</normaloff>:/icons/Utilities-icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Actor tool</string>
-   </property>
-  </action>
   <action name="actionToggleBones">
    <property name="checkable">
     <bool>true</bool>
@@ -154,15 +113,6 @@
    </property>
    <property name="text">
     <string>Toggle bounding boxes</string>
-   </property>
-  </action>
-  <action name="actionGodrayTool">
-   <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
-     <normaloff>:/icons/Utilities-icon.png</normaloff>:/icons/Utilities-icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Godray Tool</string>
    </property>
   </action>
   <action name="actionSetSkyBox">
@@ -190,11 +140,6 @@
     <string>New animation</string>
    </property>
   </action>
-  <action name="actionFogTool">
-   <property name="text">
-    <string>Fog Tool</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -208,54 +153,6 @@
   <include location="../../../build/vs10/WtEditor/WtEditor.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>actionActor_tool</sender>
-   <signal>triggered()</signal>
-   <receiver>WorldEdit</receiver>
-   <slot>onToggleToolActor()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionLight_tool</sender>
-   <signal>triggered()</signal>
-   <receiver>WorldEdit</receiver>
-   <slot>onToggleToolLight()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionTerrain_tool</sender>
-   <signal>triggered()</signal>
-   <receiver>WorldEdit</receiver>
-   <slot>onToggleToolTerrain()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>actionToggleBones</sender>
    <signal>triggered()</signal>
@@ -277,22 +174,6 @@
    <signal>triggered()</signal>
    <receiver>WorldEdit</receiver>
    <slot>onToggleBoundingBoxes()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionGodrayTool</sender>
-   <signal>triggered()</signal>
-   <receiver>WorldEdit</receiver>
-   <slot>onToggleGodrayTool()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -341,22 +222,6 @@
    <signal>triggered()</signal>
    <receiver>WorldEdit</receiver>
    <slot>onCameraNewAnimation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionFogTool</sender>
-   <signal>triggered()</signal>
-   <receiver>WorldEdit</receiver>
-   <slot>onToggleToolFog()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

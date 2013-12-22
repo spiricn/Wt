@@ -178,6 +178,20 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="QComboBox" name="brushShape">
+     <item>
+      <property name="text">
+       <string>Circle</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Square</string>
+      </property>
+     </item>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

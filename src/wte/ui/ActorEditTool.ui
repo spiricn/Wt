@@ -15,6 +15,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QCheckBox" name="checkBox">
+     <property name="text">
+      <string>Visible</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -321,8 +331,8 @@
    <slot>onAnimationSelected(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>47</y>
+     <x>190</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>89</x>
@@ -418,7 +428,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>27</x>
-     <y>35</y>
+     <y>58</y>
     </hint>
     <hint type="destinationlabel">
      <x>14</x>
@@ -434,7 +444,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>101</x>
-     <y>17</y>
+     <y>40</y>
     </hint>
     <hint type="destinationlabel">
      <x>325</x>
@@ -450,7 +460,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>101</x>
-     <y>22</y>
+     <y>45</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -466,7 +476,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>101</x>
-     <y>27</y>
+     <y>50</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -482,7 +492,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>101</x>
-     <y>32</y>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>1</x>
@@ -514,7 +524,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>99</x>
-     <y>17</y>
+     <y>40</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -530,7 +540,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>99</x>
-     <y>22</y>
+     <y>45</y>
     </hint>
     <hint type="destinationlabel">
      <x>483</x>
@@ -546,7 +556,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>99</x>
-     <y>27</y>
+     <y>50</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -562,7 +572,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>99</x>
-     <y>32</y>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>483</x>
@@ -593,8 +603,8 @@
    <slot>onPickAttachActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>315</x>
-     <y>213</y>
+     <x>334</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>346</x>
@@ -625,12 +635,28 @@
    <slot>onAttachBoneChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>109</x>
-     <y>240</y>
+     <x>128</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>177</x>
      <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onActorVisibilityChange(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>13</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>12</x>
+     <y>1</y>
     </hint>
    </hints>
   </connection>
@@ -661,5 +687,6 @@
   <slot>onPickAttachActor()</slot>
   <slot>onAttach()</slot>
   <slot>onAttachBoneChanged(QString)</slot>
+  <slot>onActorVisibilityChange(bool)</slot>
  </slots>
 </ui>
