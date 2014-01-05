@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
+    <width>508</width>
     <height>455</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>492</width>
+        <width>488</width>
         <height>435</height>
        </rect>
       </property>
@@ -73,6 +73,13 @@
               </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="comboBoxAnimation"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="pushButton_8">
+                <property name="text">
+                 <string>Edit model</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -334,8 +341,8 @@
    <slot>onNewActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
-     <y>445</y>
+     <x>193</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>490</x>
@@ -366,8 +373,8 @@
    <slot>onToggleBrush()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>445</y>
+     <x>77</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
@@ -430,8 +437,8 @@
    <slot>onDeleteActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
-     <y>445</y>
+     <x>295</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>357</x>
@@ -462,8 +469,8 @@
    <slot>onLightColorChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>101</x>
-     <y>40</y>
+     <x>110</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>325</x>
@@ -526,8 +533,8 @@
    <slot>onActorRename()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>379</x>
-     <y>445</y>
+     <x>391</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>379</x>
@@ -542,8 +549,8 @@
    <slot>onVolumeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>40</y>
+     <x>108</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>341</x>
@@ -606,8 +613,8 @@
    <slot>onEditActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>467</y>
+     <x>487</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -622,8 +629,8 @@
    <slot>onPickAttachActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>334</x>
-     <y>238</y>
+     <x>353</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
      <x>346</x>
@@ -654,8 +661,8 @@
    <slot>onAttachBoneChanged(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>128</x>
-     <y>265</y>
+     <x>147</x>
+     <y>253</y>
     </hint>
     <hint type="destinationlabel">
      <x>177</x>
@@ -670,12 +677,28 @@
    <slot>onActorVisibilityChange(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>13</y>
+     <x>59</x>
+     <y>22</y>
     </hint>
     <hint type="destinationlabel">
      <x>12</x>
      <y>1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_8</sender>
+   <signal>clicked()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onEditModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>74</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-3</x>
+     <y>112</y>
     </hint>
    </hints>
   </connection>
@@ -707,5 +730,6 @@
   <slot>onAttach()</slot>
   <slot>onAttachBoneChanged(QString)</slot>
   <slot>onActorVisibilityChange(bool)</slot>
+  <slot>onEditModel()</slot>
  </slots>
 </ui>

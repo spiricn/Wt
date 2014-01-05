@@ -2,20 +2,25 @@
 #define WT_ARENDERER_H
 
 
-namespace wt{
+namespace wt
+{
 
-namespace math{
+namespace math
+{
 
 class Camera;
 
-}; // </math>
+} // </math>
+
+
+namespace gl
+{
+	class ShaderProgram;
+} // </gl>
 
 class Scene;
 class Renderer;
-
-namespace gl{
-	class ShaderProgram;
-};
+class Texture2D;
 
 class ARenderer{
 public:
@@ -38,7 +43,7 @@ public:
 	virtual void onSceneFogChanged(Scene* scene, Renderer*){
 	}
 
-	virtual void render(Scene* scene, math::Camera* camera, PassType pass) = 0;
+	virtual void render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap) = 0;
 
 	virtual void create() = 0;
 

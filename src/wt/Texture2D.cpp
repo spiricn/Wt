@@ -7,6 +7,40 @@
 
 namespace wt{
 
+void Texture2D::depthDump(Texture2D* src, const char* dst){
+	src->bind();
+
+	// Depth dump
+	Buffer<float> depth;
+	depth.create(src->mWidth*src->mHeight);
+	gl( GetTexImage(src->getType(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)depth.getData()) );
+
+
+	Buffer<uint8_t> rgb(src->mWidth*src->mHeight*3);
+
+	for(uint32_t i=0; i<depth.getCapacity(); i++){
+		float n = 1.0; // camera z near
+		float f = 100.0; // camera z far
+		float z = depth[i];
+		z = (2.0 * n) / (f + n - z * (f - n));
+		z *= 255;
+
+		rgb[i*3 + 0] = z;
+		rgb[i*3 + 1] = z;
+		rgb[i*3 + 2] = z;
+	}
+
+	Image img;
+	img.setData(src->mWidth, src->mHeight, Image::RGB, 3, (unsigned char*)rgb.getData());
+
+	FileIOStream stream;
+	stream.open(dst, AIOStream::eMODE_WRITE);
+
+	DevilImageLoader::getSingleton().save(&stream,
+		&img);
+
+}
+
 void Texture2D::dump(AIOStream& stream){
 	bind();
 

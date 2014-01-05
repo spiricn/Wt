@@ -19,6 +19,10 @@ FrameBuffer::~FrameBuffer(){
 	}
 }
 
+bool FrameBuffer::isCreated() const{
+	return mIsCreated;
+}
+
 void FrameBuffer::blit(const glm::vec4& src, const glm::vec4& dst, GLenum attachment, GLint mask, GLenum filter){
 	bindRead();
 
@@ -40,6 +44,21 @@ void FrameBuffer::addAttachment(GLenum attachment, const RenderBuffer& target){
 
 	gl( FramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
 		attachment, GL_RENDERBUFFER, target.getHandle()) );
+}
+
+void FrameBuffer::removeAttachments(GLenum point){
+	WT_ASSERT(mIsCreated, "Framebuffer not initialized");
+
+	bind(eMODE_DRAW);
+
+	// Detach 2D texture
+	gl( FramebufferTexture2D(GL_DRAW_FRAMEBUFFER,
+		point, GL_TEXTURE_2D,
+		0, 0) );
+
+	// Detach render buffer
+	gl( FramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER,
+		point, GL_RENDERBUFFER, 0) );
 }
 
 void FrameBuffer::addAttachment(GLenum attachment, GLuint texture, GLenum textureType){

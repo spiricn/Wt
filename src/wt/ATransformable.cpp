@@ -16,6 +16,10 @@ void ATransformable::translate(const glm::vec3& offset){
 	setTranslation(translation + offset);
 }
 
+void ATransformable::setOrientation(const glm::vec3& fw, const glm::vec3& up){
+	TRACEW("NOT IMPLEMENTED");
+}
+
 void ATransformable::rotate(const glm::vec3& axis, float angle){
 #if 1
 	// OK for camera

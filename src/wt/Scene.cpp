@@ -19,6 +19,24 @@ Scene::Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManag
 	mDirectionalLight = new DirectionalLight(this, 0);
 }
 
+ASceneActor* Scene::createActor(ASceneActor::ActorType type, const String&  name){
+	switch(type){
+	case ASceneActor::eTYPE_MODELLED:
+		return dynamic_cast<ASceneActor*>(createModelledActor(name));
+	case ASceneActor::eTYPE_PARTICLE_EFFECT:
+		return dynamic_cast<ASceneActor*>(createParticleEffect(name));
+	case ASceneActor::eTYPE_POINT_LIGHT:
+		return dynamic_cast<ASceneActor*>(const_cast<PointLight*>(createPointLight(name)));
+	case ASceneActor::eTYPE_SOUND:
+		return dynamic_cast<ASceneActor*>(createSound(name));
+	case ASceneActor::eTYPE_TERRAIN:
+		return dynamic_cast<ASceneActor*>(createTerrain(name));
+	default:
+		WT_THROW("Unhandled actor type %d", type);
+	}
+}
+
+
 gui::Window* Scene::getUIWindow(){
 	return mUIWindow;
 }
@@ -87,6 +105,24 @@ void Scene::deleteLight(const ALight* alight){
 
 	onLightDeleted((ALight*)alight);
 }
+
+		
+Scene::ShadowMappingDesc::ShadowMappingDesc() : enabled(true){
+}
+
+const Scene::ShadowMappingDesc& Scene::getShadowMappingDesc() const{
+	return mShadowMapping;
+}
+
+void Scene::setShadowMappingDesc(const ShadowMappingDesc& desc){
+	mShadowMapping = desc;
+
+	// Notify listeners
+	for(ListenerList::iterator iter=mListeners.begin(); iter!=mListeners.end(); iter++){
+		(*iter)->onSceneShadowMappingParamsChanged(this, desc);
+	}
+}
+
 
 const SpotLight* Scene::createSpotLight(const SpotLight::Desc& desc){
 	uint32_t id = 0;
@@ -188,10 +224,10 @@ void Scene::setDirectionalLightDesc(const DirectionalLight::Desc& desc){
 	onLightingModified(mDirectionalLight);
 }
 
-const PointLight* Scene::createPointLight(const PointLight::Desc& desc){
+const PointLight* Scene::createPointLight(const String& name, const PointLight::Desc& desc){
 	uint32_t id = 0;
 
-	PointLight* light = new PointLight(this, generateActorId(), "");
+	PointLight* light = new PointLight(this, generateActorId(), name);
 
 	light->setLuaState(mLuaState);
 

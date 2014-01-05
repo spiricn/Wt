@@ -7,7 +7,15 @@ namespace wt
 {
 
 Material::Material() : mCullMode(eCULL_NONE /* culling disabled by default */), mAmbientColor(Color::White()), mSpecularColor(Color::Black()), mShininess(0.0f), 
-	mDiffuseColor(Color::White()), mAlphaTested(false), mWireframe(false), mBlend(false){
+	mDiffuseColor(Color::White()), mAlphaTested(false), mWireframe(false), mBlend(false), mShadowCast(true){
+}
+
+bool Material::isShadowCaster() const{
+	return mShadowCast;
+}
+
+void Material::setShadowCast(bool state){
+	mShadowCast = state;
 }
 
 void Material::setBlend(bool state){

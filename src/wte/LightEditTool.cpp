@@ -34,7 +34,8 @@ void LightEditTool::onSetDirection(){
 	glm::vec3 eyeFw;
 	mScene->getCamera().getForwardVector(eyeFw);
 
-	desc.direction = eyeFw;
+	// TODO fix this
+	desc.direction = -eyeFw;
 
 	mScene->setDirectionalLightDesc(desc);
 }

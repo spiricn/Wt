@@ -10,6 +10,9 @@ uniform sampler2D uNormalMap;
 uniform vec2 uScreenSize;
 uniform int uPointLightIndex;
 
+uniform mat4 uLightViewMat;
+in mat4 fsLightProjMat;
+
 void main(){
 	//Convert a fragment position to normalized screen space
 	// so we can use it as a texture coordinate for G-buffer sampling.
@@ -22,9 +25,7 @@ void main(){
 	vec3 color = texture(uColorMap, coord).xyz;
 	vec3 normal = normalize(texture(uNormalMap, coord).xyz);
 
-	vec4 lightColor = calculatePointLight(uPointLights[uPointLightIndex], normal, worldPos);
+	vec4 lightColor = calculatePointLight(uPointLightIndex, normal, worldPos);
 
-	outFragColor = vec4(color * lightColor.xyz, 1.0)
-	//+ vec4(1, 1, 1, 1)
-	;
+	outFragColor = vec4(color * lightColor.xyz, 1.0);
 }

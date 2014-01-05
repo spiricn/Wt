@@ -41,23 +41,6 @@ friend class Renderer;
 friend class ARenderer;
 
 public:
-
-	class IListener{
-	public:
-		virtual void onSceneFogParamsChanged(Scene* scene, const FogDesc& desc){
-		}
-
-		virtual void onSceneLightUpdated(Scene* scene, const ALight& light){
-		}
-
-		virtual void onSceneLightCreated(Scene* scene, const ALight& light){
-		}
-
-		virtual void onSceneLightDeleted(Scene* scene, const ALight& light){
-		}
-
-	}; // </IListener>
-
 	typedef std::map<uint32_t, ASceneActor*> ActorMap;
 
 	typedef std::set<ModelledActor*> ModelledActorSet;
@@ -91,7 +74,6 @@ public:
 		}
 	}; // </GodRayParams>
 
-public:
 	const ModelledActorSet& getModelledActors() const{
 		return mModelledActors;
 	}
@@ -103,7 +85,37 @@ public:
 	const ParticleEffectSet& getParticleEffects() const{
 		return mParticleEffects;
 	}
-public:
+
+	struct ShadowMappingDesc{
+		bool enabled;
+		math::Camera casterSource;
+
+		ShadowMappingDesc();
+	}; // </ShadowMappingDesc>
+
+	class IListener{
+	public:
+		virtual void onSceneShadowMappingParamsChanged(Scene* scene, const ShadowMappingDesc& desc){
+		}
+
+		virtual void onSceneFogParamsChanged(Scene* scene, const FogDesc& desc){
+		}
+
+		virtual void onSceneLightUpdated(Scene* scene, const ALight& light){
+		}
+
+		virtual void onSceneLightCreated(Scene* scene, const ALight& light){
+		}
+
+		virtual void onSceneLightDeleted(Scene* scene, const ALight& light){
+		}
+
+	}; // </IListener>
+
+	const ShadowMappingDesc& getShadowMappingDesc() const;
+
+	void setShadowMappingDesc(const ShadowMappingDesc& desc);
+
 	Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManager, lua::State* luaState);
 
 	virtual ~Scene();
@@ -132,11 +144,13 @@ public:
 
 	void setPhysics(Physics* p);
 
-	const PointLight* createPointLight(const PointLight::Desc& desc);
+	const PointLight* createPointLight(const String& name="", const PointLight::Desc& desc=PointLight::Desc());
 
 	const SpotLight* createSpotLight(const SpotLight::Desc& desc);
 
 	void deleteLight(const ALight* light);
+
+	ASceneActor* createActor(ASceneActor::ActorType type, const String&  name="");
 
 	void setSpotLightDesc(const SpotLight* light, const SpotLight::Desc& desc);
 
@@ -189,6 +203,8 @@ public:
 	void unregisterListener(IListener* listener);
 
 private:
+	ShadowMappingDesc mShadowMapping;
+
 	typedef std::vector<IListener*> ListenerList;
 
 	ListenerList mListeners;

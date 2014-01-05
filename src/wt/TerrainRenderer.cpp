@@ -5,7 +5,8 @@
 #define  TD_TRACE_TAG "TerrainRenderer"
 
 
-namespace wt{
+namespace wt
+{
 
 TerrainRenderer::TerrainRenderer(){
 }
@@ -31,7 +32,12 @@ void TerrainRenderer::create(){
 	mShader.setUniformVal("map", 1);
 }
 
-void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
+void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
+	// Terrain is not a shadow caster
+	if(pass != ePASS_NORMAL){
+		return;
+	}
+
 	if(scene->getTerrainSet().empty()){
 		return;
 	}
@@ -59,6 +65,9 @@ void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 	glActiveTexture(GL_TEXTURE1);
 	terrain->getMapTexture()->bind();
 
+	// Enable backface culling
+	gl( Enable(GL_CULL_FACE) );
+	gl( CullFace(GL_BACK) );
 
 	render(scene, terrain->getRootNode() );
 }

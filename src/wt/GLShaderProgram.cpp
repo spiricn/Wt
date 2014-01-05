@@ -168,6 +168,8 @@ void ShaderProgram::setTransformFeedbackVaryings(uint32_t count, ...){
 }
 
 void ShaderProgram::createFromFiles(const String& vertexPath, const String& fragmentPath,  const String& geometryPath, ShaderPreprocessor::ModuleProviderFnc moduleProvider){
+	LOGV("Creating from files vp=%s; fp=%s; gp=%", vertexPath.c_str(), fragmentPath.c_str(), geometryPath.c_str());
+
 	ShaderPreprocessor preprocessor(moduleProvider);
 
 	String vertexSource, fragmentSource, geometrySource;
@@ -324,7 +326,7 @@ void ShaderProgram::setUniformVal(GLint location, const Color& val){
 GLint ShaderProgram::getUniformLocation(const String& name){
 	int loc = glGetUniformLocation(mProgHandle, name.c_str());
 	if(loc==-1){
-		//LOGW("Invalid uniform name \"%s\"", name.c_str());
+		LOGW("Invalid uniform name \"%s\"", name.c_str());
 	}
 
 	return loc;

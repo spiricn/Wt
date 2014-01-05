@@ -15,7 +15,7 @@ public:
 
 	void create();
 
-	void render(Scene* scene, math::Camera* camera, PassType pass);
+	void render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap);
 
 	void onSceneLightingChanged(Scene* scene, Renderer*);
 
@@ -26,7 +26,7 @@ private:
 
 	gl::ShaderProgram mShader;
 	Texture2D mInvalidTexture;
-	DeferredRender* mDeferredRender;
+	//DeferredRender* mDeferredRender;
 	int mSkipper;
 }; // </ModelRenderer>
 

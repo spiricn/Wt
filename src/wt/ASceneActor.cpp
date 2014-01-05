@@ -15,22 +15,59 @@ ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const Strin
 }
 
 
-void ASceneActor::serialize(pb::SceneActorBase* dst){
-	// Transform
-	pb::conv(*getTransformable(), dst->mutable_transform());
+ASceneActor::ActorType ASceneActor::conv(pb::ActorType type){
+	switch(type){
+	case pb::eTYPE_MODELLED:
+		return ASceneActor::eTYPE_MODELLED;
+	case pb::eTYPE_PARTICLE:
+		return ASceneActor::eTYPE_PARTICLE_EFFECT;
+	case pb::eTYPE_POINT_LIGHT:
+		return ASceneActor::eTYPE_POINT_LIGHT;
+	case pb::eTYPE_SOUND:
+		return ASceneActor::eTYPE_SOUND;
+	case pb::eTYPE_TERRAIN:
+		return ASceneActor::eTYPE_TERRAIN;
+	default:
+		WT_THROW("Invalid type %d", type);
+	}
+}
 
-	// Name
-	dst->set_name(mName);
+pb::ActorType ASceneActor::conv(ASceneActor::ActorType type){
+	switch(type){
+	case ASceneActor::eTYPE_MODELLED:
+		return pb::eTYPE_MODELLED;
+	case ASceneActor::eTYPE_PARTICLE_EFFECT:
+		return pb::eTYPE_PARTICLE;
+	case ASceneActor::eTYPE_POINT_LIGHT:
+		return pb::eTYPE_POINT_LIGHT;
+	case ASceneActor::eTYPE_SOUND:
+		return pb::eTYPE_SOUND;
+	case ASceneActor::eTYPE_TERRAIN:
+		return pb::eTYPE_TERRAIN;
+	default:
+		WT_THROW("Invalid type %d", type);
+	}
+}
+
+void ASceneActor::serialize(pb::SceneActor* dst) const{
+	//Transform
+	pb::conv(*getTransformable(), dst->mutable_base()->mutable_transform());
+
+	//Name
+	dst->mutable_base()->set_name(mName);
 
 	// Bounding box
 	glm::vec3 bbox(1, 1, 1);
-	pb::conv(bbox, dst->mutable_bounding_box());
+	pb::conv(bbox, dst->mutable_base()->mutable_bounding_box());
+
+	// Type
+	dst->set_type(conv(mType));
 }
 
-void ASceneActor::deserialize(const pb::SceneActorBase& src){
-	pb::conv(src.transform(), getTransformable());
+void ASceneActor::deserialize(const pb::SceneActor& src){
+	pb::conv(src.base().transform(), getTransformable());
 
-	mName = src.name();
+	mName = src.base().name();
 }
 
 bool ASceneActor::isVisible() const{
@@ -155,7 +192,7 @@ void ASceneActor::setUserData(void* data){
 	mUserData = data;
 }
 
-PhysicsActor* ASceneActor::getPhysicsActor(){
+PhysicsActor* ASceneActor::getPhysicsActor() const{
 	return mPhysicsActor;
 }
 

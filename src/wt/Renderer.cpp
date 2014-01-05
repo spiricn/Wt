@@ -5,8 +5,7 @@
 #include "wt/RenderBuffer.h"
 #include "wt/Singleton.h"
 #include "wt/gui/Window.h"
-
-
+#include "wt/Interpolator.h"
 #include "wt/ParticleRenderer.h"
 #include "wt/ModelRenderer.h"
 #include "wt/TerrainRenderer.h"
@@ -158,6 +157,14 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	FileIOStream stream("d:\\Documents\\prog\\c++\\workspace\\Wt\\rsrc\\godray_sun.png", AIOStream::eMODE_READ);
 	TextureLoader::getSingleton().load(&stream, &mGodray.defaultSourceTexture);
 
+	// Shadow mapping
+	mShadowMapping.shadowMap.create();
+	mShadowMapping.shadowMap.bind();
+	gl( TexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL) );
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) );
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) );
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE) );
+	gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) );
 
 
 	LOGV("Initialized OK");
@@ -804,11 +811,14 @@ void Renderer::setShaderMaterialUniforms(Material* material, gl::ShaderProgram& 
 }
 
 
-void Renderer::render(Scene& scene, ARenderer::PassType pass){
+void Renderer::render(Scene& scene, math::Camera& camera, ARenderer::PassType pass){
+	if(!scene.getShadowMappingDesc().enabled && pass == ARenderer::ePASS_SHADOW){
+		return;
+	}
+
 	// OpenGL state
 	mNumRenderedTerrainNodes = 0;
 	gl( PolygonMode(GL_FRONT_AND_BACK, mRenderState.polygonMode) );
-
 	
 
 	gl( Enable(GL_DEPTH_TEST) );
@@ -818,15 +828,22 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 
 	// View matrix
 	glm::mat4x4 viewMat;
-	scene.getCamera().getCameraMatrix(viewMat);
+	camera.getCameraMatrix(viewMat);
 
 	// WARNING: it's very important for the front face to be set as counter-clockwise
 	// otherwise this whole concept breaks
-	glFrontFace(GL_CCW);
+	gl( FrontFace(GL_CCW) );
 
 	// Only geometry pass writes to the depth buffer
 	gl( DepthMask(true) );
 	gl( Enable(GL_DEPTH_TEST) );
+
+	if(pass == ARenderer::ePASS_NORMAL){
+		mDeferredRenderer->useDepthTexture(DeferredRender::eDEPTH_TEXTURE_NORMAL);
+	}
+	else if(pass == ARenderer::ePASS_SHADOW){
+		mDeferredRenderer->useDepthTexture(DeferredRender::eDEPTH_TEXTURE_SHADOW_MAP);
+	}
 	
 	// Setup the renderer
 	mDeferredRenderer->startFrame();
@@ -835,17 +852,33 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	mDeferredRenderer->bindForGeometryPass();
 
 	// Clear them all, along with the depth/stencil buffer
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	gl( ClearColor(0, 0, 0, 0) );
+	gl( Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
 
 	// Render all the geometry to the G buffer
 	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
 		if((*iter)->isDeferred()){
-			(*iter)->render(&scene, &scene.getCamera(), ARenderer::ePASS_NORMAL);
+			//
+			// TODO: DISABLE COLOR WRITES FOR EACH RENDERER FOR SHADOW PASS !
+			//  glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+			//
+			(*iter)->render(&scene, &camera, pass,
+				pass == ARenderer::ePASS_NORMAL ? mDeferredRenderer->getDepthTexture(DeferredRender::eDEPTH_TEXTURE_SHADOW_MAP) : NULL);
 		}
 	}
+	
+	if(pass == ARenderer::ePASS_SHADOW){
+		return;
+	}
 
+	// Do the light rendering (e.g. directional, point and spot lights)
 	mDeferredRenderer->doLightPass(&scene, &scene.getCamera());
+
+#if 0
+	if(pass == ARenderer::ePASS_NORMAL){
+		Texture2D::depthDump(mDeferredRenderer->getDepthTexture(DeferredRender::eDEPTH_TEXTURE_SHADOW_MAP), "depth.bmp");
+	}
+#endif
 
 	const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT4 };
 	gl( DrawBuffers(1, drawBuffers) );
@@ -855,7 +888,7 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 	// Render the non-deferred geometry
 	for(RendererList::iterator iter=mSceneRenderers.begin(); iter!=mSceneRenderers.end(); iter++){
 		if(!(*iter)->isDeferred()){
-			(*iter)->render(&scene, &scene.getCamera(), ARenderer::ePASS_NORMAL);
+			(*iter)->render(&scene, &camera, pass, NULL);
 		}
 	}
 
@@ -866,9 +899,9 @@ void Renderer::render(Scene& scene, ARenderer::PassType pass){
 		glm::vec4(0, 0, mViewPort.x, mViewPort.y),
 			GL_COLOR_ATTACHMENT4, GL_COLOR_BUFFER_BIT, GL_LINEAR
 	);
-	
+
+	// Enable for debug blits
 #if 0
-	//// Debug blit
 	GLint doubleBuffered; 
 	gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
 
@@ -911,9 +944,6 @@ void Renderer::godrayPass(Scene& scene){
 
 	// Is the source visible ?
 	bool sunVisible = sourceScreenPos.x >= 0.0f && sourceScreenPos.y >= 0.0f && sourceScreenPos.x <= mViewPort.x && sourceScreenPos.y <= mViewPort.y;
-
-
-	
 
 	// Pass 1
 	{
@@ -1090,15 +1120,19 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	gl( Disable(GL_BLEND) );
 
 	// Render entire scene
-	//
+	const Scene::ShadowMappingDesc& shadowMapping = scene.getShadowMappingDesc();
+	if(shadowMapping.enabled){
+		render(scene, const_cast<math::Camera&>(shadowMapping.casterSource), ARenderer::ePASS_SHADOW);	
+	}
+
 	// TODO this seriously needs to be optimized (calling this function with an empty scene cuts down the framerate
 	// from ~1500 to ~200
-	//
-	render(scene, ARenderer::ePASS_NORMAL);
+	render(scene, scene.getCamera(), ARenderer::ePASS_NORMAL);
 	
 	// Do the godray post-processing effect if enabled
 	godrayPass(scene);
 
+	// Render UI
 	if(scene.getUIWindow()){
 		render(scene, scene.getUIWindow());
 	}
@@ -1119,31 +1153,34 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 		target->bind();
 	}
 
-	// Render debug info
-	// Skeleton bones
-	if(mRenderBones){
-		for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
-			if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
-				render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
+	// Debug info rendering
+	{
+		// Skeleton bones
+		if(mRenderBones){
+			for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
+				if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
+					render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
+				}
 			}
 		}
-	}
 
-	// Bounding boxes
-	if(mRenderBoundingBoxes){
-		glDisable(GL_DEPTH_TEST);
-		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-			render(i->second->getBounds(), &scene.getCamera(), i->second->getBoundingBoxColor());
+		// Bounding boxes
+		if(mRenderBoundingBoxes){
+			glDisable(GL_DEPTH_TEST);
+			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+				render(i->second->getBounds(), &scene.getCamera(), i->second->getBoundingBoxColor());
+			}
+			glEnable(GL_DEPTH_TEST);
 		}
-		glEnable(GL_DEPTH_TEST);
-	}
 
-	if(mRenderAxes){
-		glDisable(GL_DEPTH_TEST);
-		for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
-			render(i->second->getTransformable(), &scene.getCamera());
+		// Axes
+		if(mRenderAxes){
+			glDisable(GL_DEPTH_TEST);
+			for(Scene::ActorMap::iterator i=scene.getActorMap().begin(); i!=scene.getActorMap().end(); i++){
+				render(i->second->getTransformable(), &scene.getCamera());
+			}
+			glEnable(GL_DEPTH_TEST);
 		}
-		glEnable(GL_DEPTH_TEST);
 	}
 }
 

@@ -58,6 +58,8 @@ public:
 
 	void dump(const String& path);
 
+	static void depthDump(Texture2D* src, const char* dst);
+
 	static void copy(Texture2D* src, Texture2D* dst){
 
 		dst->create();

@@ -27,7 +27,7 @@ void SkyboxRenderer::create(){
 	mShader.setUniformVal("uSkyboxTexture", 0);
 }
 
-void SkyboxRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
+void SkyboxRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
 	if(pass != ePASS_NORMAL){
 		return;
 	}

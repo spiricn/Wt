@@ -8,6 +8,7 @@
 #include <wt/Model.h>
 #include <wt/Assets.h>
 
+#include "wte/MeshEditDialog.h"
 #include "wte/ResourcePickerDialog.h"
 
 class SkinEditDialog : public QDialog{
@@ -63,10 +64,8 @@ public:
 
 protected slots:
 	void onItemActivated(QTreeWidgetItem* item, int){
-		
 		wt::ModelSkin::Mesh* mesh = *(mSkin->getMeshListBeg() + item->data(0, Qt::UserRole).toInt() );
-
-
+#if 0
 		wt::Texture2D* texture = ResourcePickerDialog::pickResource<wt::Texture2D>(this, mAssets->getTextureManager(), "Texture");
 
 		if(texture){
@@ -80,7 +79,9 @@ protected slots:
 			mesh->normalMap = normalMap;
 			item->setText(2, normalMap->getPath().c_str());
 		}
-
+#else
+		MeshEditDialog::edit(this, mAssets, mesh);
+#endif
 	}
 
 }; // </SkinEditDialog>

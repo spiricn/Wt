@@ -55,6 +55,8 @@ private:
 	void editActor();
 
 protected slots:
+	void onEditModel();
+
 	void onAttachBoneChanged(QString);
 
 	void onActorVisibilityChange(bool);

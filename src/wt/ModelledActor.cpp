@@ -179,9 +179,11 @@ void ModelledActor::update(float dt){
 }
 
 
-void ModelledActor::serialize(pb::ModelledActor* dst){
+void ModelledActor::serialize(pb::SceneActor* aDst) const{
 	// Serialize base
-	ASceneActor::serialize(dst->mutable_base());
+	ASceneActor::serialize(aDst);
+
+	pb::ModelledActor* dst = aDst->mutable_modelled_actor();
 
 	// Model & skin
 	dst->set_model(mModel ? mModel->getPath() : "");
@@ -194,18 +196,13 @@ void ModelledActor::serialize(pb::ModelledActor* dst){
 		dst->set_animation_position(mAnimationPlayer->getPosition());
 		dst->set_animation_speed(mAnimationPlayer->getSpeed());
 	}
-
-
-
-	if(getPhysicsActor()){
-		// TODO
-		TRACEW("Not implemented");
-	}
 }
 
-void ModelledActor::deserialize(AResourceSystem* assets, const pb::ModelledActor& src){
+void ModelledActor::deserialize(AResourceSystem* assets, const pb::SceneActor& aSrc){
 	// ASceneActor is going to do the transform deserialization
-	ASceneActor::deserialize(src.base());
+	ASceneActor::deserialize(aSrc);
+
+	const pb::ModelledActor& src = aSrc.modelled_actor();
 
 	String modelPath, skin;
 		
@@ -223,12 +220,6 @@ void ModelledActor::deserialize(AResourceSystem* assets, const pb::ModelledActor
 			getAnimationPlayer()->setSpeed(src.animation_speed());
 			getAnimationPlayer()->setPosition(src.animation_position());
 		}
-	}
-
-	// Physics
-	if(src.has_physics_actor()){
-		// TODO
-		TRACEW("Not implemented");
 	}
 }
 

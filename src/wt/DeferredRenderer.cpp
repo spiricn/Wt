@@ -6,6 +6,13 @@
 
 #define TD_TRACE_TAG "DeferredRender"
 
+static const glm::mat4 kBIAS_MATRIX(
+	0.5, 0.0, 0.0, 0.0,
+	0.0, 0.5, 0.0, 0.0,
+	0.0, 0.0, 0.5, 0.0,
+	0.5, 0.5, 0.5, 1.0
+);
+
 namespace wt
 {
 
@@ -33,13 +40,23 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 	}
 
 	// Depth/stencil attachment
-	mDepthTexture.create();
-	mDepthTexture.bind();
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	mDepthTexture.setData(width, height, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
+	for(uint32_t i=0; i<eDEPTH_TEXTURE_MAX; i++){
+		mDepthTexture[i].create();
+		mDepthTexture[i].bind();
+		gl( TexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR) );
+		gl( TexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR) );
+		gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP) );
+		gl( TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP) );
 
-	mFrameBuffer.addAttachment(GL_DEPTH_STENCIL_ATTACHMENT, &mDepthTexture);
+		if(i == eDEPTH_TEXTURE_NORMAL){
+			mDepthTexture[i].setData(width, height, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
+		}
+		else if(i == eDEPTH_TEXTURE_SHADOW_MAP){
+			mDepthTexture[i].setData(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, NULL, GL_FLOAT, false);
+		}
+	}
+
+	useDepthTexture(eDEPTH_TEXTURE_NORMAL);
 
 	// Final texture
 	mFinalTexture.create();
@@ -80,14 +97,15 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 
 		mLightShaders[i].use();
 
-		mLightShaders[i].setUniformVal("uMaterial.ambientColor", Color::White());
-		mLightShaders[i].setUniformVal("uMaterial.diffuseColor", Color::White());
-		mLightShaders[i].setUniformVal("uMaterial.specularColor", Color::Black());
-		mLightShaders[i].setUniformVal("uMaterial.shininess", 0.0f);
+		mLightShaders[i].setUniformVal("uLighting.material.ambientColor", Color::White());
+		mLightShaders[i].setUniformVal("uLighting.material.diffuseColor", Color::White());
+		mLightShaders[i].setUniformVal("uLighting.material.specularColor", Color::Black());
+		mLightShaders[i].setUniformVal("uLighting.material.shininess", 0.0f);
 
 		mLightShaders[i].setUniformVal("uPositionMap", 0);
 		mLightShaders[i].setUniformVal("uColorMap", 1);
 		mLightShaders[i].setUniformVal("uNormalMap", 2);
+		mLightShaders[i].setUniformVal("uLighting.shadowMap", 3);
 
 		mLightShaders[i].setUniformVal("uViewMat", glm::mat4(1.0f));
 		mLightShaders[i].setUniformVal("uProjMat", glm::mat4(1.0f));
@@ -127,20 +145,41 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 	resize(width, height);
 }
 
+Texture2D* DeferredRender::getDepthTexture(DepthTexture type) const{
+	// TODO
+	return &const_cast<DeferredRender*>(this)->mDepthTexture[type];
+}
+
+void DeferredRender::useDepthTexture(DepthTexture type){
+	if(type == eDEPTH_TEXTURE_NORMAL){
+		mFrameBuffer.removeAttachments(GL_DEPTH_ATTACHMENT);
+		mFrameBuffer.addAttachment(GL_DEPTH_STENCIL_ATTACHMENT, &mDepthTexture[type]);
+
+	}
+	else{
+		mFrameBuffer.removeAttachments(GL_DEPTH_STENCIL_ATTACHMENT);
+		mFrameBuffer.addAttachment(GL_DEPTH_ATTACHMENT, &mDepthTexture[type]);
+	}
+}
+
+Texture2D* DeferredRender::getGTexture(TextureType type){
+	return &mTextures[type];
+}
+
 void DeferredRender::uploadPointLight(const ShaderPointLight& light){
 	gl::ShaderProgram& shader = mLightShaders[eLIGHT_SHADER_POINT];
 
 	shader.use();
 
-	shader.setUniformValFmt(light.light->getDesc().color, "uPointLights[%d].color", light.index);
+	shader.setUniformValFmt(light.light->getDesc().color, "uLighting.pointLights[%d].color", light.index);
 
-	shader.setUniformValFmt(light.light->getDesc().ambientIntensity, "uPointLights[%d].ambientItensity", light.index);
-	shader.setUniformValFmt(light.light->getDesc().diffuseIntensity, "uPointLights[%d].diffuseItensity", light.index);
-	shader.setUniformValFmt(light.light->getDesc().position, "uPointLights[%d].position", light.index);
+	shader.setUniformValFmt(light.light->getDesc().ambientIntensity, "uLighting.pointLights[%d].ambientItensity", light.index);
+	shader.setUniformValFmt(light.light->getDesc().diffuseIntensity, "uLighting.pointLights[%d].diffuseItensity", light.index);
+	shader.setUniformValFmt(light.light->getDesc().position, "uLighting.pointLights[%d].position", light.index);
 
-	shader.setUniformValFmt(light.light->getDesc().attenuation.linear, "uPointLights[%d].attenuation.linear", light.index);
-	shader.setUniformValFmt(light.light->getDesc().attenuation.constant, "uPointLights[%d].attenuation.constant", light.index);
-	shader.setUniformValFmt(light.light->getDesc().attenuation.quadratic, "uPointLights[%d].attenuation.exponential", light.index);
+	shader.setUniformValFmt(light.light->getDesc().attenuation.linear, "uLighting.pointLights[%d].attenuation.linear", light.index);
+	shader.setUniformValFmt(light.light->getDesc().attenuation.constant, "uLighting.pointLights[%d].attenuation.constant", light.index);
+	shader.setUniformValFmt(light.light->getDesc().attenuation.quadratic, "uLighting.pointLights[%d].attenuation.exponential", light.index);
 }
 
 
@@ -149,16 +188,16 @@ void DeferredRender::uploadDirectionalLight(const DirectionalLight* light){
 
 	shader.use();
 
-	shader.setUniformVal("uDirectionalLight.ambientItensity",
+	shader.setUniformVal("uLighting.directionalLight.ambientItensity",
 		light->getDesc().ambientIntensity);
 
-	shader.setUniformVal("uDirectionalLight.color",
+	shader.setUniformVal("uLighting.directionalLight.color",
 		light->getDesc().color);
 
-	shader.setUniformVal("uDirectionalLight.diffuseItensity",
+	shader.setUniformVal("uLighting.directionalLight.diffuseItensity",
 		light->getDesc().diffuseIntensity);
 
-	shader.setUniformVal("uDirectionalLight.direction",
+	shader.setUniformVal("uLighting.directionalLight.direction",
 		light->getDesc().direction);
 }
 
@@ -172,6 +211,25 @@ DeferredRender::ShaderPointLight* DeferredRender::findShaderPointLight(const Poi
 	}
 
 	return NULL;
+}
+
+void DeferredRender::onSceneShadowMappingParamsChanged(Scene* scene, const Scene::ShadowMappingDesc& desc){
+	for(uint32_t i=0; i<eLIGHT_SHADER_MAX; i++){
+		gl::ShaderProgram& shader = mLightShaders[i];
+
+		shader.use();
+
+		shader.setUniformVal("uLighting.shadowMappingEnabled", desc.enabled);
+
+		if(desc.enabled){
+			glm::mat4 mvp;
+			desc.casterSource.getCameraMatrix(mvp);
+
+			mvp = desc.casterSource.getProjectionMatrix() * mvp;
+
+			setShadowCasterMatrix(mvp);
+		}
+	}
 }
 
 void DeferredRender::onSceneLightUpdated(Scene* scene, const ALight& aLight){
@@ -214,9 +272,9 @@ void DeferredRender::onSceneFogParamsChanged(Scene* scene, const FogDesc& desc){
 	gl::ShaderProgram* shader = &mLightShaders[eLIGHT_SHADER_DIRECTIONAL];
 
 	shader->use();
-	shader->setUniformVal("uFogParams.density", desc.density);
-	shader->setUniformVal("uFogParams.color", desc.color);
-	shader->setUniformVal("uFogParams.enabled", desc.enabled);
+	shader->setUniformVal("uLighting.fog.density", desc.density);
+	shader->setUniformVal("uLighting.fog.color", desc.color);
+	shader->setUniformVal("uLighting.fog.enabled", desc.enabled);
 }
 
 void DeferredRender::onSceneLightDeleted(Scene* scene, const ALight& aLight){
@@ -250,7 +308,8 @@ void DeferredRender::resize(uint32_t width, uint32_t height){
 		}
 	}
 
-	mDepthTexture.setData(mWidth, mHeight, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
+	mDepthTexture[eDEPTH_TEXTURE_NORMAL].setData(width, height, GL_DEPTH_COMPONENT, GL_DEPTH32F_STENCIL8, NULL, GL_FLOAT, false);
+	mDepthTexture[eDEPTH_TEXTURE_SHADOW_MAP].setData(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, NULL, GL_FLOAT, false);
 
 	mFinalTexture.setData(mWidth, mHeight, GL_RGB, GL_RGBA, NULL, GL_FLOAT, false);
 
@@ -307,12 +366,14 @@ void DeferredRender::bindForLightPass(){
 
 	gl(ActiveTexture(GL_TEXTURE2));
 	mTextures[eGTEX_NORMAL].bind();
+
+	gl(ActiveTexture(GL_TEXTURE3));
+	mDepthTexture[eDEPTH_TEXTURE_SHADOW_MAP].bind();
 }
 
 void DeferredRender::bindForFinalPass(){
 	// We're rendering into the main framebuffer
 	mFrameBuffer.unbindDraw();
-
 	// But we're reading from our final texture
 	mFrameBuffer.bindRead();
 
@@ -328,6 +389,7 @@ void DeferredRender::directionalLightPass(Scene* scene, math::Camera* camera){
 
 	shader.use();
 
+	shader.setUniformVal("uLighting_depthBiasLightMVP", mShadowCasterMatrix);
 	shader.setUniformVal("uViewMat", glm::mat4(1.0f));
 	shader.setUniformVal("uProjMat", glm::mat4(1.0f));
 	shader.setUniformVal("uModelMat", glm::mat4(1.0f));
@@ -335,7 +397,7 @@ void DeferredRender::directionalLightPass(Scene* scene, math::Camera* camera){
 	glm::vec3 eyePos;
 	camera->getTranslation(eyePos);
 
-	shader.setUniformVal("uEyePos", eyePos);
+	shader.setUniformVal("uLighting.eyePos", eyePos);
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -407,6 +469,10 @@ void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, const Point
 	mSphereBatch.render();
 }
 
+void DeferredRender::setShadowCasterMatrix(const glm::mat4& matrix){
+	mShadowCasterMatrix = kBIAS_MATRIX * matrix;
+}
+
 void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const PointLight* light){
 	ShaderPointLight* shaderPointLight = findShaderPointLight(light);
 	if(shaderPointLight == NULL){
@@ -420,6 +486,8 @@ void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const Po
 	// Fetch the point light shader
 	gl::ShaderProgram& shader = mLightShaders[eLIGHT_SHADER_POINT];
 	shader.use();
+
+	shader.setUniformVal("uLighting_depthBiasLightMVP", mShadowCasterMatrix);
 
 	// Render only pixels where stencil value is != 0
 	// if ( ref & mask ) != ( stencil & mask ).
@@ -488,7 +556,7 @@ void DeferredRender::doLightPass(Scene* scene, math::Camera* camera){
 
 	gl( Disable(GL_STENCIL_TEST ));
 
-	directionalLightPass(scene, &scene->getCamera());
+	directionalLightPass(scene, camera);
 }
 
 void DeferredRender::startFrame(){

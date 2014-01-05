@@ -8,6 +8,7 @@ namespace wt
 
 class AResourceSystem;
 class Scene;
+class PBActorFactory;
 
 class PbSceneLoader{
 public:
@@ -26,6 +27,9 @@ public:
 private:
 	Scene* mScene;
 	AResourceSystem* mAssets;
+	PBActorFactory* mFactory;
+
+
 }; // </PbSceneLoader>
 
 } // </wt>

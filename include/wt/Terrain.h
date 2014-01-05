@@ -153,6 +153,13 @@ namespace pb
 	class Terrain;
 } // </pb>
 
+
+class Heightmap{
+public:
+
+private:
+
+};
 class Terrain : public ASceneActor{
 public:
 WT_DISALLOW_COPY(Terrain);
@@ -203,10 +210,6 @@ public:
 		return mHeightMap[row*mNumZVertices + col] * mHeightScale;
 	}
 
-	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
-
-	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque=NULL);
-
 	float getRowScale() const;
 
 	float getColScale() const;
@@ -233,7 +236,11 @@ public:
 
 	const TerrainNode* getRootNode() const;
 
-	void serialize(pb::Terrain* dst);
+	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
+
+	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst);
+
+	void serialize(pb::Terrain* dst) const;
 
 	void deserialize(AResourceSystem* assets, const pb::Terrain& src);
 

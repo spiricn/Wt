@@ -16,13 +16,14 @@ PhysicsActor::PhysicsActor(uint32_t id, const String& name, ActorType type, Cont
 	mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id){
 }
 
+
 PhysicsActor::Desc::Desc() : type(eTYPE_INVALID), geometryType(eGEOMETRY_INVALID), controlMode(eCTRL_MODE_NONE), collisionMask(0xFFFFFFFF), group(0x01){
 }
 
-void PhysicsActor::serialize(pb::PhysicsActor* dst){
+void PhysicsActor::Desc::serialize(pb::PhysicsActor* dst){
 }
 
-void PhysicsActor::deserialize(const pb::PhysicsActor& dst){
+void PhysicsActor::Desc::deserialize(const pb::PhysicsActor& src){
 }
 
 void PhysicsActor::setTranslation(const glm::vec3& translation){

@@ -8,6 +8,7 @@
 #include "wte/ActorEditTool.h"
 #include "wte/DoodadEditDialog.h"
 #include "wte/ModelledActorDialog.h"
+#include "wte/ModelEditDialog.h"
 
 #define TD_TRACE_TAG "ActorEditTool"
 
@@ -61,6 +62,19 @@ void ActorEditTool::onActorVisibilityChange(bool visible){
 		mSelectedActor->setVisible(visible);
 	}
 }
+
+void ActorEditTool::onEditModel(){
+	if(isToolFocused() && mSelectedActor){
+		WT_ASSERT(mSelectedActor->getActorType() == wt::ASceneActor::eTYPE_MODELLED, "Sanity check");
+
+		wt::ModelledActor* actor = dynamic_cast<wt::ModelledActor*>(mSelectedActor);
+
+		if(actor->getModel()){
+			ModelEditDialog::edit(this, dynamic_cast<wt::Assets*>(mAssets), actor->getModel());
+		}
+	}
+}
+
 
 void ActorEditTool::onScaleChanged(){
 	if(isToolFocused() && mSelectedActor){
@@ -565,7 +579,7 @@ void ActorEditTool::onNewActor(){
 			const wt::PointLight* actor;
 
 			wt::PointLight::Desc desc;
-			actor = mScene->createPointLight(desc);
+			actor = mScene->createPointLight("", desc);
 
 
 			sceneActor = (wt::ASceneActor*)actor;

@@ -108,6 +108,10 @@ public:
 
 		void deserialize(const LuaPlus::LuaObject& table);
 
+		void serialize(pb::PhysicsActor* dst);
+
+		void deserialize(const pb::PhysicsActor& src);
+
 		bool isValid() const;
 
 	}; // </Desc>
@@ -145,10 +149,6 @@ public:
 	void getTranslation(glm::vec3& result) const;
 
 	void getRotation(glm::quat& result) const;
-
-	void serialize(pb::PhysicsActor* dst);
-
-	void deserialize(const pb::PhysicsActor& dst);
 
 protected:
 	void setController(PxController* ctrl);

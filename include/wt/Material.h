@@ -43,6 +43,10 @@ public:
 
 	CullMode getCullMode() const;
 
+	bool isShadowCaster() const;
+
+	void setShadowCast(bool state);
+
 private:
 	CullMode mCullMode;
 	Color mAmbientColor;
@@ -52,7 +56,7 @@ private:
 	bool mAlphaTested;
 	bool mWireframe;
 	bool mBlend;
-
+	bool mShadowCast;
 }; // </Material>
 
 

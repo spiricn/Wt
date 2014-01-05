@@ -68,7 +68,7 @@ void SceneLoader::load(AIOStream& stream){
 			mScene->getPhysics()->createBBox(effect);
 		}
 		else if(!type.compare("pointlight")){
-			const PointLight* light = mScene->createPointLight(PointLight::Desc());
+			const PointLight* light = mScene->createPointLight();
 
 			((PointLight*)light)->deserialize(mAssets, actorDesc, NULL);
 

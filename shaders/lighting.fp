@@ -45,16 +45,25 @@ struct Fog{
 	int enabled;
 }; // </Fog>
 
-uniform DirectionalLight uDirectionalLight;
-uniform PointLight uPointLights[MAX_POINT_LIGHTS];
-uniform SpotLight uSpotLights[MAX_SPOT_LIGHTS];
-uniform int uNumPointLights;
-uniform Material uMaterial;
-uniform Fog uFogParams;
-uniform vec3 uEyePos;
-uniform int uNumSpotLights;
+struct Lighting{
+	DirectionalLight directionalLight;
+	PointLight pointLights[MAX_POINT_LIGHTS];
+	SpotLight spotLights[MAX_SPOT_LIGHTS];
+	int numPointLights;
+	Material material;
+	Fog fog;
+	vec3 eyePos;
+	int numSpotLights;
+	sampler2D shadowMap;
+	int shadowMappingEnabled;
+}; // </Lighting>
 
-vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensity, float diffuseItensity, vec3 direction){
+// Structs cannot contain variables of sampler types
+uniform mat4 uLighting_depthBiasLightMVP;
+uniform Lighting uLighting;
+
+vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensity,
+	float diffuseItensity, vec3 direction, float shadowFactor){
 	vec4 ambientColor = color * ambientIntensity;
 	vec4 specularColor = vec4(0, 0, 0, 0);
 	vec4 diffuseColor = vec4(0, 0, 0, 0);
@@ -71,14 +80,14 @@ vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensi
 		diffuseColor = color * diffuseItensity * diffuseFactor;
 
 		// Drection vertex -> camera
-		vec3 VertexToEye = normalize(uEyePos - worldPos);
+		vec3 VertexToEye = normalize(uLighting.eyePos - worldPos);
 
         vec3 LightReflect = normalize(reflect(direction, normal));
         float SpecularFactor = dot(VertexToEye, LightReflect);
-        SpecularFactor = pow(SpecularFactor, uMaterial.shininess);
+        SpecularFactor = pow(SpecularFactor, uLighting.material.shininess);
 		
         if (SpecularFactor > 0) {
-            specularColor = color * uMaterial.specularColor * SpecularFactor;
+            specularColor = color * uLighting.material.specularColor * SpecularFactor;
         }
 	}
 	else{
@@ -89,9 +98,32 @@ vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensi
 		diffuseColor = vec4(0, 0, 0, 0);
 	}
 
-	return ambientColor*uMaterial.ambientColor + diffuseColor*uMaterial.diffuseColor + specularColor;
+	// TODO shouldn't affect ambient
+	return shadowFactor * ( ambientColor*uLighting.material.ambientColor +  ( diffuseColor*uLighting.material.diffuseColor + specularColor) );
 }
 
+float calculateShadowFactor(vec3 worldPos){
+	vec4 ShadowCoord = uLighting_depthBiasLightMVP * vec4(worldPos, 1);
+	vec3 projCoords = ShadowCoord.xyz / ShadowCoord.w;
+
+	float bias = 0.0;
+	float visibility = 1;
+	if ( texture( uLighting.shadowMap, ShadowCoord.xy/ShadowCoord.w ).z  <  (ShadowCoord.z-bias)/ShadowCoord.w){
+		visibility = 0.5f;
+	}
+
+	return visibility;
+}
+
+vec4 calculateDirectionalLight(vec3 normal, vec3 worldPos){
+	float shadowFactor = 1.0f;
+	if(uLighting.shadowMappingEnabled == 1){
+		shadowFactor = calculateShadowFactor(worldPos);
+	}
+
+	return calculateLight(normal, worldPos, uLighting.directionalLight.color, uLighting.directionalLight.ambientItensity,
+			uLighting.directionalLight.diffuseItensity, uLighting.directionalLight.direction, shadowFactor);
+}
 
 vec4 calculatePointLight(PointLight light, vec3 normal, vec3 worldPos){
 	// direction to the point light
@@ -102,7 +134,12 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 worldPos){
 
 	direction = normalize(direction);
 
-	vec4 color = calculateLight(normal, worldPos, light.color, light.ambientItensity, light.diffuseItensity, direction);
+	float shadowFactor = 1.0f;
+	if(uLighting.shadowMappingEnabled == 1){
+		shadowFactor = calculateShadowFactor(worldPos);
+	}
+
+	vec4 color = calculateLight(normal, worldPos, light.color, light.ambientItensity, light.diffuseItensity, direction, shadowFactor);
 
 	float att = light.attenuation.constant + light.attenuation.linear * d + light.attenuation.exponential * d * d;
 
@@ -110,6 +147,9 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 worldPos){
 
 }
 
+vec4 calculatePointLight(int index, vec3 normal, vec3 worldPos){
+	return calculatePointLight(uLighting.pointLights[index], normal, worldPos);
+}
 
 vec4 calculateSpotLight(SpotLight light, vec3 normal, vec3 worldPos){
 	vec3 lightToPixel = normalize(worldPos - light.base.position);
@@ -126,19 +166,19 @@ vec4 calculateSpotLight(SpotLight light, vec3 normal, vec3 worldPos){
 }
 
 vec4 calcFog(vec4 color, vec3 worldPos){
-	if(uFogParams.enabled == 0){
+	if(uLighting.fog.enabled == 0){
 		return color;
 	}
 
 	// distance from the camera eye
-	float d = abs(distance(worldPos, uEyePos));
+	float d = abs(distance(worldPos, uLighting.eyePos));
 
 	float factor = clamp(
-		1.0 - exp(-uFogParams.density*d), 0.0, 1.0
+		1.0 - exp(-uLighting.fog.density*d), 0.0, 1.0
 	);
 
 	// mix the fragment color with the fog
-	return mix(color, vec4(uFogParams.color.rgb, 1.0), factor);
+	return mix(color, vec4(uLighting.fog.color.rgb, 1.0), factor);
 }
 
 #endif

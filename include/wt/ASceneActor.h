@@ -15,7 +15,8 @@ namespace lua
 
 namespace pb
 {
-	class SceneActorBase;
+	class SceneActor;
+	enum ActorType;
 } // </pb>
 
 class PhysicsActor;
@@ -98,7 +99,7 @@ public:
 
 	void setUserData(void* data);
 
-	PhysicsActor* getPhysicsActor();
+	PhysicsActor* getPhysicsActor() const;
 
 	void setPhysicsActor(PhysicsActor* actor);
 
@@ -118,9 +119,13 @@ public:
 
 	virtual void destroy();
 
-	void serialize(pb::SceneActorBase* dst);
+	void serialize(pb::SceneActor* dst) const;
 
-	void deserialize(const pb::SceneActorBase& src);
+	void deserialize(const pb::SceneActor& src);
+
+	static ASceneActor::ActorType conv(pb::ActorType type);
+
+	static pb::ActorType conv(ASceneActor::ActorType type);
 
 private:
 	typedef std::vector<ASceneActor*> ActorList;

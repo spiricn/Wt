@@ -23,6 +23,12 @@ void Camera::lookAt(const glm::vec3& position){
 	mUpVector = glm::normalize( glm::cross(mForwardVector, mRightVector) );
 }
 
+void Camera::setOrientation(const glm::vec3& fw, const glm::vec3& up){
+	mForwardVector = glm::normalize(fw);
+	mUpVector = glm::normalize(up);
+	mRightVector = glm::normalize( glm::cross(mForwardVector, mUpVector) );
+}
+
 void Camera::setTranslation(const glm::vec3& translation){
 	mTranslation = translation;
 }
@@ -105,7 +111,7 @@ void Camera::setProjectionType(ProjectionType type){
 	}
 }
 
-const glm::mat4& Camera::getProjectionMatrix(){
+const glm::mat4& Camera::getProjectionMatrix() const{
 	return mProjectionMatrix;
 }
 

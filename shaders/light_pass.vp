@@ -5,7 +5,13 @@ in vec3 inPosition;
 uniform mat4 uModelMat;
 uniform mat4 uViewMat;
 uniform mat4 uProjMat;
+uniform mat4 uLightViewMat;
+
+out mat4 fsLightProjMat;
 
 void main(){
+
+	fsLightProjMat = uProjMat;
+
 	gl_Position = (uProjMat*(uViewMat*uModelMat)) * vec4(inPosition, 1.0);
 }

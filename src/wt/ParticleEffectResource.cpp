@@ -156,6 +156,8 @@ ParticleEffectResource::LayerMap& ParticleEffectResource::getLayerMap(){
 }
 
 void ParticleEffectResource::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
+	AResource::deserialize(luaState, src);
+
 	for(LuaTableIterator iter(src.Get("layers")); iter; iter.Next()){
 		// TODO checks
 		LuaObject& layerTable = iter.GetValue();

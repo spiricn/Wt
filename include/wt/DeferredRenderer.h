@@ -42,6 +42,14 @@ public:
 		eLIGHT_SHADER_MAX,
 	};
 
+	enum DepthTexture{
+		eDEPTH_TEXTURE_INVALID = -1,
+		eDEPTH_TEXTURE_NORMAL = 0,
+		eDEPTH_TEXTURE_SHADOW_MAP,
+		eDEPTH_TEXTURE_MAX
+
+	}; // </DepthTexture>
+
 	DeferredRender(uint32_t width, uint32_t height);
 
 	void resize(uint32_t width, uint32_t height);
@@ -72,21 +80,28 @@ public:
 
 	void onSceneFogParamsChanged(Scene* scene, const FogDesc& desc);
 
+	void onSceneShadowMappingParamsChanged(Scene* scene, const Scene::ShadowMappingDesc& desc);
+
 	gl::ShaderProgram* getLightShader(LightPassShader shader);
 
 	gl::FrameBuffer* getFrameBuffer();
 
 	gl::Batch mSphereBatch;
 
+	void useDepthTexture(DepthTexture type);
+
+	Texture2D* getDepthTexture(DepthTexture type) const;
+
 	void doLightPass(Scene* scene, math::Camera* camera);
 
-	Texture2D* getGTexture(TextureType type){
-		return &mTextures[type];
-	}
+	Texture2D* getGTexture(TextureType type);
+
+	void setShadowCasterMatrix(const glm::mat4& matrix);
 
 private:
+	glm::mat4 mShadowCasterMatrix;
 	Texture2D mTextures[eGTEX_MAX];
-	Texture2D mDepthTexture;
+	Texture2D mDepthTexture[eDEPTH_TEXTURE_MAX];
 	Texture2D mFinalTexture;
 
 	gl::FrameBuffer mFrameBuffer;

@@ -7,9 +7,11 @@
 #include "wt/Buffer.h"
 #include "wt/Texture2D.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace gl{
+namespace gl
+{
 
 class RenderBuffer;
 
@@ -21,13 +23,6 @@ public:
 		eMODE_FRAMEBUFFER = GL_FRAMEBUFFER
 	}; // </Mode>
 
-private:
-
-	bool mIsCreated;
-	GLuint mHandle;
-	wt::Buffer<GLenum> mAttachments;
-
-public:
 	FrameBuffer();
 
 	~FrameBuffer();
@@ -38,9 +33,9 @@ public:
 
 	void addAttachment(GLenum attachment, GLuint texture, GLenum textureType);
 
-	bool isCreated() const{
-		return mIsCreated;
-	}
+	bool isCreated() const;
+
+	void removeAttachments(GLenum point);
 
 	// Bind functions
 	void bind();
@@ -71,11 +66,16 @@ public:
 
 	void blit(const glm::vec4& src, const glm::vec4& dst, GLenum attachment=GL_COLOR_ATTACHMENT0, GLint mask=GL_COLOR_BUFFER_BIT, GLenum filter=GL_LINEAR);
 
+private:
+	bool mIsCreated;
+	GLuint mHandle;
+	wt::Buffer<GLenum> mAttachments;
+
 }; // </FrameBuffer>
 
 
-}; // </gl>
+} // </gl>
 
-}; // </wt>
+} // </wt>
 
-#endif
+#endif // </WT_FRAMEBUFFER_H>

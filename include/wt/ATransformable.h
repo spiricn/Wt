@@ -54,6 +54,8 @@ public:
 
 	virtual void strife(float distance);
 
+	virtual void setOrientation(const glm::vec3& fw, const glm::vec3& up);
+
 	virtual void getRotation(glm::vec3& axis, float& angle) const;
 
 	virtual void getTransformMatrix(glm::mat4& res) const;

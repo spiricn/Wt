@@ -65,7 +65,6 @@ void ModelRenderer::create(){
 	mShader.link();
 
 	mShader.use();
-	mShader.setUniformVal("uSampler", 0);
 	mShader.setUniformVal("uNormalMap", 1);
 
 #if 0
@@ -112,19 +111,19 @@ void ModelRenderer::create(){
 	mInvalidTexture.create();
 	mInvalidTexture.setData(100, 100, GL_RGB, GL_RGB, (const GLbyte*)bfr.getData());
 
-	mDeferredRender = new DeferredRender(1280, 720);
+	//mDeferredRender = new DeferredRender(1280, 720);
 }
 
 void ModelRenderer::onSceneLightingChanged(Scene* scene, Renderer* renderer){
-#ifdef DEFERRED_SHADING
-	renderer->setShaderLightUniforms(scene, *mDeferredRender->getLightShader(DeferredRender::eLIGHT_SHADER_DIRECTIONAL) );
-	renderer->setShaderLightUniforms(scene, *mDeferredRender->getLightShader(DeferredRender::eLIGHT_SHADER_POINT) );
-#else
-	renderer->setShaderLightUniforms(scene, mShader);
-#endif
+//#ifdef DEFERRED_SHADING
+	//renderer->setShaderLightUniforms(scene, *mDeferredRender->getLightShader(DeferredRender::eLIGHT_SHADER_DIRECTIONAL) );
+	//renderer->setShaderLightUniforms(scene, *mDeferredRender->getLightShader(DeferredRender::eLIGHT_SHADER_POINT) );
+//#else
+//	renderer->setShaderLightUniforms(scene, mShader);
+//#endif
 }
 
-void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
+void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
 #ifdef DEFERRED_SHADING
 
 	
@@ -180,6 +179,7 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 
 			// Handle normal mapping
 			if(mesh->normalMap){
+				// TODO move to unit 0
 				gl(ActiveTexture(GL_TEXTURE1));
 				mShader.setUniformVal("uUseNormalMap", 1);
 				mesh->normalMap->bind();
@@ -200,6 +200,20 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass){
 
 			// Alpha testing
 			mShader.setUniformVal("uUseAlphaTest", mesh->material.isAlphaTested() ? 1 : 0);
+
+			// Blending
+#if 0
+			// TODO
+			if(mesh->material.getBlend()){
+				gl( Enable(GL_BLEND) );
+				gl( BlendEquation(GL_FUNC_ADD) );
+				gl( BlendFunc(GL_SRC_ALPHA, GL_ONE) );
+				gl( DepthMask(false) );
+			}
+			else{
+				gl( Disable(GL_BLEND) );
+			}
+#endif
 
 			// Render the geometry
 			actor->getModel()->getBatch().bind();

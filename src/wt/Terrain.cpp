@@ -389,8 +389,10 @@ void Terrain::getPhysicsDesc(PhysicsActor::Desc& desc){
 	desc.geometryDesc.heightfieldGeometry.heightmap = &getHeightmap();
 }
 
-void Terrain::serialize(pb::Terrain* dst){
-	ASceneActor::serialize(dst->mutable_base());
+void Terrain::serialize(pb::Terrain* dst) const{
+	// TODO
+
+	/*ASceneActor::serialize(dst->mutable_base());
 
 	dst->set_verts_per_chunk(mDesc.numRows);
 	dst->set_size(1);
@@ -401,11 +403,13 @@ void Terrain::serialize(pb::Terrain* dst){
 	dst->set_map(mDesc.textureMap->getPath().c_str());
 	dst->set_texture1(mDesc.texture1->getPath().c_str());
 	dst->set_texture2(mDesc.texture2->getPath().c_str());
-	dst->set_texture3(mDesc.texture3->getPath().c_str());
+	dst->set_texture3(mDesc.texture3->getPath().c_str());*/
 }
 
 void Terrain::deserialize(AResourceSystem* assets, const pb::Terrain& src){
-	ASceneActor::deserialize(src.base());
+	// TODO
+
+	/*ASceneActor::deserialize(src.base());
 
 	TerrainDesc tDesc;
 
@@ -424,7 +428,7 @@ void Terrain::deserialize(AResourceSystem* assets, const pb::Terrain& src){
 
 	tDesc.heightmapPath = src.chunks();
 
-	create(tDesc);
+	create(tDesc);*/
 }
 
 void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
@@ -450,7 +454,7 @@ void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src
 	create(tDesc);
 }
 
-void Terrain::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque){
+void Terrain::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst){
 	ASceneActor::serialize(assets, dst);
 
 	dst.Set("vertsPerChunk", mDesc.numRows);

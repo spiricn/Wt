@@ -125,7 +125,7 @@ public:
 		desc.attenuation.linear = 0.1;
 		desc.attenuation.quadratic = 0.0;
 
-		getScene()->createPointLight(desc);
+		getScene()->createPointLight("", desc);
 
 	}
 

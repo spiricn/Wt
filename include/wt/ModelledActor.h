@@ -9,10 +9,13 @@
 #include "wt/lua/Object.h"
 #include "wt/ATransformable.h"
 
-#include "wt/proto/Scene.pb.h"
+namespace wt
+{
 
-namespace wt{
-
+namespace pb
+{
+	class pb::SceneActor;
+}
 
 class ModelledActor : public ASceneActor, public ATransformable{
 public:
@@ -59,11 +62,6 @@ public:
 
 	void removeAnimationChannel(SkeletalAnimationPlayer* chanel);
 
-	struct DeserializationData{
-		PhysicsActor::Desc pxDesc;
-		bool phyiscs;
-	}; // </DeserializationData>
-
 	SkeletalAnimationPlayer* blendToAnimation(const String& name, float time, bool loopBlended);
 	
 	const Buffer<glm::mat4>& getBoneMatrices() const;
@@ -82,9 +80,14 @@ public:
 
 	void getRotation(glm::quat& result) const;
 
-	void serialize(pb::ModelledActor* dst);
+	struct DeserializationData{
+		PhysicsActor::Desc pxDesc;
+		bool phyiscs;
+	}; // </DeserializationData>
 
-	void deserialize(AResourceSystem* assets, const pb::ModelledActor& src);
+	void serialize(pb::SceneActor* dst) const;
+
+	void deserialize(AResourceSystem* assets, const pb::SceneActor& src);
 
 private:
 	typedef std::vector<SkeletalAnimationPlayer*> AnimationChannelList;

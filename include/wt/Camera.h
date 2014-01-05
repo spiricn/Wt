@@ -56,7 +56,7 @@ public:
 
 	ProjectionType getProjectionType() const;
 
-	const glm::mat4& getProjectionMatrix();
+	const glm::mat4& getProjectionMatrix() const;
 
 	void getTransformMatrix(glm::mat4& res) const;
 
@@ -71,6 +71,8 @@ public:
 	void getUpVector(glm::vec3& result) const;
 
 	void lookAt(const glm::vec3& position);
+
+	void setOrientation(const glm::vec3& fw, const glm::vec3& up);
 
 private:
 	void rebuildProjectionMatrix();

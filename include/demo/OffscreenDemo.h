@@ -24,39 +24,39 @@ public:
 		// TODO for some reason this isn't rendering if main screen rendering is commented out
 		
 
-		// Main screen rendering
-		getRenderer()->setClearColor(Color::Red());
-		//getRenderer()->render( *getScene() );
+		//// Main screen rendering
+		//getRenderer()->setClearColor(Color::Red());
+		getRenderer()->render( *getScene() );
 		getRenderer()->render( *getScene(), &mRenderTarget);
 
-		//getRenderer()->setClearColor(Color::green());
-		
-
-		//mOffscreenTexture.dump("test3.jpg");
-
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
-
-		mRenderTarget.unbind();
-
-		////// TODO fix this
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//Texture2D tmp;
-		//tmp.create();
-		//tmp.setData(
-		//	getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight(),
-		//	GL_RGB, GL_RGB, NULL, GL_UNSIGNED_BYTE, true);
-
-		//Texture2D::copy(&mOffscreenTexture, &tmp);
-	
+		////getRenderer()->setClearColor(Color::green());
 		//
 
-		getRenderer()->render(
-			&mOffscreenTexture,
-			glm::vec2(getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()),
-			0, 0,
-			getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()
-		);
+		mOffscreenTexture.dump("test3.jpg");
+
+		//glDisable(GL_DEPTH_TEST);
+		//glDisable(GL_CULL_FACE);
+
+		//mRenderTarget.unbind();
+
+		//////// TODO fix this
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		////Texture2D tmp;
+		////tmp.create();
+		////tmp.setData(
+		////	getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight(),
+		////	GL_RGB, GL_RGB, NULL, GL_UNSIGNED_BYTE, true);
+
+		////Texture2D::copy(&mOffscreenTexture, &tmp);
+	
+		////
+
+		//getRenderer()->render(
+		//	&mOffscreenTexture,
+		//	glm::vec2(getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()),
+		//	0, 0,
+		//	getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()
+		//);
 
 
 		//mOffscreenTexture.dump("offscreen.bmp");
@@ -74,9 +74,6 @@ public:
 
 	void onStart(const LuaObject& config){
 		getCameraControl()->setCamera(&getScene()->getCamera());
-
-		getAssets()->load("level2.lua");
-
 
 		mDepthBuffer.create();
 		mDepthBuffer.setStorage(GL_DEPTH_COMPONENT,
@@ -100,13 +97,13 @@ public:
 
 		WT_ASSERT(mRenderTarget.getFrameBuffer().isComplete(), "Incomplete framebuffer");
 
-		SceneLoader loader(getScene(), getAssets());
+		/*SceneLoader loader(getScene(), getAssets());
 
-		loader.load("scene-test.lua");
+		loader.load("scene-test.lua");*/
 	}
 
-	String getConfigFile() const{
-		return "assets/OffscreenDemoConfig.lua";
+	String getScriptPath() const{
+		return "assets/demo/TestDemo/main.lua";
 	}
 
 	//String getLevelFile() const{

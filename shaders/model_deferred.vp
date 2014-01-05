@@ -68,5 +68,9 @@ void main(){
 	// Pass through tangent
 	fsTangent = inTangent;
 
+#if 0
+	gl_Position = (uProjMat * uViewMat) * vec4(fsWorldPos, 1.0f);
+#else
 	gl_Position = modelViewProjMat * pos;
+#endif`
 }

@@ -145,7 +145,7 @@ public:
 
 private:
 	/** Render entire scene in a single pass */
-	void render(Scene& scene, ARenderer::PassType pass);
+	void render(Scene& scene, math::Camera& camera, ARenderer::PassType pass);
 
 	/** Render actor's bone and all its predecessors recursivley (used for debugging */
 	void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bone);
@@ -169,6 +169,10 @@ private:
 		}
 	} mGodray;
 
+
+	struct ShadowMapping{
+		Texture2D shadowMap;
+	} mShadowMapping;
 	typedef std::vector<ARenderer*> RendererList;
 
 	

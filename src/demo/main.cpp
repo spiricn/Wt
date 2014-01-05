@@ -84,32 +84,45 @@ int main(){
 #else
 
 
-class IBase{
+class AStateContext;
+
+class AState{
+public:
+
+	virtual String getStateName() const = 0;
+
+private:
+	AStateContext* mStateContext;
 };
 
-template<class T>
-class Base : public IBase{
+class State1 : public AState{
 public:
-	void baseCall(T* obj){
-		LOGI("%p", obj);
+	String getStateName(){
+		return "State1";
 	}
 };
 
-class Derived : public Base<int>{
+class State2 : public AState{
 public:
+	String getStateName(){
+		return "State2";
+	}
+};
+
+class AStateManager{
+public:
+
+	typedef std::map<String, AState*> StateMap;
+
+	StateMap mStates;
+
+	void addState(AState* state){
+		mStates.insert(std::make_pair(state->getStateName(), state));
+	}
 
 };
 
-template<class A, class B>
-void test(A* obj, B* arg){
-	
-	obj->baseCall(arg);
-}
-
 int main(){
-	int a = 3;
-	Derived d;
-	test(&d, &a);
 }
 
 #endif
