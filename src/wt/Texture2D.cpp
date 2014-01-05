@@ -41,6 +41,31 @@ void Texture2D::depthDump(Texture2D* src, const char* dst){
 
 }
 
+
+Color Texture2D::sample(float s, float t) const{
+	Color res;
+
+	Buffer<GLubyte> pixels(mWidth*mHeight*3);
+	gl( GetTexImage(getType(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pixels.getData()) );
+
+
+	// TODO handle different min/mag filters, wrapping etc..
+	s = glm::clamp(s, 0.0f, 1.0f);
+	t = glm::clamp(t, 0.0f, 1.0f);
+
+
+	const uint32_t x = mWidth*s;
+	const uint32_t y = mHeight*t;
+
+	GLubyte* rgb = &pixels.getData()[(x * mHeight + y ) * 3];
+
+	res.red = *(rgb + 0);
+	res.green = *(rgb + 1);
+	res.blue = *(rgb + 2);
+
+	return res;
+}
+
 void Texture2D::dump(AIOStream& stream){
 	bind();
 

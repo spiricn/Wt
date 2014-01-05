@@ -543,11 +543,11 @@ void DeferredRender::doLightPass(Scene* scene, math::Camera* camera){
 
 	
 
-	for(Scene::PointLightSet::const_iterator iter=scene->getPointLightSet().cbegin(); iter!=scene->getPointLightSet().cend(); iter++){
-		const PointLight* light = *iter;
+	for(Scene::ActorSet::const_iterator iter=scene->getActorSet(ASceneActor::eTYPE_POINT_LIGHT).begin(); iter!=scene->getActorSet(ASceneActor::eTYPE_POINT_LIGHT).end(); iter++){
+		const PointLight* light = dynamic_cast<const PointLight*>(*iter);
 		if(light->getDesc().enabled){
-			stencilPass(scene, camera, *iter);
-			pointLightPass(scene, camera, *iter);
+			stencilPass(scene, camera, light);
+			pointLightPass(scene, camera, light);
 		}
 	}
 	

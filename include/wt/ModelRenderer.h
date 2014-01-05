@@ -5,7 +5,8 @@
 
 #include "wt/Scene.h"
 
-namespace wt{
+namespace wt
+{
 
 class DeferredRender;
 
@@ -17,8 +18,6 @@ public:
 
 	void render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap);
 
-	void onSceneLightingChanged(Scene* scene, Renderer*);
-
 	bool isDeferred() const;
 
 private:
@@ -26,8 +25,6 @@ private:
 
 	gl::ShaderProgram mShader;
 	Texture2D mInvalidTexture;
-	//DeferredRender* mDeferredRender;
-	int mSkipper;
 }; // </ModelRenderer>
 
 }; // </wt>

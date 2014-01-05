@@ -16,7 +16,7 @@ Camera::Camera() : mTranslation(0.0f, 0.0f, 0.0f), mForwardVector(kFORWARD_VEC),
 }
 
 void Camera::lookAt(const glm::vec3& position){
-	mForwardVector = glm::normalize( position-mTranslation );
+	mForwardVector = -glm::normalize( position-mTranslation );
 
 	mRightVector = glm::normalize( glm::vec3(mForwardVector.z, 0, -mForwardVector.x) );
 

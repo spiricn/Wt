@@ -3,6 +3,7 @@
 
 #include "demo/ADemo.h"
 
+#include "wt/SkydomeRenderer.h"
 #include <wt/SkyDome.h>
 
 #define TD_TRACE_TAG "DayNightDemo"
@@ -21,12 +22,9 @@ public:
 	void onRender(float dt){
 		getRenderer()->render( *getScene() );
 
-		mSkyDome.render(getScene()->getCamera());
+		//mSkyDome.render(getScene()->getCamera());
 	}
 
-	String getConfigFile() const{
-		return "assets/DayNightDemoConfig.lua";
-	}
 
 	void printHelp(){
 		LOGI(
@@ -43,20 +41,16 @@ public:
 	}
 
 
-	String getLevelFile() const{
-		return "world.lua";
-	}
-
 	void onUpdate(float dt){
 		if(!mPaused){
-			mSkyDome.update(dt);
+			//mSkyDome.update(dt);
 		}
 		else{
 			if(getManager()->getInput()->isKeyDown(KEY_DOWN)){
-				mSkyDome.update(dt*3);
+				mSkyDome.advance(dt*3);
 			}
 			else if(getManager()->getInput()->isKeyDown(KEY_UP)){
-				mSkyDome.update(-dt*3);
+				mSkyDome.advance(-dt*3);
 			}
 		}
 
@@ -65,41 +59,63 @@ public:
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		
-		//{
-		//	// Directional light
-		//	glm::vec3 sunPos = mSkyDome.getSunPos();
-		//	DirectionalLight::Desc light;
-		//	getScene()->getDirectionalLight();
 		//
-		//	mSkyDome.getLightIntensity(&light.ambientIntensity, &light.diffuseIntensity);
+		////{
+		////	// Directional light
+		////	glm::vec3 sunPos = mSkyDome.getSunPos();
+		////	DirectionalLight::Desc light;
+		////	getScene()->getDirectionalLight();
+		////
+		////	mSkyDome.getLightIntensity(&light.ambientIntensity, &light.diffuseIntensity);
 
-		//	light.direction = glm::normalize( -sunPos );
+		////	light.direction = glm::normalize( -sunPos );
 
-		//	getScene()->setDirectionalLight(light);
-		//}
+		////	getScene()->setDirectionalLight(light);
+		////}
 
-		//{
-		//	// Point light
-		//	PointLight light;
-		//	getScene()->getPointLight(0, light);
+		////{
+		////	// Point light
+		////	PointLight light;
+		////	getScene()->getPointLight(0, light);
 
-		//	light.position = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
+		////	light.position = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
 
-		//	getScene()->setPointLight(0, light);
-		//}
+		////	getScene()->setPointLight(0, light);
+		////}
 
 
-		ADemo::onUpdate(dt);
+		glm::vec3 sunPos = mSkyDome.getSunPos();
+
+		glm::vec3 center;
+		ModelledActor* a = dynamic_cast<ModelledActor*>(getScene()->findActorByName("cube"));
+		a->getTransformable()->getTranslation(center);
+
+
+		Scene::ShadowMappingDesc desc = getScene()->getShadowMappingDesc();
+
+		//math::Camera* dst = &getScene()->getCamera();
+		math::Camera* dst = &desc.casterSource;
+
+
+		dst->setTranslation(center + 120.0f * glm::normalize(center-sunPos));
+		dst->lookAt(center);
+		
+		getScene()->setShadowMappingDesc(desc);
+
 	}
 
 	void onKeyDown(VirtualKey c){
-
 		if(c == KEY_p){
 			mPaused = !mPaused;
+			mSkyDome.setPaused(mPaused);
 		}
 
 		ADemo::onKeyDown(c);
+	}
+
+
+	String getScriptPath() const{
+		return "assets/demo/TestDemo/main.lua";
 	}
 
 	void onStart(const LuaObject& config){
@@ -107,25 +123,35 @@ public:
 
 		mSkyDome.create(
 			getAssets()->getModelManager()->getFromPath("$ROOT/geodome")->findGeometryByName("GEOMETRY_1"), // dome geometry
-			getAssets()->getTextureManager()->getFromPath("$ROOT/sky/sky"), // sky,
-			getAssets()->getTextureManager()->getFromPath("$ROOT/sky/glow"), // glow,
-			getAssets()->getTextureManager()->getFromPath("$ROOT/sky/sun")// sun
+			getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/sky"), // sky,
+			getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/glow"), // glow,
+			getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/sun")// sun
 			);
 
 		getScene()->setSkyBox(NULL);
 
+		getRenderer()->attachRenderer(new SkyDomeRenderer);
 
-		PointLight::Desc desc;
+		getScene()->insertCustomActor(&mSkyDome);
+
+		Scene::ShadowMappingDesc desc = getScene()->getShadowMappingDesc();
 		desc.enabled = true;
-		desc.color= Color(0.1, 0.1, .3);
-		desc.diffuseIntensity = 0.5;
-		desc.ambientIntensity = 0.5;
+		desc.casterSource.setTranslation(glm::vec3(206.809372, 95.402977, 239.410477));
+		desc.casterSource.setOrientation(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
+		getScene()->setShadowMappingDesc(desc);
 
-		desc.attenuation.constant = 0;
-		desc.attenuation.linear = 0.1;
-		desc.attenuation.quadratic = 0.0;
 
-		getScene()->createPointLight("", desc);
+		//PointLight::Desc desc;
+		//desc.enabled = true;
+		//desc.color= Color(0.1, 0.1, .3);
+		//desc.diffuseIntensity = 0.5;
+		//desc.ambientIntensity = 0.5;
+
+		//desc.attenuation.constant = 0;
+		//desc.attenuation.linear = 0.1;
+		//desc.attenuation.quadratic = 0.0;
+
+		//getScene()->createPointLight("", desc);
 
 	}
 

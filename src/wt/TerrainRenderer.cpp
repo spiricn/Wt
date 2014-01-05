@@ -38,11 +38,11 @@ void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass, 
 		return;
 	}
 
-	if(scene->getTerrainSet().empty()){
+	if(scene->getActorSet(ASceneActor::eTYPE_TERRAIN).empty()){
 		return;
 	}
 
-	Terrain* terrain = (Terrain*)(*scene->getTerrainSet().begin());
+	Terrain* terrain = dynamic_cast<Terrain*>( (*scene->getActorSet(ASceneActor::eTYPE_TERRAIN).begin()) );
 
 	// Render terrain
 	mShader.use();

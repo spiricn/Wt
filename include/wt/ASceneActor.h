@@ -32,8 +32,10 @@ public:
 		eTYPE_PARTICLE_EFFECT,
 		eTYPE_MODELLED,
 		eTYPE_POINT_LIGHT,
-		eTYPE_SOUND
-	};
+		eTYPE_SOUND,
+		eTYPE_CUSTOM,
+		eTYPE_MAX
+	}; // </ActorType>
 
 	struct AttachPoint{
 		ASceneActor* actor;
@@ -128,6 +130,11 @@ public:
 	static pb::ActorType conv(ASceneActor::ActorType type);
 
 private:
+
+	void setId(uint32_t id);
+
+	void setParent(Scene* scene);
+
 	typedef std::vector<ASceneActor*> ActorList;
 	ActorList mAttachedActors;
 

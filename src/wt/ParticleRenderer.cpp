@@ -53,9 +53,11 @@ void ParticleRenderer::render(Scene* scene, math::Camera* camera, PassType pass,
 		return;
 	}
 
-	for(Scene::ParticleEffectSet::const_iterator iter=scene->getParticleEffects().cbegin(); iter!=scene->getParticleEffects().cend(); iter++){
+	const Scene::ActorSet& actorSet = scene->getActorSet(ASceneActor::eTYPE_PARTICLE_EFFECT);
+
+	for(Scene::ActorSet::const_iterator iter=actorSet.begin(); iter!=actorSet.end(); iter++){
 		// TODO fix this
-		ParticleEffect* effect = const_cast<ParticleEffect*>(*iter);
+		ParticleEffect* effect = dynamic_cast<ParticleEffect*>( const_cast<ASceneActor*>(*iter) );
 		if(!effect->isVisible()){
 			continue;
 		}

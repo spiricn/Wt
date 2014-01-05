@@ -7,8 +7,8 @@
 #include "wt/ImageManager.h"
 #include "wt/AResource.h"
 #include "wt/AResourceManager.h"
-#include <td/td.h>
 #include "wt/Singleton.h"
+#include "wt/Color.h"
 #include "wt/Buffer.h"
 #include "wt/DevilImageLoader.h"
 
@@ -51,6 +51,8 @@ public:
 	ImageLink getImage(){
 		return mImage;
 	}
+
+	Color sample(float s, float t) const;
 
 	void generateMipmap();
 

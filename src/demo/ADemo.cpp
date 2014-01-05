@@ -186,10 +186,11 @@ void ADemo::destroyDemo(){
 	mScene->clear();
 	mAssets->unloadAll();
 
+	delete mRenderer;
+	delete mPhysics;
 	delete mScene;
 	delete mAssets;
-	delete mPhysics;
-	delete mRenderer;
+
 	mInput->setMouseGrabbed(false);
 }
 

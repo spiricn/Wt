@@ -48,7 +48,10 @@ public:
 		inter.update(dt, d);
 
 		ModelledActor* a = dynamic_cast<ModelledActor*>(getScene()->findActorByName("cube"));
-		a->getTransformable()->setRotation(glm::normalize(glm::vec3(1, 1, 1)), d);
+		a->getTransformable()->setRotation(glm::normalize(glm::vec3(0, 1, 0)), d);
+
+		ModelledActor* b = dynamic_cast<ModelledActor*>(getScene()->findActorByName("dome"));
+		b->getTransformable()->setRotation(glm::normalize(glm::vec3(1, 1, 1)), d);
 
 		/*static glm::vec3 startPos;
 		glm::vec3 pos;

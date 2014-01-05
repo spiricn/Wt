@@ -106,7 +106,7 @@ float calculateShadowFactor(vec3 worldPos){
 	vec4 ShadowCoord = uLighting_depthBiasLightMVP * vec4(worldPos, 1);
 	vec3 projCoords = ShadowCoord.xyz / ShadowCoord.w;
 
-	float bias = 0.0;
+	float bias = 0.0001;
 	float visibility = 1;
 	if ( texture( uLighting.shadowMap, ShadowCoord.xy/ShadowCoord.w ).z  <  (ShadowCoord.z-bias)/ShadowCoord.w){
 		visibility = 0.5f;

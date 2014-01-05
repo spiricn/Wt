@@ -17,6 +17,22 @@ Scene::Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManag
 	setCamera(&mDefaultCamera);
 
 	mDirectionalLight = new DirectionalLight(this, 0);
+
+	// Create an actor set for each actor type
+	for(int i=0; i<ASceneActor::eTYPE_MAX; i++){
+		mActorSets.insert(std::make_pair(static_cast<ASceneActor::ActorType>(i), new ActorSet));
+	}
+}
+
+void Scene::insertCustomActor(ASceneActor* actor){
+
+	actor->setLuaState(mLuaState);
+
+	actor->setId( generateActorId() );
+
+	mActors.insert( std::make_pair(actor->getId(), actor) );
+
+	setInsert(actor);
 }
 
 ASceneActor* Scene::createActor(ASceneActor::ActorType type, const String&  name){
@@ -84,20 +100,17 @@ void Scene::onLightDeleted(ALight* light){
 	}
 }
 
-const Scene::SpotLightSet& Scene::getSpotLightSet() const{
-	return mSpotLightSet;
-}
-
-const Scene::PointLightSet& Scene::getPointLightSet() const{
-	return mPointLightSet;
-}
-
 void Scene::deleteLight(const ALight* alight){
 	if(alight->getType() == ALight::eTYPE_SPOT){
+#if 0
 		SpotLight* light = (SpotLight*)alight;	
 
 		mSpotLights.erase(light->getId());
-		mSpotLightSet.erase(light);
+
+		setErase(const_cast<ALight*>(alight));
+#else
+		TRACEW("NOT IMPLEMENTED");
+#endif
 	}
 	else{
 		WT_THROW("Sanity check fail");
@@ -125,6 +138,7 @@ void Scene::setShadowMappingDesc(const ShadowMappingDesc& desc){
 
 
 const SpotLight* Scene::createSpotLight(const SpotLight::Desc& desc){
+#if 0
 	uint32_t id = 0;
 
 	while(true){
@@ -141,11 +155,17 @@ const SpotLight* Scene::createSpotLight(const SpotLight::Desc& desc){
 	light->getDesc() = desc;
 
 	mSpotLights.insert(std::make_pair(id, light));
-	mSpotLightSet.insert(light);
+	
+	setInsert(light);
 
 	onLightCreated(light);
 
 	return light;
+#else
+	TRACEW("NOT IMPLEMENTED");
+
+	return NULL;
+#endif
 }
 
 void Scene::getGodRayParams(GodRayParams& dst){
@@ -235,7 +255,7 @@ const PointLight* Scene::createPointLight(const String& name, const PointLight::
 	
 	light->getDesc() = desc;
 
-	mPointLightSet.insert(light);
+	setInsert(light);
 
 	onLightCreated(light);
 
@@ -266,36 +286,17 @@ Scene::ActorMap::iterator Scene::eraseActor(ActorMap::iterator& iter){
 		mPhysics->removeActor( iter->second->getPhysicsActor() );
 	}
 
-	if(iter->second->getActorType() == ASceneActor::eTYPE_MODELLED){
-		WT_ASSERT(mModelledActors.erase( static_cast<ModelledActor*>(iter->second ) ) == 1, "Error erasing actor");
+	setErase(iter->second);
 
-		delete iter->second;
-	}
-	else if(iter->second->getActorType() == ASceneActor::eTYPE_TERRAIN){
-		WT_ASSERT(mTerrainSet.erase( static_cast<Terrain*>(iter->second) ) == 1, "Error erasing actor");
-
-		delete iter->second;
-	}
-	else if(iter->second->getActorType() == ASceneActor::eTYPE_PARTICLE_EFFECT){
-		WT_ASSERT(mParticleEffects.erase( static_cast<ParticleEffect*>(iter->second) ), "Error erasing actor");
-
-		delete iter->second;
-	}
-	else if(iter->second->getActorType() == ASceneActor::eTYPE_POINT_LIGHT){
+	if(iter->second->getActorType() == ASceneActor::eTYPE_POINT_LIGHT){
 		PointLight* light = static_cast<PointLight*>(iter->second);
-
-		mPointLightSet.erase(light);
 
 		// We don't delete the object directly but rather let a smart pointer do it
 		onLightDeleted((ALight*)light);
 	}
-	else if(iter->second->getActorType() == ASceneActor::eTYPE_SOUND){
-		Sound* sound = dynamic_cast<Sound*>(iter->second);
-
-		mSoundSet.erase(sound);
-	}
+	// TODO sound?
 	else{
-		WT_THROW("Unhandled actor type");
+		delete iter->second;
 	}
 
 	return mActors.erase(iter);
@@ -323,7 +324,7 @@ Terrain* Scene::createTerrain(const String& name){
 
 	mActors.insert( std::make_pair(terrain->getId(), terrain) );
 
-	mTerrainSet.insert(terrain);
+	setInsert(terrain);
 
 	return terrain;
 }
@@ -333,7 +334,7 @@ ParticleEffect* Scene::createParticleEffect(const String& name){
 
 	mActors.insert( std::make_pair(effect->getId(), effect) );
 
-	mParticleEffects.insert(effect);
+	setInsert(effect);
 
 	effect->setLuaState(mLuaState);
 
@@ -347,7 +348,7 @@ ModelledActor* Scene::createModelledActor(const String& name){
 
 	mActors.insert( std::make_pair(actor->getId(), actor) );
 
-	mModelledActors.insert(actor);
+	setInsert(actor);
 
 	return actor;
 }
@@ -359,7 +360,7 @@ Sound* Scene::createSound(const String& name){
 
 	mActors.insert( std::make_pair(sound->getId(), sound) );
 
-	mSoundSet.insert(sound);
+	setInsert(sound);
 
 	return sound;
 }
@@ -375,7 +376,7 @@ ASceneActor* Scene::findActorByName(const String& name) const{
 }
 
 uint32_t Scene::getNumPointLights() const{
-	return mPointLightSet.size();
+	return getActorSet(ASceneActor::eTYPE_POINT_LIGHT).size();
 }
 
 uint32_t Scene::getNumSpotLights() const{

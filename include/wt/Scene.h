@@ -43,17 +43,9 @@ friend class ARenderer;
 public:
 	typedef std::map<uint32_t, ASceneActor*> ActorMap;
 
-	typedef std::set<ModelledActor*> ModelledActorSet;
+	typedef std::set<ASceneActor*> ActorSet;
 
-	typedef std::set<ParticleEffect*> ParticleEffectSet;
-
-	typedef std::set<Terrain*> TerrainSet;
-
-	typedef std::set<PointLight*> PointLightSet;
-
-	typedef std::set<SpotLight*> SpotLightSet;
-
-	typedef std::set<Sound*> SoundSet;
+	typedef std::map<ASceneActor::ActorType, ActorSet*> ActorSetMap;
 
 	struct GodRayParams{
 		Texture2D* sourceTexture;
@@ -74,16 +66,8 @@ public:
 		}
 	}; // </GodRayParams>
 
-	const ModelledActorSet& getModelledActors() const{
-		return mModelledActors;
-	}
-
-	const TerrainSet& getTerrainSet() const{
-		return mTerrainSet;
-	}
-
-	const ParticleEffectSet& getParticleEffects() const{
-		return mParticleEffects;
+	const ActorSet& getActorSet(ASceneActor::ActorType type) const{
+		return *mActorSets.find(type)->second;
 	}
 
 	struct ShadowMappingDesc{
@@ -133,10 +117,6 @@ public:
 	void getGodRayParams(GodRayParams& dst);
 
 	void setGodRayParams(const GodRayParams& src);
-
-	const SpotLightSet& getSpotLightSet() const;
-
-	const PointLightSet& getPointLightSet() const;
 
 	const FogDesc& getFogDesc();
 
@@ -202,7 +182,29 @@ public:
 
 	void unregisterListener(IListener* listener);
 
+	// TODO make this private
+	ActorSet& getActorSet(ASceneActor::ActorType type){
+		return *mActorSets.find(type)->second;
+	}
+
+
+	void insertCustomActor(ASceneActor* actor);
+
 private:
+	template<class T>
+	void setErase(T* actor){
+		ActorSet& set = getActorSet(actor->getActorType());
+
+		set.erase(dynamic_cast<ASceneActor*>(actor));
+	}
+
+	template<class T>
+	void setInsert(T* actor){
+		ActorSet& set = getActorSet(actor->getActorType());
+
+		set.insert(dynamic_cast<ASceneActor*>(actor));
+	}
+
 	ShadowMappingDesc mShadowMapping;
 
 	typedef std::vector<IListener*> ListenerList;
@@ -214,15 +216,7 @@ private:
 	/** Master actor list */
 	ActorMap mActors;
 
-	/** A list of modelled actors (also contained in 'mActors') */
-	ModelledActorSet mModelledActors;
-
-	/** A list of terrain entities (also contained in 'mActors') */
-	TerrainSet mTerrainSet;
-
-	SoundSet mSoundSet;
-
-	ParticleEffectSet mParticleEffects;
+	ActorSetMap mActorSets;
 
 	math::Camera* mCamera;
 
@@ -244,12 +238,8 @@ private:
 	
 	EventManager* mEventManager;
 
-	SpotLightSet mSpotLightSet;
-
 	typedef std::map<uint32_t, SpotLight*> SpotLightMap;
 	SpotLightMap mSpotLights;
-
-	PointLightSet mPointLightSet;
 
 	lua::State* mLuaState;
 

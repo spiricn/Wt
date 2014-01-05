@@ -14,6 +14,9 @@ ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const Strin
 	mBoundingBoxColor(Color::Green()), mLuaState(NULL), mVisible(true){
 }
 
+void ASceneActor::setId(uint32_t id){
+	mId = id;
+}
 
 ASceneActor::ActorType ASceneActor::conv(pb::ActorType type){
 	switch(type){
@@ -255,6 +258,10 @@ void ASceneActor::update(float /*dt*/){
 
 		getTransformable()->setTransformMatrix(mat);
 	}
+}
+
+void ASceneActor::setParent(Scene* scene){
+	mParent = scene;
 }
 
 void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque){

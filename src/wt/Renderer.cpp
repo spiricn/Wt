@@ -852,7 +852,7 @@ void Renderer::render(Scene& scene, math::Camera& camera, ARenderer::PassType pa
 	mDeferredRenderer->bindForGeometryPass();
 
 	// Clear them all, along with the depth/stencil buffer
-	gl( ClearColor(0, 0, 0, 0) );
+	gl( ClearColor(mClearColor.red, mClearColor.green, mClearColor.blue, 0) );
 	gl( Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) );
 
 	// Render all the geometry to the G buffer
@@ -1157,9 +1157,11 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	{
 		// Skeleton bones
 		if(mRenderBones){
-			for(Scene::ModelledActorSet::const_iterator iter=scene.getModelledActors().cbegin(); iter!=scene.getModelledActors().cend(); iter++){
-				if((*iter)->getModel() && (*iter)->getModel()->getSkeleton()){
-					render(&scene, (*iter), (*iter)->getModel()->getSkeleton());
+			for(Scene::ActorSet::const_iterator iter=scene.getActorSet(ASceneActor::eTYPE_MODELLED).begin(); iter!=scene.getActorSet(ASceneActor::eTYPE_MODELLED).end(); iter++){
+				const ModelledActor* actor = dynamic_cast<const ModelledActor*>(*iter);
+
+				if(actor->getModel() && actor->getModel()->getSkeleton()){
+					render(&scene, actor, actor->getModel()->getSkeleton());
 				}
 			}
 		}
