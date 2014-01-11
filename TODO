@@ -1,0 +1,68 @@
+-------------------------------------------------------------------------------
+
+orthographics shadow mapping (fix orthographic projection)
+
+-------------------------------------------------------------------------------
+
+migrate demo framework to AEngineFramework
+
+-------------------------------------------------------------------------------
+fix up the demo project
+nake each demo have an individual directory with only the necessary assets in it
+
+-------------------------------------------------------------------------------
+
+fix the hardcoded stuff like:
+	home directory for the ditor
+	brush assets for the terrain editor
+	default godray texture
+	etc..
+-------------------------------------------------------------------------------
+
+move the shaders to cpp files, write a script which generates those files
+make a define so  you can quickly switch between the coded shaders and the file shaders
+(develop and release versions)
+
+-------------------------------------------------------------------------------
+
+implement a basic blending algorithm, just render all the opaque objects first and then the translucent ones
+this will have its flaws but it's good enough for this
+
+-------------------------------------------------------------------------------
+
+finish the heightmap resource integration
+
+-------------------------------------------------------------------------------
+
+pack all the dependency libraries (like the modified LuaPlus) in one directory
+
+-------------------------------------------------------------------------------
+
+create a demo that demonstrates the engines scripting capabilities
+
+-------------------------------------------------------------------------------
+
+maybe do some additional work on the GUI framework (e.g. make multiple windows available,
+and layouts)
+
+-------------------------------------------------------------------------------
+
+fix the render target (right now its fairly broken)
+
+-------------------------------------------------------------------------------
+
+move the godray rendering technique to a seperate renderer
+
+-------------------------------------------------------------------------------
+
+delete legacy rendering functions from the renderer
+
+-------------------------------------------------------------------------------
+
+create more demos
+
+-------------------------------------------------------------------------------
+
+create subdirectories for the files (right now everythign is in one directory )
+
+-------------------------------------------------------------------------------
