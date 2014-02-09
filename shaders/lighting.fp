@@ -56,6 +56,7 @@ struct Lighting{
 	int numSpotLights;
 	sampler2D shadowMap;
 	int shadowMappingEnabled;
+	float shadowIntensity;
 }; // </Lighting>
 
 // Structs cannot contain variables of sampler types
@@ -102,14 +103,15 @@ vec4 calculateLight(vec3 normal, vec3 worldPos, vec4 color, float ambientIntensi
 	return shadowFactor * ( ambientColor*uLighting.material.ambientColor +  ( diffuseColor*uLighting.material.diffuseColor + specularColor) );
 }
 
-float calculateShadowFactor(vec3 worldPos){
-	vec4 ShadowCoord = uLighting_depthBiasLightMVP * vec4(worldPos, 1);
-	vec3 projCoords = ShadowCoord.xyz / ShadowCoord.w;
+float calculateShadowFactor(vec3 worldPos, vec3 normal){
+	vec4 shadowCoord = uLighting_depthBiasLightMVP * vec4(worldPos, 1);
 
-	float bias = 0.0001;
+	float bias = 0.005;
 	float visibility = 1;
-	if ( texture( uLighting.shadowMap, ShadowCoord.xy/ShadowCoord.w ).z  <  (ShadowCoord.z-bias)/ShadowCoord.w){
-		visibility = 0.5f;
+	
+	// TODO do NOT divide by W if doing ortho projection
+	if ( texture( uLighting.shadowMap, shadowCoord.xy/shadowCoord.w ).z  <  (shadowCoord.z-bias)/shadowCoord.w){
+		visibility = 1-uLighting.shadowIntensity;
 	}
 
 	return visibility;
@@ -118,7 +120,7 @@ float calculateShadowFactor(vec3 worldPos){
 vec4 calculateDirectionalLight(vec3 normal, vec3 worldPos){
 	float shadowFactor = 1.0f;
 	if(uLighting.shadowMappingEnabled == 1){
-		shadowFactor = calculateShadowFactor(worldPos);
+		shadowFactor = calculateShadowFactor(worldPos, normal);
 	}
 
 	return calculateLight(normal, worldPos, uLighting.directionalLight.color, uLighting.directionalLight.ambientItensity,
@@ -136,7 +138,7 @@ vec4 calculatePointLight(PointLight light, vec3 normal, vec3 worldPos){
 
 	float shadowFactor = 1.0f;
 	if(uLighting.shadowMappingEnabled == 1){
-		shadowFactor = calculateShadowFactor(worldPos);
+		shadowFactor = calculateShadowFactor(worldPos, normal);
 	}
 
 	vec4 color = calculateLight(normal, worldPos, light.color, light.ambientItensity, light.diffuseItensity, direction, shadowFactor);

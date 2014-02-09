@@ -1,11 +1,10 @@
 #include "wt/stdafx.h"
-
 #include "wt/ConditionVar.h"
 
 #define TD_TRACE_TAG "ConditionVar"
 
-namespace wt{
-
+namespace wt
+{
 
 #if defined(WIN32)
 
@@ -28,11 +27,31 @@ void ConditionVar::wakeAll(){
 	WakeAllConditionVariable(&mWin32Handle);
 }
 
-#else
+#elif defined(__linux__)
 
+ConditionVar::ConditionVar(){
+	pthread_cond_init(&mHandle, NULL);
+}
+
+ConditionVar::~ConditionVar(){
+	pthread_cond_destroy(&mHandle);
+}
+
+void ConditionVar::wait(Mutex& mutex){
+	pthread_cond_wait(&mHandle, mutex.getPthreadHandle());
+}
+
+void ConditionVar::wakeOne(){
+	pthread_cond_signal(&mHandle);
+}
+
+void ConditionVar::wakeAll(){
+	pthread_cond_broadcast(&mHandle);
+}
+
+#else
 	#error Not implemented on this platform
 
 #endif
 
-
-}; // </wt>
+} // </wt>

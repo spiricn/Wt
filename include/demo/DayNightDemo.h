@@ -59,29 +59,29 @@ public:
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		//
-		////{
-		////	// Directional light
-		////	glm::vec3 sunPos = mSkyDome.getSunPos();
-		////	DirectionalLight::Desc light;
-		////	getScene()->getDirectionalLight();
-		////
-		////	mSkyDome.getLightIntensity(&light.ambientIntensity, &light.diffuseIntensity);
+		
+		{
+			// Directional light
+			glm::vec3 sunPos = mSkyDome.getSunPos();
+			DirectionalLight::Desc light;
+			getScene()->getDirectionalLight();
+		
+			mSkyDome.getLightIntensity(&light.ambientIntensity, &light.diffuseIntensity);
 
-		////	light.direction = glm::normalize( -sunPos );
+			light.direction = glm::normalize( -sunPos );
 
-		////	getScene()->setDirectionalLight(light);
-		////}
+			getScene()->setDirectionalLightDesc(light);
+		}
 
-		////{
-		////	// Point light
-		////	PointLight light;
-		////	getScene()->getPointLight(0, light);
+		//{
+		//	// Point light
+		//	const PointLight* light;
+		//	getScene()->getPointLight(0, light);
 
-		////	light.position = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
+		//	light.position = getScene()->getCamera().getPosition() + glm::vec3(0, 3, 0);
 
-		////	getScene()->setPointLight(0, light);
-		////}
+		//	getScene()->setPointLight(0, light);
+		//}
 
 
 		glm::vec3 sunPos = mSkyDome.getSunPos();
@@ -97,10 +97,21 @@ public:
 		math::Camera* dst = &desc.casterSource;
 
 
-		dst->setTranslation(center + 120.0f * glm::normalize(center-sunPos));
+		dst->setTranslation(center + 120.0f * glm::normalize(sunPos-center));
 		dst->lookAt(center);
 		
 		getScene()->setShadowMappingDesc(desc);
+
+		/*Scene::GodRayParams godray;
+		getScene()->getGodRayParams(godray);
+
+		godray.enabled = true;
+		godray.sourcePosition = sunPos;
+
+		getScene()->setGodRayParams(godray);*/
+
+		
+
 
 	}
 

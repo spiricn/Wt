@@ -44,24 +44,66 @@ void Texture2D::depthDump(Texture2D* src, const char* dst){
 
 Color Texture2D::sample(float s, float t) const{
 	Color res;
+	
+	GLint internalFormat, width, height;
+	gl( GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPONENTS, &internalFormat) ); // get internal format type of GL texture
+	gl( GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width) ); // get width of GL texture
+	gl( GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height) ); // get height of GL texture
 
-	Buffer<GLubyte> pixels(mWidth*mHeight*3);
-	gl( GetTexImage(getType(), 0, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)pixels.getData()) );
 
+	GLint bpp = 0;
+	switch(internalFormat){
+	case GL_RGB:
+		bpp = 3;
+		break;
+	case GL_RGBA8:
+	case GL_RGBA:
+		bpp = 4;
+		break;
+	default:
+		WT_THROW("Unsupported format");
+		break;
+	}
 
+	GLubyte* pixels = new GLubyte[width*height*bpp];
+	gl( GetTexImage(getType(), 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)pixels) );
+
+	// The first element corresponds to the lower left corner of the texture image.
+	// Subsequent elements progress left-to-right through the remaining texels in the lowest row of the texture image,
+	// and then in successively higher rows of the texture image. The final element corresponds to the upper right corner of the texture image
+	//
+	//   - width - 
+	// -> -> -> -> end
+	// -> -> -> -> ->    | height
+	// start -> -> ->
+
+	
 	// TODO handle different min/mag filters, wrapping etc..
 	s = glm::clamp(s, 0.0f, 1.0f);
 	t = glm::clamp(t, 0.0f, 1.0f);
 
-
 	const uint32_t x = mWidth*s;
 	const uint32_t y = mHeight*t;
 
-	GLubyte* rgb = &pixels.getData()[(x * mHeight + y ) * 3];
+	GLubyte* rgb = &pixels[(y * mWidth + x) * bpp];
+	
+	if(bpp >= 1){
+		res.red = *(rgb + 0);
 
-	res.red = *(rgb + 0);
-	res.green = *(rgb + 1);
-	res.blue = *(rgb + 2);
+		if(bpp >= 2){
+			res.green = *(rgb + 1);
+
+			if(bpp >= 3){
+				res.blue = *(rgb + 2);
+			}
+
+			if(bpp >= 4){
+				res.alpha = *(rgb + 3);
+			}
+		}
+	}
+
+	delete[] pixels;
 
 	return res;
 }
@@ -79,7 +121,7 @@ void Texture2D::dump(AIOStream& stream){
 
 	Buffer<uint8_t> rgb(mWidth*mHeight*3);
 
-	for(uint32_t i=0; i<depth.getCapacity(); i++){
+	for(uint32_t i=0; i<depth.getCapacity(); sa){
 		float n = 1.0; // camera z near
 		float f = 100.0; // camera z far
 		float z = depth[i];

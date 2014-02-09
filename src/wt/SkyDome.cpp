@@ -175,7 +175,6 @@ void SkyDome::advance(float dt){
 }
 
 void SkyDome::update(float dt){
-
 	if(!mPaused){
 		advance(dt);
 	}

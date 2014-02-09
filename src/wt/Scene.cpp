@@ -120,7 +120,7 @@ void Scene::deleteLight(const ALight* alight){
 }
 
 		
-Scene::ShadowMappingDesc::ShadowMappingDesc() : enabled(true){
+Scene::ShadowMappingDesc::ShadowMappingDesc() : enabled(true), shadowIntensity(0.5f){
 }
 
 const Scene::ShadowMappingDesc& Scene::getShadowMappingDesc() const{

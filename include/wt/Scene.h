@@ -73,6 +73,7 @@ public:
 	struct ShadowMappingDesc{
 		bool enabled;
 		math::Camera casterSource;
+		float shadowIntensity;
 
 		ShadowMappingDesc();
 	}; // </ShadowMappingDesc>

@@ -1,8 +1,11 @@
 #include "demo/stdafx.h"
 
 
-#include "demo/DemoManager.h"
+using namespace wt;
 
+#if 1
+
+#include "demo/DemoManager.h"
 #include "demo/GodRayDemo.h"
 #include "demo/ParticleDemo.h"
 #include "demo/DayNightDemo.h"
@@ -19,12 +22,6 @@
 #include "demo/GoldDiggersDemo.h"
 #include "demo/PathFindingDemo.h"
 #include "demo/TestDemo.h"
-#include "wt/FileIOStream.h"
-
-
-using namespace wt;
-
-#if 1
 
 #if defined(WT_DEMO_NO_CONSOLE) && defined(WIN32)
 	#pragma comment(linker, "/SUBSYSTEM:windows")
@@ -82,45 +79,6 @@ int main(){
 }
 
 #else
-
-
-class AStateContext;
-
-class AState{
-public:
-
-	virtual String getStateName() const = 0;
-
-private:
-	AStateContext* mStateContext;
-};
-
-class State1 : public AState{
-public:
-	String getStateName(){
-		return "State1";
-	}
-};
-
-class State2 : public AState{
-public:
-	String getStateName(){
-		return "State2";
-	}
-};
-
-class AStateManager{
-public:
-
-	typedef std::map<String, AState*> StateMap;
-
-	StateMap mStates;
-
-	void addState(AState* state){
-		mStates.insert(std::make_pair(state->getStateName(), state));
-	}
-
-};
 
 int main(){
 }

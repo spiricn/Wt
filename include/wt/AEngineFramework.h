@@ -66,7 +66,7 @@ public:
 
 	virtual Renderer* getRenderer() const;
 
-	struct Desc{
+	struct Desc : public lua::ASerializable{
 		struct Logging{
 			String filePath;
 			bool enabled;
@@ -94,6 +94,10 @@ public:
 			PhysicsDebugging() : remoteDebuggerURI("127.0.0.1"), remoteDebuggerPort(5425), remoteDebuggingEnabled(false){
 			}
 		} physicsDebugging;
+
+		void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const;
+
+		void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
 		Desc() : mainLoopStep(1/60.0f), homeDir("."){
 		}

@@ -220,6 +220,7 @@ void DeferredRender::onSceneShadowMappingParamsChanged(Scene* scene, const Scene
 		shader.use();
 
 		shader.setUniformVal("uLighting.shadowMappingEnabled", desc.enabled);
+		shader.setUniformVal("uLighting.shadowIntensity", desc.shadowIntensity);
 
 		if(desc.enabled){
 			glm::mat4 mvp;

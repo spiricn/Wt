@@ -3,11 +3,14 @@
 #include "wt/AEngineFramework.h"
 #include "wt/ResourceSystemFactory.h"
 #include "wt/FileSystemFactory.h"
+#include "wt/Lua.h"
 
 #define TD_TRACE_TAG "AEngineFramework"
 
 namespace wt
 {
+
+using namespace lua;
 
 AEngineFramework::AEngineFramework() : mInitialized(false), mWindow(NULL), mInput(NULL), 
 	mEventManager(NULL), mLuaState(NULL), mLogFile(NULL), mProcessManager(NULL), mRunning(false),
@@ -18,6 +21,51 @@ void AEngineFramework::stopMainLoop(){
 	WT_ASSERT(mRunning, "Main loop not running");
 
 	mRunning = false;
+}
+
+void AEngineFramework::Desc::serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const{
+	// Logging
+	LuaObject loggingTable = luaState->newTable();
+	loggingTable.Set("filePath", logging.filePath.c_str());
+	loggingTable.Set("enabled", logging.enabled);
+	dst.Set("logging", loggingTable);
+
+	// Window
+	LuaObject windowTable = luaState->newTable();
+	window.serialize(luaState, windowTable);
+	dst.Set("window", windowTable);
+
+	// File System
+	LuaObject fileSysTable = luaState->newTable();
+	fileSystem.serialize(luaState, fileSysTable);
+	dst.Set("file_system", fileSysTable);
+
+	// Misc
+	dst.Set("home_dir", homeDir.c_str());
+	dst.Set("main_loop_step", mainLoopStep);
+
+	// TODO physics debugging
+}
+
+void AEngineFramework::Desc::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
+	// Logging
+	LuaObject loggingTable = src.Get("logging");
+	if(loggingTable.IsTable()){
+		luaConv(loggingTable.Get("filePath"), logging.filePath);
+		luaConv(loggingTable.Get("enabled"), logging.enabled);
+	}
+
+	// Window
+	LuaObject windowTable = src.Get("window");
+	window.deserialize(luaState, windowTable);
+
+	// File system
+	LuaObject fileSysTable = src.Get("file_system");
+	fileSystem.deserialize(luaState, fileSysTable);
+
+	// Misc
+	luaConv(src.Get("home_dir"), homeDir);
+	luaConv(src.Get("main_loop_step"), mainLoopStep);
 }
 
 void AEngineFramework::processEvent(const wt::Sp<wt::Event> evt){

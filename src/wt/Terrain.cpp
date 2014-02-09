@@ -454,7 +454,7 @@ void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src
 	create(tDesc);
 }
 
-void Terrain::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst){
+void Terrain::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void*){
 	ASceneActor::serialize(assets, dst);
 
 	dst.Set("vertsPerChunk", mDesc.numRows);

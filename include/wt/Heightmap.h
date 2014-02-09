@@ -20,6 +20,24 @@ public:
 
 	const int16_t* getSamples() const;
 
+	float getRowScale() const;
+
+	float getHeightScale() const;
+
+	float getColumnScale() const;
+
+	void setRowScale(float scale);
+
+	void setHeightScale(float scale);
+
+	void setColumnScale(float scale);
+
+	uint32_t getNumRows() const;
+
+	uint32_t getNumColumns() const;
+
+	void create(uint32_t numRows, uint32_t numColumns, int16_t initialValue=0);
+
 private:
 	typedef Buffer<int16_t> SampleBuffer;
 	SampleBuffer mSamples;
@@ -30,12 +48,12 @@ private:
 	float mRowScale;
 }; // </Heightmap>
 
-class HeightmapManager : public AResourceManager<Heightmap>{
+class HeightmapLoader : public AResourceLoader<Heightmap>{
 public:
-	HeightmapManager(AResourceSystem* assets) : AResourceManager(assets){
-	}
-}; // </HeightmapManager>
+	void load(AIOStream* stream, Heightmap* dst);
 
+	void save(AIOStream* stream, Heightmap* src);
+}; // </HeightmapLoader>
 
 } // </wt>
 

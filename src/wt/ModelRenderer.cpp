@@ -116,6 +116,7 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Te
 	// Setup the shader
 	mShader.use();
 	mShader.setUniformVal("uViewMat", viewMat);
+
 	mShader.setUniformVal("uProjMat", camera->getProjectionMatrix());
 	glActiveTexture(GL_TEXTURE0);
 

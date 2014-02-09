@@ -4,8 +4,8 @@
 
 #include "wt/stdafx.h"
 
-
 #include "wt/EventManager.h"
+#include "wt/ASerializable.h"
 
 namespace wt{
 
@@ -41,7 +41,7 @@ public:
 
 	}; // </Mode>
 
-	struct Desc{
+	struct Desc : public lua::ASerializable{
 		// Screen geometry
 		uint32_t screenWidth;
 		uint32_t screenHeight;
@@ -59,11 +59,13 @@ public:
 		bool vsyncEnabled;
 
 		Mode mode;
+		
+		void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const;
+
+		void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
 		Desc(uint32_t screenWidth=640, uint32_t screenHeight=480, const String& windowTitle="",
-			bool vsyncEnabled=true, uint8_t pixelDepth=32, Mode mode = eMODE_WINDOWED) : screenWidth(screenWidth), screenHeight(screenHeight), windowTitle(windowTitle), 
-				vsyncEnabled(vsyncEnabled), pixelDepth(pixelDepth){
-		}
+			bool vsyncEnabled=true, uint8_t pixelDepth=32, Mode mode = eMODE_WINDOWED);
 
 	}; // <Desc>
 

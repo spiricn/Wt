@@ -1,12 +1,8 @@
 #include "wt/stdafx.h"
-
 #include "wt/Mutex.h"
-#include "wt/Exception.h"
-#include "wt/Timer.h"
 
-#define TD_TRACE_TAG "Mutex"
-
-namespace wt{
+namespace wt
+{
 
 #if defined(WIN32)
 
@@ -18,18 +14,6 @@ Mutex::~Mutex(){
 	DeleteCriticalSection(&mWin32Handle);
 }
 
-bool Mutex::tryLock(float timeout){
-	Timer time;
-
-	do{
-		if(TryEnterCriticalSection(&mWin32Handle) != 0){
-			return true;
-		}
-	}while(time.peekSeconds() < timeout);
-
-	return false;
-}
-
 void Mutex::lock(){
 	EnterCriticalSection(&mWin32Handle);
 }
@@ -37,10 +21,29 @@ void Mutex::lock(){
 void Mutex::unlock(){
 	LeaveCriticalSection(&mWin32Handle);
 }
+
+#elif defined(__linux__)
+
+Mutex::Mutex(){
+	pthread_mutex_init(&mMutex, NULL);
+}
+
+Mutex::~Mutex(){
+	pthread_mutex_destroy(&mMutex);
+}
+
+void Mutex::lock(){
+	pthread_mutex_lock(&mMutex);
+}
+
+void Mutex::unlock(){
+	pthread_mutex_unlock(&mMutex);
+}
+
 #else
 
 	#error Not implemented on this platform
 
 #endif // </WIN32>
 
-}; // </wt>
+} // </wt>

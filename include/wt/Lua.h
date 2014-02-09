@@ -29,8 +29,11 @@ bool luaConv(const LuaObject& src, float& dst);
 // uint32_t
 bool luaConv(const LuaObject& src, uint32_t& dst);
 
-// integer
-bool luaConv(const LuaObject& src, int& dst);
+// int32_t
+bool luaConv(const LuaObject& src, int32_t& dst);
+
+// uint8_t
+bool luaConv(const LuaObject& src, uint8_t& dst);
 
 // String
 bool luaConv(const LuaObject& src, String& dst);

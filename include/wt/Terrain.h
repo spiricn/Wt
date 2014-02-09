@@ -238,7 +238,7 @@ public:
 
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
 
-	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst);
+	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void*);
 
 	void serialize(pb::Terrain* dst) const;
 

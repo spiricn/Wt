@@ -158,13 +158,24 @@ bool luaConv(const LuaObject& src, Color& dst){
 	}
 }
 
-// integer
-bool luaConv(const LuaObject& src, int& dst){
+// int32_t
+bool luaConv(const LuaObject& src, int32_t& dst){
 	if(!src.IsInteger()){
 		return false;
 	}
 	else{
 		dst = src.GetInteger();
+		return true;
+	}
+}
+
+// uint8_t
+bool luaConv(const LuaObject& src, uint8_t& dst){
+	if(!src.IsInteger()){
+		return false;
+	}
+	else{
+		dst = static_cast<uint8_t>(src.GetInteger());
 		return true;
 	}
 }

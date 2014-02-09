@@ -65,4 +65,12 @@ create more demos
 
 create subdirectories for the files (right now everythign is in one directory )
 
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+setup a doxygen project
+
+------------------------------------------------------------------------------
+
+possibly make all this run on linux which shoulnd't be too hard from the Wt's standpoint
+
+------------------------------------------------------------------------------

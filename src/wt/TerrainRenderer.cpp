@@ -33,10 +33,10 @@ void TerrainRenderer::create(){
 }
 
 void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
-	// Terrain is not a shadow caster
-	if(pass != ePASS_NORMAL){
-		return;
-	}
+	//// Terrain is not a shadow caster
+	//if(pass != ePASS_NORMAL){
+	//	return;
+	//}
 
 	if(scene->getActorSet(ASceneActor::eTYPE_TERRAIN).empty()){
 		return;
@@ -46,8 +46,6 @@ void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass, 
 
 	// Render terrain
 	mShader.use();
-
-	gl::ShaderUniform<int>(&mShader, "uPassType") = pass;
 
 	glm::mat4x4 view;
 	camera->getCameraMatrix(view);
