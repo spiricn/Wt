@@ -5,8 +5,6 @@
 #include "wt/ASceneActor.h"
 #include "wt/Physics.h"
 
-#include "wt/proto/Scene.pb.h"
-
 #define TD_TRACE_TAG "Terrain"
 
 namespace wt{
@@ -387,48 +385,6 @@ void Terrain::getPhysicsDesc(PhysicsActor::Desc& desc){
 	desc.geometryDesc.heightfieldGeometry.numCols = getNumCols();
 
 	desc.geometryDesc.heightfieldGeometry.heightmap = &getHeightmap();
-}
-
-void Terrain::serialize(pb::Terrain* dst) const{
-	// TODO
-
-	/*ASceneActor::serialize(dst->mutable_base());
-
-	dst->set_verts_per_chunk(mDesc.numRows);
-	dst->set_size(1);
-	dst->set_height_scale(mDesc.heightScale);
-	dst->set_row_scale(mDesc.rowScale);
-	dst->set_column_scale(mDesc.columnScale);
-	dst->set_chunks(mDesc.heightmapPath.c_str());
-	dst->set_map(mDesc.textureMap->getPath().c_str());
-	dst->set_texture1(mDesc.texture1->getPath().c_str());
-	dst->set_texture2(mDesc.texture2->getPath().c_str());
-	dst->set_texture3(mDesc.texture3->getPath().c_str());*/
-}
-
-void Terrain::deserialize(AResourceSystem* assets, const pb::Terrain& src){
-	// TODO
-
-	/*ASceneActor::deserialize(src.base());
-
-	TerrainDesc tDesc;
-
-	tDesc.texture1 = assets->getImageManager()->getFromPath( src.texture1() );
-	tDesc.texture2 = assets->getImageManager()->getFromPath( src.texture2() );
-	tDesc.texture3 = assets->getImageManager()->getFromPath( src.texture3() );
-
-	tDesc.textureMap =  assets->getTextureManager()->getFromPath( src.map() );
-
-	tDesc.numRows = src.verts_per_chunk();
-	tDesc.numColumns = src.verts_per_chunk();
-
-	tDesc.rowScale = src.row_scale();
-	tDesc.columnScale = src.column_scale();
-	tDesc.heightScale = src.height_scale();
-
-	tDesc.heightmapPath = src.chunks();
-
-	create(tDesc);*/
 }
 
 void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){

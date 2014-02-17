@@ -8,7 +8,8 @@ migrate demo framework to AEngineFramework
 
 -------------------------------------------------------------------------------
 fix up the demo project
-nake each demo have an individual directory with only the necessary assets in it
+pack every asset in a single .zip file (have a shared directory and individual demo directories) but only have one assets file
+but multiple scene files (one per demo)
 
 -------------------------------------------------------------------------------
 

@@ -67,6 +67,9 @@ public:
 		Desc(uint32_t screenWidth=640, uint32_t screenHeight=480, const String& windowTitle="",
 			bool vsyncEnabled=true, uint8_t pixelDepth=32, Mode mode = eMODE_WINDOWED);
 
+		virtual ~Desc(){
+		}
+
 	}; // <Desc>
 
 	virtual ~AGameWindow();

@@ -13,12 +13,6 @@ namespace lua
 	class State;
 };
 
-namespace pb
-{
-	class SceneActor;
-	enum ActorType;
-} // </pb>
-
 class PhysicsActor;
 class Scene;
 
@@ -120,14 +114,6 @@ public:
 	virtual void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
 
 	virtual void destroy();
-
-	void serialize(pb::SceneActor* dst) const;
-
-	void deserialize(const pb::SceneActor& src);
-
-	static ASceneActor::ActorType conv(pb::ActorType type);
-
-	static pb::ActorType conv(ASceneActor::ActorType type);
 
 private:
 

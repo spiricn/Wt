@@ -17,11 +17,6 @@
 namespace wt
 {
 
-namespace pb
-{
-	class Skybox;
-} // </pb>
-
 class SkyBoxLoader;
 
 class SkyBox : public AResource<SkyBox>{
@@ -93,10 +88,6 @@ public:
 	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
 
 	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
-
-	void serialize(pb::Skybox* dst);
-
-	void deserialize(const pb::Skybox& dst);
 
 	gl::Batch& getBatch();
 };

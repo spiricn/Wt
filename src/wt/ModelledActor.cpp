@@ -2,9 +2,6 @@
 
 #include "wt/ModelledActor.h"
 
-#include "wt/Pb.h"
-
-
 namespace wt{
 
 
@@ -176,51 +173,6 @@ void ModelledActor::update(float dt){
 	}
 
 	ASceneActor::update(dt);
-}
-
-
-void ModelledActor::serialize(pb::SceneActor* aDst) const{
-	// Serialize base
-	ASceneActor::serialize(aDst);
-
-	pb::ModelledActor* dst = aDst->mutable_modelled_actor();
-
-	// Model & skin
-	dst->set_model(mModel ? mModel->getPath() : "");
-	dst->set_skin(mSkin ? mSkin->getName() : "");
-
-	// Animation
-	if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
-		dst->set_animation(mAnimationPlayer->getCurrentAnimationName());
-		dst->set_animation_loop(mAnimationPlayer->isLooping());
-		dst->set_animation_position(mAnimationPlayer->getPosition());
-		dst->set_animation_speed(mAnimationPlayer->getSpeed());
-	}
-}
-
-void ModelledActor::deserialize(AResourceSystem* assets, const pb::SceneActor& aSrc){
-	// ASceneActor is going to do the transform deserialization
-	ASceneActor::deserialize(aSrc);
-
-	const pb::ModelledActor& src = aSrc.modelled_actor();
-
-	String modelPath, skin;
-		
-	// Model  & animation
-	if(src.model().size()){
-		setModel( assets->getModelManager()->getFromPath(src.model()), src.skin());
-
-		String animation;
-		bool loop = false;
-		float speed = 1.0f;
-		float pos = 0.0f;
-
-		if(src.has_animation()){
-			getAnimationPlayer()->play(src.animation(), src.animation_loop());
-			getAnimationPlayer()->setSpeed(src.animation_speed());
-			getAnimationPlayer()->setPosition(src.animation_position());
-		}
-	}
 }
 
 void ModelledActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void* opaque){

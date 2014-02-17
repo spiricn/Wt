@@ -1,7 +1,6 @@
 #include "wt/stdafx.h"
 #include "wt/SkyBox.h"
 #include "wt/ImageManager.h"
-#include "wt/proto/Scene.pb.h"
 
 #define TD_TRACE_TAG "SkyBox"
 
@@ -18,28 +17,6 @@ SkyBox::~SkyBox(){
 
 void SkyBox::bind(){
 	glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture);
-}
-
-void SkyBox::serialize(pb::Skybox* dst){
-	*dst->mutable_pos_x() = mPosX.getPath();
-	*dst->mutable_neg_x() = mNegX.getPath();
-
-	*dst->mutable_pos_y() = mPosY.getPath();
-	*dst->mutable_neg_y() = mNegY.getPath();
-
-	*dst->mutable_pos_z() = mPosZ.getPath();
-	*dst->mutable_neg_z() = mNegZ.getPath();
-}
-
-void SkyBox::deserialize(const pb::Skybox& src){
-	setImages(
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.pos_x()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.neg_x()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.pos_y()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.neg_y()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.pos_z()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(src.neg_z())
-	);
 }
 
 void SkyBox::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){

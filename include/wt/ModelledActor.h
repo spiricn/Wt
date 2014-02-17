@@ -12,11 +12,6 @@
 namespace wt
 {
 
-namespace pb
-{
-	class pb::SceneActor;
-}
-
 class ModelledActor : public ASceneActor, public ATransformable{
 public:
 	struct Desc{
@@ -84,10 +79,6 @@ public:
 		PhysicsActor::Desc pxDesc;
 		bool phyiscs;
 	}; // </DeserializationData>
-
-	void serialize(pb::SceneActor* dst) const;
-
-	void deserialize(AResourceSystem* assets, const pb::SceneActor& src);
 
 private:
 	typedef std::vector<SkeletalAnimationPlayer*> AnimationChannelList;

@@ -15,7 +15,6 @@
 #include "wt/lua/LuaModule.h"
 #include "wt/lua/LuaBindings.h"
 #include "wt/TransformableAnimator.h"
-#include "wt/PbSceneLoader.h"
 
 namespace wt
 {
@@ -83,17 +82,6 @@ public:
 		desc.casterSource.setTranslation(glm::vec3(206.809372, 95.402977, 239.410477));
 		desc.casterSource.setOrientation(glm::vec3(0, 1, 0), glm::vec3(1, 0, 0));
 		getScene()->setShadowMappingDesc(desc);
-
-/*
-		
-
-		PbSceneLoader loader(getAssets(), getScene());
-
-		loader.save("test.wtpbs");
-
-		getScene()->clear();
-
-		loader.load("test.wtpbs");*/
 	}
 
 	String getScriptPath() const{

@@ -148,12 +148,6 @@ struct TerrainDesc{
 	}
 };
 
-namespace pb
-{
-	class Terrain;
-} // </pb>
-
-
 class Heightmap{
 public:
 
@@ -239,10 +233,6 @@ public:
 	void deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque=NULL);
 
 	void serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void*);
-
-	void serialize(pb::Terrain* dst) const;
-
-	void deserialize(AResourceSystem* assets, const pb::Terrain& src);
 
 }; // </Terrain>
 

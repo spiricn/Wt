@@ -56,6 +56,9 @@ public:
 
 		Desc() : type(eTYPE_INVALID){
 		}
+		
+		virtual ~Desc(){
+		}
 
 	}; // </Desc>
 

@@ -11,11 +11,6 @@ using namespace physx;
 namespace wt
 {
 
-namespace pb
-{
-	class PhysicsActor;
-}
-
 class ASceneActor;
 class Physics;
 
@@ -107,10 +102,6 @@ public:
 		void serialize(LuaPlus::LuaObject& table);
 
 		void deserialize(const LuaPlus::LuaObject& table);
-
-		void serialize(pb::PhysicsActor* dst);
-
-		void deserialize(const pb::PhysicsActor& src);
 
 		bool isValid() const;
 
