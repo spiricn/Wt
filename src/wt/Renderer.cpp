@@ -10,6 +10,7 @@
 #include "wt/ModelRenderer.h"
 #include "wt/TerrainRenderer.h"
 #include "wt/DeferredRenderer.h"
+#include "wt/ShaderFactory.h"
 
 #define TD_TRACE_TAG "Renderer"
 
@@ -118,7 +119,7 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 	mRectShader.create();
 	
 
-	mGodray.sourceShader.createFromFiles("shaders/godraysun.vp", "shaders/godraysun.fp");
+	ShaderFactory::createShader(mGodray.sourceShader, "godraysun.vp", "godraysun.fp");
 	mGodray.sourceShader.bindAttribLocation(0, "inPosition");
 	mGodray.sourceShader.link();
 
@@ -1184,6 +1185,24 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 			glEnable(GL_DEPTH_TEST);
 		}
 	}
+}
+
+void GodRayShader::create(){
+	ShaderFactory::createShader(*this, "godray.vp", "godray.fp");
+
+	bindAttribLocation(0, "inPosition");
+	bindAttribLocation(1, "inTexCoord");
+
+	link();
+}
+
+void RectShader::create(){
+	ShaderFactory::createShader(*this, "rect.vp", "rect.fp");
+
+	bindAttribLocation(0, "inPosition");
+	bindAttribLocation(1, "inTexCoord");
+
+	link();
 }
 
 }; // </wt

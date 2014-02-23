@@ -7,10 +7,9 @@
 #include "wt/GLShaderProgram.h"
 #include "wt/Font.h"
 #include "wt/GLBatch.h"
+#include "wt/ShaderFactory.h"
 
 namespace wt{
-
-
 
 namespace gui{
 
@@ -23,9 +22,7 @@ public:
 	};
 
 	void create(){
-		createFromFiles(
-			"shaders/font.vp",
-			"shaders/font.fp");
+		ShaderFactory::createShader(*this, "font.vp", "font.fp");
 
 		bindAttribLocation(VERTEX, "aVertex");	
 

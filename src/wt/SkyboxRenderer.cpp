@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/SkyboxRenderer.h"
+#include "wt/ShaderFactory.h"
 
 #define  TD_TRACE_TAG "SkyboxRenderer"
 
@@ -16,7 +17,7 @@ bool SkyboxRenderer::isDeferred() const{
 void SkyboxRenderer::create(){
 	LOGV("Compiling skybox shader..");
 
-	mShader.createFromFiles("shaders/skybox.vp", "shaders/skybox.fp");
+	ShaderFactory::createShader(mShader, "skybox.vp", "skybox.fp");
 
 	mShader.bindAttribLocation(0, "inVertex");
 	mShader.bindAttribLocation(1, "inTexCoord");

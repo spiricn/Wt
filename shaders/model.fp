@@ -1,6 +1,6 @@
 #version 330
 	
-#pragma include shaders/lighting.fp
+#pragma include lighting.fp
 
 #define eNORMAL_PASS 0
 #define eGODRAY_PASS 1

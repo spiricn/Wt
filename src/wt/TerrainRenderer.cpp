@@ -1,9 +1,9 @@
 #include "wt/stdafx.h"
 
 #include "wt/TerrainRenderer.h"
+#include "wt/ShaderFactory.h"
 
 #define  TD_TRACE_TAG "TerrainRenderer"
-
 
 namespace wt
 {
@@ -17,8 +17,10 @@ bool TerrainRenderer::isDeferred() const{
 
 void TerrainRenderer::create(){
 	LOGV("Compiling terrain shader...");
-	mShader.createFromFiles("shaders\\terrain_deferred.vp",
-		"shaders\\terrain_deferred.fp");
+
+	ShaderFactory::createShader(mShader,
+		"terrain_deferred.vp",
+		"terrain_deferred.fp");
 
 	mShader.bindAttribLocation(0, "inPosition");
 	mShader.bindAttribLocation(1, "inTexture");

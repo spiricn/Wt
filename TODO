@@ -20,12 +20,6 @@ fix the hardcoded stuff like:
 	etc..
 -------------------------------------------------------------------------------
 
-move the shaders to cpp files, write a script which generates those files
-make a define so  you can quickly switch between the coded shaders and the file shaders
-(develop and release versions)
-
--------------------------------------------------------------------------------
-
 implement a basic blending algorithm, just render all the opaque objects first and then the translucent ones
 this will have its flaws but it's good enough for this
 

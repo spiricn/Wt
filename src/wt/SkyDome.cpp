@@ -1,5 +1,6 @@
 #include "wt/stdafx.h"
 #include "wt/SkyDome.h"
+#include "wt/ShaderFactory.h"
 
 #define TD_TRACE_TAG "SkyDome"
 
@@ -18,7 +19,7 @@ public:
 	};
 
 	void create(){
-		createFromFiles("shaders/skydome.vp", "shaders/skydome.fp");
+		ShaderFactory::createShader(*this, "skydome.vp", "skydome.fp");
 
 		bindAttribLocation(VERTEX, "inPosition");
 		bindAttribLocation(TEXTURE_COORDS, "inTexCoord");
@@ -143,7 +144,7 @@ void SkyDome::create(Geometry* domeMesh, Texture2D* skyTexture,
 	mShader->create();
 
 
-	mPlanetShader.createFromFiles("shaders/planet.vp", "shaders/planet.fp");
+	ShaderFactory::createShader(mPlanetShader, "planet.vp", "planet.fp");
 	mPlanetShader.link();
 
 	float vertices[3] = {0.0, 0.0, 0.0};

@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/ParticleLayer.h"
+#include "wt/ShaderFactory.h"
 
 namespace wt{
 
@@ -129,7 +130,8 @@ void ParticleLayer::update(){
 }
 
 void ParticleCalculationShader::create(){
-	gl::ShaderProgram::createFromFiles("shaders/particle.vp", "", "shaders/particle_gp.vp");
+	
+	ShaderFactory::createShader(*this, "particle.vp", "", "particle_gp.vp");
 
 	bindAttribLocation(eATTR_TYPE, "inType");
 	bindAttribLocation(eATTR_POSITION, "inPosition");

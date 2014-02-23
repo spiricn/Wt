@@ -1,6 +1,6 @@
 #version 140
 
-#pragma include shaders/lighting.fp
+#pragma include lighting.fp
 
 out vec4 outFragColor;
 

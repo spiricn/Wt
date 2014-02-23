@@ -1,6 +1,6 @@
 #version 130
 
-#pragma include shaders/noise3D.glsl
+#pragma include noise3D.glsl
 
 // Inputs
 in float inType;

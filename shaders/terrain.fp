@@ -1,7 +1,7 @@
 #version 130
 #extension GL_EXT_gpu_shader4 : enable
 
-#pragma include shaders/lighting.fp
+#pragma include lighting.fp
 
 #define eNORMAL_PASS 0
 #define eGODRAY_PASS 1

@@ -40,26 +40,12 @@ class DeferredRender;
 
 class GodRayShader : public gl::ShaderProgram{
 public:
-	void create(){
-		createFromFiles("shaders/godray.vp", "shaders/godray.fp");
-
-		bindAttribLocation(0, "inPosition");
-		bindAttribLocation(1, "inTexCoord");
-
-		link();
-	}
+	void create();
 }; // </GodRayShader>
 
 class RectShader : public gl::ShaderProgram{
 public:
-	void create(){
-		createFromFiles("shaders/rect.vp", "shaders/rect.fp");
-
-		bindAttribLocation(0, "inPosition");
-		bindAttribLocation(1, "inTexCoord");
-
-		link();
-	}
+	void create();
 }; // </RectShader>
 
 #define MATERIALS_DISABLED

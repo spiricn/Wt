@@ -5,6 +5,8 @@
 #include "wt/FrameBuffer.h"
 #include "wt/IcosphereBuilder.h"
 
+#include "wt/ShaderFactory.h"
+
 #define  TD_TRACE_TAG "ModelRenderer"
 
 #include "wt/Renderer.h"
@@ -42,9 +44,10 @@ void ModelRenderer::create(){
 #else
 
 	// Geometry pass shader
-	mShader.createFromFiles("shaders/model_deferred.vp",
-		"shaders/model_deferred.fp");
-		
+	ShaderFactory::createShader(mShader, 
+		"model_deferred.vp",
+		"model_deferred.fp");
+
 	mShader.bindAttribLocation(Model::eATTRIB_POSITION, "inVertex");
 	mShader.bindAttribLocation(Model::eATTRIB_TEXCOORD, "inTexCoord");
 	mShader.bindAttribLocation(Model::eATTRIB_NORMAL, "inNormals");

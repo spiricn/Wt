@@ -91,15 +91,22 @@ void ShaderProgram::getActiveUniforms(uint32_t numIndices, GLuint* indices, GLen
 void ShaderProgram::createFromSources(const String& vertexSource, const String& fragmentSource, const String& geometrySource, ShaderPreprocessor::ModuleProviderFnc moduleProvider){
 	create();
 
-	mVertexShader.createFromSource(vertexSource);
+	String vertexProcessed, fragmentProcessed, geometryProcessed;
+
+	ShaderPreprocessor preprocessor(moduleProvider);
+
+	preprocessor.process(vertexSource, vertexProcessed);
+	mVertexShader.createFromSource(vertexProcessed);
 
 	if(fragmentSource.size() != 0){
-		mFragmentShader.createFromSource(fragmentSource);
+		preprocessor.process(fragmentSource, fragmentProcessed);
+		mFragmentShader.createFromSource(fragmentProcessed);
 		mHasFragmentShader = true;
 	}
 
 	if(geometrySource.size() != 0){
-		mGeometryShader.createFromSource(geometrySource);
+		preprocessor.process(geometrySource, geometryProcessed);
+		mGeometryShader.createFromSource(geometryProcessed);
 		mHasGeometryShader=true;
 	}
 
@@ -173,42 +180,18 @@ void ShaderProgram::createFromFiles(const String& vertexPath, const String& frag
 	ShaderPreprocessor preprocessor(moduleProvider);
 
 	String vertexSource, fragmentSource, geometrySource;
-	String vertexProcessed, fragmentProcessed, geometryProcessed;
 
-	// Read vertex source into a buffer and preprocess it
 	utils::readFile(vertexPath, vertexSource);
-	preprocessor.process(vertexSource, vertexProcessed);
 
-#if 1
-	std::ofstream out( "shaders/tmp/" + utils::getFileName(vertexPath) + "_processed.vp" );
-	out << vertexProcessed;
-	out.close();
-#endif
-
-	// Read fragment source into a buffer and preprocess it
 	if(fragmentPath.size() != 0){
 		utils::readFile(fragmentPath, fragmentSource);
-		preprocessor.process(fragmentSource, fragmentProcessed);
-
-#if 1
-		std::ofstream out( "shaders/tmp/" + utils::getFileName(fragmentPath) + "_processed.fp" );
-		out << fragmentProcessed;
-		out.close();
-#endif
 	}
 
-	// Read geometry source into a buffer and preprocess it
 	if(geometryPath.size() != 0){
 		utils::readFile(geometryPath, geometrySource);
-		preprocessor.process(geometrySource, geometryProcessed);
-#if 1
-		std::ofstream out( "shaders/tmp/" + utils::getFileName(geometryPath) + "_processed.gp" );
-		out << geometryProcessed;
-		out.close();
-#endif
 	}
 
-	createFromSources(vertexProcessed, fragmentProcessed, geometryProcessed);
+	createFromSources(vertexSource, fragmentSource, geometrySource, moduleProvider);
 }
 
 bool ShaderProgram::isLinked(){

@@ -3,6 +3,7 @@
 #include "wt/DeferredRenderer.h"
 #include "wt/IcosphereBuilder.h"
 #include "wt/Scene.h"
+#include "wt/ShaderFactory.h"
 
 #define TD_TRACE_TAG "DeferredRender"
 
@@ -70,22 +71,22 @@ DeferredRender::DeferredRender(uint32_t width, uint32_t height) : mWidth(0), mHe
 
 	mFrameBuffer.unbindDraw();
 
-		
-
 	// Stencil pass shader
-	mStencilPassShader.createFromFiles("shaders/stencil_pass.vp");
+	LOGV("Compiling stencil pass shader");
+	ShaderFactory::createShader(mStencilPassShader, "stencil_pass.vp");
+
 	mStencilPassShader.bindAttribLocation(0, "inPosition");
 	mStencilPassShader.link();
 
 	// Light pass shader
 	for(int i=0; i<eLIGHT_SHADER_MAX; i++){
 		if(i == eLIGHT_SHADER_DIRECTIONAL){
-			mLightShaders[i].createFromFiles("shaders/light_pass.vp",
-				"shaders/dir_light_pass.fp");
+			LOGV("Compiling directional light shader");
+			ShaderFactory::createShader(mLightShaders[i], "light_pass.vp", "dir_light_pass.fp");
 		}
 		else if(i == eLIGHT_SHADER_POINT){
-			mLightShaders[i].createFromFiles("shaders/light_pass.vp",
-				"shaders/point_light_pass.fp");
+			LOGV("Compiling point light shader");
+			ShaderFactory::createShader(mLightShaders[i], "light_pass.vp", "point_light_pass.fp");
 		}
 		else{
 			continue;

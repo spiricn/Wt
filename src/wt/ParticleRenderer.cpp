@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/ParticleRenderer.h"
+#include "wt/ShaderFactory.h"
 
 #define  TD_TRACE_TAG "ParticleRenderer"
 
@@ -17,7 +18,7 @@ void ParticleRenderer::create(){
 	// Compile rendering shader
 	LOGV("Compiling particle shader..");
 
-	mParticleRenderShader.createFromFiles("shaders/particle_render.vp", "shaders/particle.fp");
+	ShaderFactory::createShader(mParticleRenderShader, "particle_render.vp", "particle.fp");
 
 	mParticleRenderShader.bindAttribLocation(ParticleCalculationShader::eATTR_TYPE, "inType");
 	mParticleRenderShader.bindAttribLocation(ParticleCalculationShader::eATTR_POSITION, "inPosition");

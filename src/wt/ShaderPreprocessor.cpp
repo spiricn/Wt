@@ -4,6 +4,8 @@
 #include "wt/Utils.h"
 #include "wt/Exception.h"
 
+#define INCLUDE_PRAGMA "#pragma include "
+
 namespace wt
 {
 
@@ -43,17 +45,18 @@ bool ShaderPreprocessor::defaultProvider(const String& src, String& res){
 }
 
 void ShaderPreprocessor::processLine(const String& l){
-	static const char* kINCLUDE_PRAGMA = "#pragma include ";
-
 	// We need might need to alter it
-	String line=l;
+	String line = l;
 
-	if(strncmp(line.c_str(), kINCLUDE_PRAGMA, strlen(kINCLUDE_PRAGMA))==0){
-		/* transfer the entire file into a buffer and insert it into an existing source */ 
-		String includeFile = line.substr(strlen(kINCLUDE_PRAGMA));
+	// Remove \r if there is one
+	if(line.size() && line[line.size() - 1] == '\r'){
+		line.erase(line.size()-1);
+	}
 
-		includeFile[includeFile.size()-1] = 0;
-		
+	if(strncmp(line.c_str(), INCLUDE_PRAGMA, strlen(INCLUDE_PRAGMA))==0){
+		// transfer the entire file into a buffer and insert it into an existing source
+		String includeFile = line.substr(strlen(INCLUDE_PRAGMA));
+
 		String source;
 		if(!mModuleProvider(includeFile, source)){
 			WT_THROW("Unable to open shader include file \"%s\"", includeFile.c_str());
@@ -62,10 +65,6 @@ void ShaderPreprocessor::processLine(const String& l){
 		processBuffer(source);
 	}
 	else{
-		if(line.size() && line[line.size()-1] == '\r'){
-			line.erase(line.size()-1);
-		}
-
 		mResult << line << "\n";
 	}
 }
