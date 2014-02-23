@@ -6,6 +6,8 @@
 // Directory containing shader files (used if WT_USE_EMBEDDEDD_SHADERS is not defined)
 #define SHADER_DIR "shaders"
 
+#define WT_USE_EMBEDDED_SHADERS
+
 namespace wt
 {
 
@@ -21,13 +23,28 @@ static String getPath(const String& uri){
 void ShaderFactory::createShader(gl::ShaderProgram& program, const String& vertexUri, const String& fragmentUri, const String& geometryUri){
 #ifdef WT_USE_EMBEDDED_SHADERS
 	const char* vertexSrc = getShaderSource(vertexUri.c_str());
+
+	if(vertexSrc == NULL && !vertexUri.empty()){
+		WT_THROW("Vertex shader source not found \"%s\"", vertexUri.c_str());
+	}
+
 	const char* fragmentSrc = getShaderSource(fragmentUri.c_str());
+	if(fragmentSrc == NULL && !fragmentUri.empty()){
+		WT_THROW("Fragment shader source not found \"%s\"", fragmentUri.c_str());
+	}
+
 	const char* geometrySrc = getShaderSource(geometryUri.c_str());
+	if(geometrySrc == NULL && !geometryUri.empty()){
+		WT_THROW("Geometry shader source not found \"%s\"", geometryUri.c_str());
+	}
 
 	program.createFromSources(vertexSrc == NULL ? "" : vertexSrc,
 		fragmentSrc == NULL ? "" : fragmentSrc, geometrySrc == NULL ? "" : geometrySrc, &ShaderFactory::embeddedModuleProvider);
+
 #else
+
 	program.createFromFiles(getPath(vertexUri), getPath(fragmentUri), getPath(geometryUri), &ShaderFactory::embeddedModuleProvider);
+
 #endif
 }
 
