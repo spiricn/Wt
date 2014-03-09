@@ -16,7 +16,6 @@
 #include "wt/Mesh.h"
 #include "wt/Model.h"
 #include <td/td.h>
-#include "wt/TerrainChunk.h"
 #include "wt/Font.h"
 #include "wt/SkeletalAnimationPlayer.h"
 #include "wt/RenderTarget.h"

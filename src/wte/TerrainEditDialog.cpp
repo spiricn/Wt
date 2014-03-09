@@ -48,28 +48,22 @@ void TerrainEditDialog::onTexMapPick(){
 }
 
 void TerrainEditDialog::onHeightmapPick(){
-	QString path = QFileDialog::getOpenFileName(this,
-		tr("Open heightmap"), "", tr("All Files (*)"));
+	wt::Heightmap* res = ResourcePickerDialog::pickResource<wt::Heightmap>(this, mAssets->getHeightmapManager());
 
-	ui.heightmap->setText(path);
+	if(res){
+		ui.heightmap->setText(res->getPath().c_str());
+	}
 }
 
 
 void TerrainEditDialog::onSave(){
-	mResult.columnScale = ui.columnScale->value();
-	mResult.heightScale = ui.heightScale->value();
-	mResult.rowScale = ui.rowScale->value();
+	mResult.heightmap = mAssets->getHeightmapManager()->getFromPath( ui.heightmap->text().toStdString() );
 
 	mResult.texture1 =  mAssets->getImageManager()->getFromPath( ui.texture1->text().toStdString() );
 	mResult.texture2 =  mAssets->getImageManager()->getFromPath( ui.texture2->text().toStdString() );
 	mResult.texture3 =  mAssets->getImageManager()->getFromPath( ui.texture3->text().toStdString() );
 
 	mResult.textureMap =  mAssets->getTextureManager()->getFromPath( ui.textureMap->text().toStdString() );
-
-	mResult.numColumns = ui.size->value();
-	mResult.numRows = ui.size->value();
-
-	mResult.heightmapPath = ui.heightmap->text().toStdString();
 
 	mAccepted = true;
 

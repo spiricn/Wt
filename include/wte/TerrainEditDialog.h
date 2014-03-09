@@ -12,7 +12,7 @@ Q_OBJECT
 private:
     Ui::TerrainEditDialog ui;
 
-	wt::TerrainDesc mResult;
+	wt::Terrain::Desc mResult;
 
 	wt::AResourceSystem* mAssets;
 
@@ -21,7 +21,7 @@ private:
 public:
     TerrainEditDialog(QWidget* parent, wt::AResourceSystem* assets);
 
-	static bool editTerrain(QWidget* parent, wt::AResourceSystem* assets, wt::TerrainDesc& res){
+	static bool editTerrain(QWidget* parent, wt::AResourceSystem* assets, wt::Terrain::Desc& res){
 		TerrainEditDialog dlg(parent, assets);
 
 		dlg.exec();

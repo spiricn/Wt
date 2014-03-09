@@ -27,6 +27,7 @@ void Assets::init(){
 	mSkyBoxManager = new SkyBoxManager(this);
 	mSoundManager = new SFSoundManager(this);
 	mParticleManager = new ParticleEffectResourceManager(this);
+	mHeightmapManager = new AResourceManager<Heightmap>(this);
 
 	// TODO remvoe singleton
 	mFontManager = &FontManager::getSingleton();
@@ -38,6 +39,7 @@ void Assets::init(){
 	mAnimationManager->setLoader( &AnimationLoader::getSingleton() );
 	mSoundManager->setLoader( &SFSoundLoader::getSingleton() );
 	mParticleManager->setLoader( NULL );
+	mHeightmapManager->setLoader( &HeightmapLoader::getSingleton() );
 }
 
 void Assets::deserialize(const LuaObject& assets){
@@ -80,6 +82,10 @@ FontManager* Assets::getFontManager(){
 
 ModelManager* Assets::getModelManager(){
 	return mModelManager;
+}
+
+AResourceManager<Heightmap>* Assets::getHeightmapManager(){
+	return mHeightmapManager;
 }
 
 SkyBoxManager* Assets::getSkyBoxManager(){

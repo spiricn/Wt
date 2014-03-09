@@ -50,6 +50,7 @@ void SceneLoader::load(AIOStream& stream){
 			mScene->getPhysics()->createBBox(actor);
 		}
 		else if(!type.compare("terrain")){
+#if 0
 			// Terrain
 			Terrain* terrain = mScene->createTerrain();
 
@@ -59,6 +60,7 @@ void SceneLoader::load(AIOStream& stream){
 			terrain->getPhysicsDesc(desc);
 
 			mScene->getPhysics()->createActor(terrain, desc);
+#endif
 		}
 		else if(!type.compare("particle")){
 			ParticleEffect* effect = mScene->createParticleEffect();

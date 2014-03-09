@@ -3,6 +3,8 @@
 
 #include "wt/AResourceManager.h"
 #include "wt/Buffer.h"
+#include "wt/Singleton.h"
+
 namespace wt
 {
 
@@ -48,7 +50,7 @@ private:
 	float mRowScale;
 }; // </Heightmap>
 
-class HeightmapLoader : public AResourceLoader<Heightmap>{
+class HeightmapLoader : public AResourceLoader<Heightmap>, public Singleton<HeightmapLoader>{
 public:
 	void load(AIOStream* stream, Heightmap* dst);
 

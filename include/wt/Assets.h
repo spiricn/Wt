@@ -28,7 +28,7 @@
 #include "wt/ZipFileSystem.h"
 #include "wt/SFSoundManager.h"
 #include "wt/SFSoundLoader.h"
-
+#include "wt/Heightmap.h"
 #include "wt/lua/State.h"
 
 namespace wt
@@ -61,6 +61,8 @@ public:
 	AnimationManager* getAnimationManager();
 
 	AResourceManager<ASoundBuffer>* getSoundManager();
+
+	AResourceManager<Heightmap>* getHeightmapManager();
 
 	template<class T>
 	void fixAbsolutePaths(AResourceManager<T>* manager);
@@ -176,6 +178,7 @@ private:
 	AFileSystem* mFileSystem;
 	ParticleEffectResourceManager* mParticleManager;
 	lua::State mLuaState;
+	AResourceManager<Heightmap>* mHeightmapManager;
 
 	template<class T>
 	void serialize(AResourceManager<T>* manager, const String& name, lua::LuaObject& table);

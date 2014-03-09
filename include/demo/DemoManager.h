@@ -22,7 +22,6 @@
 #include "wt/ImageManager.h"
 #include "wt/Physics.h"
 #include "wt/TextureArray.h"
-#include "wt/TerrainChunk.h"
 #include "wt/ModelManager.h"
 #include "wt/Model.h"
 #include "wt/Assets.h"

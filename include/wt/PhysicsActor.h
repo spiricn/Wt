@@ -6,7 +6,7 @@ using namespace physx;
 #include "wt/Lua.h"
 #include "wt/ATransformable.h"
 #include "wt/Model.h"
-
+#include "wt/Heightmap.h"
 
 namespace wt
 {
@@ -68,7 +68,7 @@ public:
 			} sphereGeometry;
 
 			struct HeightfieldGeometry{
-				const Buffer<int16_t>* heightmap;
+				const Heightmap* heightmap;
 				uint32_t numRows;
 				uint32_t numCols;
 				float heightScale;

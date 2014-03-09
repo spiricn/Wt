@@ -613,7 +613,7 @@ Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 
 		for(uint32_t row=0; row<numRows; row++){
 			for(uint32_t col=0; col<numCols; col++){
-				samples[row*numCols + col].height = (*hfDesc.heightmap)[row*numCols + col];
+				samples[row*numCols + col].height = hfDesc.heightmap->getSamples()[row*numCols + col];
 			}
 		}
 

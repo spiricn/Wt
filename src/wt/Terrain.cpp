@@ -1,7 +1,6 @@
 #include "Wt/stdafx.h"
 
 #include "wt/Terrain.h"
-#include "wt/TerrainChunk.h"
 #include "wt/ASceneActor.h"
 #include "wt/Physics.h"
 
@@ -13,40 +12,17 @@ namespace wt{
 Terrain::Terrain(Scene* parent, uint32_t actorId, const String& name) : mTerrainTextures(NULL), ASceneActor(parent, ASceneActor::eTYPE_TERRAIN, actorId, name){
 }
 
-const TerrainDesc& Terrain::getDesc() const{
+const Terrain::Desc& Terrain::getDesc() const{
 	return mDesc;
 }
 
-uint32_t Terrain::getNumRows() const{
-	return mNumXVertices;
-}
 
 ATransformable* Terrain::getTransformable() const{
 	return const_cast<ATransformable*>( dynamic_cast<const ATransformable*>(&mTransform) );
 }
 
-uint32_t Terrain::getNumCols() const{
-	return mNumZVertices;
-}
-
-float Terrain::getHeightScale() const{
-	return mHeightScale;
-}
-
-float Terrain::getRowScale() const{
-	return mRowScale;
-}
-
-float Terrain::getColScale() const{
-	return mColumnScale;
-}
-
-TerrainChunk::HeightMap& Terrain::getHeightmap(){
-	return mHeightMap;
-}
-
-const TerrainChunk::HeightMap& Terrain::getHeightmap() const{
-	return mHeightMap;
+Heightmap* Terrain::getHeightmap(){
+	return mDesc.heightmap;
 }
 
 TerrainNode::ChunkList& Terrain::getChunks(){
@@ -57,7 +33,7 @@ gl::Batch& Terrain::getBatch(){
 	return mBatch;
 }
 
-void Terrain::calculateNormals(TerrainChunk::Vertex* vertices, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols){
+void Terrain::calculateNormals(TerrainNode::Vertex* vertices, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols){
 	#define v(x, y) vertices[(x<0 ? 0 : x>=mNumXVertices ? mNumXVertices-1 : x)*mNumZVertices + (y<0 ? 0 : y>=mNumZVertices ? mNumZVertices-1 : y)]
 
 	for(uint32_t row=startRow; row<startRow+numRows; row++){
@@ -65,7 +41,7 @@ void Terrain::calculateNormals(TerrainChunk::Vertex* vertices, uint32_t startRow
 			float dr = v(row-1, col).y - v(row+1, col).y;
 			float dc = v(row, col-1).y - v(row, col+1).y;
 
-			glm::vec3 n = glm::normalize( glm::vec3(-dr, 2*mRowScale, dc) );
+			glm::vec3 n = glm::normalize( glm::vec3(-dr, 2*mHeightmap->getRowScale(), dc) );
 
 			v(row, col).nx = n.x;
 			v(row, col).ny = n.y;
@@ -76,7 +52,7 @@ void Terrain::calculateNormals(TerrainChunk::Vertex* vertices, uint32_t startRow
 	#undef v
 }
 
-void Terrain::create(const TerrainDesc& desc){
+void Terrain::create(const Terrain::Desc& desc){
 
 	mDesc = desc;
 
@@ -91,18 +67,14 @@ void Terrain::create(const TerrainDesc& desc){
 
 	mTextureMap = desc.textureMap;
 
-	uint32_t numRows = desc.numRows;
-	uint32_t numCols = desc.numColumns; 
+	uint32_t numRows = desc.heightmap->getNumRows();
+	uint32_t numCols = desc.heightmap->getNumColumns(); 
 	WT_ASSERT( math::isPowerOfTwo(numRows-1) && math::isPowerOfTwo(numCols-1),
 		"Number of rows/columns must be power of two + 1 number");
 
-	mRowScale = desc.rowScale;
-	mColumnScale = desc.columnScale;
-	mHeightScale = desc.heightScale;
-
 	// make batch
-	mWidth = (numRows-1)*mRowScale;
-	mDepth = (numCols-1)*mColumnScale;
+	mWidth = (numRows-1)*mHeightmap->getRowScale();
+	mDepth = (numCols-1)*mHeightmap->getColumnScale();
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -111,34 +83,31 @@ void Terrain::create(const TerrainDesc& desc){
 	mNumTriangles = 2*(numRows-1)*(numCols-1);
 
 	// Vertices
-	TerrainChunk::Vertex* vertices = new TerrainChunk::Vertex[mNumVertices];
-	TerrainChunk::Vertex* vertex;
+	TerrainNode::Vertex* vertices = new TerrainNode::Vertex[mNumVertices];
+	TerrainNode::Vertex* vertex;
 
-	const char* chunkPath = desc.heightmapPath.c_str();
-	std::ifstream inFile(chunkPath, std::ios::binary);
-	WT_ASSERT(inFile.is_open(), "Error openning heightmap file \"%s\"", chunkPath);
+	//const char* chunkPath = desc.heightmapPath.c_str();
+	//std::ifstream inFile(chunkPath, std::ios::binary);
+	//WT_ASSERT(inFile.is_open(), "Error openning heightmap file \"%s\"", chunkPath);
 
-	mHeightMap.create(numRows * numCols);
+	//mHeightMap.create(numRows * numCols);
+
+	//for(uint32_t row=0; row<numRows; row++){
+	//	for(uint32_t col=0; col<numCols; col++){
+	//		int16_t sample;
+	//		inFile.read((char*)&sample, 2);
+
+	//		mHeightMap[row*numCols + col] = sample;
+	//	}
+	//}
 
 	for(uint32_t row=0; row<numRows; row++){
 		for(uint32_t col=0; col<numCols; col++){
-			int16_t sample;
-			inFile.read((char*)&sample, 2);
-
-			mHeightMap[row*numCols + col] = sample;
-		}
-	}
-
-	for(uint32_t row=0; row<numRows; row++){
-		for(uint32_t col=0; col<numCols; col++){
-				
-
 			vertex = &vertices[row*numCols + col];
 
-			vertex->x = row*mRowScale;
-			vertex->y = mHeightMap[row*numCols + col] * mHeightScale;
-			vertex->z = col*mColumnScale;
-
+			vertex->x = row * mHeightmap->getRowScale();
+			vertex->y = mHeightmap->getSamples()[row*numCols + col] * mHeightmap->getHeightScale();
+			vertex->z = col * mHeightmap->getColumnScale();
 
 			vertex->nx = 0;
 			vertex->nz = 0;
@@ -162,19 +131,19 @@ void Terrain::create(const TerrainDesc& desc){
 
 	mBatch.create(
 		GL_TRIANGLES,
-		vertices, mNumVertices, sizeof(TerrainChunk::Vertex),
+		vertices, mNumVertices, sizeof(TerrainNode::Vertex),
 		0, 0, sizeof(GLuint),
 		GL_UNSIGNED_INT
 	);
 
 	// position
-	mBatch.setVertexAttribute(0, 3, GL_FLOAT, offsetof(TerrainChunk::Vertex, x));
+	mBatch.setVertexAttribute(0, 3, GL_FLOAT, offsetof(TerrainNode::Vertex, x));
 	// map tex coords
-	mBatch.setVertexAttribute(1, 2, GL_FLOAT, offsetof(TerrainChunk::Vertex, s1));
+	mBatch.setVertexAttribute(1, 2, GL_FLOAT, offsetof(TerrainNode::Vertex, s1));
 	// tiled tex coords
-	mBatch.setVertexAttribute(2, 2, GL_FLOAT, offsetof(TerrainChunk::Vertex, s2));
+	mBatch.setVertexAttribute(2, 2, GL_FLOAT, offsetof(TerrainNode::Vertex, s2));
 	// normals
-	mBatch.setVertexAttribute(3, 3, GL_FLOAT, offsetof(TerrainChunk::Vertex, nx));
+	mBatch.setVertexAttribute(3, 3, GL_FLOAT, offsetof(TerrainNode::Vertex, nx));
 
 	// Build chunks (fixed size: 3 indices per 2 triangles)
 	const uint32_t indicesPerQuad = 6;
@@ -241,11 +210,11 @@ void Terrain::create(const TerrainDesc& desc){
 
 				
 			// calculate chunk's bounding box
-			float minX = chunkRow*rowChunkSize*mRowScale;
-			float maxX = ((chunkRow+1)*rowChunkSize)*mRowScale;
+			float minX = chunkRow*rowChunkSize*mHeightmap->getRowScale();
+			float maxX = ((chunkRow+1)*rowChunkSize)*mHeightmap->getRowScale();
 
-			float minZ = chunkCol*colChunkSize*mColumnScale;
-			float maxZ = (chunkCol+1)*colChunkSize*mColumnScale;
+			float minZ = chunkCol*colChunkSize*mHeightmap->getRowScale();
+			float maxZ = (chunkCol+1)*colChunkSize*mHeightmap->getColumnScale();
 
 			float minY=0;
 			float maxY=0;
@@ -253,7 +222,7 @@ void Terrain::create(const TerrainDesc& desc){
 			for(uint32_t i=0; i<chunk.mIndices.getCapacity(); i++){
 				uint32_t idx =  chunk.mIndices.getData()[i];
 			
-				TerrainChunk::Vertex& v = vertices[ idx ];
+				TerrainNode::Vertex& v = vertices[ idx ];
 				if(v.y > maxY){
 					maxY = v.y;
 				}
@@ -314,7 +283,7 @@ void Terrain::editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t st
 	desc.samples.stride = sizeof(physx::PxHeightFieldSample);
 
 
-	TerrainChunk::Vertex* vertices = (TerrainChunk::Vertex*)mBatch.getVertexBuffer().map(gl::Buffer::eREAD_WRITE);
+	TerrainNode::Vertex* vertices = static_cast<TerrainNode::Vertex*>( mBatch.getVertexBuffer().map(gl::Buffer::eREAD_WRITE) );
 
 	for(uint32_t row=0; row<numRows; row++){
 		for(uint32_t col=0; col<numCols; col++){
@@ -324,10 +293,10 @@ void Terrain::editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t st
 			pxSamples[row*numCols + col].height = sample;
 
 			// OpenGL batch
-			vertices[(row+startRow)*mNumZVertices + (col+startCol)].y = mHeightScale*sample;
+			vertices[(row+startRow)*mNumZVertices + (col+startCol)].y = mHeightmap->getHeightScale()*sample;
 
 			// internal representation
-			mHeightMap[(row+startRow)*mNumZVertices + (col+startCol)] = sample;
+			mHeightmap->getSamples()[(row+startRow)*mNumZVertices + (col+startCol)] = sample;
 		}
 	}
 
@@ -377,20 +346,22 @@ void Terrain::getPhysicsDesc(PhysicsActor::Desc& desc){
 
 	desc.geometryType = PhysicsActor::eGEOMETRY_HEIGHTMAP;
 
-	desc.geometryDesc.heightfieldGeometry.heightScale = getHeightScale();
-	desc.geometryDesc.heightfieldGeometry.rowScale = getRowScale();
-	desc.geometryDesc.heightfieldGeometry.colScale = getColScale();
+	desc.geometryDesc.heightfieldGeometry.heightScale = mHeightmap->getHeightScale();
+	desc.geometryDesc.heightfieldGeometry.rowScale = mHeightmap->getRowScale();
+	desc.geometryDesc.heightfieldGeometry.colScale = mHeightmap->getColumnScale();
 
-	desc.geometryDesc.heightfieldGeometry.numRows = getNumRows();
-	desc.geometryDesc.heightfieldGeometry.numCols = getNumCols();
+	desc.geometryDesc.heightfieldGeometry.numRows = mHeightmap->getNumRows();
+	desc.geometryDesc.heightfieldGeometry.numCols = mHeightmap->getNumColumns();
 
-	desc.geometryDesc.heightfieldGeometry.heightmap = &getHeightmap();
+	// Create buffer
+
+	desc.geometryDesc.heightfieldGeometry.heightmap = mHeightmap;
 }
 
 void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src, void* opaque){
 	ASceneActor::deserialize(assets, src);
 
-	TerrainDesc tDesc;
+	Desc tDesc;
 
 	tDesc.texture1 = assets->getImageManager()->getFromPath( src.Get("tex1").ToString() );
 	tDesc.texture2 = assets->getImageManager()->getFromPath( src.Get("tex2").ToString() );
@@ -398,14 +369,7 @@ void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src
 
 	tDesc.textureMap =  assets->getTextureManager()->getFromPath( src.Get("map").ToString() );
 
-	tDesc.numRows = src.Get("vertsPerChunk").ToNumber();
-	tDesc.numColumns = src.Get("vertsPerChunk").ToNumber();
-
-	tDesc.rowScale = src.Get("rowScale").ToNumber();
-	tDesc.columnScale = src.Get("columnScale").ToNumber();
-	tDesc.heightScale = src.Get("heightScale").ToNumber();
-
-	tDesc.heightmapPath = src.Get("chunks").ToString();
+	assets->getHeightmapManager()->getFromPath( src.Get("heightmap").ToString() );
 
 	create(tDesc);
 }
@@ -413,16 +377,29 @@ void Terrain::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject& src
 void Terrain::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, void*){
 	ASceneActor::serialize(assets, dst);
 
-	dst.Set("vertsPerChunk", mDesc.numRows);
 	dst.Set("size", 1);
-	dst.Set("heightScale", mDesc.heightScale);
-	dst.Set("rowScale", mDesc.rowScale);
-	dst.Set("columnScale", mDesc.columnScale);
-	dst.Set("chunks", mDesc.heightmapPath.c_str());
+	dst.Set("chunks", mDesc.heightmap->getUri().c_str());
 	dst.Set("map", mDesc.textureMap->getPath().c_str());
 	dst.Set("tex1", mDesc.texture1->getPath().c_str());
 	dst.Set("tex2", mDesc.texture2->getPath().c_str());
 	dst.Set("tex3", mDesc.texture3->getPath().c_str());
 }
+
+float Terrain::getWidth() const{
+	return mNumXVertices * mHeightmap->getRowScale();
+}
+
+float Terrain::getDepth() const{
+	return mNumZVertices * mHeightmap->getColumnScale();
+}
+
+	
+float Terrain::getHeightAt(const glm::vec2& coords) const{
+	uint32_t row = (uint32_t)(coords.x/mHeightmap->getRowScale());
+	uint32_t col = (uint32_t)(coords.y/mHeightmap->getColumnScale());
+
+	return mHeightmap->getSamples()[row*mNumZVertices + col] * mHeightmap->getHeightScale();
+}
+
 
 }; // </wt>

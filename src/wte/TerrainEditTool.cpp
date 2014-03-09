@@ -113,7 +113,7 @@ void TerrainEditTool::onSaveHeightmap(){
 		return;
 	}
 
-	QString path = mTerrain->getDesc().heightmapPath.c_str();
+	QString path = mTerrain->getHeightmap()->getUri().c_str();
 
 	if(path.isEmpty()){
 		path = QFileDialog::getSaveFileName(this,
@@ -124,12 +124,8 @@ void TerrainEditTool::onSaveHeightmap(){
 		return;
 	}
 
-	std::ofstream out(path.toStdString().c_str(), std::ios::binary);
-
-	out.write((const char*)mTerrain->getHeightmap().getData(),
-		mTerrain->getHeightmap().getSize());
-
-	out.close();
+	WTE_CTX.getAssets()->getHeightmapManager()->getLoader()->save(
+		mTerrain->getHeightmap()->getUri(), mTerrain->getHeightmap());
 
 	LOGI("Terrain heightmap saved to \"%s\"", path.toStdString().c_str());
 }
@@ -176,8 +172,8 @@ void TerrainEditTool::onResetHeightmap(){
 	wt::Buffer<int16_t> bfr;
 
 	
-	uint32_t nc = mTerrain->getNumCols();
-	uint32_t nr = mTerrain->getNumRows();
+	uint32_t nc = mTerrain->getHeightmap()->getNumColumns();
+	uint32_t nr = mTerrain->getHeightmap()->getNumRows();
 
 	bfr.create(nc*nr);
 
@@ -216,10 +212,10 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 	wt::Buffer<int16_t> samples;
 	samples.create(numRows*numCols);
 
-	wt::TerrainChunk::HeightMap& heightmap = terrain.getHeightmap();
+	wt::Heightmap& heightmap = *terrain.getHeightmap();
 
-	uint32_t totalRows=terrain.getNumRows();
-	uint32_t totalCols=terrain.getNumCols();
+	uint32_t totalRows = heightmap.getNumRows();
+	uint32_t totalCols = heightmap.getNumColumns();
 
 	// max distance from center
 	float maxDistance = glm::length( glm::vec2(numRows/2.0, numCols/2.0) );
@@ -235,7 +231,7 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 	for(uint32_t row=startRow; row<startRow+numRows; row++){
 		for(uint32_t col=startCol; col<startCol+numCols; col++){
 			// Current height at the given point
-			const int16_t currentHeight = heightmap[row*totalCols + col];
+			const int16_t currentHeight = heightmap.getSamples()[row*totalCols + col];
 
 			// Resulting height
 			int16_t finalSample=0;
@@ -244,7 +240,7 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 			const float factor = 1.0f - ( glm::length(center - glm::vec2(row, col)) / maxDistance );
 
 			// Minimum height delta
-			const float quantFactor = terrain.getHeightScale();
+			const float quantFactor = heightmap.getHeightScale();
 
 			switch(mode){
 			case eELEVATE:
@@ -267,13 +263,13 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 
 				for(uint32_t i=row-kernelSize/2; i<row+kernelSize/2; i++){
 					for(uint32_t j=col-kernelSize/2; j<col+kernelSize/2; j++){
-						sum += heightmap[i*totalCols + j] * terrain.getHeightScale();
+						sum += heightmap.getSamples()[i*totalCols + j] * heightmap.getHeightScale();
 						n++;
 					}
 				}
 
 	
-				finalSample = glm::floor( ((float)sum/n) / terrain.getHeightScale() );
+				finalSample = glm::floor( ((float)sum/n) / heightmap.getHeightScale() );
 	
 
 				break;
@@ -304,8 +300,8 @@ void TerrainEditTool::editAt(float x, float y){
 		glm::vec2(x, y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
 
 			if(paintMode){
-			glm::vec2 uv = glm::vec2(res.mImpact.x, res.mImpact.z)/glm::vec2(mTerrain->getNumRows()*mTerrain->getRowScale(), 
-					mTerrain->getNumCols()*mTerrain->getColScale());
+			glm::vec2 uv = glm::vec2(res.mImpact.x, res.mImpact.z)/glm::vec2(mTerrain->getHeightmap()->getNumRows()*mTerrain->getHeightmap()->getRowScale(), 
+				mTerrain->getHeightmap()->getNumColumns()*mTerrain->getHeightmap()->getColumnScale());
 
 
 			mFrameBuffer.bind(wt::gl::FrameBuffer::eMODE_DRAW);
@@ -363,8 +359,8 @@ void TerrainEditTool::editAt(float x, float y){
 
 			uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
 
-			uint32_t numRows = mTerrain->getNumRows();
-			uint32_t numCols = mTerrain->getNumCols();
+			uint32_t numRows = mTerrain->getHeightmap()->getNumRows();
+			uint32_t numCols = mTerrain->getHeightmap()->getNumColumns();
 
 			int32_t row = idx/numRows;
 			int32_t col = idx%numCols;
@@ -397,7 +393,7 @@ void TerrainEditTool::onMouseDown(QMouseEvent* evt){
 
 void TerrainEditTool::onCreateNewTerrain(){
 	// TODO move terrain creation to TerrainTool
-	wt::TerrainDesc desc;
+	wt::Terrain::Desc desc;
 	
 	if(!TerrainEditDialog::editTerrain(this, WTE_CTX.getAssets(), desc)){
 		return;
