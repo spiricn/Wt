@@ -5,11 +5,12 @@
 #include "wte/TerrainEditTool.h"
 #include "wte/HeightmapCreateDialog.h"
 #include "wte/TerrainEditDialog.h"
+#include "wte/WtEditorContext.h"
 
 #define TD_TRACE_TAG "TerrainEditTool"
 
-TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager, wt::Scene* scene, wt::AResourceSystem* assets) 
-	: QDialog(parent), mSceneView(sceneView), ATool(toolManager), mScene(scene), mAssets(assets), mTerrain(NULL), mBrushTexture(NULL){
+TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager) 
+	: QDialog(parent), mSceneView(sceneView), ATool(toolManager), mTerrain(NULL), mBrushTexture(NULL){
 	ui.setupUi(this);
 	setWindowFlags(Qt::Tool);
 
@@ -18,10 +19,17 @@ TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolMan
 
 	connect(mSceneView, SIGNAL(onMouseDrag(float,float,Qt::MouseButton)),
 		this, SLOT(onMouseDrag(float,float,Qt::MouseButton)));
-
-	mPhysics = mScene->getPhysics();
 }
 
+void TerrainEditTool::onToolLostFocus(){
+	ATool::onToolLostFocus();
+	ui.buttonBrush->setText("Activate brush");
+}
+
+void TerrainEditTool::onToolGainFocus(){
+	ATool::onToolGainFocus();
+	ui.buttonBrush->setText("Deactivate Brush");
+}
 
 void TerrainEditTool::setTarget(wt::Terrain* terrain){
 	mTerrain = terrain;
@@ -46,7 +54,7 @@ void TerrainEditTool::onSceneLoaded(){
 	if(mBrushTexture == NULL){
 		// First scene loaded, create a brush texture
 		mBrushTexture = new wt::Texture2D;
-		mAssets->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
+		WTE_CTX.getAssets()->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
 
 		// TODO do this some other way
 	}
@@ -54,7 +62,7 @@ void TerrainEditTool::onSceneLoaded(){
 	// TODO upon terrain loading scene target texture probably needs to be reloaded
 	wt::Terrain* terrain = NULL;
 	// Find terrain
-	for(wt::Scene::ActorMap::iterator iter=mScene->getActorMap().begin(); iter!=mScene->getActorMap().end(); iter++){
+	for(wt::Scene::ActorMap::iterator iter=WTE_CTX.getScene()->getActorMap().begin(); iter!=WTE_CTX.getScene()->getActorMap().end(); iter++){
 		if(iter->second->getActorType() == wt::ASceneActor::eTYPE_TERRAIN){
 			terrain = static_cast<wt::Terrain*>(iter->second);
 			break;
@@ -92,7 +100,7 @@ void TerrainEditTool::onSaveTexture(){
 		return;
 	}
 
-	wt::StreamPtr stream = mAssets->getFileSystem()->open(path.toStdString(), wt::AIOStream::eMODE_WRITE);
+	wt::StreamPtr stream = WTE_CTX.getAssets()->getFileSystem()->open(path.toStdString(), wt::AIOStream::eMODE_WRITE);
 
 	mTerrain->getMapTexture()->dump( *stream.get() );
 
@@ -292,7 +300,7 @@ void TerrainEditTool::editAt(float x, float y){
 	bool paintMode = ui.tabWidget->currentIndex() == 1;
 
 	
-	if(mPhysics->pick(mScene->getCamera(),
+	if(WTE_CTX.getScene()->getPhysics()->pick(WTE_CTX.getScene()->getCamera(),
 		glm::vec2(x, y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
 
 			if(paintMode){
@@ -391,11 +399,11 @@ void TerrainEditTool::onCreateNewTerrain(){
 	// TODO move terrain creation to TerrainTool
 	wt::TerrainDesc desc;
 	
-	if(!TerrainEditDialog::editTerrain(this, mAssets, desc)){
+	if(!TerrainEditDialog::editTerrain(this, WTE_CTX.getAssets(), desc)){
 		return;
 	}
 
-	wt::Terrain* terrain = mScene->createTerrain();
+	wt::Terrain* terrain = WTE_CTX.getScene()->createTerrain();
 	try{
 		terrain->create(desc);
 

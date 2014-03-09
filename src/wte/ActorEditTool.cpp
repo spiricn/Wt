@@ -9,11 +9,12 @@
 #include "wte/DoodadEditDialog.h"
 #include "wte/ModelledActorDialog.h"
 #include "wte/ModelEditDialog.h"
+#include "wte/WtEditorContext.h"
 
 #define TD_TRACE_TAG "ActorEditTool"
 
-ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager, wt::AResourceSystem* assets)
-	: QDialog(parent),  ATool(toolManager), mAssets(assets), mSelectedActor(NULL), mState(eSTATE_NORMAL){
+ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager* toolManager)
+	: QDialog(parent),  ATool(toolManager), mSelectedActor(NULL), mState(eSTATE_NORMAL){
     ui.setupUi(this);
 
 	mSceneView = sceneView;
@@ -57,6 +58,19 @@ ActorEditTool::ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager
 	selectActor(NULL);
 }
 
+void ActorEditTool::onToolLostFocus(){
+	ATool::onToolLostFocus();
+
+	ui.buttonBrushToggle->setText("Activate brush");
+}
+
+void ActorEditTool::onToolGainFocus(){
+	ATool::onToolGainFocus();
+
+	ui.buttonBrushToggle->setText("Deactivate brush");
+}
+	
+
 void ActorEditTool::onActorVisibilityChange(bool visible){
 	if(isToolFocused() && mSelectedActor){
 		mSelectedActor->setVisible(visible);
@@ -70,7 +84,7 @@ void ActorEditTool::onEditModel(){
 		wt::ModelledActor* actor = dynamic_cast<wt::ModelledActor*>(mSelectedActor);
 
 		if(actor->getModel()){
-			ModelEditDialog::edit(this, dynamic_cast<wt::Assets*>(mAssets), actor->getModel());
+			ModelEditDialog::edit(this, dynamic_cast<wt::Assets*>(WTE_CTX.getAssets()), actor->getModel());
 		}
 	}
 }
@@ -550,7 +564,7 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 
 
 void ActorEditTool::onNewActor(){
-	ActorCreationDialog::EditResult res = ActorCreationDialog::edit(this, mAssets);
+	ActorCreationDialog::EditResult res = ActorCreationDialog::edit(this, WTE_CTX.getAssets());
 
 	wt::ASceneActor* sceneActor = NULL;
 
@@ -587,7 +601,7 @@ void ActorEditTool::onNewActor(){
 		else if(res.type == wt::ASceneActor::eTYPE_SOUND){
 			wt::Sound* sound = mScene->createSound(res.name.toStdString()) ;
 
-			sound->setSound( mAssets->getSoundSystem()->createSound(res.sound3D.soundBuffer) );
+			sound->setSound( WTE_CTX.getAssets()->getSoundSystem()->createSound(res.sound3D.soundBuffer) );
 			sound->getSound()->setRelativeToListener( false );
 			sound->getSound()->setLoop(true);
 			sound->getSound()->play();

@@ -36,48 +36,20 @@ private:
 
 	MainGLWidget* mMainGLWidget;
 
-	wt::Assets mAssets;
 	WorldEditTab* mWorldEdit;
 	QSettings* mSettings;
-
-	wt::lua::State mLuaState;
-	wt::EventManager mEventManager;
-	wt::Scene mScene;
-	wt::Renderer mRenderer;
-
-
+	
 	Ui::WtEditorClass ui;
 
-	QString mAssetsFilePath;
-	QString mSceneFilePath;
-	QString mWorkspacePath;
 	
-	bool mAssetsLoaded, mSceneLoaded;
-
 	typedef std::vector<ARsrcManagerTab*> TabList;
 
 	TabList mTabs;
 
 	void addTab(ARsrcManagerTab* tab, const QString& name);
 
-
-	void clearScene();
-
 	void updateTitle();
 
-	void loadScene(const QString&);
-
-	void loadAssets(const QString&);
-
-	void switchWorkspace(const QString&);
-
-	void saveScene(const QString&);
-
-	void saveAssets(const QString&);
-
-	void unloadAssets();
-
-	void unloadScene();
 
 protected slots:
 	void onAssetsNew();

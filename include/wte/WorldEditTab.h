@@ -28,7 +28,7 @@ class WtEditor;
 class WorldEditTab : public QMainWindow, public AToolManager{
 	Q_OBJECT;
 public:
-	WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager);
+	WorldEditTab(QWidget* parent);
 
 	~WorldEditTab();
 
@@ -58,9 +58,6 @@ private:
 	FogTool* mFogTool;
 	GodrayTool* mGodrayTool;
 
-	wt::AResourceSystem* mAssets;
-	wt::Scene* mScene;
-	wt::EventManager* mEventManager;
 	wt::ProcessManager mProcManager;
 
 	// Main loop timer

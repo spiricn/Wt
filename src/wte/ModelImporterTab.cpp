@@ -17,6 +17,21 @@
 
 #define TD_TRACE_TAG "ModelImporterTab"
 
+#define WT_MODEL_EXTENSION "wtm"
+
+
+ModelImporterTab::ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets) : QWidget(parent), mAssets(assets){
+	ui.setupUi(this);
+
+	setAcceptDrops(true);
+
+	// TODO moved this elsewhere since the file system doesn't exist at the point of creation of this tab
+#if 0
+	mRootDir = assets->getFileSystem()->getRoot().c_str();
+	mModelDir = mRootDir + "/" + "model";
+	mImageDir = mRootDir + "/" + "image";
+#endif
+}
 
 QString generateFileName(const QString& directory, const QString& originalName, const QString& extension){
 	int32_t counter = 0;
@@ -141,8 +156,6 @@ void ModelImporterTab::importTexture(ImportData& data, const QString& meshName, 
     mesh->texture = resultTexture;
 }
 
-#define WT_MODEL_EXTENSION "wtm"
-
 void ModelImporterTab::importModel(ImportData& data){
 	// Check if model with this name already exists in workspace
 	QString destinationModelPath = data.modelDir + "/" + data.modelName + "." WT_MODEL_EXTENSION;
@@ -222,19 +235,6 @@ void ModelImporterTab::import(const QString& srcModel){
 	}
 
 	importModel(data);
-}
-
-ModelImporterTab::ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets) : QWidget(parent), mAssets(assets){
-	ui.setupUi(this);
-
-	setAcceptDrops(true);
-
-	// TODO moved this elsewhere since the file system doesn't exist at the point of creation of this tab
-#if 0
-	mRootDir = assets->getFileSystem()->getRoot().c_str();
-	mModelDir = mRootDir + "/" + "model";
-	mImageDir = mRootDir + "/" + "image";
-#endif
 }
 
 void ModelImporterTab::onBatchConvert(){

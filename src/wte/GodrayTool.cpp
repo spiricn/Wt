@@ -2,11 +2,12 @@
 
 #include "wte/GodrayTool.h"
 #include "wte/ResourcePickerDialog.h"
+#include "wte/WtEditorContext.h"
 
 #define TD_TRACE_TAG "GodrayTool"
 
-GodrayTool::GodrayTool(QWidget* parent, AToolManager* manager, wt::Scene* scene, wt::AResourceSystem* assets) : 
-	QWidget(parent), mScene(scene), mAssets(assets), mInitializing(true), ATool(manager){
+GodrayTool::GodrayTool(QWidget* parent, AToolManager* manager) :
+	QWidget(parent), mInitializing(true), ATool(manager){
 
     ui.setupUi(this);
 
@@ -40,7 +41,7 @@ void GodrayTool::loadParams(){
 
 	wt::Scene::GodRayParams params;
 
-	mScene->getGodRayParams(params);
+	WTE_CTX.getScene()->getGodRayParams(params);
 
 	ui.enabled->setChecked( params.enabled );
 	ui.size->setValue( params.sourceSize );
@@ -69,7 +70,7 @@ void GodrayTool::onParamChanged(){
 
 	wt::Scene::GodRayParams params;
 
-	mScene->getGodRayParams(params);
+	WTE_CTX.getScene()->getGodRayParams(params);
 
 	params.enabled = ui.enabled->isChecked();
 	params.decay = ui.decay->getValue();
@@ -80,20 +81,20 @@ void GodrayTool::onParamChanged(){
 	params.weight = ui.weight->getValue();
 	params.density = ui.density->getValue();
 	params.sourceColor = ui.sourceColor->getColor();
-	params.sourceTexture = mAssets->getTextureManager()->getFromPath( ui.sourceTexture->text().toStdString() );
+	params.sourceTexture = WTE_CTX.getAssets()->getTextureManager()->getFromPath( ui.sourceTexture->text().toStdString() );
 
-	mScene->setGodRayParams(params);
+	WTE_CTX.getScene()->setGodRayParams(params);
 }
 
 void GodrayTool::onReset(){
 	wt::Scene::GodRayParams params;
-	mScene->setGodRayParams(params);
+	WTE_CTX.getScene()->setGodRayParams(params);
 
 	loadParams();
 }
 
 void GodrayTool::onPickTexture(){
-	wt::Texture2D* rsrc = ResourcePickerDialog::pickResource<wt::Texture2D>(this, mAssets->getTextureManager(), "Pick godray source texture");
+	wt::Texture2D* rsrc = ResourcePickerDialog::pickResource<wt::Texture2D>(this, WTE_CTX.getAssets()->getTextureManager(), "Pick godray source texture");
 	if(rsrc){
 		ui.sourceTexture->setText(rsrc->getPath().c_str());
 		onParamChanged();

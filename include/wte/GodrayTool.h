@@ -12,7 +12,7 @@ class GodrayTool : public QWidget, public ATool{
 Q_OBJECT
 
 public:
-    GodrayTool(QWidget* parent, AToolManager* manager, wt::Scene* scene, wt::AResourceSystem* assets);
+    GodrayTool(QWidget* parent, AToolManager* manager);
 
 protected slots:
 
@@ -26,8 +26,6 @@ protected slots:
 
 private:
     Ui::GodrayTool ui;
-	wt::Scene* mScene;
-	wt::AResourceSystem* mAssets;
 	bool mInitializing;
 
 	void loadParams();

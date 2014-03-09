@@ -13,45 +13,18 @@
 class TerrainEditTool : public QDialog, public ATool{
 Q_OBJECT;
 
-private:
-	enum BrushMode{
-		eELEVATE,
-		eLOWER,
-		eSMOOTHEN
-	};
-
-	Ui::TerrainEdit ui;
-	SceneView* mSceneView;
-	wt::Scene* mScene;
-	wt::Physics* mPhysics;
-	wt::gl::FrameBuffer mFrameBuffer;
-	wt::AResourceSystem* mAssets;
-	wt::Terrain* mTerrain;
-	wt::Texture2D* mBrushTexture;
-
 public:
-	TerrainEditTool(SceneView* scene, QWidget*, AToolManager*, wt::Scene*, wt::AResourceSystem*);
+	TerrainEditTool(SceneView* scene, QWidget*, AToolManager*);
 
-	void onToolLostFocus(){
-		ATool::onToolLostFocus();
-		ui.buttonBrush->setText("Activate brush");
-	}
+	void onToolLostFocus();
 
-	void onToolGainFocus(){
-		ATool::onToolGainFocus();
-		ui.buttonBrush->setText("Deactivate Brush");
-	}
+	void onToolGainFocus();
 
 	void setTarget(wt::Terrain* terrain);
 
 	void onSceneLoaded();
 
 	void onSceneUnloaded();
-
-private:
-	void editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode);
-
-	void editAt(float x, float y);
 
 protected slots:
 	void onCreateNewTerrain();
@@ -71,6 +44,24 @@ protected slots:
 	void onMouseDrag(float,float,Qt::MouseButton);
 
 	void onBrushActivated();
+
+private:
+	enum BrushMode{
+		eELEVATE,
+		eLOWER,
+		eSMOOTHEN
+	}; // </BrushMode>
+
+	Ui::TerrainEdit ui;
+	SceneView* mSceneView;
+	wt::gl::FrameBuffer mFrameBuffer;
+	wt::Terrain* mTerrain;
+	wt::Texture2D* mBrushTexture;
+
+private:
+	void editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode);
+
+	void editAt(float x, float y);
 
 }; // </TerrainEditTool>
 

@@ -1,4 +1,16 @@
 import os, glob, itertools, sys, datetime
+######################################################################
+
+# Supported shader source file extensions
+extensions = ['vp', 'fp', 'glsl']
+
+# Directory containing the shaders
+sourceDir = './shaders'
+
+# Destination name for the source/header file
+destFile = 'CompiledShaders'
+
+######################################################################
 
 def processSource(inSource):
     outSrc = ''
@@ -28,17 +40,10 @@ filesHeader = '''\
  *********************************************/
 ''' % ( str(datetime.datetime.now()), os.path.basename(sys.argv[0]) )
 
-# Directory containing the shaders
-sourceDir = './shaders'
-
-# Destination name for the source/header file
-destFile = 'CompiledShaders'
-
 destSourceFile = 'src/wt/%s.cpp' % destFile
 destHeaderFile = 'include/wt/%s.h' % destFile
 
-# Supported shader source file extensions
-extensions = ['vp', 'fp', 'glsl']
+
 
 # Find all the shader files in the given directory
 files = [ glob.glob( os.path.join(sourceDir, '*.' + i) ) for i in extensions ]
@@ -92,6 +97,7 @@ destSrc += 'static SourceMap gSourceMap;\n'
 destSrc += 'static bool gMapInitialized = false;\n\n'
 
 for i in files:
+    print(i)
     destSrc += '/* Generated from "%s" */\n' % i
     destSrc += 'static const char* %s = \n' % getShaderName(i)
 

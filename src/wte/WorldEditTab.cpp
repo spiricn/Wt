@@ -19,26 +19,26 @@
 
 #include <wt/SFSound.h>
 #include <wt/SceneLoader.h>
+#include <wte/WtEditorContext.h>
 
 #define FPS ( 30 )
 	
 
-WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSystem* assets, wt::EventManager* evtManager) : QMainWindow(parent),
-		mAssets(assets), mScene(scene), mEventManager(evtManager), mPrevDockWidget(NULL){
+WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidget(NULL){
 	ui.setupUi(this);
 
 	// Scene setup
-	ui.sceneView->setScene(mScene);
+	ui.sceneView->setScene(WTE_CTX.getScene());
 
 
 	addTool(
 		"Actor",
-		mActorEditTool = new ActorEditTool(ui.sceneView, this, this, mAssets)
+		mActorEditTool = new ActorEditTool(ui.sceneView, this, this)
 	);
 
 	addTool(
 		"Terrain",
-		mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this, mScene, mAssets)
+		mTerrainEditTool = new TerrainEditTool(ui.sceneView, this, this)
 	);
 
 	addTool(
@@ -48,7 +48,7 @@ WorldEditTab::WorldEditTab(QWidget* parent, wt::Scene* scene, wt::AResourceSyste
 
 	addTool(
 		"Godray",
-		mGodrayTool = new GodrayTool(this, this, mScene, mAssets)
+		mGodrayTool = new GodrayTool(this, this)
 	);
 
 	addTool(
@@ -88,16 +88,16 @@ WorldEditTab::~WorldEditTab(){
 void WorldEditTab::onTimeout(){
 	float dt = 1.0f/FPS;
 
-	mScene->update(dt);
-	mScene->getPhysics()->update(dt);
+	WTE_CTX.getScene()->update(dt);
+	WTE_CTX.getScene()->getPhysics()->update(dt);
 
 	ui.sceneView->update(dt);
 
-	mEventManager->tick();
+	WTE_CTX.getEventManager()->tick();
 
 	glm::vec3 eyePos, eyeFw;
-	mScene->getCamera().getForwardVector(eyeFw);
-	mScene->getCamera().getTranslation(eyePos);
+	WTE_CTX.getScene()->getCamera().getForwardVector(eyeFw);
+	WTE_CTX.getScene()->getCamera().getTranslation(eyePos);
 
 #if 0
 	// FIXME causing errors if no scene has been loaded
@@ -113,7 +113,7 @@ void WorldEditTab::onShowTerrainTool(bool){
 }
 
 void WorldEditTab::onClearSkybox(){
-	mScene->setSkyBox(NULL);
+	WTE_CTX.getScene()->setSkyBox(NULL);
 }
 
 void WorldEditTab::onMouseDown(QMouseEvent* e){
@@ -130,7 +130,7 @@ void WorldEditTab::onScreenshot(){
 		wt::gl::FrameBuffer::unbindRead();
 		img.fromFrameBuffer(wt::Image::RGB);
 
-		mAssets->getImageManager()->save(path.toStdString(), &img);
+		WTE_CTX.getAssets()->getImageManager()->save(path.toStdString(), &img);
 
 		LOGI("WorldEditTab", "Screenshot saved to \"%s\"", path.toStdString().c_str());
 	}catch(wt::Exception& e){
@@ -146,9 +146,9 @@ void WorldEditTab::onGLContextCreated(){
 void WorldEditTab::onSetSkybox(){
 	ResourcePickerDialog picker(this);
 
-	wt::SkyBox* sky = picker.pickResource(this, mAssets->getSkyBoxManager());
+	wt::SkyBox* sky = picker.pickResource(this, WTE_CTX.getAssets()->getSkyBoxManager());
 	if(sky){
-		mScene->setSkyBox(sky);
+		WTE_CTX.getScene()->setSkyBox(sky);
 	}
 }
 
@@ -157,7 +157,7 @@ void WorldEditTab::onSetTransClicked(){
 
 
 void WorldEditTab::onCameraNewAnimation(){
-	CameraAnimationDialog* dlg = new CameraAnimationDialog(this, mScene, &mProcManager);
+	CameraAnimationDialog* dlg = new CameraAnimationDialog(this, WTE_CTX.getScene(), &mProcManager);
 
 	dlg->show();
 }

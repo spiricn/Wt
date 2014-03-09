@@ -10,6 +10,7 @@
 #include "wte/ParticleManagerTab.h"
 #include "wte/WtEditor.h"
 #include "wte/Utils.h"
+#include "wte/WtEditorContext.h"
 
 #define TD_TRACE_TAG "WtEditor"
 
@@ -20,54 +21,54 @@
 using namespace std;
 
 WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
-	: QMainWindow(parent, flags), mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false),
-	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState), mRenderer(&mEventManager, &mScene){
+	: QMainWindow(parent, flags){
 
 	if(argc >= 2){
 		mCmdArg = argv[1];
 	}
 	
+	// Setup the editor context
 	ui.setupUi(this);
 
 	td_setCallbackFnc(logCallback, this);
 
 	// World edit tab
-	mWorldEdit = new WorldEditTab(this, &mScene, &mAssets, &mEventManager);
+	mWorldEdit = new WorldEditTab(this);
 	ui.mainTabWidget->addTab(mWorldEdit, "World edit");
-	mWorldEdit->ui.sceneView->setRenderer(&mRenderer);
+	mWorldEdit->ui.sceneView->setRenderer(WTE_CTX.getRenderer());
 
 	connect(mWorldEdit->ui.sceneView, SIGNAL(initialized()),
 		this, SLOT(onOpenGLContextCreated()));
 
 	// Model importer tab
-	ModelImporterTab* importer = new ModelImporterTab(this, &mAssets);
+	ModelImporterTab* importer = new ModelImporterTab(this, WTE_CTX.getAssets());
 	ui.mainTabWidget->addTab(importer, "Model importer");
 	
 	ui.mainTabWidget->setCurrentWidget(mWorldEdit);
 
 	/* MANAGERS TAB */
 	/* Image */
-	addTab(new ImageManagerTab(this, &mAssets), "Images");
+	addTab(new ImageManagerTab(this, WTE_CTX.getAssets()), "Images");
 
 	/* Texture */
-	addTab(new TextureManagerTab(this, &mAssets), "Textures");
+	addTab(new TextureManagerTab(this, WTE_CTX.getAssets()), "Textures");
 
 	/* Model */
-	addTab(new ModelManagerTab(this, &mAssets), "Models");
+	addTab(new ModelManagerTab(this, WTE_CTX.getAssets()), "Models");
 
 	/* Animation */
-	addTab(new AnimationManagerTab(this, &mAssets), "Animations");
+	addTab(new AnimationManagerTab(this, WTE_CTX.getAssets()), "Animations");
 
 	/* SkyBox */
-	addTab(new SkyBoxManagerTab(this, &mAssets), "Sky boxes");
+	addTab(new SkyBoxManagerTab(this, WTE_CTX.getAssets()), "Sky boxes");
 
 	/* Sound */
-	addTab(new SoundManagerTab(this, &mAssets), "Sound effects");
+	addTab(new SoundManagerTab(this, WTE_CTX.getAssets()), "Sound effects");
 
-	addTab(new ParticleManagerTab(this, &mAssets), "Particle manager");
+	addTab(new ParticleManagerTab(this, WTE_CTX.getAssets()), "Particle manager");
 
 	try{
-		mScene.getPhysics()->connectToVisualDebugger(
+		WTE_CTX.getScene()->getPhysics()->connectToVisualDebugger(
 					"127.0.0.1", // address
 					5425, // port
 					100		// timeout
@@ -79,7 +80,7 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 
 void WtEditor::onWorkspaceSave(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save workspace", mWorkspacePath, "Workspace files (*." WORKSPACE_FILE_EXTENSION ")");
+		"Save workspace", WTE_CTX.getWorkspaceFilePath(), "Workspace files (*." WORKSPACE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
@@ -88,9 +89,14 @@ void WtEditor::onWorkspaceSave(){
 	wt::lua::State state;
 
 	wt::lua::LuaObject workspace;
-	state.assignTable(workspace);
 
-	wt::String root=mWorkspacePath.toStdString(), assets=mAssetsFilePath.toStdString(), scene=mSceneFilePath.toStdString();
+	if( !(workspace = WTE_CTX.getLuaState()->getGlobals().Get("workspace")).IsTable() ){
+		// Create workspace table
+		WTE_CTX.getLuaState()->assignTable(workspace);
+		WTE_CTX.getLuaState()->getGlobals().Set("workspace", workspace);
+	}
+
+	wt::String root = WTE_CTX.getWorkspaceFilePath().toStdString(), assets=WTE_CTX.getAssetsFilePath().toStdString(), scene=WTE_CTX.getSceneFilePath().toStdString();
 	wt::utils::replacePathSplitters(root, '/');
 	wt::utils::replacePathSplitters(assets, '/');
 	wt::utils::replacePathSplitters(scene, '/');
@@ -133,95 +139,17 @@ void WtEditor::onOpenGLContextCreated(){
 		LOGI("config file parsed; workspace=\"%s\"; assets=\"%s\"; scene=\"%s\"",
 			root.c_str(), assets.c_str(), scene.c_str());
 
-		switchWorkspace(root.c_str());
-		loadAssets(assets.c_str());
-		loadScene(scene.c_str());
+		WTE_CTX.switchWorkspace(root.c_str());
+		WTE_CTX.loadAssets(assets.c_str());
+		WTE_CTX.loadScene(scene.c_str());
 	}
 }
 
 WtEditor::~WtEditor(){
 }
 
-void WtEditor::loadScene(const QString& path){
-	LOGD("Loading scene from file \"%s\"", path.toStdString().c_str());
-
-	// Unload existing scene
-	unloadScene();
-
-	try{
-		wt::SceneLoader loader(&mScene, &mAssets);
-
-		wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_READ);
-
-		loader.load(stream);
-
-		mSceneFilePath = path;
-	}catch(...){
-		TRACEE("Error loading scene");
-		mScene.clear();
-		return;
-	}
-
-	mWorldEdit->onSceneLoaded();
-
-	mSceneLoaded = true;
-
-	updateTitle();
-
-	LOGD("Scene loaded OK");
-}
-
-void WtEditor::unloadScene(){
-	if(!mSceneLoaded){
-		return;
-	}
-
-	LOGD("Unloading scene ..");
-
-	mWorldEdit->onBeforeSceneUnload();
-
-	mSceneFilePath = "";
-
-	mScene.clear();
-	
-	mSceneLoaded = false;
-
-	LOGD("Scene unloaded OK");
-}
-
-void WtEditor::loadAssets(const QString& path){
-	LOGD("Loading resources from file \"%s\"", path.toStdString().c_str());
-
-	// Unload existing resources
-	unloadAssets();
-
-	mAssetsFilePath = path;
-	
-	updateTitle();
-
-	LuaPlus::LuaStateOwner state;
-	try{
-		state->DoFile(path.toStdString().c_str());
-		mAssets.load( state->GetGlobal("ASSETS") );
-	}catch(...){
-		QMessageBox::critical(this, "Error", "Error loading assets from \"" + path + "\"");
-		return;
-	}
-
-	mAssetsLoaded = true;
-
-	// Destroy all resource tab items & unload all resources
-	for(TabList::iterator i=mTabs.begin(); i!=mTabs.end(); i++){
-		(*i)->refreshAll();
-	}
-
-	updateTitle();
-
-	LOGD("Resources loaded OK");
-}
-
 void WtEditor::updateTitle(){
-	ui.statusBar->showMessage( mWorkspacePath + " " + mAssetsFilePath + " " + mSceneFilePath );
+	ui.statusBar->showMessage( WTE_CTX.getWorkspaceFilePath() + " " + WTE_CTX.getAssetsFilePath() + " " + WTE_CTX.getSceneFilePath());
 }
 
 void WtEditor::onWorkspaceSwitch(){
@@ -240,46 +168,7 @@ void WtEditor::onWorkspaceSwitch(){
 	// TODO fix this in the file system class
 	dir = dir + "/";
 
-	switchWorkspace(dir);
-}
-
-void WtEditor::switchWorkspace(const QString& path){
-	unloadAssets();
-
-
-	wt::AFileSystem::Desc fsDesc;
-	fsDesc.type = wt::AFileSystem::eTYPE_LOCAL;
-	fsDesc.dir.root = path.toStdString();
-
-	mAssets.setFileSystem( wt::FileSystemFactory::create(fsDesc) );
-
-	mWorkspacePath = path;
-
-	updateTitle();
-}
-
-void WtEditor::unloadAssets(){
-	if(!mAssetsLoaded){
-		return;
-	}
-
-	LOGD("Unloading resources ..");
-
-	mWorldEdit->onBeforeAssetsUnload();
-
-	// Unload existing scene
-	unloadScene();
-
-	// Destroy all resource tab items & unload all resources
-	for(TabList::iterator i=mTabs.begin(); i!=mTabs.end(); i++){
-		(*i)->destroyAll();
-	}
-
-	mAssetsFilePath = "";
-
-	mAssetsLoaded = false;
-
-	LOGD("Resource unloaded OK");
+	WTE_CTX.switchWorkspace(dir);
 }
 
 void WtEditor::addTab(ARsrcManagerTab* tab, const QString& name){
@@ -288,21 +177,20 @@ void WtEditor::addTab(ARsrcManagerTab* tab, const QString& name){
 }
 
 void WtEditor::onAssetsSaveAs(){
-	if(!mAssetsLoaded){
+	if(!WTE_CTX.isAssetsLoaded()){
 		TRACEE("Assets file must first be loaded / created");
 		return;
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", mWorkspacePath, "Asset files (*." RESOURCE_FILE_EXTENSION ")");
+		"Save assets", WTE_CTX.getWorkspaceFilePath(), "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
 	}
 
 	try{
-		saveAssets(path);
-		mAssetsFilePath = path;
+		WTE_CTX.saveAssets(path);
 	}catch(...){
 		TRACEE("Error saving assets");
 		return;
@@ -310,39 +198,27 @@ void WtEditor::onAssetsSaveAs(){
 }
 
 void WtEditor::onAssetsSave(){
-	if(!mAssetsLoaded){
+	if(!WTE_CTX.isAssetsLoaded()){
 		TRACEE("Assets file must first be loaded / created");
 		return;
 	}
 
 	if(QMessageBox::question(this, "Confirmation",
-		"Save current assets to \"" + mAssetsFilePath + "\" ?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes){
-		saveAssets( mAssetsFilePath );
+		"Save current assets to \"" + WTE_CTX.getAssetsFilePath() + "\" ?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes){
+		WTE_CTX.saveAssets( WTE_CTX.getAssetsFilePath() );
 	}
 }
 
 void WtEditor::onAssetsNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", mWorkspacePath, "Asset files (*." RESOURCE_FILE_EXTENSION ")");
+		"Save assets", WTE_CTX.getWorkspaceFilePath(), "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
 	}
 
-	// Unload existing assets & scene
-	unloadAssets();
 
-	try{
-		// Create an empty assets file
-		saveAssets( path );
-
-		mAssetsFilePath = path;
-
-		mAssetsLoaded = true;
-	}catch(...){
-		TRACEE("Error creating new assets file");
-		return;
-	}
+	WTE_CTX.createNewAssets(path);
 }
 
 void WtEditor::onAssetsOpen(){
@@ -350,7 +226,7 @@ void WtEditor::onAssetsOpen(){
 	QString path = QFileDialog::getOpenFileName(this,
 		"Load assets", mWorkspacePath, "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 #else
-	QString path = FilePicker::getFile(this, mWorkspacePath, "*." RESOURCE_FILE_EXTENSION);
+	QString path = FilePicker::getFile(this, WTE_CTX.getWorkspaceFilePath(), "*." RESOURCE_FILE_EXTENSION);
 #endif
 
 	if(!path.size()){
@@ -358,10 +234,10 @@ void WtEditor::onAssetsOpen(){
 	}
 
 	// Unload existing assets & scene
-	unloadAssets();
+	WTE_CTX.unloadAssets();
 
 	// Load new assets
-	loadAssets(path);
+	WTE_CTX.loadAssets(path);
 }
 
 void WtEditor::onSceneReload(){
@@ -371,9 +247,9 @@ void WtEditor::onSceneReload(){
 
 	LOGD("Reloading scene");
 
-	QString scenePath = mSceneFilePath;
-	unloadScene();
-	loadScene(scenePath);
+	QString scenePath = WTE_CTX.getSceneFilePath();
+	WTE_CTX.unloadScene();
+	WTE_CTX.loadScene(scenePath);
 
 	LOGD("Scene reloaded OK");
 }
@@ -386,7 +262,7 @@ void WtEditor::onSceneClear(){
 
 	// TODO callbacks
 
-	mScene.clear();
+	WTE_CTX.getScene()->clear();
 }
 
 void WtEditor::onAssetsClear(){
@@ -407,30 +283,11 @@ void WtEditor::onAssetsReload(){
 		return;
 	}
 
-	LOGD("Reloading everything ...");
-
-	QString scenePath = mSceneFilePath;
-	QString assetsPath = mAssetsFilePath;
-
-	bool sceneLoaded = mSceneLoaded;
-
-	// Unload resources / scene
-	unloadAssets();
-
-	loadAssets(assetsPath);
-
-	// Load scene if there was one
-	if(sceneLoaded){
-		loadScene(scenePath);
-	}
-
-	updateTitle();
-
-	LOGD("Everything reloaded OK");
+	WTE_CTX.reloadAssets();
 }
 
 void WtEditor::onSceneOpen(){
-	if(!mAssetsLoaded){
+	if(!WTE_CTX.isAssetsLoaded()){
 		TRACEE("Assets must first be loaded");
 		return;
 	}
@@ -439,90 +296,63 @@ void WtEditor::onSceneOpen(){
 	QString path = QFileDialog::getOpenFileName(this,
 		"Load scene", mWorkspacePath, "Scene files (*." SCENE_FILE_EXTENSION ")");
 #else
-	QString path = FilePicker::getFile(this, mWorkspacePath, "*." SCENE_FILE_EXTENSION);
+	QString path = FilePicker::getFile(this, WTE_CTX.getWorkspaceFilePath(), "*." SCENE_FILE_EXTENSION);
 #endif
 
 	if(!path.size()){
 		return;
 	}
 	
-	loadScene(path);
+	WTE_CTX.loadScene(path);
 }
 
 void WtEditor::onSceneSaveAs(){
-	if(!mAssetsLoaded){
+	if(!WTE_CTX.isAssetsLoaded()){
 		TRACEE("Assets file must first be loaded / created");
 		return;
 	}
 
-	if(!mSceneLoaded){
+	if(!WTE_CTX.isSceneLoaded()){
 		TRACEE("Scene file must first be loaded / created");
 		return;
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save scene", mWorkspacePath, "Scene files (*." SCENE_FILE_EXTENSION ")");
+		"Save scene", WTE_CTX.getWorkspaceFilePath(), "Scene files (*." SCENE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
 	}
 
 	try{
-		saveScene(path);
-		mSceneFilePath = path;
+		WTE_CTX.saveScene(path);
 	}catch(...){
 		TRACEE("Error saving scene");
 	}
 }
 
 void WtEditor::onSceneSave(){
-	if(!mAssetsLoaded){
+	if(!WTE_CTX.isAssetsLoaded()){
 		TRACEE("Assets file must first be loaded / created");
 		return;
 	}
 
-	if(!mSceneLoaded){
+	if(!WTE_CTX.isSceneLoaded()){
 		TRACEE("Scene file must first be loaded / created");
 		return;
 	}
 
 	if(QMessageBox::question(this, "Confirmation",
-		"Save current scene to \"" + mSceneFilePath + "\" ?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes){
-		saveScene(mSceneFilePath);
+		"Save current scene to \"" + WTE_CTX.getSceneFilePath() + "\" ?", QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes){
+		WTE_CTX.saveScene(WTE_CTX.getSceneFilePath());
 	}
 }
 
 void WtEditor::onSceneNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", mWorkspacePath, "Scene files (*." SCENE_FILE_EXTENSION ")");
+		"Save assets", WTE_CTX.getWorkspaceFilePath(), "Scene files (*." SCENE_FILE_EXTENSION ")");
 
-	if(!path.size()){
-		return;
-	}
-
-	// Unload existing scene
-	unloadScene();
-
-	try{
-		saveScene(path);
-		mSceneFilePath = path;
-		mSceneLoaded = true;
-	}catch(...){
-		TRACEE("Error creating new assets file");
-		return;
-	}
-}
-
-void WtEditor::saveScene(const QString& path){
-	wt::SceneLoader loader(&mScene, &mAssets);
-
-	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_WRITE);
-
-	loader.save(stream);
-}
-
-void WtEditor::saveAssets(const QString& path){
-	mAssets.serialize(path.toStdString());
+	WTE_CTX.createNewScene(path);
 }
 
 void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message){

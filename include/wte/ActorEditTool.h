@@ -12,47 +12,11 @@ class ActorEditTool : public QDialog, public ATool{
 Q_OBJECT
 
 public:
-	virtual void onToolLostFocus(){
-		ATool::onToolLostFocus();
+	ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager*);
 
-		ui.buttonBrushToggle->setText("Activate brush");
-	}
+	void onToolLostFocus();
 
-	virtual void onToolGainFocus(){
-		ATool::onToolGainFocus();
-
-		ui.buttonBrushToggle->setText("Deactivate brush");
-	}
-
-    ActorEditTool(SceneView* sceneView, QWidget* parent, AToolManager*, wt::AResourceSystem* assets);
-
-private:
-	enum State{
-		eSTATE_IVNALID = -1,
-
-		eSTATE_NORMAL,
-		eSTATE_PICK_ATTACH_ACTOR
-	}; // </State>
-
-	State mState;
-    Ui::ActorEditTool ui;
-	SceneView* mSceneView;
-	wt::Scene* mScene;
-	wt::Physics* mPhysics;
-	wt::AResourceSystem* mAssets;
-	wt::ModelledActor* mAttachActor;
-
-	ParticleEditDialog* mParticleEditDialog;
-
-	wt::ASceneActor* mSelectedActor;
-
-	void selectActor(wt::ASceneActor* actor);
-	
-	void updateSelectionStats();
-
-	bool mSelectingActor;
-
-	void editActor();
+	void onToolGainFocus();
 
 protected slots:
 	void onEditModel();
@@ -113,6 +77,32 @@ protected slots:
 	void onPitchChanged();
 
 
+private:
+	enum State{
+		eSTATE_IVNALID = -1,
+
+		eSTATE_NORMAL,
+		eSTATE_PICK_ATTACH_ACTOR
+	}; // </State>
+
+	State mState;
+    Ui::ActorEditTool ui;
+	SceneView* mSceneView;
+	wt::Scene* mScene;
+	wt::Physics* mPhysics;
+	wt::ModelledActor* mAttachActor;
+
+	ParticleEditDialog* mParticleEditDialog;
+
+	wt::ASceneActor* mSelectedActor;
+
+	void selectActor(wt::ASceneActor* actor);
+	
+	void updateSelectionStats();
+
+	bool mSelectingActor;
+
+	void editActor();
 
 }; // </ActorEditTool>
 
