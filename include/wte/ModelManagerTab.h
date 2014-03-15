@@ -14,38 +14,15 @@
 
 class ModelManagerTab : public ARsrcManagerTab{
 Q_OBJECT;
-private:
-	Ui::GeoModelManager ui;
-
 public:
 	ModelManagerTab(QWidget* parent, wt::Assets* assets);
 
-protected:
-	void destroyAll(){
-		ARsrcManagerTab::destroyAll<wt::Model>();
-	}
-
-	void refreshAll(){
-		ui.treeWidget->buildTree<wt::Model>(NULL, getAssets()->getModelManager());
-	}
-
-
-	void onCtxMenuCreateResource(RTWItem* item){
-		createResource<wt::Model>(item);
-	}
-
-	void onCtxMenuCreateGroup(RTWItem* item){
-		createResourceGroup<wt::Model>(item);
-	}
-
-	void onCtxMenuDelete(RTWItem* item){
-		deleteItem<wt::Model>(item);
-	}
-
+private:
 	void onCtxMenuSetUri(RTWItem*);
 
 	void onTreeItemActivated(RTWItem* item);
 
+	Ui::GeoModelManager ui;
 }; // </ModelManagerTab>
 
 #endif // </WTE_GEOMODELMANAGERTAB_H>

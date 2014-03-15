@@ -10,21 +10,13 @@
 class ParticleManagerTab : public ARsrcManagerTab{
 Q_OBJECT
 
-private:
-    Ui::ParticleManagerTab ui;
-
 public:
     ParticleManagerTab(QWidget* parent, wt::Assets* assets);
 
-	void destroyAll();
-
-	void refreshAll();
-
-	void onCtxMenuCreateResource(RTWItem* item);
-
+private:
 	void onTreeItemActivated(RTWItem* item);
 
-protected slots:
+	Ui::ParticleManagerTab ui;
 
 }; // </ParticleManagerTab>
 

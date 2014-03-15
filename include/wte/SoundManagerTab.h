@@ -10,39 +10,13 @@
 class SoundManagerTab : public ARsrcManagerTab{
 Q_OBJECT
 
-private:
-    Ui::SoundManagerTab ui;
-
 public:
     SoundManagerTab(QWidget* parent, wt::Assets* assets);
 
-	void destroyAll(){
-		ARsrcManagerTab::destroyAll<wt::ASoundBuffer>();
-	}
-
-	void refreshAll(){
-		ui.treeWidget->buildTree<wt::ASoundBuffer>(NULL, getAssets()->getSoundManager());
-	}
-
-protected:
-
-	void onCtxMenuCreateResource(RTWItem* item){
-		createResource<wt::ASoundBuffer>(item);
-	}
-
-	void onCtxMenuCreateGroup(RTWItem* item){
-		createResourceGroup<wt::ASoundBuffer>(item);
-	}
-
-	void onCtxMenuDelete(RTWItem* item){
-		deleteItem<wt::ASoundBuffer>(item);
-	}
-
+private:
 	void onCtxMenuSetUri(RTWItem*);
 
-protected slots:
-
-
+	Ui::SoundManagerTab ui;
 }; // </SoundManagerTab>
 
 #endif // </WTE_SOUNDMANAGERTAB_H>

@@ -64,7 +64,6 @@ protected slots:
 
 	void onAssetsReload();
 
-
 	void onSceneNew();
 
 	void onSceneOpen();
@@ -82,6 +81,10 @@ protected slots:
 	void onWorkspaceSave();
 
 	void onOpenGLContextCreated();
+
+	void onAssetsUnloaded();
+
+	void onAssetsLoaded();
 };
 
 #endif // WTEDITOR_H

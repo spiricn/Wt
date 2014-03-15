@@ -13,13 +13,21 @@ headerTemplate = '''\
 #ifndef <%= headerGuard %>
 #define <%= headerGuard %>
 
+#include <%= '"ui_%s.h"' % className %>
+
+#include "stdafx.h"
+
 class <%= className %><%= ' : public %s' % parentClass if parentClass else '' %>{
+Q_OBJECT;
+
 public:
 	<%= className %>();
 
 	virtual ~<%= className %>();
 
 private:
+	Ui::<%= className %> ui;
+	
 }; // </<%= className %>>
 
 
@@ -31,12 +39,13 @@ CG_convertSource(headerTemplate, '%s.h' % className)
 ###############################################################################
 
 sourceTemplate = '''\
-#include "wte/stdafx.h"
+#include "stdafx.h"
 #include "wte/<%= className %>.h"
 
 #define TD_TRACE_TAG "<%= className %>"
 
 <%= className %>::<%= className %>()<%= ' : %s() ' % parentClass if parentClass else '' %>{
+	ui.setupUi(this);
 }
 
 <%= className %>::~<%= className %>(){

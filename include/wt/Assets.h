@@ -240,11 +240,12 @@ void Assets::serialize(AResourceManager<T>* manager, const String& name, lua::Lu
 
 template<class T>
 void Assets::deserialize(AResourceManager<T>* manager, const String& name, const lua::LuaObject& table){
-	WT_ASSERT(table.IsTable(),
-		"Error deserializing manager - invalid manager table");
+	if(!table.IsTable()){
+		TRACEW("Error deserializing manager - Invalid managers table");
+		return;
+	}
 
 	lua::LuaObject mngrTable = table.Get(name.c_str());
-
 
 	if(!mngrTable.IsTable()){
 		LOGW("Manager table \"%s\" not found - skipping deserialization", name.c_str());

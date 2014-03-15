@@ -55,20 +55,27 @@ public:
 
 	wt::LuaObject getSettingsTable();
 
+	void clearScene();
+
+	void clearAssets();
+
 signals:
 	void workspaceSwitched();
 
 	void fileSystemCreated();
 
+	// All the assets have been unloaded from memory
 	void assetsUnloaded();
 
+	// Scene has been unloaded from memory
 	void sceneUnloaded();
 
+	// All the assets have been loaded to memory
 	void assetsLoaded();
 
+	// New scene has been loaded
 	void sceneLoaded();
 
-	void clearScene();
 
 protected:
 	void setAssets(wt::Assets* assets);

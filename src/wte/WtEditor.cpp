@@ -11,6 +11,7 @@
 #include "wte/WtEditor.h"
 #include "wte/Utils.h"
 #include "wte/WtEditorContext.h"
+#include "wte/HeightmapManagerTab.h"
 
 #define TD_TRACE_TAG "WtEditor"
 
@@ -46,26 +47,29 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 	
 	ui.mainTabWidget->setCurrentWidget(mWorldEdit);
 
-	/* MANAGERS TAB */
-	/* Image */
+	// Image
 	addTab(new ImageManagerTab(this, WTE_CTX.getAssets()), "Images");
 
-	/* Texture */
+	// Texture
 	addTab(new TextureManagerTab(this, WTE_CTX.getAssets()), "Textures");
 
-	/* Model */
+	// Model
 	addTab(new ModelManagerTab(this, WTE_CTX.getAssets()), "Models");
 
-	/* Animation */
+	// Animation 
 	addTab(new AnimationManagerTab(this, WTE_CTX.getAssets()), "Animations");
 
-	/* SkyBox */
+	// SkyBox
 	addTab(new SkyBoxManagerTab(this, WTE_CTX.getAssets()), "Sky boxes");
 
-	/* Sound */
+	// Sound
 	addTab(new SoundManagerTab(this, WTE_CTX.getAssets()), "Sound effects");
 
+	// Particles
 	addTab(new ParticleManagerTab(this, WTE_CTX.getAssets()), "Particle manager");
+
+	// Heightmaps
+	addTab(new HeightmapManagerTab(this, WTE_CTX.getAssets()), "Heightmap manager");
 
 	try{
 		WTE_CTX.getScene()->getPhysics()->connectToVisualDebugger(
@@ -76,6 +80,12 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 	}
 	catch(...){
 	}
+
+	connect(&WTE_CTX, SIGNAL(assetsLoaded()),
+		this, SLOT(onAssetsLoaded()));
+
+	connect(&WTE_CTX, SIGNAL(assetsUnloaded()),
+		this, SLOT(onAssetsUnloaded()));
 }
 
 void WtEditor::onWorkspaceSave(){
@@ -292,12 +302,7 @@ void WtEditor::onSceneOpen(){
 		return;
 	}
 
-#if 0
-	QString path = QFileDialog::getOpenFileName(this,
-		"Load scene", mWorkspacePath, "Scene files (*." SCENE_FILE_EXTENSION ")");
-#else
 	QString path = FilePicker::getFile(this, WTE_CTX.getWorkspaceFilePath(), "*." SCENE_FILE_EXTENSION);
-#endif
 
 	if(!path.size()){
 		return;
@@ -394,5 +399,10 @@ void WtEditor::logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel le
 		thiz->ui.logList->removeItemWidget( thiz->ui.logList->item(0) );
 		//delete thiz->ui.logList->takeItem(0);
 	}
+}
 
+void WtEditor::onAssetsUnloaded(){
+}
+
+void WtEditor::onAssetsLoaded(){
 }

@@ -11,6 +11,7 @@
 #define MODEL_MANAGER_TABLE_NAME "MODEL_MANAGER"
 #define SOUND_MANAGER_TABLE_NAME "SOUND_MANAGER"
 #define PARTICLE_MANAGER_TABLE_NAME "PARTICLE_MANAGER"
+#define HEIGHTMAP_MANAGER_TABLE_NAME "HEIGHTMAP_MANAGER"
 
 namespace wt
 {
@@ -43,13 +44,14 @@ void Assets::init(){
 }
 
 void Assets::deserialize(const LuaObject& assets){
-	deserialize(mImageManager,		IMAGE_MANAGER_TABLE_NAME,		assets);
-	deserialize(mTextureManager,	TEXTURE_MANAGER_TABLE_NAME,		assets);
-	deserialize(mSkyBoxManager,		SKYBOX_MANAGER_TABLE_NAME,		assets);
-	deserialize(mAnimationManager,	ANIMATION_MANAGER_TABLE_NAME,	assets);
-	deserialize(mModelManager,		MODEL_MANAGER_TABLE_NAME,		assets);
-	deserialize(mSoundManager,		SOUND_MANAGER_TABLE_NAME,		assets);
-	deserialize(mParticleManager,	PARTICLE_MANAGER_TABLE_NAME,	assets);
+	deserialize(mImageManager, IMAGE_MANAGER_TABLE_NAME, assets);
+	deserialize(mTextureManager, TEXTURE_MANAGER_TABLE_NAME, assets);
+	deserialize(mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, assets);
+	deserialize(mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, assets);
+	deserialize(mModelManager, MODEL_MANAGER_TABLE_NAME, assets);
+	deserialize(mSoundManager, SOUND_MANAGER_TABLE_NAME, assets);
+	deserialize(mParticleManager, PARTICLE_MANAGER_TABLE_NAME, assets);
+	deserialize(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME, assets);
 }
 
 AFileSystem* Assets::getFileSystem(){
@@ -108,13 +110,22 @@ void Assets::unloadAll(){
 	LOGD("Unloading assets..");
 
 	mImageManager->destroy();
+
 	mTextureManager->destroy();
+
 	mSkyBoxManager->destroy();
+
 	mAnimationManager->destroy();
+
 	mModelManager->destroy();
+
 	mSoundManager->destroy();
+
 	mFontManager->destroy();
+
 	mParticleManager->destroy();
+
+	mHeightmapManager->destroy();
 
 	LOGD("Done..");
 }
@@ -152,6 +163,7 @@ void Assets::chunkedLoadStart(const LuaObject& table){
 	mChunkedLoadState.loaders.push_back( new ChunkedLoader<ASoundBuffer>(mSoundManager) );
 	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Font>(mFontManager) );
 	mChunkedLoadState.loaders.push_back( new ChunkedLoader<ParticleEffectResource>(mParticleManager) );
+	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Heightmap>(mHeightmapManager) );
 
 	for(ChunkedLoaderList::iterator iter=mChunkedLoadState.loaders.begin(); iter!=mChunkedLoadState.loaders.end(); iter++){
 		mChunkedLoadState.totalResources += (*iter)->getTotalResources();
@@ -189,6 +201,7 @@ Assets::ChunkedLoadStatus Assets::chunkedLoad(){
 			mSoundManager->createAll();
 			mModelManager->createAll();
 			mParticleManager->createAll();
+			mHeightmapManager->createAll();
 		}
 		else{
 			return chunkedLoad();
@@ -220,15 +233,26 @@ void Assets::reload(){
 	LOGD("Loading particles . . .");
 	mParticleManager->loadAll();
 
+	LOGD("Loading heightmaps . . .");
+	mHeightmapManager->loadAll();
+
 	LOGD("Creating resources");
 
 	mImageManager->createAll();
+
 	mTextureManager->createAll();
+
 	mSkyBoxManager->createAll();
+
 	mAnimationManager->createAll();
+
 	mSoundManager->createAll();
+
 	mModelManager->createAll();
+
 	mParticleManager->createAll();
+
+	mHeightmapManager->createAll();
 
 	LOGD("All assets created.");
 }
@@ -263,19 +287,28 @@ void Assets::load(const String& path){
 
 
 void Assets::serialize(LuaObject& assets){
-	serialize(mImageManager, "IMAGE_MANAGER", 
+	serialize(mImageManager, IMAGE_MANAGER_TABLE_NAME,
 		assets);
-	serialize(mTextureManager, "TEXTURE_MANAGER", 
+
+	serialize(mTextureManager, TEXTURE_MANAGER_TABLE_NAME, 
 		assets);
-	serialize(mSkyBoxManager, "SKYBOX_MANAGER", 
+
+	serialize(mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, 
 		assets);
-	serialize(mModelManager, "MODEL_MANAGER", 
+
+	serialize(mModelManager, MODEL_MANAGER_TABLE_NAME, 
 		assets);
-	serialize(mAnimationManager, "ANIMATION_MANAGER", 
+
+	serialize(mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, 
 		assets);
-	serialize(mSoundManager, "SOUND_MANAGER", 
+
+	serialize(mSoundManager, SOUND_MANAGER_TABLE_NAME,
 		assets);
-	serialize(mParticleManager, "PARTICLE_MANAGER",
+
+	serialize(mParticleManager, PARTICLE_MANAGER_TABLE_NAME,
+		assets);
+
+	serialize(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME,
 		assets);
 }
 
@@ -296,15 +329,24 @@ void Assets::serialize(const String& path){
 
 Assets::~Assets(){
 	delete mImageManager;
+
 	delete mTextureManager;
+
 	delete mModelManager;
+
 	delete mSkyBoxManager;
+
 	delete mAnimationManager;
+
 	if(mFileSystem){
 		delete mFileSystem;
 	}
+
 	delete mParticleManager;
+
 	delete mSoundManager;
+
+	delete mHeightmapManager;
 }
 
 } // </wt>

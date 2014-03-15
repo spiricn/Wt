@@ -134,17 +134,10 @@ void WtEditorContext::unloadAssets(){
 
 	LOGD("Unloading resources ..");
 
-	// TODO
-	//mWorldEdit->onBeforeAssetsUnload();
-
 	// Unload existing scene
 	unloadScene();
 
-	// TODO
-	//// Destroy all resource tab items & unload all resources
-	//for(TabList::iterator i=mTabs.begin(); i!=mTabs.end(); i++){
-	//	(*i)->destroyAll();
-	//}
+	mAssets.unloadAll();
 
 	mAssetsFilePath = "";
 
@@ -250,4 +243,10 @@ void WtEditorContext::createNewAssets(QString path){
 	//	TRACEE("Error creating new assets file");
 	//	return;
 	//}
+}
+
+void WtEditorContext::clearScene(){
+}
+
+void WtEditorContext::clearAssets(){
 }

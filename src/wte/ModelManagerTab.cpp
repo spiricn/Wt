@@ -9,7 +9,7 @@
 ModelManagerTab::ModelManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets, assets->getModelManager(), true){
 	ui.setupUi(this);
 
-	setTreeWidget(ui.treeWidget);
+	initialize<wt::Model>(ui.treeWidget);
 }
 
 void ModelManagerTab::onCtxMenuSetUri(RTWItem* item){

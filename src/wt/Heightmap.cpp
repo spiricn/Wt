@@ -91,7 +91,8 @@ void Heightmap::create(uint32_t numRows, uint32_t numColumns, int16_t initialVal
 
 void HeightmapLoader::load(AIOStream* stream, Heightmap* dst){
 	int64_t numBytes = dst->getNumRows() * dst->getNumColumns() * sizeof(int16_t);
-	WT_ASSERT(stream->getSize() == numBytes, "invalid heightmap file size (got %l, expected %l)", stream->getSize(), numBytes);
+
+	WT_ASSERT(stream->getSize() == numBytes, "invalid heightmap file size (got %ld, expected %ld)", stream->getSize(), numBytes);
 
 	WT_ASSERT(stream->read(static_cast<void*>(dst->getSamples()), numBytes) == numBytes, "Error reading heightmap samples");
 }

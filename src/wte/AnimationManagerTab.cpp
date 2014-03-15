@@ -2,12 +2,12 @@
 
 #include "wte/AnimationManagerTab.h"
 
-
 AnimationManagerTab::AnimationManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
 	assets->getAnimationManager(), true){
+
 	ui.setupUi(this);
 
-	setTreeWidget(ui.treeWidget);
+	initialize<wt::Animation>(ui.treeWidget);
 }
 
 void AnimationManagerTab::onCtxMenuSetUri(RTWItem* item){

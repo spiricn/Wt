@@ -89,6 +89,7 @@ public:
 
 	template<class T>
 	void buildTree(RTWItem* parent, wt::AResourceGroup<T>* group){
+		
 		RTWItem* item=NULL;
 	
 		if(group->getParent() != NULL){

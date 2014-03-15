@@ -13,37 +13,14 @@
 
 class SkyBoxManagerTab : public ARsrcManagerTab{
 	Q_OBJECT;
-private:
-	Ui::SkyBoxManager ui;
 
 public:
 	SkyBoxManagerTab(QWidget* parent, wt::Assets* assets);
 
-	void refreshAll(){
-		ui.treeWidget->buildTree<wt::SkyBox>(NULL, getAssets()->getSkyBoxManager());
-	}
-
-	void destroyAll(){
-		ARsrcManagerTab::destroyAll<wt::SkyBox>();
-	}
-
-protected:
-	
-
-
-	void onCtxMenuCreateResource(RTWItem* item){
-		createResource<wt::SkyBox>(item);
-	}
-
-	void onCtxMenuCreateGroup(RTWItem* item){
-		createResourceGroup<wt::SkyBox>(item);
-	}
-
-	void onCtxMenuDelete(RTWItem* item){
-		deleteItem<wt::SkyBox>(item);
-	}
-
+private:
 	void onTreeItemActivated(RTWItem* item);
+
+	Ui::SkyBoxManager ui;
 
 }; // </SkyBoxManagerTab>
 

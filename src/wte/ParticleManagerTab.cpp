@@ -8,19 +8,7 @@
 ParticleManagerTab::ParticleManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets, assets->getParticleResourceManager(), false){
     ui.setupUi(this);
 
-	setTreeWidget(ui.treeWidget);
-}
-
-void ParticleManagerTab::destroyAll(){
-	ARsrcManagerTab::destroyAll<wt::ParticleEffectResource>();
-}
-
-void ParticleManagerTab::refreshAll(){
-	ui.treeWidget->buildTree<wt::ParticleEffectResource>(NULL, getAssets()->getParticleResourceManager());
-}
-
-void ParticleManagerTab::onCtxMenuCreateResource(RTWItem* item){
-	createResource<wt::ParticleEffectResource>(item);
+	initialize<wt::ParticleEffectResource>(ui.treeWidget);
 }
 
 void ParticleManagerTab::onTreeItemActivated(RTWItem* item){

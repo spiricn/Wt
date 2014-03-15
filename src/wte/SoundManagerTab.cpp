@@ -10,7 +10,7 @@ SoundManagerTab::SoundManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcMan
 	assets->getSoundManager(), true){
     ui.setupUi(this);
 
-	setTreeWidget(ui.treeWidget);
+	initialize<wt::ASoundBuffer>(ui.treeWidget);
 }
 
 void SoundManagerTab::onCtxMenuSetUri(RTWItem* item){
