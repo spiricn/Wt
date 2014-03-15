@@ -22,30 +22,6 @@ const int16_t* Heightmap::getSamples() const{
 	return mSamples.getData();
 }
 
-void Heightmap::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
-	AResource::serialize(luaState, dst);
-
-	dst.Set("num_rows", mNumRows);
-	dst.Set("num_columns", mNumColumns);
-	dst.Set("height_scale", mHeightScale);
-	dst.Set("row_scale", mRowScale);
-	dst.Set("column_scale", mColumnScale);
-}
-
-void Heightmap::deserialize(lua::State* luaState, const LuaPlus::LuaObject& src){
-	AResource::deserialize(luaState, src);
-
-	uint32_t numRows, numColumns;
-	WT_ASSERT(lua::luaConv(src.Get("num_rows"), numRows), "num_rows field missing");
-	WT_ASSERT(lua::luaConv(src.Get("num_columns"), numColumns), "num_columns field missing");
-
-	create(numRows, numColumns);
-
-	lua::luaConv(src.Get("height_scale"), mHeightScale);
-	lua::luaConv(src.Get("row_scale"), mRowScale);
-	lua::luaConv(src.Get("column_scale"), mColumnScale);
-}
-
 float Heightmap::getRowScale() const{
 	return mRowScale;
 }
@@ -90,17 +66,59 @@ void Heightmap::create(uint32_t numRows, uint32_t numColumns, int16_t initialVal
 }
 
 void HeightmapLoader::load(AIOStream* stream, Heightmap* dst){
-	int64_t numBytes = dst->getNumRows() * dst->getNumColumns() * sizeof(int16_t);
+	int64_t rc = 0;
 
-	WT_ASSERT(stream->getSize() == numBytes, "invalid heightmap file size (got %ld, expected %ld)", stream->getSize(), numBytes);
+	// Dimensions
+	uint32_t numRows = 0;
+	rc = stream->read(&numRows, sizeof(uint32_t));
+	WT_ASSERT(rc == sizeof(uint32_t), "Error reading heightmap file");
 
-	WT_ASSERT(stream->read(static_cast<void*>(dst->getSamples()), numBytes) == numBytes, "Error reading heightmap samples");
+	uint32_t numColumns = 0;
+	rc = stream->read(&numColumns, sizeof(uint32_t));
+	WT_ASSERT(rc == sizeof(uint32_t), "Error reading heightmap file");
+
+	WT_ASSERT(numRows > 0 && numColumns > 0, "Invalid heightmap dimensions (%u x %u)", numRows, numColumns);
+
+	// Scaling
+	float heightScale = 0.0f;
+	rc = stream->read(&heightScale, sizeof(float));
+	WT_ASSERT(rc == sizeof(float), "Error reading heightmap file");
+
+	float columnScale = 0.0f;
+	rc = stream->read(&columnScale , sizeof(float));
+	WT_ASSERT(rc == sizeof(float), "Error reading heightmap file");
+
+	float rowScale = 0.0f;
+	rc = stream->read(&rowScale, sizeof(float));
+	WT_ASSERT(rc == sizeof(float), "Error reading heightmap file");
+
+	// Samples
+	int64_t numBytes = numRows * numColumns * sizeof(int16_t);
+	dst->create(numRows, numColumns);
+	rc = stream->read(dst->getSamples(), numBytes);
+	WT_ASSERT(numBytes == rc, "Error reading heightmap file");
 }
 
 void HeightmapLoader::save(AIOStream* stream, Heightmap* src){
-	int64_t numBytes = src->getNumRows() * src->getNumColumns() * sizeof(int16_t);
+	// Dimensions
+	uint32_t numRows = src->getNumRows();
+	stream->write(&numRows, sizeof(uint32_t));
 
-	stream->write(static_cast<void*>(src->getSamples()), numBytes);
+	uint32_t numColumns = src->getNumColumns();
+	stream->write(&numColumns, sizeof(uint32_t));
+
+	// Scaling
+	float heightScale = src->getHeightScale();
+	stream->write(&heightScale, sizeof(float));
+
+	float columnScale = src->getColumnScale();
+	stream->write(&columnScale , sizeof(float));
+
+	float rowScale = src->getRowScale();
+	stream->write(&rowScale, sizeof(float));
+
+	// Samples
+	stream->write(static_cast<void*>(src->getSamples()), src->getNumRows() * src->getNumColumns() * sizeof(int16_t));
 }
 
 } // </wt>

@@ -14,10 +14,6 @@ public:
 
 	~Heightmap();
 
-	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
-
-	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table);
-
 	int16_t* getSamples();
 
 	const int16_t* getSamples() const;
