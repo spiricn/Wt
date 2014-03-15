@@ -269,21 +269,30 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 				break;
 
 			case eSMOOTHEN:{
-				int kernelSize= 10;
-				int n=0;
-				float sum = 0.0f;
+				static const uint32_t kernelSize= 4;
+				uint32_t numSamples = 0;
+				int16_t sum = 0;
 
-				for(uint32_t i=row-kernelSize/2; i<row+kernelSize/2; i++){
-					for(uint32_t j=col-kernelSize/2; j<col+kernelSize/2; j++){
-						sum += heightmap.getSamples()[i*totalCols + j] * heightmap.getHeightScale();
-						n++;
+				for(int32_t i=row-kernelSize/2; i<row+kernelSize/2; i++){
+					for(int32_t j=col-kernelSize/2; j<col+kernelSize/2; j++){
+						if(i < 0 || j < 0 || i >=heightmap.getNumRows() || j >= heightmap.getNumColumns()){
+							continue;
+						}
+
+						sum += heightmap.getSamples()[i*totalCols + j];
+						++numSamples;
 					}
 				}
 
-	
-				finalSample = glm::floor( ((float)sum/n) / heightmap.getHeightScale() );
-	
+				if(numSamples == 0){
+					finalSample = currentHeight;
+				}
+				else{
+					int16_t avgHeight = static_cast<int16_t>( glm::floor( static_cast<float>(sum) / numSamples ) );
 
+					finalSample = static_cast<int16_t>( glm::floor( glm::mix(static_cast<float>(currentHeight), static_cast<float>(avgHeight), factor) ) );
+				}
+	
 				break;
 				}
 			}
