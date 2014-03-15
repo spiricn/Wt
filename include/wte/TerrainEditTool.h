@@ -31,6 +31,8 @@ protected slots:
 
 	void onMouseDown(QMouseEvent*);
 
+	void onMouseUp(QMouseEvent*);
+
 	void onSaveTexture();
 
 	void onSaveHeightmap();

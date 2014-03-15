@@ -56,6 +56,9 @@ WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidg
 		mFogTool = new FogTool(ui.sceneView, this, this)
 	);
 
+	connect(&WTE_CTX, SIGNAL(sceneLoaded()),
+		this, SLOT(onSceneLoaded()));
+
 	// main loop timer
 	connect(&mTimer, SIGNAL(timeout()),
 		this, SLOT(onTimeout()));

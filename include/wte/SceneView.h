@@ -51,6 +51,8 @@ signals:
 
 	void onMouseDrag(MouseDragEvent evt);
 
+	void onMouseUp(QMouseEvent*);
+
 protected:
 	bool eventFilter(QObject *object, QEvent *event);
 

@@ -50,7 +50,7 @@ void SceneLoader::load(AIOStream& stream){
 			mScene->getPhysics()->createBBox(actor);
 		}
 		else if(!type.compare("terrain")){
-#if 0
+#if 1
 			// Terrain
 			Terrain* terrain = mScene->createTerrain();
 
@@ -216,7 +216,6 @@ void SceneLoader::save(AIOStream& stream){
 	if(mScene->getSkyBox()){
 		sceneTable.Set("skybox", mScene->getSkyBox()->getPath().c_str());
 	}
-
 
 	// Lighting
 	LuaObject dirLight = mAssets->getLuastate()->newTable();

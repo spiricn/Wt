@@ -188,5 +188,8 @@ void SceneView::mousePressEvent(QMouseEvent* evt){
 void SceneView::mouseReleaseEvent(QMouseEvent* evt){
 	// unhide cursor
 	setCursor(QCursor(Qt::ArrowCursor));
+
 	mIsLooking = false;
+
+	emit onMouseUp(evt);
 }

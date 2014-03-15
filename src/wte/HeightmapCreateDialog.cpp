@@ -21,27 +21,17 @@ void HeightmapCreateDialog::onCreate(){
 		return;
 	}
 
-	uint32_t numRows = ui.numRows->value();
+	wt::Heightmap heightmap;
 
-	uint32_t numCols = ui.numColumns->value();
+	heightmap.create(ui.numRows->value(), ui.numColumns->value(), ui.initialValue->value());
 
-	int16_t initialValue = ui.initialValue->value();
+	heightmap.setRowScale(ui.rowScale->value());
 
-#if 1
-	wt::Heightmap hmap;
-	hmap.create(numRows, numCols, initialValue);
+	heightmap.setHeightScale(ui.heightScale->value());
 
-	WTE_CTX.getAssets()->getHeightmapManager()->getLoader()->save(path.toStdString(), &hmap);
+	heightmap.setColumnScale(ui.columnScale->value());
 
-#else
-	std::ofstream outfile(path.toStdString().c_str(), std::ios::binary);
-
-	for(int i=0; i<numRows*numCols; i++){
-		outfile.write((char*)&initialValue, sizeof(int16_t));
-	}
-
-	outfile.close();
-#endif
+	WTE_CTX.getAssets()->getHeightmapManager()->getLoader()->save(path.toStdString(), &heightmap);
 
 	mResult = path;
 

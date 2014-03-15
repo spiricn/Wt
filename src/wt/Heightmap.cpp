@@ -83,14 +83,17 @@ void HeightmapLoader::load(AIOStream* stream, Heightmap* dst){
 	float heightScale = 0.0f;
 	rc = stream->read(&heightScale, sizeof(float));
 	WT_ASSERT(rc == sizeof(float), "Error reading heightmap file");
+	dst->setHeightScale(heightScale);
 
 	float columnScale = 0.0f;
 	rc = stream->read(&columnScale , sizeof(float));
 	WT_ASSERT(rc == sizeof(float), "Error reading heightmap file");
+	dst->setColumnScale(columnScale);
 
 	float rowScale = 0.0f;
 	rc = stream->read(&rowScale, sizeof(float));
 	WT_ASSERT(rc == sizeof(float), "Error reading heightmap file");
+	dst->setRowScale(rowScale);
 
 	// Samples
 	int64_t numBytes = numRows * numColumns * sizeof(int16_t);

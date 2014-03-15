@@ -19,6 +19,9 @@ TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolMan
 
 	connect(mSceneView, SIGNAL(onMouseDrag(float,float,Qt::MouseButton)),
 		this, SLOT(onMouseDrag(float,float,Qt::MouseButton)));
+
+	connect(mSceneView, SIGNAL(onMouseUp(QMouseEvent*)),
+		 this, SLOT(onMouseUp(QMouseEvent*)));
 }
 
 void TerrainEditTool::onToolLostFocus(){
@@ -124,8 +127,11 @@ void TerrainEditTool::onSaveHeightmap(){
 		return;
 	}
 
+	wt::StreamPtr stream = WTE_CTX.getAssets()->getFileSystem()->open(
+		mTerrain->getHeightmap()->getUri(), wt::AIOStream::eMODE_WRITE);
+
 	WTE_CTX.getAssets()->getHeightmapManager()->getLoader()->save(
-		mTerrain->getHeightmap()->getUri(), mTerrain->getHeightmap());
+		stream, mTerrain->getHeightmap());
 
 	LOGI("Terrain heightmap saved to \"%s\"", path.toStdString().c_str());
 }
@@ -209,24 +215,30 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 		return;
 	}
 
+	// New heightmap samples
 	wt::Buffer<int16_t> samples;
 	samples.create(numRows*numCols);
 
+	// Old heightmap
 	wt::Heightmap& heightmap = *terrain.getHeightmap();
 
-	uint32_t totalRows = heightmap.getNumRows();
-	uint32_t totalCols = heightmap.getNumColumns();
+	const uint32_t totalRows = heightmap.getNumRows();
 
-	// max distance from center
-	float maxDistance = glm::length( glm::vec2(numRows/2.0, numCols/2.0) );
-	glm::vec2 center(startRow + numRows/2.0f, startCol + numCols/2.0f);
+	const uint32_t totalCols = heightmap.getNumColumns();
 
-	enum BrushShape{
-		eSHAPE_CIRCLE,
-		eSHAPE_SQUARE
-	};
+	// Max distance from center
+	const float maxDistance = glm::length( glm::vec2(numRows/2.0, numCols/2.0) );
 
-	BrushShape shape = static_cast<BrushShape>(ui.brushShape->currentIndex());
+	const glm::vec2 center(startRow + numRows/2.0f, startCol + numCols/2.0f);
+
+
+//#define DEBUG_DUMP
+
+#ifdef DEBUG_DUMP
+	FILE* f1 = fopen("factor.txt", "wb");
+	FILE* f2 = fopen("before.txt", "wb");
+	FILE* f3 = fopen("after.txt", "wb");
+#endif
 
 	for(uint32_t row=startRow; row<startRow+numRows; row++){
 		for(uint32_t col=startCol; col<startCol+numCols; col++){
@@ -248,7 +260,7 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 					int16_t minDelta = 1;
 					int16_t maxDelta = 20;
 
-					int16_t delta = shape == eSHAPE_CIRCLE ? factor : 1.0f * ( minDelta + pressure*(maxDelta-minDelta) );
+					int16_t delta =  factor * ( minDelta + pressure*(maxDelta-minDelta) );
 
 					delta *= mode == eELEVATE ? 1 : -1;
 
@@ -277,8 +289,26 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 			}
 
 			samples[(row-startRow)*numCols + (col-startCol)] = finalSample;
+
+#ifdef DEBUG_DUMP
+			fprintf(f1, "%.2f ", factor);
+			fprintf(f2, "%d ", currentHeight);
+			fprintf(f3, "%d ", finalSample);
+#endif
 		}
+
+#ifdef DEBUG_DUMP
+		fprintf(f1, "\n");
+		fprintf(f2, "\n");
+		fprintf(f3, "\n");
+#endif
 	}
+
+#ifdef DEBUG_DUMP
+	fclose(f1);
+	fclose(f2);
+	fclose(f3);
+#endif
 
 	terrain.editChunk(samples, startRow, startCol, numRows, numCols);
 }
@@ -345,41 +375,35 @@ void TerrainEditTool::editAt(float x, float y){
 			tex->generateMipmap();
 		}
 		else{
+			// Index of the triangle the ray hit
+			const uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
 
-			PxShape* shapes[1];
-			((PxRigidStatic*)mTerrain->getPhysicsActor()->getPxActor())->getShapes(shapes, 1);
+			// Total number of rows/columns
+			const uint32_t numRows = mTerrain->getHeightmap()->getNumRows();
+			const uint32_t numCols = mTerrain->getHeightmap()->getNumColumns();
 
-			PxHeightField* pxHeightField = shapes[0]->getGeometry().heightField().heightField;
-
-
-			
-			wt::gl::Batch& batch = mTerrain->getBatch();
-			
-			//wt::TerrainChunk::Vertex* vertices = (wt::TerrainChunk::Vertex*)batch.getVertexBuffer().map(wt::gl::Buffer::eREAD_WRITE);
-
-			uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
-
-			uint32_t numRows = mTerrain->getHeightmap()->getNumRows();
-			uint32_t numCols = mTerrain->getHeightmap()->getNumColumns();
-
-			int32_t row = idx/numRows;
-			int32_t col = idx%numCols;
-
+			// The row/column the ray hit
+			const int32_t row = idx / numRows;
+			const int32_t col = idx % numCols;
 
 			int32_t d = ui.brushSize->value(); // brush size
 
-			int32_t startRow = (row-d/2)<0?0:row-d/2;
-			int32_t startCol = (col-d/2)<0?0:col-d/2;
+			// Start row/column of the chunk being edited
+			int32_t startRow = (row-d/2)<0 ? 0 : row-d/2;
+			int32_t startCol = (col-d/2)<0 ? 0 : col-d/2;
 
-			int32_t endRow = (row+d/2)>=numRows?numRows:row+d/2;
-			int32_t endCol = (col+d/2)>=numCols?numCols:col+d/2;
-
+			// End row/column of the chunk being edited
+			int32_t endRow = (row+d/2) >= numRows ? numRows : row+d/2;
+			int32_t endCol = (col+d/2) >= numCols ? numCols : col+d/2;
 			
-			editTerrainChunk(*mTerrain,
-				startRow, startCol, endRow-startRow, endCol-startCol, (ui.pressure->value()/100.0f),
+			// Edit the chunk
+			editTerrainChunk(
+				*mTerrain,
+				startRow, startCol,
+				endRow-startRow, endCol-startCol,
+				(ui.pressure->value()/100.0f),
 				(BrushMode)ui.comboBox->currentIndex() // TODO fix this
-				); 
-
+			); 
 		}
 	}
 }
@@ -407,4 +431,7 @@ void TerrainEditTool::onCreateNewTerrain(){
 	}catch(wt::Exception& e){
 		QMessageBox::critical(this, "Error", QString("Error creating terrain\n") + e.getDescription().c_str());
 	}
+}
+
+void TerrainEditTool::onMouseUp(QMouseEvent*){
 }

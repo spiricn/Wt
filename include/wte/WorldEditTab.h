@@ -46,8 +46,6 @@ public:
 
 	void onAfterAssetsUnload();
 
-	void onSceneLoaded();
-
 private:
 	Ui::WorldEdit ui;
 
@@ -120,6 +118,7 @@ protected slots:
 
 	void onToggleBoundingBoxes();
 
+	void onSceneLoaded();
 
 signals:
 	void initialized();

@@ -74,8 +74,8 @@ private:
 	Heightmap* mHeightmap;
 	uint32_t mNumTriangles;
 	uint32_t mNumVertices;
-	uint32_t mNumXVertices;
-	uint32_t mNumZVertices;
+	uint32_t mNumRows;
+	uint32_t mNumColumns;
 	float mDepth;
 	float mWidth;
 	float mMinHeight;
