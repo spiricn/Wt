@@ -47,6 +47,8 @@ protected slots:
 
 	void onBrushActivated();
 
+	void onUpdate(float dt);
+
 private:
 	enum BrushMode{
 		eELEVATE,
@@ -59,6 +61,21 @@ private:
 	wt::gl::FrameBuffer mFrameBuffer;
 	wt::Terrain* mTerrain;
 	wt::Texture2D* mBrushTexture;
+
+
+	enum EditMode{
+		eMODE_SCULPT,
+		eMODE_PAINT
+	};
+	struct EditContext{
+		float x;
+		float y;
+		bool editing;
+		EditMode mode;
+
+		EditContext() : x(0.0f), y(0.0f), editing(false), mode(eMODE_SCULPT){
+		}
+	} mEditContext;
 
 private:
 	void editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, uint32_t startCol, uint32_t numRows, uint32_t numCols, float pressure, BrushMode mode);

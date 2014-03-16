@@ -58,9 +58,6 @@ private:
 
 	wt::ProcessManager mProcManager;
 
-	// Main loop timer
-	QTimer mTimer;
-
 	typedef QVector<ATool*> ToolList;
 	ToolList mTools;
 	QDockWidget* mPrevDockWidget;
@@ -98,7 +95,7 @@ protected slots:
 	
 	void onSetSkybox();
 
-	void onTimeout();
+	void onUpdate(float);
 
 	void onGLContextCreated();
 

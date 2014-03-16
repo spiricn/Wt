@@ -4,6 +4,7 @@
 
 #include <wt/SceneLoader.h>
 #include <wt/FileSystemFactory.h>
+#include <wt/Timer.h>
 
 #define TD_TRACE_TAG "WtEditorContext"
 
@@ -12,6 +13,22 @@
 
 WtEditorContext::WtEditorContext() : mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false), mLuaState(new wt::lua::State()),
 	mEventManager(mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, mLuaState), mRenderer(&mEventManager, &mScene){
+
+	connect(&mTimer, SIGNAL(timeout()),
+		this, SLOT(onTimeout()));
+}
+
+void WtEditorContext::onTimeout(){
+	static wt::Timer timer;
+
+	emit update(timer.getSeconds());
+}
+
+void WtEditorContext::startLoop(){
+	mTimer.start( (1.0/25)*1000 );
+}
+
+void WtEditorContext::stopLoop(){
 }
 
 wt::Assets* WtEditorContext::getAssets(){

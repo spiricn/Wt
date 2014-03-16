@@ -289,24 +289,51 @@ void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObje
 bool luaConv(const LuaObject& src, ATransformable& dst){
 	// Position
 	float px, py, pz;
-	if(!luaConv(src.Get(1), px)) return false;
-	if(!luaConv(src.Get(2), py)) return false;
-	if(!luaConv(src.Get(3), pz)) return false;
+	if(!luaConv(src.Get(1), px)){
+		return false;
+	}
+
+	if(!luaConv(src.Get(2), py)){
+		return false;
+	}
+
+	if(!luaConv(src.Get(3), pz)){
+		return false;
+	}
+
 	dst.setTranslation(glm::vec3(px, py, pz));
 
 	// Scale
 	float sx, sy, sz;
-	if(!luaConv(src.Get(4), sx)) return false;
-	if(!luaConv(src.Get(5), sy)) return false;
-	if(!luaConv(src.Get(6), sz)) return false;
+	if(!luaConv(src.Get(4), sx)){
+		return false;
+	}
+
+	if(!luaConv(src.Get(5), sy)){
+		return false;
+	}
+
+	if(!luaConv(src.Get(6), sz)){
+		return false;
+	}
+
 	dst.setScale(glm::vec3(sx, sy, sz));
 
 	// Rotation
 	float rx, ry, rz, rw;
-	if(!luaConv(src.Get(7), rx)) return false;
-	if(!luaConv(src.Get(8), ry)) return false;
-	if(!luaConv(src.Get(9), rz)) return false;
-	if(!luaConv(src.Get(10), rw)) return false;
+	if(!luaConv(src.Get(7), rx)){
+		return false;
+	}
+	if(!luaConv(src.Get(8), ry)){
+		return false;
+	}
+	if(!luaConv(src.Get(9), rz)){
+		return false;
+	}
+	if(!luaConv(src.Get(10), rw)){
+		return false;
+	}
+
 	glm::quat rot;
 	rot.x = rx;
 	rot.y = ry;

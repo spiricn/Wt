@@ -22,6 +22,15 @@ TerrainEditTool::TerrainEditTool(SceneView* sceneView, QWidget* parent, AToolMan
 
 	connect(mSceneView, SIGNAL(onMouseUp(QMouseEvent*)),
 		 this, SLOT(onMouseUp(QMouseEvent*)));
+
+	connect(&WTE_CTX, SIGNAL(update(float)),
+		this, SLOT(onUpdate(float)));
+}
+
+void TerrainEditTool::onUpdate(float dt){
+	if(mEditContext.editing){
+		editAt(mEditContext.x, mEditContext.y);
+	}
 }
 
 void TerrainEditTool::onToolLostFocus(){
@@ -190,8 +199,9 @@ void TerrainEditTool::onResetHeightmap(){
 }
 
 void TerrainEditTool::onMouseDrag(float x, float y, Qt::MouseButton btn){
-	if(isToolFocused() && btn == Qt::LeftButton){
-		editAt(x, y);
+	if(isToolFocused() && btn == Qt::LeftButton && mEditContext.editing){
+		mEditContext.x = x;
+		mEditContext.y = y;
 	}
 }
 
@@ -295,6 +305,8 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 					finalSample = static_cast<int16_t>( glm::floor( glm::mix(static_cast<float>(currentHeight), static_cast<float>(avgHeight), factor) ) );
 				}
 	
+				// Don't want more than one smooth pass per edit request
+				mEditContext.editing = false;
 				break;
 				}
 			}
@@ -362,11 +374,12 @@ void TerrainEditTool::editAt(float x, float y){
 
 				float height = tex->getHeigth();
 
+
 				wt::Color clr(
 					ui.materialIndex->currentIndex()==0, 
 					ui.materialIndex->currentIndex()==1,
 					ui.materialIndex->currentIndex()==2,
-					ui.pressure->value()/100.0f
+					glm::mix(0.01f, 1.0f, ui.pressure->value()/100.0f)
 				);
 
 				mSceneView->getRenderer()->render(
@@ -423,8 +436,11 @@ void TerrainEditTool::editAt(float x, float y){
 }
 
 void TerrainEditTool::onMouseDown(QMouseEvent* evt){
-	if(isToolFocused()){
-		editAt(evt->x(), evt->y());
+	if(isToolFocused() && evt->button() == Qt::LeftButton){
+		mEditContext.x = evt->x();
+		mEditContext.y = evt->y();
+		mEditContext.editing = true;
+		mEditContext.mode = eMODE_SCULPT;
 	}
 }
 
@@ -455,4 +471,5 @@ void TerrainEditTool::onCreateNewTerrain(){
 }
 
 void TerrainEditTool::onMouseUp(QMouseEvent*){
+	mEditContext.editing = false;
 }

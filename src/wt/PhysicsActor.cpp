@@ -13,11 +13,20 @@ namespace wt
 
 PhysicsActor::PhysicsActor(uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
 	PxController* controller, ASceneActor* sceneActor) : mActorType(type), mControlMode(mode),
-	mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id){
+	mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id), mSceneActorCtrl(true){
 }
 
 
-PhysicsActor::Desc::Desc() : type(eTYPE_INVALID), geometryType(eGEOMETRY_INVALID), controlMode(eCTRL_MODE_NONE), collisionMask(0xFFFFFFFF), group(0x01){
+PhysicsActor::Desc::Desc() : type(eTYPE_INVALID), geometryType(eGEOMETRY_INVALID), controlMode(eCTRL_MODE_NONE), collisionMask(0xFFFFFFFF), group(0x01), sceneActorCtrl(true){
+}
+
+
+void PhysicsActor::setSceneActorCtrl(bool state){
+	mSceneActorCtrl = state;
+}
+
+bool PhysicsActor::getSceneActorCtrl() const{
+	return mSceneActorCtrl;
 }
 
 void PhysicsActor::setTranslation(const glm::vec3& translation){

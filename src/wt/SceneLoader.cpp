@@ -4,6 +4,10 @@
 
 #define TD_TRACE_TAG "SceneLoader"
 
+#define ACTORS_TABLE_NAME "ACTORS"
+
+#define SCENE_TABLE_NAME "SCENE"
+
 namespace wt
 {
 
@@ -20,13 +24,13 @@ void SceneLoader::load(AIOStream& stream){
 	}
 
 
-	LuaObject table = state->GetGlobal("SCENE");
+	LuaObject table = state->GetGlobal(SCENE_TABLE_NAME);
 	if(!table.IsTable()){
 		WT_THROW("Invalid scene description table (\"SCENE\" table missing)");
 	}
 
 	// Actors
-	for(LuaTableIterator iter(table.Get("ACTORS")); iter; iter.Next()){
+	for(LuaTableIterator iter(table.Get(ACTORS_TABLE_NAME)); iter; iter.Next()){
 		LuaObject& actorDesc = iter.GetValue();
 
 		String type;
@@ -199,7 +203,7 @@ void SceneLoader::save(AIOStream& stream){
 
 	// Actor serialization
 	LuaPlus::LuaObject actors = mAssets->getLuastate()->newTable();
-	sceneTable.Set("ACTORS", actors);
+	sceneTable.Set(ACTORS_TABLE_NAME, actors);
 
 	uint32_t actorCount = 0;
 	for(Scene::ActorMap::iterator iter=mScene->getActorMap().begin(); iter!=mScene->getActorMap().end(); iter++){
@@ -315,7 +319,7 @@ void SceneLoader::save(AIOStream& stream){
 		sceneTable.Set("camera", cameraTable);
 	}
 
-	stream.print("SCENE = \n");
+	stream.print("%s = \n", SCENE_TABLE_NAME);
 	lua::serializeTable(sceneTable, stream);
 	stream.print("\n");
 }

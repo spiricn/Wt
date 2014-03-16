@@ -24,8 +24,7 @@ void DirectionalLight::Desc::serialize(lua::State* luaState, LuaPlus::LuaObject&
 	dst.Set("direction", luaDir);
 }
 
-DirectionalLight::Desc::Desc(){
-	// TODO
+DirectionalLight::Desc::Desc() : direction(0.0f, -1.0f, 0.0f){
 }
 
 const DirectionalLight::Desc& DirectionalLight::getDesc() const{

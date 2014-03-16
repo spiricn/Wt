@@ -7,6 +7,8 @@
 #include <wt/Scene.h>
 #include <wt/Renderer.h>
 
+#include "stdafx.h"
+
 class WtEditorContext : public QObject, public wt::Singleton<WtEditorContext>{
 Q_OBJECT;
 
@@ -69,6 +71,10 @@ public:
 
 	QString getWorkspaceRootDir() const;
 
+	void startLoop();
+
+	void stopLoop();
+
 signals:
 	void workspaceUnloaded();
 
@@ -90,8 +96,13 @@ signals:
 
 	void saveRequest();
 
+	void update(float);
+
 protected:
 	void setAssets(wt::Assets* assets);
+
+private slots:
+	void onTimeout();
 
 private:
 	wt::Assets mAssets;
@@ -105,6 +116,7 @@ private:
 	wt::EventManager mEventManager;
 	wt::Scene mScene;
 	wt::Renderer mRenderer;
+	QTimer mTimer;
 
 friend class WtEditor;
 

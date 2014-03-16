@@ -55,6 +55,7 @@ public:
 		uint32_t group;
 		uint32_t collisionMask;
 		ControlMode controlMode;
+		bool sceneActorCtrl;
 
 		Desc();
 
@@ -141,6 +142,10 @@ public:
 
 	void getRotation(glm::quat& result) const;
 
+	void setSceneActorCtrl(bool state);
+
+	bool getSceneActorCtrl() const;
+
 protected:
 	void setController(PxController* ctrl);
 
@@ -156,6 +161,7 @@ private:
 	void* mUserData;
 	uint32_t mId;
 	Desc mDesc;
+	bool mSceneActorCtrl;
 }; // </PhysicsActor>
 
 }; // </wt>

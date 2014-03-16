@@ -6,9 +6,9 @@
 #include <qprocess.h>
 #include <qmessagebox.h>
 
+#include "wte/WorldEditTab.h"
 #include "wte/CameraAnimationDialog.h"
 #include "wte/MainGLWidget.h"
-#include "wte/WorldEditTab.h"
 #include "wte/ResourcePickerDialog.h"
 #include "wte/TerrainEditTool.h"
 #include "wte/LightEditTool.h"
@@ -59,11 +59,12 @@ WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidg
 	connect(&WTE_CTX, SIGNAL(sceneLoaded()),
 		this, SLOT(onSceneLoaded()));
 
-	// main loop timer
-	connect(&mTimer, SIGNAL(timeout()),
-		this, SLOT(onTimeout()));
+	connect(&WTE_CTX, SIGNAL(update(float)),
+		this, SLOT(onUpdate(float)));
 
-	mTimer.start( (1.0/FPS)*1000 );
+
+	// TODO move to WtEditor.cpp ?
+	WTE_CTX.startLoop();
 }
 
 void WorldEditTab::requestFocus(ATool* tool){
@@ -88,9 +89,7 @@ WorldEditTab::~WorldEditTab(){
 	delete mTerrainEditTool;
 }
 
-void WorldEditTab::onTimeout(){
-	float dt = 1.0f/FPS;
-
+void WorldEditTab::onUpdate(float dt){
 	WTE_CTX.getScene()->update(dt);
 	WTE_CTX.getScene()->getPhysics()->update(dt);
 

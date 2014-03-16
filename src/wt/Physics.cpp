@@ -286,9 +286,11 @@ void Physics::update(float dt){
 			glm::quat rot;
 			actor->getSceneActor()->getTransformable()->getRotation(rot);
 
-			(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(
-				glm::vec3(pos.x, pos.y, pos.z), rot
-			);
+			if(actor->getSceneActorCtrl()){
+				(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(
+					glm::vec3(pos.x, pos.y, pos.z), rot
+				);
+			}
 #endif
 		}
 		else if(actor->getSceneActor()){
@@ -827,7 +829,7 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 			std::make_pair(actorId, createdActor)
 		);
 
-		if(sceneActor){
+		if(sceneActor && desc.sceneActorCtrl){
 			// Initial physics control
 			glm::vec3 pos;
 			glm::quat rot;
@@ -862,8 +864,10 @@ void Physics::createBBox(ASceneActor* actor){
 	desc.collisionMask = 0;
 	desc.group = 0;
 
+	// Bounding box actor does NOT control a scene actor (other way around)
+	desc.sceneActorCtrl = false;
 
-	createActor(actor, desc);
+	PhysicsActor* pxActor = createActor(actor, desc);
 }
 
 LuaObject Physics::lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter){

@@ -2,6 +2,7 @@
 
 #include "wt/Model.h"
 #include "wt/GLBuffer.h"
+#include "wt/Lua.h"
 
 #define TD_TRACE_TAG "Model"
 
@@ -287,6 +288,8 @@ void Model::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 			skinEntry.Set("texture", mesh->texture ? mesh->texture->getPath().c_str() : "");
 
 			skinEntry.Set("normal_map", mesh->normalMap? mesh->normalMap->getPath().c_str() : "");
+
+			skinEntry.Set("alpha_tested", mesh->material.isAlphaTested());
 		}
 	}
 
@@ -330,6 +333,12 @@ void Model::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 				mesh->normalMap = getGroup()->getResourceSystem()->getTextureManager()->getFromPath(
 					skinEntry.Get("normal_map").ToString()
 					);
+
+				bool alphaTested = false;
+				
+				lua::luaConv(skinEntry.Get("alpha_tested"), alphaTested);
+
+				mesh->material.setAlphaTest(alphaTested);
 
 				mesh->geometryName = meshName;
 			}

@@ -131,9 +131,9 @@ void ActorEditTool::onTranslationChanged(){
 
 void ActorEditTool::onRotationChanged(){
 	if(isToolFocused() && mSelectedActor){
-		mSelectedActor->getTransformable()->setRotation(
+		/*mSelectedActor->getTransformable()->setRotation(
 			ui.transform->getRotation()
-		);
+		);*/
 	}
 }
 

@@ -21,6 +21,7 @@
 #include <QtGui/qinputdialog.h>
 #include <QtGui/QTreeWidget.h>
 #include <QtGui/QFileDialog.h>
+#include <qtimer.h>
 
 // LuaPlus
 #include <LuaPlus.h>

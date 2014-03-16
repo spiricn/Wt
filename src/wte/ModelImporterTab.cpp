@@ -57,7 +57,10 @@ void ModelImporterTab::onWorkspaceLoaded(){
 
 	wt::LuaObject settings = WTE_CTX.getSettingsTable();
 
-	WT_ASSERT(settings.IsTable(), "Invalid settings table");
+	if(!settings.IsTable()){
+		TRACEW("Invalid settings table");
+		return;
+	}
 
 	wt::LuaObject importerSettings = settings.Get(IMPORTER_SETTINGS_TABLE_NAME);
 

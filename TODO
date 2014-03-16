@@ -31,7 +31,7 @@ but multiple scene files (one per demo)
 -------------------------------------------------------------------------------
 
 fix the hardcoded stuff like:
-	home directory for the ditor
+	home directory for the editor
 	brush assets for the terrain editor
 	default godray texture
 	etc..
@@ -39,10 +39,6 @@ fix the hardcoded stuff like:
 
 implement a basic blending algorithm, just render all the opaque objects first and then the translucent ones
 this will have its flaws but it's good enough for this
-
--------------------------------------------------------------------------------
-
-finish the heightmap resource integration
 
 -------------------------------------------------------------------------------
 
