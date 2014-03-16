@@ -1,9 +1,5 @@
 -------------------------------------------------------------------------------
 
-rotation not being saved correctly for actors
-
--------------------------------------------------------------------------------
-
 remote $ROOT as the beggining of the resource tree
 just use linux-like convention (start with /)
 

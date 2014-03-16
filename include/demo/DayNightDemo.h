@@ -12,7 +12,7 @@ namespace wt{
 
 class DayNightDemo : public ADemo{
 private:
-	SkyDome mSkyDome;
+	//SkyDome mSkyDome;
 	bool mPaused;
 
 public:
@@ -42,36 +42,36 @@ public:
 
 
 	void onUpdate(float dt){
-		if(!mPaused){
-			//mSkyDome.update(dt);
-		}
-		else{
-			if(getManager()->getInput()->isKeyDown(KEY_DOWN)){
-				mSkyDome.advance(dt*3);
-			}
-			else if(getManager()->getInput()->isKeyDown(KEY_UP)){
-				mSkyDome.advance(-dt*3);
-			}
-		}
+		//if(!mPaused){
+		//	//mSkyDome.update(dt);
+		//}
+		//else{
+		//	if(getManager()->getInput()->isKeyDown(KEY_DOWN)){
+		//		mSkyDome.advance(dt*3);
+		//	}
+		//	else if(getManager()->getInput()->isKeyDown(KEY_UP)){
+		//		mSkyDome.advance(-dt*3);
+		//	}
+		//}
 
 
 		getPhysics()->update(dt);
 		getScene()->update(dt);
 		getCameraControl()->handle(dt, getManager()->getInput());
 
-		
-		{
-			// Directional light
-			glm::vec3 sunPos = mSkyDome.getSunPos();
-			DirectionalLight::Desc light;
-			getScene()->getDirectionalLight();
-		
-			mSkyDome.getLightIntensity(&light.ambientIntensity, &light.diffuseIntensity);
+		//
+		//{
+		//	// Directional light
+		//	glm::vec3 sunPos = mSkyDome.getSunPos();
+		//	DirectionalLight::Desc light;
+		//	getScene()->getDirectionalLight();
+		//
+		//	mSkyDome.getLightIntensity(&light.ambientIntensity, &light.diffuseIntensity);
 
-			light.direction = glm::normalize( -sunPos );
+		//	light.direction = glm::normalize( -sunPos );
 
-			getScene()->setDirectionalLightDesc(light);
-		}
+		//	getScene()->setDirectionalLightDesc(light);
+		//}
 
 		//{
 		//	// Point light
@@ -84,23 +84,23 @@ public:
 		//}
 
 
-		glm::vec3 sunPos = mSkyDome.getSunPos();
+		//glm::vec3 sunPos = mSkyDome.getSunPos();
 
-		glm::vec3 center;
-		ModelledActor* a = dynamic_cast<ModelledActor*>(getScene()->findActorByName("cube"));
-		a->getTransformable()->getTranslation(center);
-
-
-		Scene::ShadowMappingDesc desc = getScene()->getShadowMappingDesc();
-
-		//math::Camera* dst = &getScene()->getCamera();
-		math::Camera* dst = &desc.casterSource;
+		//glm::vec3 center;
+		//ModelledActor* a = dynamic_cast<ModelledActor*>(getScene()->findActorByName("cube"));
+		//a->getTransformable()->getTranslation(center);
 
 
-		dst->setTranslation(center + 120.0f * glm::normalize(sunPos-center));
-		dst->lookAt(center);
-		
-		getScene()->setShadowMappingDesc(desc);
+		//Scene::ShadowMappingDesc desc = getScene()->getShadowMappingDesc();
+
+		////math::Camera* dst = &getScene()->getCamera();
+		//math::Camera* dst = &desc.casterSource;
+
+
+		//dst->setTranslation(center + 120.0f * glm::normalize(sunPos-center));
+		//dst->lookAt(center);
+		//
+		//getScene()->setShadowMappingDesc(desc);
 
 		/*Scene::GodRayParams godray;
 		getScene()->getGodRayParams(godray);
@@ -118,7 +118,7 @@ public:
 	void onKeyDown(VirtualKey c){
 		if(c == KEY_p){
 			mPaused = !mPaused;
-			mSkyDome.setPaused(mPaused);
+			//mSkyDome.setPaused(mPaused);
 		}
 
 		ADemo::onKeyDown(c);
@@ -130,20 +130,27 @@ public:
 	}
 
 	void onStart(const LuaObject& config){
+		getScene()->getCamera().setProjectionType(math::Camera::ePROJECTION_ORTHO);
+
+		math::Camera::OrthoParams params;
+		params.screenWidth = getManager()->getWindow()->getWidth();
+		params.screenHeight = getManager()->getWindow()->getHeight();
+		getScene()->getCamera().setOrthoParams(params);
+
 		getRenderer()->setClearColor( Color::Black() );
 
-		mSkyDome.create(
-			getAssets()->getModelManager()->getFromPath("$ROOT/geodome")->findGeometryByName("GEOMETRY_1"), // dome geometry
-			getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/sky"), // sky,
-			getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/glow"), // glow,
-			getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/sun")// sun
-			);
+		//mSkyDome.create(
+		//	getAssets()->getModelManager()->getFromPath("$ROOT/geodome")->findGeometryByName("GEOMETRY_1"), // dome geometry
+		//	getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/sky"), // sky,
+		//	getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/glow"), // glow,
+		//	getAssets()->getTextureManager()->getFromPath("$ROOT/skydome/sun")// sun
+		//	);
 
 		getScene()->setSkyBox(NULL);
 
 		getRenderer()->attachRenderer(new SkyDomeRenderer);
 
-		getScene()->insertCustomActor(&mSkyDome);
+		//getScene()->insertCustomActor(&mSkyDome);
 
 		Scene::ShadowMappingDesc desc = getScene()->getShadowMappingDesc();
 		desc.enabled = true;
