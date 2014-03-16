@@ -97,6 +97,7 @@ void WtEditor::onWorkspaceSave(){
 		return;
 	}
 
+#if 0
 	wt::lua::State state;
 
 	wt::lua::LuaObject workspace;
@@ -107,7 +108,8 @@ void WtEditor::onWorkspaceSave(){
 		WTE_CTX.getLuaState()->getGlobals().Set("workspace", workspace);
 	}
 
-	wt::String root = WTE_CTX.getWorkspaceFilePath().toStdString(), assets=WTE_CTX.getAssetsFilePath().toStdString(), scene=WTE_CTX.getSceneFilePath().toStdString();
+	wt::String root = WTE_CTX.getWorkspaceFilePath().toStdString();
+	wt::String assets=WTE_CTX.getAssetsFilePath().toStdString(), scene=WTE_CTX.getSceneFilePath().toStdString();
 	wt::utils::replacePathSplitters(root, '/');
 	wt::utils::replacePathSplitters(assets, '/');
 	wt::utils::replacePathSplitters(scene, '/');
@@ -122,6 +124,9 @@ void WtEditor::onWorkspaceSave(){
 	wt::lua::serializeTable(workspace, stream);
 
 	LOGI("Workspace saved to \"%s\"", path.toStdString().c_str());
+#else
+	WTE_CTX.saveWorkspace(path);
+#endif
 }
 
 void WtEditor::onOpenGLContextCreated(){
@@ -131,6 +136,7 @@ void WtEditor::onOpenGLContextCreated(){
 	showMaximized();
 
 	if(mCmdArg.size()){
+#if 0
 		LOGI("Loading config from file \"%s\"", mCmdArg.toStdString().c_str());
 
 		wt::lua::State state;
@@ -153,6 +159,11 @@ void WtEditor::onOpenGLContextCreated(){
 		WTE_CTX.switchWorkspace(root.c_str());
 		WTE_CTX.loadAssets(assets.c_str());
 		WTE_CTX.loadScene(scene.c_str());
+#else
+		LOGI("Loading config from file \"%s\"", mCmdArg.toStdString().c_str());
+
+		WTE_CTX.loadWorkspace(mCmdArg);
+#endif
 	}
 }
 
@@ -164,6 +175,7 @@ void WtEditor::updateTitle(){
 }
 
 void WtEditor::onWorkspaceSwitch(){
+#if 0
 #if 0
 	if(!askYesNo(this, "Warning: All unsaved assets/scenes are going to be lost. Switch workspace?")){
 		return;
@@ -180,6 +192,24 @@ void WtEditor::onWorkspaceSwitch(){
 	dir = dir + "/";
 
 	WTE_CTX.switchWorkspace(dir);
+#else
+	QString rootDir = QFileDialog::getExistingDirectory(this, "Browse workspace");
+
+	if(!rootDir.size()){
+		return;
+	}
+
+	QString path = QFileDialog::getSaveFileName(this,
+		"Pick workspace file path", rootDir, "Workspace files (*." WORKSPACE_FILE_EXTENSION ")");
+
+	if(!path.size()){
+		return;
+	}
+
+	// TODO check if path is part of rootDir
+
+	WTE_CTX.createWorkspace(rootDir, path);
+#endif
 }
 
 void WtEditor::addTab(ARsrcManagerTab* tab, const QString& name){
@@ -194,7 +224,7 @@ void WtEditor::onAssetsSaveAs(){
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", WTE_CTX.getWorkspaceFilePath(), "Asset files (*." RESOURCE_FILE_EXTENSION ")");
+		"Save assets", WTE_CTX.getWorkspaceRootDir(), "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
@@ -222,7 +252,7 @@ void WtEditor::onAssetsSave(){
 
 void WtEditor::onAssetsNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", WTE_CTX.getWorkspaceFilePath(), "Asset files (*." RESOURCE_FILE_EXTENSION ")");
+		"Save assets", WTE_CTX.getWorkspaceRootDir(), "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
@@ -237,7 +267,7 @@ void WtEditor::onAssetsOpen(){
 	QString path = QFileDialog::getOpenFileName(this,
 		"Load assets", mWorkspacePath, "Asset files (*." RESOURCE_FILE_EXTENSION ")");
 #else
-	QString path = FilePicker::getFile(this, WTE_CTX.getWorkspaceFilePath(), "*." RESOURCE_FILE_EXTENSION);
+	QString path = FilePicker::getFile(this, WTE_CTX.getWorkspaceRootDir(), "*." RESOURCE_FILE_EXTENSION);
 #endif
 
 	if(!path.size()){
@@ -303,7 +333,7 @@ void WtEditor::onSceneOpen(){
 		return;
 	}
 
-	QString path = FilePicker::getFile(this, WTE_CTX.getWorkspaceFilePath(), "*." SCENE_FILE_EXTENSION);
+	QString path = FilePicker::getFile(this, WTE_CTX.getWorkspaceRootDir(), "*." SCENE_FILE_EXTENSION);
 
 	if(!path.size()){
 		return;
@@ -324,7 +354,7 @@ void WtEditor::onSceneSaveAs(){
 	}
 
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save scene", WTE_CTX.getWorkspaceFilePath(), "Scene files (*." SCENE_FILE_EXTENSION ")");
+		"Save scene", WTE_CTX.getWorkspaceRootDir(), "Scene files (*." SCENE_FILE_EXTENSION ")");
 
 	if(!path.size()){
 		return;
@@ -356,7 +386,7 @@ void WtEditor::onSceneSave(){
 
 void WtEditor::onSceneNew(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save assets", WTE_CTX.getWorkspaceFilePath(), "Scene files (*." SCENE_FILE_EXTENSION ")");
+		"Save assets", WTE_CTX.getWorkspaceRootDir(), "Scene files (*." SCENE_FILE_EXTENSION ")");
 
 	WTE_CTX.createNewScene(path);
 }

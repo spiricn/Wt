@@ -19,17 +19,15 @@ public:
 
 	void loadScene(const QString&);
 
-	void loadAssets(const QString&);
-
-	void switchWorkspace(const QString&);
-
 	void saveScene(const QString&);
+
+	void unloadScene();
+
+	void loadAssets(const QString&);
 
 	void saveAssets(const QString&);
 
 	void unloadAssets();
-
-	void unloadScene();
 
 	wt::EventManager* getEventManager();
 
@@ -45,8 +43,6 @@ public:
 
 	QString getSceneFilePath() const;
 
-	QString getWorkspaceFilePath() const;
-
 	void reloadAssets();
 
 	void createNewScene(QString path);
@@ -59,8 +55,24 @@ public:
 
 	void clearAssets();
 
+	void save();
+
+	void createWorkspace(QString rootDir, QString filePath);
+
+	void loadWorkspace(QString filePath);
+
+	void saveWorkspace(QString filePath);
+
+	void unloadWorkspace();
+
+	QString getWorkspaceFilePath() const;
+
+	QString getWorkspaceRootDir() const;
+
 signals:
-	void workspaceSwitched();
+	void workspaceUnloaded();
+
+	void workspaceLoaded();
 
 	void fileSystemCreated();
 
@@ -76,22 +88,23 @@ signals:
 	// New scene has been loaded
 	void sceneLoaded();
 
+	void saveRequest();
 
 protected:
 	void setAssets(wt::Assets* assets);
 
 private:
 	wt::Assets mAssets;
-	wt::lua::State mLuaState;
+	wt::lua::State* mLuaState;
 	QString mAssetsFilePath;
 	QString mSceneFilePath;
-	QString mWorkspacePath;
+	QString mWorkspaceRoot;
+	QString mWorkspaceFilePath;
 	bool mAssetsLoaded;
 	bool mSceneLoaded;
 	wt::EventManager mEventManager;
 	wt::Scene mScene;
 	wt::Renderer mRenderer;
-	wt::LuaObject mSettingsTable;
 
 friend class WtEditor;
 

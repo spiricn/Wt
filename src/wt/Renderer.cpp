@@ -770,6 +770,7 @@ void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float 
 	glLoadIdentity();
 	// bind texture
 	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex->getTexHandle());
 
 	if(flipVertically){

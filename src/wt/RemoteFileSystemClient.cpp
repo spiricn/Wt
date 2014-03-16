@@ -14,7 +14,7 @@ namespace wt
 RemoteFileSystemClient::RemoteFileSystemClient(String root, String address, int32_t port) : mRoot(root), mServerAddress(address), mServerPort(port){
 	String uri = root;
 
-	utils::replacePathSplitters(uri, PATH_SEPARATOR[0]);
+	uri = utils::replacePathSplitters(uri, PATH_SEPARATOR[0]);
 
 	if(!uri.empty() && uri[ uri.size()-1 ] == PATH_SEPARATOR[0]){
 		uri = uri.substr(0, uri.size() - 1);

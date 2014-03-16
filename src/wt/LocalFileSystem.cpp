@@ -13,7 +13,7 @@ namespace wt
 
 LocalFileSystem::LocalFileSystem(const String& root) : mRoot(""){
 	String uri = root;
-	utils::replacePathSplitters(uri, PATH_SEPARATOR[0]);
+	uri = utils::replacePathSplitters(uri, PATH_SEPARATOR[0]);
 
 	if(uri[ uri.size()-1 ] == PATH_SEPARATOR[0]){
 		uri = uri.substr(0, uri.size() - 1);

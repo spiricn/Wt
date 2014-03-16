@@ -14,23 +14,24 @@
 
 #include "wte/ModelImporterTab.h"
 #include "wte/ResourcePickerDialog.h"
+#include "wte/WtEditorContext.h"
 
 #define TD_TRACE_TAG "ModelImporterTab"
 
 #define WT_MODEL_EXTENSION "wtm"
 
+#define IMPORTER_SETTINGS_TABLE_NAME "importer_settings"
 
 ModelImporterTab::ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets) : QWidget(parent), mAssets(assets){
 	ui.setupUi(this);
 
 	setAcceptDrops(true);
 
-	// TODO moved this elsewhere since the file system doesn't exist at the point of creation of this tab
-#if 0
-	mRootDir = assets->getFileSystem()->getRoot().c_str();
-	mModelDir = mRootDir + "/" + "model";
-	mImageDir = mRootDir + "/" + "image";
-#endif
+	connect(&WTE_CTX, SIGNAL(workspaceLoaded()),
+		this, SLOT(onWorkspaceLoaded()));
+
+	connect(&WTE_CTX, SIGNAL(saveRequest()),
+		this, SLOT(onSaveRequest()));
 }
 
 QString generateFileName(const QString& directory, const QString& originalName, const QString& extension){
@@ -51,6 +52,52 @@ QString generateFileName(const QString& directory, const QString& originalName, 
 	return newName;
 }
 
+void ModelImporterTab::onWorkspaceLoaded(){
+	ui.rootDir->setText( WTE_CTX.getAssets()->getFileSystem()->getRoot().c_str() );
+
+	wt::LuaObject settings = WTE_CTX.getSettingsTable();
+
+	WT_ASSERT(settings.IsTable(), "Invalid settings table");
+
+	wt::LuaObject importerSettings = settings.Get(IMPORTER_SETTINGS_TABLE_NAME);
+
+	wt::String imageDir;
+	wt::String modelDir;
+
+	if(!importerSettings.IsTable() || !wt::lua::luaConv(importerSettings.Get("image_dir"), imageDir)){
+		// No value set, set the default one
+		imageDir = "image";
+	}
+
+	if(!importerSettings.IsTable() || !wt::lua::luaConv(importerSettings.Get("model_dir"), modelDir)){
+		// No value set, set the default one
+		modelDir = "model";
+	}
+
+	ui.modelDir->setText(modelDir.c_str());
+	ui.imageDir->setText(imageDir.c_str());
+
+	// Save new values to settings table
+	onSaveRequest();
+}
+
+void ModelImporterTab::onSaveRequest(){
+	wt::LuaObject settings = WTE_CTX.getSettingsTable();
+
+	WT_ASSERT(settings.IsTable(), "Invalid settings table");
+
+	wt::LuaObject importerSettings = settings.Get(IMPORTER_SETTINGS_TABLE_NAME);
+
+	if(!importerSettings.IsTable()){
+		// Importer settings table doesn't exist, create it
+		importerSettings = WTE_CTX.getLuaState()->newTable();
+		settings.Set(IMPORTER_SETTINGS_TABLE_NAME, importerSettings);
+	}
+
+	importerSettings.Set("image_dir", ui.imageDir->text().toStdString().c_str());
+
+	importerSettings.Set("model_dir", ui.modelDir->text().toStdString().c_str());
+}
 
 void ModelImporterTab::importTexture(ImportData& data, const QString& meshName, const QString& textureName){
 	// Full source texture file name
@@ -195,14 +242,11 @@ void ModelImporterTab::import(const QString& srcModel){
 	}
 
 	// Acquire import directories (e.g. model, texture etc..)
-	data.rootDir = mAssets->getFileSystem()->getRoot().c_str();
-	ui.rootDir->setText(data.rootDir);
+	data.rootDir = ui.rootDir->text();
 
-	data.modelDir = data.rootDir + "/" + "model";
-	ui.modelDir->setText(data.modelDir);
+	data.modelDir = data.rootDir + "/" + ui.modelDir->text();
 
-	data.imageDir = data.rootDir + "/" + "image";
-	ui.imageDir->setText(data.imageDir);
+	data.imageDir = data.rootDir + "/" + ui.imageDir->text();
 
 	// Directory of the model being imported
 	data.modelSourceDirectory = QFileInfo(srcModel).dir().absolutePath();
@@ -320,4 +364,16 @@ void ModelImporterTab::dragEnterEvent(QDragEnterEvent* evt){
 
 void ModelImporterTab::dragMoveEvent(QDragMoveEvent* evt){
 	evt->acceptProposedAction();
+}
+
+void ModelImporterTab::onPickImageDir(){
+	QString dir = QFileDialog::getExistingDirectory(this, "Browse image directory", ui.rootDir->text());
+
+	ui.imageDir->setText( WTE_CTX.getAssets()->getRelativeURI(dir.toStdString()).c_str() );
+}
+
+void ModelImporterTab::onPickModelDir(){
+	QString dir = QFileDialog::getExistingDirectory(this, "Browse model directory", ui.rootDir->text());
+
+	ui.modelDir->setText( WTE_CTX.getAssets()->getRelativeURI(dir.toStdString()).c_str() );
 }

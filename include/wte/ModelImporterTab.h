@@ -33,19 +33,23 @@ struct ImportData{
 };
 
 class ModelImporterTab : public QWidget{
-	Q_OBJECT;
+Q_OBJECT;
+
+public:
+	ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets);
+
+private slots:
+	void onBatchConvert();
+
+	void onWorkspaceLoaded();
+
+	void onSaveRequest();
+
+	void onPickImageDir();
+
+	void onPickModelDir();
 
 private:
-	wt::AResourceSystem* mAssets;
-	Ui::ModelImporter ui;
-
-	void importModel(ImportData& data);
-
-	void importTexture(ImportData& data, const QString& meshName, const QString& textureName);
-
-	bool importDuplicateTexture(const QString& sourceTexturePath, wt::Texture2D* duplicate);
-
-protected:
 	void dropEvent(QDropEvent* evt);
 
 	void dragEnterEvent(QDragEnterEvent* evt);
@@ -54,11 +58,14 @@ protected:
 
 	void import(const QString& path);
 
-public:
-	ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets);
+	void importModel(ImportData& data);
 
-protected slots:
-	void onBatchConvert();
+	void importTexture(ImportData& data, const QString& meshName, const QString& textureName);
+
+	bool importDuplicateTexture(const QString& sourceTexturePath, wt::Texture2D* duplicate);
+
+	wt::AResourceSystem* mAssets;
+	Ui::ModelImporter ui;
 
 }; // </ModelImporterTab>
 

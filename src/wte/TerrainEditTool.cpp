@@ -57,9 +57,9 @@ void TerrainEditTool::onSceneLoaded(){
 	if(mBrushTexture == NULL){
 		// First scene loaded, create a brush texture
 		mBrushTexture = new wt::Texture2D;
-		WTE_CTX.getAssets()->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
 
-		// TODO do this some other way
+		// TODO acquire this texture some other way
+		WTE_CTX.getAssets()->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
 	}
 
 	// TODO upon terrain loading scene target texture probably needs to be reloaded
@@ -147,6 +147,7 @@ void TerrainEditTool::onResetTexture(){
 	}
 
 	LOGI("Resetting texture...");
+
 	mFrameBuffer.bind(wt::gl::FrameBuffer::eMODE_DRAW);
 
 	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
@@ -160,7 +161,6 @@ void TerrainEditTool::onResetTexture(){
 		ui.pressure->value()/100.0f);
 
 	glClear(GL_COLOR_BUFFER_BIT);
-
 
 	tex->generateMipmap();
 }
@@ -214,6 +214,8 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 		TRACEE("Target not set");
 		return;
 	}
+
+	WT_ASSERT(pressure >= 0.0f && pressure <= 1.0f, "Invalid pressure value %f", pressure);
 
 	// New heightmap samples
 	wt::Buffer<int16_t> samples;
@@ -330,66 +332,69 @@ void TerrainEditTool::editAt(float x, float y){
 	}
 
 	wt::RaycastHitEvent res;
-
 	
 	bool paintMode = ui.tabWidget->currentIndex() == 1;
 
-	
 	if(WTE_CTX.getScene()->getPhysics()->pick(WTE_CTX.getScene()->getCamera(),
 		glm::vec2(x, y), glm::vec2(mSceneView->width(), mSceneView->height()), res)){
-
 			if(paintMode){
-			glm::vec2 uv = glm::vec2(res.mImpact.x, res.mImpact.z)/glm::vec2(mTerrain->getHeightmap()->getNumRows()*mTerrain->getHeightmap()->getRowScale(), 
-				mTerrain->getHeightmap()->getNumColumns()*mTerrain->getHeightmap()->getColumnScale());
+				glm::vec2 uv = glm::vec2(res.mImpact.x, res.mImpact.z)/glm::vec2(mTerrain->getHeightmap()->getNumRows()*mTerrain->getHeightmap()->getRowScale(), 
+					mTerrain->getHeightmap()->getNumColumns()*mTerrain->getHeightmap()->getColumnScale());
 
 
-			mFrameBuffer.bind(wt::gl::FrameBuffer::eMODE_DRAW);
+				mFrameBuffer.bind(wt::gl::FrameBuffer::eMODE_DRAW);
 
-			static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
-			glDrawBuffers(1, bfrMap);
+				static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
+				glDrawBuffers(1, bfrMap);
 
-			wt::Texture2D* tex = mTerrain->getMapTexture();
+				wt::Texture2D* tex = mTerrain->getMapTexture();
 
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_DEPTH_TEST);
+				glDisable(GL_CULL_FACE);
+				glDisable(GL_DEPTH_TEST);
 
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glBlendEquation(GL_FUNC_ADD);
 
+				float brushSize = 3 + (ui.brushSize->value()/100.0f)*50.f;
 
-			float brushSize = 3 + (ui.brushSize->value()/100.0f)*50.f;
+				float width = tex->getWidth();
 
-			float w=tex->getWidth();
-			float h=tex->getHeigth();
+				float height = tex->getHeigth();
 
-			wt::Color clr(ui.materialIndex->currentIndex()==0, 
-				ui.materialIndex->currentIndex()==1,
-				ui.materialIndex->currentIndex()==2,
-				ui.pressure->value()/100.0f);
+				wt::Color clr(
+					ui.materialIndex->currentIndex()==0, 
+					ui.materialIndex->currentIndex()==1,
+					ui.materialIndex->currentIndex()==2,
+					ui.pressure->value()/100.0f
+				);
 
-			mSceneView->getRenderer()->render(
-				/*mAssets->getTextureManager()->getFromPath("$ROOT/brushes/circle_hard"),*/
-				mBrushTexture,
-				glm::vec2(w, h),
-				(w*uv.x)-brushSize/2, (h*uv.y)-brushSize/2, brushSize, brushSize, clr);
+				mSceneView->getRenderer()->render(
+					mBrushTexture,
+					glm::vec2(width, height),
+					// X
+					(width * uv.x) - brushSize/2,
+					// Y
+					(height*uv.y) - brushSize/2,
+					brushSize,
+					brushSize,
+					clr);
 		
-			glDisable(GL_BLEND);
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
-			//mTerrain.getMapTexture()->dump("test.jpg");
+				glDisable(GL_BLEND);
+				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_CULL_FACE);
 
-			mFrameBuffer.unbind(wt::gl::FrameBuffer::eMODE_DRAW);
+				mFrameBuffer.unbind(wt::gl::FrameBuffer::eMODE_DRAW);
 
-			tex->generateMipmap();
+				tex->generateMipmap();
 		}
 		else{
 			// Index of the triangle the ray hit
 			const uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
 
 			// Total number of rows/columns
-			const uint32_t numRows = mTerrain->getHeightmap()->getNumRows();
-			const uint32_t numCols = mTerrain->getHeightmap()->getNumColumns();
+			const int32_t numRows = mTerrain->getHeightmap()->getNumRows();
+			const int32_t numCols = mTerrain->getHeightmap()->getNumColumns();
 
 			// The row/column the ray hit
 			const int32_t row = idx / numRows;
@@ -398,12 +403,12 @@ void TerrainEditTool::editAt(float x, float y){
 			int32_t d = ui.brushSize->value(); // brush size
 
 			// Start row/column of the chunk being edited
-			int32_t startRow = (row-d/2)<0 ? 0 : row-d/2;
-			int32_t startCol = (col-d/2)<0 ? 0 : col-d/2;
+			int32_t startRow = glm::max(row - d/2, 0);
+			int32_t startCol = glm::max(col - d/2, 0);
 
 			// End row/column of the chunk being edited
-			int32_t endRow = (row+d/2) >= numRows ? numRows : row+d/2;
-			int32_t endCol = (col+d/2) >= numCols ? numCols : col+d/2;
+			int32_t endRow = glm::min(row+d/2, numRows);
+			int32_t endCol = glm::min(col+d/2, numCols);
 			
 			// Edit the chunk
 			editTerrainChunk(
@@ -425,7 +430,8 @@ void TerrainEditTool::onMouseDown(QMouseEvent* evt){
 
 
 void TerrainEditTool::onCreateNewTerrain(){
-	// TODO move terrain creation to TerrainTool
+	// TODO delete old terrain?
+
 	wt::Terrain::Desc desc;
 	
 	if(!TerrainEditDialog::editTerrain(this, WTE_CTX.getAssets(), desc)){
@@ -433,8 +439,14 @@ void TerrainEditTool::onCreateNewTerrain(){
 	}
 
 	wt::Terrain* terrain = WTE_CTX.getScene()->createTerrain();
+
 	try{
 		terrain->create(desc);
+
+		wt::PhysicsActor::Desc desc;
+		terrain->getPhysicsDesc(desc);
+
+		WTE_CTX.getScene()->getPhysics()->createActor(terrain, desc);
 
 		setTarget(terrain);
 	}catch(wt::Exception& e){

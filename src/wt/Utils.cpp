@@ -140,7 +140,7 @@ String getFileName(const String& inPath){
 
 	// Extract shader name
 	String name = path;
-	replacePathSplitters(path, '/');
+	path = replacePathSplitters(path, '/');
 
 	size_t extPos = path.rfind(".");
 	if(extPos != String::npos){
@@ -157,7 +157,7 @@ String getFileName(const String& inPath){
 
 String getFileExt(const String& inPath){
 	String path = inPath;
-	replacePathSplitters(path, '/');
+	path = replacePathSplitters(path, '/');
 
 	size_t extPos = path.rfind(".");
 	if(extPos != String::npos){
@@ -167,14 +167,18 @@ String getFileExt(const String& inPath){
 	return path;
 }
 
-void replacePathSplitters(String& src, char splitter){
+String replacePathSplitters(const String& src, char splitter){
+	String res = src;
+
 	char original = splitter=='/' ? '\\' : '/';
 
 	for(uint32_t i=0; i<src.size(); i++){
-		if(src[i] == original){
-			src[i] = splitter;
+		if(res[i] == original){
+			res[i] = splitter;
 		}
 	}
+
+	return res;
 }
 
 std::ostream& operator<<(std::ostream& dst, const Indent& indent){
@@ -502,14 +506,14 @@ String toRelative(const String& base, const String& path){
 	}
 
 	String b = base;
-	utils::replacePathSplitters(b, '/');
+	b = utils::replacePathSplitters(b, '/');
 	if(b[b.size()-1] != '/'){
 		b.append("/");
 	}
 	std::transform(b.begin(), b.end(), b.begin(), ::tolower);
 
 	String p = path;
-	utils::replacePathSplitters(p, '/');
+	p = utils::replacePathSplitters(p, '/');
 	std::transform(p.begin(), p.end(), p.begin(), ::tolower);
 
 	if(p.size() > b.size()){

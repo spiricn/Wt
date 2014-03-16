@@ -7,9 +7,11 @@
 
 #define TD_TRACE_TAG "WtEditorContext"
 
-WtEditorContext::WtEditorContext() : mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false),
-	mEventManager(&mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, &mLuaState), mRenderer(&mEventManager, &mScene){
-		mLuaState.assignTable(mSettingsTable);
+#define WORKSPACE_TABLE_NAME "WORKSPACE"
+#define SETTINGS_TABLE_NAME "SETTINGS"
+
+WtEditorContext::WtEditorContext() : mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false), mLuaState(new wt::lua::State()),
+	mEventManager(mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, mLuaState), mRenderer(&mEventManager, &mScene){
 }
 
 wt::Assets* WtEditorContext::getAssets(){
@@ -17,11 +19,11 @@ wt::Assets* WtEditorContext::getAssets(){
 }
 
 wt::lua::State* WtEditorContext::getLuaState(){
-	return &mLuaState;
+	return mLuaState;
 }
 
 wt::LuaObject WtEditorContext::getSettingsTable(){
-	return mSettingsTable;
+	return mLuaState->getGlobals().Get(WORKSPACE_TABLE_NAME).Get(SETTINGS_TABLE_NAME);
 }
 
 void WtEditorContext::loadScene(const QString& path){
@@ -75,7 +77,7 @@ void WtEditorContext::loadAssets(const QString& path){
 	// Unload existing resources
 	unloadAssets();
 
-	mAssetsFilePath = path;
+	mAssetsFilePath = wt::utils::replacePathSplitters(path.toStdString(), '/').c_str();
 	
 	LuaPlus::LuaStateOwner state;
 	//try{
@@ -113,19 +115,27 @@ wt::Renderer* WtEditorContext::getRenderer(){
 	return &mRenderer;
 }
 
-void WtEditorContext::switchWorkspace(const QString& path){
-	unloadAssets();
-
-	wt::AFileSystem::Desc fsDesc;
-	fsDesc.type = wt::AFileSystem::eTYPE_LOCAL;
-	fsDesc.dir.root = path.toStdString();
-
-	mAssets.setFileSystem( wt::FileSystemFactory::create(fsDesc) );
-
-	mWorkspacePath = path;
-
-	emit workspaceSwitched();
-}
+//
+//void WtEditorContext::switchWorkspace(const QString& path){
+//	unloadAssets();
+//
+//	wt::AFileSystem::Desc fsDesc;
+//	fsDesc.type = wt::AFileSystem::eTYPE_LOCAL;
+//	fsDesc.dir.root = path.toStdString();
+//
+//	mAssets.setFileSystem( wt::FileSystemFactory::create(fsDesc) );
+//
+//	mWorkspacePath = path;
+//
+//	// Create new lua state
+//	mLuaState = wt::lua::State();
+//
+//	//// Create workspace table
+//	//WTE_CTX.getLuaState()->assignTable(workspace);
+//	//WTE_CTX.getLuaState()->getGlobals().Set("workspace", workspace);
+//
+//	emit workspaceSwitched();
+//}
 
 void WtEditorContext::unloadAssets(){
 	if(!mAssetsLoaded){
@@ -166,7 +176,7 @@ QString WtEditorContext::getSceneFilePath() const{
 }
 
 QString WtEditorContext::getWorkspaceFilePath() const{
-	return mWorkspacePath;
+	return mWorkspaceFilePath;
 }
 
 void WtEditorContext::saveScene(const QString& path){
@@ -246,7 +256,123 @@ void WtEditorContext::createNewAssets(QString path){
 }
 
 void WtEditorContext::clearScene(){
+	TRACEW("Not implemented");
 }
 
 void WtEditorContext::clearAssets(){
+	TRACEW("Not implemented");
+}
+
+void WtEditorContext::save(){
+	// Notify everyone to save their settings
+	emit saveRequest();
+
+	saveAssets(mAssetsFilePath);
+
+	saveScene(mSceneFilePath);
+}
+
+void WtEditorContext::createWorkspace(QString rootDir, QString filePath){
+	unloadWorkspace();
+
+	// Create a workspace table
+	wt::LuaObject workspace = mLuaState->getGlobals().Get(WORKSPACE_TABLE_NAME);
+	if(!workspace.IsTable()){
+		mLuaState->assignTable(workspace);
+		mLuaState->getGlobals().Set(WORKSPACE_TABLE_NAME, workspace);
+	}
+
+	// Create a settings table
+	wt::LuaObject settings = workspace.Get(SETTINGS_TABLE_NAME);
+	if(!settings .IsTable()){
+		mLuaState->assignTable(settings );
+		workspace.Set(SETTINGS_TABLE_NAME, settings );
+	}
+
+	mWorkspaceRoot = wt::utils::replacePathSplitters(rootDir.toStdString(), '/').c_str();
+
+	saveWorkspace(filePath);
+
+	emit workspaceLoaded();
+}
+
+void WtEditorContext::unloadWorkspace(){
+	unloadAssets();
+
+	mWorkspaceRoot = "";
+
+	if(mLuaState){
+		delete mLuaState;
+	}
+
+	mLuaState = new wt::lua::State();
+	
+	emit workspaceUnloaded();
+}
+
+void WtEditorContext::loadWorkspace(QString filePath){
+	unloadWorkspace();
+
+	mLuaState->getStateOwner()->DoFile(filePath.toStdString().c_str());
+
+	wt::LuaObject workspace = mLuaState->getGlobals().Get(WORKSPACE_TABLE_NAME);
+
+	wt::String root, assets, scene;
+
+	if(!wt::lua::luaConv(workspace.Get("root"), root)){
+		LOGE("Invalid wtw file \"%s\"", filePath.toStdString().c_str());
+		return;
+	}
+
+	// Create a file new system
+	wt::AFileSystem::Desc fsDesc;
+	fsDesc.type = wt::AFileSystem::eTYPE_LOCAL;
+	fsDesc.dir.root = root;
+
+	mAssets.setFileSystem( wt::FileSystemFactory::create(fsDesc) );
+
+	// Load assets if necessary
+	if(wt::lua::luaConv(workspace.Get("assets"), assets) && !assets.empty()){
+		loadAssets(assets.c_str());
+	}
+
+	// Load scene if necessary
+	if(wt::lua::luaConv(workspace.Get("scene"), scene) && !scene.empty()){
+		loadScene(scene.c_str());
+	}
+
+	mWorkspaceFilePath = wt::utils::replacePathSplitters(filePath.toStdString(), '/').c_str();
+
+	mWorkspaceRoot = wt::utils::replacePathSplitters(root, '/').c_str();
+
+	emit workspaceLoaded();
+}
+
+void WtEditorContext::saveWorkspace(QString filePath){
+	emit saveRequest();
+
+	wt::LuaObject workspace = mLuaState->getGlobals().Get(WORKSPACE_TABLE_NAME);
+
+	// Update workspace fields
+	{
+		workspace.Set("root", mWorkspaceRoot.toStdString().c_str());
+
+		workspace.Set("scene", mSceneFilePath.toStdString().c_str());
+
+		workspace.Set("assets", mAssetsFilePath.toStdString().c_str());
+	}
+
+	mWorkspaceFilePath = filePath;
+
+	// Serialize
+	wt::FileIOStream stream(filePath.toStdString(), wt::AIOStream::eMODE_WRITE);
+
+	stream.print("%s=", WORKSPACE_TABLE_NAME);
+	wt::lua::serializeTable(workspace, stream);
+
+	LOGI("Workspace saved to \"%s\"", filePath.toStdString().c_str());
+}
+
+QString WtEditorContext::getWorkspaceRootDir() const{
+	return mWorkspaceRoot;
 }

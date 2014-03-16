@@ -63,7 +63,7 @@ namespace utils{
 
 	String getHomeDir();
 
-	void replacePathSplitters(String& src, char splitter);
+	String replacePathSplitters(const String& src, char splitter);
 
 	String toRelative(const String& base, const String& path);
 

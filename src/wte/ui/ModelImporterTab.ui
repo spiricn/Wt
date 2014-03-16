@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>391</width>
     <height>300</height>
    </rect>
   </property>
@@ -14,18 +14,12 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="imageDir"/>
-   </item>
-   <item row="3" column="1">
-    <widget class="QPushButton" name="pushButton">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Batch convert</string>
+      <string>Model directory</string>
      </property>
     </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="rootDir"/>
    </item>
    <item row="1" column="1">
     <widget class="QLineEdit" name="modelDir"/>
@@ -37,19 +31,39 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Model directory</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Root directory</string>
      </property>
     </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="imageDir"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Batch convert</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2">
+    <widget class="QLineEdit" name="rootDir"/>
    </item>
   </layout>
  </widget>
@@ -62,8 +76,8 @@
    <slot>onBatchConvert()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>170</x>
-     <y>146</y>
+     <x>261</x>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
      <x>181</x>
@@ -71,8 +85,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>ModelImporter</receiver>
+   <slot>onPickImageDir()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>336</x>
+     <y>185</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>233</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>ModelImporter</receiver>
+   <slot>onPickModelDir()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>352</x>
+     <y>120</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>378</x>
+     <y>84</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onBatchConvert()</slot>
+  <slot>onPickImageDir()</slot>
+  <slot>onPickModelDir()</slot>
  </slots>
 </ui>

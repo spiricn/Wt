@@ -1,5 +1,22 @@
 -------------------------------------------------------------------------------
 
+rotation not being saved correctly for actors
+
+-------------------------------------------------------------------------------
+
+remote $ROOT as the beggining of the resource tree
+just use linux-like convention (start with /)
+
+-------------------------------------------------------------------------------
+
+Appending .wts files to existing assets.
+Have one shared .wts file for all demos and individual .wts-s for every demo
+All demos load their own and the shared file
+
+Maybe add a group loading (load a specific group only from a file)
+
+-------------------------------------------------------------------------------
+
 orthographics shadow mapping (fix orthographic projection)
 
 -------------------------------------------------------------------------------
