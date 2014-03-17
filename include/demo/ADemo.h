@@ -35,11 +35,54 @@
 #include "wt/ProcessManager.h"
 #include "wt/lua/State.h"
 
+#include "wt/AEngineFramework.h"
+
 namespace wt{
 
 class DemoManager;
 
-class ADemo{
+#if 1
+
+class ADemo : public AEngineFramework, public EventListener{
+public:
+	const String& getName() const;
+
+	void createDemo(DemoManager* manager);
+
+	void destroyDemo();
+
+	void startDemo();
+
+	void setName(const String& name);
+
+	void onKeyDownPriv(VirtualKey code);
+
+	bool isRunning() const;
+
+	DemoManager* getManager();
+
+	virtual String getScriptPath() const;
+
+	virtual bool handleEvent(const Sp<Event> e);
+
+	virtual void onDemoStart(const LuaObject&);
+
+	virtual void onDemoStop();
+
+	math::CameraControler* getCameraControl();
+
+	void onKeyUp(wt::VirtualKey code);
+
+private:
+	String mName;
+	DemoManager* mDemoManager;
+	lua::ScriptPtr mMainScript;
+	bool mRunning;
+	math::FPSCameraControler mFpsCam;
+};
+
+#else
+class ADemo  : public AEngineFramework{
 friend class DemoManager;
 
 public:
@@ -149,8 +192,10 @@ private:
 	lua::State mLuaState;
 	bool mGuiEnabled;
 };
+#endif
+#define WT_DECLARE_DEMO(name) ADemo* createDemoFunc_ ## name();
 
-#define WT_DECLARE_DEMO(name) static ADemo* createDemoFunc_ ## name(){ return new name; }
+#define WT_DECLARE_DEMO_IMPL(name) ADemo* createDemoFunc_ ## name(){ return new name; }
 
 }; // </wt>
 

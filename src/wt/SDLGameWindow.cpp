@@ -67,11 +67,8 @@ void SDLGameWindow::setVsyncEnabled(bool state){
 }
 
 SDLGameWindow::~SDLGameWindow(){
-#if 0
-	// FIXME
 	SDL_FreeSurface(mScreen);
 	SDL_Quit();
-#endif
 }
 
 void SDLGameWindow::swapBuffers(){

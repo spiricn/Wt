@@ -37,42 +37,18 @@
 #define LOG_FILE_PATH "demo-log.txt"
 #define INIT_SCRIPT_FILE "assets/ManagerConfig.lua"
 
-namespace wt{
+namespace wt
+{
 
-
-#define WT_FUN_ENTER do{ LOGD("TRACE", "%s {", __FUNCTION__); }while(0)
-#define WT_RETURN LOGD("TRACE", "}"); return 
-
-
-
-class DemoManager : public EventListener, public Singleton<DemoManager>{
+class DemoManager : public Singleton<DemoManager>{
 public:
 	typedef ADemo* (*CreateDemoFunc)();
 	typedef std::map<String, CreateDemoFunc> DemoMap;
-
-private:
-	DemoMap mDemos;
-
-	AGameWindow* mWindow;
-	AGameInput* mInput;
-	EventManager* mEventManager;
-	FILE* mLogFile;
-	ADemo* mActiveDemo;
-	String mStartupDemo;
-	lua::State mLuaState;
 
 public:
 	DemoManager();
 
 	~DemoManager();
-
-	lua::State* getLuaState(){
-		return &mLuaState;
-	}
-
-	AGameWindow* getWindow() const;
-
-	AGameInput* getInput() const;
 
 	void registerDemo(CreateDemoFunc func, const String& name);
 
@@ -86,12 +62,13 @@ public:
 
 	void initialize();
 
-	bool handleEvent(const Sp<Event> evt);
-
 	void start();
 
 private:
-	void mainLoop();
+	DemoMap mDemos;
+	FILE* mLogFile;
+	ADemo* mActiveDemo;
+	String mStartupDemo;
 
 }; // </DemoManager>
 

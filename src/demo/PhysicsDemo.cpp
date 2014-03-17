@@ -1,18 +1,14 @@
-#ifndef WT_PHYSICSDEMO_H
-#define WT_PHYSICSDEMO_H
+#include "demo/stdafx.h"
 
 #include "demo/ADemo.h"
 
-namespace wt{
+using namespace wt;
+
+#define TD_TRACE_TAG "PhysicsDemo"
+
+using namespace wt;
 
 class PhysicsDemo : public ADemo{
-private:
-	// Simulation paused
-	bool mPhysicsPaused;
-
-	// Slow-motion enabled
-	bool mSlowMotion;
-
 public:
 	PhysicsDemo() : mPhysicsPaused(false), mSlowMotion(false){
 	}
@@ -28,14 +24,14 @@ public:
 		}
 
 		getScene()->update(dt);
-		getCameraControl()->handle(dt, getManager()->getInput());
+		getCameraControl()->handle(dt, getInput());
 	}
 
 	void onMouseDown(float x, float y, MouseButton btn){
 		RaycastHitEvent hit;
 
 		if(getScene()->getPhysics()->pick(getScene()->getCamera(), glm::vec2(x, y),
-			glm::vec2(getManager()->getWindow()->getWidth(), getManager()->getWindow()->getHeight()), hit, 1)){
+			glm::vec2(getWindow()->getWidth(), getWindow()->getHeight()), hit, 1)){
 
 				if(hit.mPickedActor->getType() != PhysicsActor::eTYPE_DYNAMIC){
 					// Ignore terrain
@@ -56,6 +52,8 @@ public:
 		getScene()->getCamera().getForwardVector(fw);
 		getScene()->getCamera().getTranslation(pos);
 
+		fw *= -1.0f;
+
 		if(c == KEY_t){
 			spawnBox(
 				pos, fw*30.0f /* collide only with terrain */);
@@ -74,33 +72,25 @@ public:
 		ADemo::onKeyDown(c);
 	}
 
-	void onStart(const LuaObject& config){
+	void onDemoStart(const LuaObject& config){
+		mCubeModel = getAssets()->getModelManager()->find("cube");
+		WT_ASSERT(mCubeModel != NULL, "Missing demo resource");
+
+		mSphereModel = getAssets()->getModelManager()->find("sphere");
+		WT_ASSERT(mSphereModel != NULL, "Missing demo resource");
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-		//{
-		//	const glm::vec3 regPos = glm::vec3(200, 0, 200);
-		//	const float regSize = 10;
+		// Create some stuff
+		spawnBoxStack(glm::vec3(200, 1, 200), 2, 2, 3);
 
-		//	getPhysics()->createRegion("test", regPos, regSize);
+		spawnBoxStack(glm::vec3(205, 1, 205), 1, 1, 4);
 
-		//	ModelledActor* actor = getScene()->createModelledActor();
-		//	actor->getTransformable()->setTranslation(regPos);
-		//	actor->getTransformable()->setScale(glm::vec3(regSize, regSize, regSize));
+		for(int i=0; i<3; i++){
+			spawnBoxStack(glm::vec3(192, 1 + 2.3f*i , 192), 3-i, 3-i, 1);
+		}
 
-		//	actor->setModel(getAssets()->getModelManager()->find("sphere"), "default");
-		//}
-		//// Create some stuff
-		//spawnBoxStack(glm::vec3(200, 1, 200), 2, 2, 3);
-
-		//spawnBoxStack(glm::vec3(205, 1, 205), 1, 1, 4);
-
-		//for(int i=0; i<3; i++){
-		//	spawnBoxStack(glm::vec3(192, 1 + 2.3f*i , 192), 3-i, 3-i, 1);
-		//}
-
-		//spawnBall(glm::vec3(38.950851, 37.107651, 190.842422),
-		//	glm::vec3(0.525316, -0.850524, -0.025836)*20.0f);
-
+		spawnBall(glm::vec3(38.950851, 37.107651, 190.842422),
+			glm::vec3(0.525316, -0.850524, -0.025836)*20.0f);
 	}
 
 
@@ -118,12 +108,9 @@ public:
 		// Create scene actor
 		ModelledActor* sceneActor = getScene()->createModelledActor();
 
-		//sceneActor->getModel()->get
 		sceneActor->getTransformable()->setTranslation(position);
 
-	
-		sceneActor->setModel( getAssets()->getModelManager()->find("cube"), "crate" );
-
+		sceneActor->setModel( mCubeModel, "default" );
 
 		// Create physics actor
 		PhysicsActor::Desc desc;
@@ -140,9 +127,9 @@ public:
 
 		PhysicsActor* physicsActor = getScene()->getPhysics()->createActor(sceneActor, desc);
 
-		/*PxRigidDynamic* pxActor = (PxRigidDynamic*)physicsActor->getPxActor();
+		PxRigidDynamic* pxActor = (PxRigidDynamic*)physicsActor->getPxActor();
 		pxActor->setLinearVelocity(
-			PxVec3(velocity.x, velocity.y, velocity.z));*/
+			PxVec3(velocity.x, velocity.y, velocity.z));
 
 		return sceneActor;
 	}
@@ -153,7 +140,7 @@ public:
 
 		sceneActor->getTransformable()->setTranslation(position);
 
-		sceneActor->setModel( getAssets()->getModelManager()->find("sphere"), "default" );
+		sceneActor->setModel( mSphereModel, "default" );
 
 		// Create physics actor
 		PhysicsActor::Desc desc;
@@ -205,13 +192,18 @@ public:
 	}
 
 	String getScriptPath() const{
-		return "assets/PhysicsDemoConfig.lua";
+		return "demo_workspace/FogDemo/main.lua";
 	}
+
+private:
+		Model* mCubeModel;
+		Model* mSphereModel;
+		// Simulation paused
+		bool mPhysicsPaused;
+
+		// Slow-motion enabled
+		bool mSlowMotion;
 
 }; // </PhysicsDemo>
 
-WT_DECLARE_DEMO(PhysicsDemo)
-
-}; // </wt>
-
-#endif // </WT_PHYSICS_H>
+WT_DECLARE_DEMO_IMPL(PhysicsDemo)

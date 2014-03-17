@@ -15,6 +15,9 @@ using namespace lua;
 AEngineFramework::AEngineFramework() : mInitialized(false), mWindow(NULL), mInput(NULL), 
 	mEventManager(NULL), mLuaState(NULL), mLogFile(NULL), mProcessManager(NULL), mRunning(false),
 	mAssets(NULL), mScene(NULL), mPhysics(NULL), mRenderer(NULL){
+
+	// Main scripting state
+	mLuaState = new wt::lua::State;
 }
 
 void AEngineFramework::stopMainLoop(){
@@ -177,10 +180,6 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 
 	LOG("New log session %s", wt::utils::getCurrentTime("%H:%M:%S %d/%b/%Y").c_str());
 
-
-	// Main scripting state
-	mLuaState = new wt::lua::State;
-	
 	// Main event manager
 	mEventManager = new EventManager(mLuaState);
 
@@ -230,6 +229,20 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 }
 
 AEngineFramework::~AEngineFramework(){
+	// Deletion order matters !
+	delete mRenderer;
+	delete mScene;
+	delete mPhysics;
+	delete mProcessManager;
+	delete mAssets;
+	delete mEventManager;
+
+	delete mWindow;
+	delete mInput;
+
+	if(mLogFile){
+		fclose(mLogFile);
+	}
 }
 
 Scene* AEngineFramework::getScene() const{

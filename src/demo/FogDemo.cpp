@@ -1,15 +1,15 @@
-#ifndef WT_FOGDEMO_H
-#define WT_FOGDEMO_H
+#include "demo/stdafx.h"
 
 #include "demo/ADemo.h"
 
+using namespace wt;
+
 #define TD_TRACE_TAG "FogDemo"
 
-namespace wt{
+using namespace wt;
 
 class FogDemo : public ADemo{
 public:
-
 	FogDemo(){
 	}
 
@@ -18,25 +18,23 @@ public:
 	}
 
 	void printHelp(){
-		LOGI(
-			"Hold I to increase fog density");
+		LOGI("Hold I to increase fog density");
 
-		LOGI(
-			"Hold O to decrease fog density");
+		LOGI("Hold O to decrease fog density");
 	}
 
 	void onUpdate(float dt){
 		getPhysics()->update(dt);
 		getScene()->update(dt);
-		getCameraControl()->handle(dt, getManager()->getInput());
+		getCameraControl()->handle(dt, getInput());
 
 
 		FogDesc fog = getScene()->getFogDesc();
 
-		if(getManager()->getInput()->isKeyDown(KEY_i)){
+		if(getInput()->isKeyDown(KEY_i)){
 			fog.density += 0.01f * dt;
 		}
-		else if(getManager()->getInput()->isKeyDown(KEY_o)){
+		else if(getInput()->isKeyDown(KEY_o)){
 			fog.density -= 0.01f * dt;
 		}
 
@@ -51,18 +49,10 @@ public:
 		getCameraControl()->setCamera(&getScene()->getCamera());
 	}
 
-	String getConfigFile() const{
-		return "assets/FogDemoConfig.lua";
-	}
-
-	String getLevelFile() const{
-		return "world.lua";
+	String getScriptPath() const{
+		return "demo_workspace/FogDemo/main.lua";
 	}
 
 }; // </FogDemo>
 
-WT_DECLARE_DEMO(FogDemo)
-
-}; // </wt>
-
-#endif // </WT_FOGDEMO_H>
+WT_DECLARE_DEMO_IMPL(FogDemo);

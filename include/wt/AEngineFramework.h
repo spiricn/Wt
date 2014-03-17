@@ -33,7 +33,6 @@ public:
 
 	void initializeFramework(const Desc& desc);
 
-
 	virtual void onWindowSizeChanged(uint32_t w, uint32_t h);
 
 	virtual void onKeyUp(wt::VirtualKey code);
@@ -100,6 +99,9 @@ public:
 		void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 
 		Desc() : mainLoopStep(1/60.0f), homeDir("."){
+		}
+
+		virtual ~Desc(){
 		}
 	}; // </Desc>
 

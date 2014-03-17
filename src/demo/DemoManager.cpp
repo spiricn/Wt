@@ -1,21 +1,10 @@
 #include "demo/stdafx.h"
-
 #include "demo/DemoManager.h"
 
 #define TD_TRACE_TAG "DemoManager"
 
-namespace wt{
-
-#define DEMO_CONSOLE_XYWH -800, 126, 677, 342
-
-AGameWindow* DemoManager::getWindow() const{
-	return mWindow;
-}
-
-AGameInput* DemoManager::getInput() const{
-	return mInput;
-}
-
+namespace wt
+{
 
 DemoManager::DemoManager() : mActiveDemo(NULL){
 }
@@ -25,12 +14,7 @@ DemoManager::~DemoManager(){
 		fclose(mLogFile);
 		mLogFile = NULL;
 	}
-
-	delete mEventManager;
-	delete mInput;
-	delete mWindow;
 }
-
 void DemoManager::registerDemo(CreateDemoFunc func, const String& name){
 	mDemos.insert(
 		std::make_pair(name, func));
@@ -42,27 +26,64 @@ DemoManager::CreateDemoFunc DemoManager::getDemo(const String& name){
 	return i==mDemos.end() ? NULL : i->second;
 }
 
-void DemoManager::stopDemo(){
+void DemoManager::start(){
 
-	if(mActiveDemo == NULL){
-		return;
+	bool running = true;
+
+	while(running){
+		startDemo(mStartupDemo);
+
+		if(mActiveDemo == NULL){
+			return;
+		}
+
+		LOGI("Stopping demo \"%s\" ...", mActiveDemo->getName().c_str());
+
+		mActiveDemo->destroyDemo();
+
+		delete mActiveDemo;
+		mActiveDemo = NULL;
+
+		while(true){
+			// Pick a new demo
+			int32_t cnt = 0;
+			for(DemoMap::iterator i=mDemos.begin(); i!=mDemos.end(); i++){
+				printf("%d.) %s\n", ++cnt, i->first.c_str());
+			}
+
+			printf("%d.) Quit\n", ++cnt);
+
+			printf("Choice (1 - %d): ", cnt);
+
+			int choice;
+			fflush(stdin);
+			if( scanf("%d", &choice) == 0 || choice == cnt){
+				running = false;
+				break;
+			}
+
+			mStartupDemo = "";
+			cnt = 0;
+			for(DemoMap::iterator i=mDemos.begin(); i!=mDemos.end(); i++){
+				if(++cnt == choice){
+					mStartupDemo = i->first;
+					break;
+				}
+			}
+
+			if(mStartupDemo.empty()){
+				LOGE("Invalid choice");
+				continue;
+			}
+			else{
+				break;
+			}
+		}
 	}
-
-	LOGI("Stopping demo \"%s\" ...", mActiveDemo->getName().c_str());
-
-	mActiveDemo->destroyDemo();
-
-	delete mActiveDemo;
-
-	mActiveDemo = NULL;
-
-	mWindow->setWindowTitle("Wt Demo");
 }
 
 void DemoManager::startDemo(const String& name){
 	LOGI("Starting demo \"%s\" ...", name.c_str());
-
-	stopDemo();
 
 	if(getDemo(name) == NULL){
 		LOGE("No demo named \"%s\"", name.c_str());
@@ -76,13 +97,9 @@ void DemoManager::startDemo(const String& name){
 		WT_THROW("Unexisting demo named \"%s\"", name.c_str());
 	}
 
-	mActiveDemo->createDemo(this, mWindow, mInput, mEventManager);
+	mActiveDemo->createDemo(this);
 
 	mActiveDemo->startDemo();
-
-	std::stringstream title;
-	title << "Wt Demo: \"" << name << "\"";
-	mWindow->setWindowTitle(title.str());
 
 	std::ofstream out(".lastdemo");
 	out << name;
@@ -107,159 +124,9 @@ void DemoManager::initialize(){
 
 	LOG("Setting working directory \"%s\"", WORK_DIR);
 
-	mEventManager = new EventManager(&mLuaState);
-
-	// game input
-	mInput = GameInputFactory::create();
-	mInput->hook(mEventManager);
-
-	// Execute init script
-	LuaStateOwner initState;
-	if(initState->DoFile(INIT_SCRIPT_FILE)){
-		WT_THROW("Error executing init script");
-	}
-
-	// Create window (get parameters from previously executed script)
-	mWindow = GameWindowFactory::create(
-		AGameWindow::Desc(
-			initState->GetGlobal("SCREEN_WIDTH").ToInteger(),
-			initState->GetGlobal("SCREEN_HEIGHT").ToInteger(),
-			initState->GetGlobal("WINDOW_TITLE").ToString(),
-			initState->GetGlobal("VSYNC").ToInteger()==1?true:false,
-			32,
-			initState->GetGlobal("FULLSCREEN").ToInteger() == 1 ? AGameWindow::eMODE_FULLSCREEN : AGameWindow::eMODE_WINDOWED
-			)
-	);
-
-	mWindow->hook(mEventManager);
-
-	// Initialize glew (must be done AFTER creating a valid OpenGL context i.e. rendering window)
-	GLenum r = glewInit();
-	if(r != GLEW_OK){
-		WT_THROW("Error initializing glew \"%s\"",
-			(const char*)glewGetErrorString(r));
-	}
-
-	
-	mEventManager->registerGlobalListener(this);
-
 	std::ifstream inf(".lastdemo");
 	if(inf.is_open()){
 		inf >> mStartupDemo;
-	}
-	else{
-		mStartupDemo = initState->GetGlobal("startupDemo").ToString();
-	}
-}
-
-bool DemoManager::handleEvent(const Sp<Event> evt){
-	const EvtType& type = evt->getType();
-
-	if(type == KeyPressEvent::TYPE){
-		const KeyPressEvent* e = static_cast<const KeyPressEvent*>(evt.get());
-
-		if(e->mCode == KEY_F4 && e->mAction == KeyPressEvent::UP){
-			stopDemo();
-		}
-		else if(mActiveDemo){
-			if(e->mAction == KeyPressEvent::DOWN){
-				mActiveDemo->onKeyDownPriv(e->mCode);
-			}
-			else{
-				mActiveDemo->onKeyUp(e->mCode);
-			}
-		}
-	}
-
-	else if(type == AppQuitEvent::TYPE){
-	}
-
-	else if(mActiveDemo &&  type == WindowSizeChange::TYPE){
-		const WindowSizeChange* e = static_cast<const WindowSizeChange*>(evt.get());
-		mActiveDemo->onWindowSizeChanged(e->newWidth, e->newHeight);
-	}
-
-	else if(mActiveDemo && type == MouseMotionEvent::TYPE){
-		const MouseMotionEvent* e = static_cast<const MouseMotionEvent*>(evt.get());
-
-		mActiveDemo->onMouseMotion(e);
-	}
-
-	else if(mActiveDemo && type == MousePressEvent::TYPE){
-		const MousePressEvent* e = static_cast<const MousePressEvent*>(evt.get());
-
-		if(e->mAction == MousePressEvent::eBUTTON_DOWN){
-			mActiveDemo->onMouseDown(e->mX, e->mY, e->mButton);
-		}
-		else{
-			mActiveDemo->onMouseUp(e->mX, e->mY, e->mButton);
-		}
-	}
-
-	return true;
-}
-
-
-void DemoManager::start(){
-	startDemo(mStartupDemo);
-	mainLoop();
-}
-
-void DemoManager::mainLoop(){
-	Timer time;
-
-	time.reset();
-	float dt=0.0f;
-
-	LOGI("Main loop running.");
-	
-	//GLDBG("MainLoop init");
-	
-	while(!mInput->isKeyDown(KEY_ESC)){
-		mInput->pollAndDispatch();
-		mEventManager->tick();
-
-		dt = time.getSeconds();
-
-
-		if(mActiveDemo){
-			if(!mActiveDemo->isRunning()){
-				stopDemo();
-			}
-			else{
-				mActiveDemo->update(dt);
-			}
-		}
-		else{
-			int cnt=0;
-			for(DemoMap::iterator i=mDemos.begin(); i!=mDemos.end(); i++){
-				printf("%d.) %s\n", ++cnt, i->first.c_str());
-			}
-
-			printf("Choice (1 - %d): ", cnt);
-
-			int choice;
-			fflush(stdin);
-			scanf("%d", &choice);
-
-			cnt = 0;
-			for(DemoMap::iterator i=mDemos.begin(); i!=mDemos.end(); i++){
-				if(++cnt == choice){
-					startDemo(i->first);
-
-					// reset timer
-					time.getSeconds();
-					break;
-				}
-			}
-
-			if(!mActiveDemo){
-				LOGE("Invalid choice");
-			}
-
-		}
-			
-		mWindow->swapBuffers();
 	}
 }
 
