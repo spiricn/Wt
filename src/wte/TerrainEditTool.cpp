@@ -447,6 +447,10 @@ void TerrainEditTool::onMouseDown(QMouseEvent* evt){
 
 void TerrainEditTool::onCreateNewTerrain(){
 	// TODO delete old terrain?
+	wt::Scene::ActorSet& terrainChunks = WTE_CTX.getScene()->getActorSet(wt::ASceneActor::eTYPE_TERRAIN);
+	if(!terrainChunks.empty()){
+		WTE_CTX.getScene()->deleteActor(*(terrainChunks.begin()));
+	}
 
 	wt::Terrain::Desc desc;
 	

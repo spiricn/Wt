@@ -18,12 +18,6 @@ public:
 	}
 
 	void onUpdate(float dt){
-		if(!mPhysicsPaused){
-			// Acount for the slow-motion / physics pause
-			getPhysics()->update(dt * ( mSlowMotion ? 0.1f : 1.0f) );
-		}
-
-		getScene()->update(dt);
 		getCameraControl()->handle(dt, getInput());
 	}
 
@@ -59,10 +53,19 @@ public:
 				pos, fw*30.0f /* collide only with terrain */);
 		}
 		else if(c == KEY_p){
+			if(mPhysicsPaused){
+				setActiveSystems( getActiveSystems() | AEngineFramework::eSYSTEM_PHYSICS );
+			}
+			else{
+				setActiveSystems( getActiveSystems() & ~AEngineFramework::eSYSTEM_PHYSICS );
+			}
+
 			mPhysicsPaused = !mPhysicsPaused;
 		}
 		else if(c == KEY_f){
 			mSlowMotion = !mSlowMotion;
+
+			setSystemTimeMod(eSYSTEM_PHYSICS, mSlowMotion ? 0.1f : 1.0f);
 		}
 		else if(c == KEY_y){
 			spawnBall(
@@ -81,12 +84,12 @@ public:
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
 		// Create some stuff
-		spawnBoxStack(glm::vec3(200, 1, 200), 2, 2, 3);
+		spawnBoxStack(glm::vec3(304.983246, 45.222458, 245.641754), 2, 2, 3);
 
-		spawnBoxStack(glm::vec3(205, 1, 205), 1, 1, 4);
+		spawnBoxStack(glm::vec3(304.983246, 50.222458, 245.641754), 1, 1, 4);
 
 		for(int i=0; i<3; i++){
-			spawnBoxStack(glm::vec3(192, 1 + 2.3f*i , 192), 3-i, 3-i, 1);
+			spawnBoxStack(glm::vec3(137, 1 + 2.3f*i , 238), 3-i, 3-i, 1);
 		}
 
 		spawnBall(glm::vec3(38.950851, 37.107651, 190.842422),
@@ -192,7 +195,7 @@ public:
 	}
 
 	String getScriptPath() const{
-		return "demo_workspace/FogDemo/main.lua";
+		return "demo_workspace/PhysicsDemo/main.lua";
 	}
 
 private:
@@ -207,3 +210,5 @@ private:
 }; // </PhysicsDemo>
 
 WT_DECLARE_DEMO_IMPL(PhysicsDemo)
+
+

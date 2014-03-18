@@ -17,6 +17,14 @@ namespace wt
 
 class AEngineFramework : public IEngineServiceLocator{
 public:
+	static const int32_t eSYSTEM_SCENE = 1 << 0;
+
+	static const int32_t eSYSTEM_PHYSICS = 1 << 1;
+
+	static const int32_t eSYSTEM_PROCESS = 1 << 2;
+
+	static const int32_t eSYSTEM_SOUND = 1 << 3;
+
 	struct Desc;
 
 	AEngineFramework();
@@ -32,6 +40,12 @@ public:
 	void processEvent(const wt::Sp<wt::Event> evt);
 
 	void initializeFramework(const Desc& desc);
+
+	uint32_t getActiveSystems() const;
+
+	void setActiveSystems(uint32_t systems);
+
+	void setSystemTimeMod(uint32_t systems, float timeMod);
 
 	virtual void onWindowSizeChanged(uint32_t w, uint32_t h);
 
@@ -122,7 +136,10 @@ private:
 	Scene* mScene;
 	Renderer* mRenderer;
 	Physics* mPhysics;
+	uint32_t mActiveSystems;
+	float mPhysicsTimeMod;
 }; // </AEngineFramework>
+
 
 } // </wt>
 

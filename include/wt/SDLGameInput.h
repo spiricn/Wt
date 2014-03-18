@@ -10,16 +10,6 @@
 namespace wt{
 
 class SDLGameInput : public AGameInput{
-private:
-	static const char* TAG;
-	bool mMouseGrabbed;
-	int mMouseDelta[2];
-	EventManager* mEventManager;
-
-	SDLKey toSDLKey(VirtualKey code) const;
-
-	VirtualKey fromSDLKey(SDLKey code) const;
-
 public:
 	uint32_t getMousePosX();
 
@@ -44,6 +34,16 @@ public:
 	void setMouseGrabbed(bool state);
 
 	bool isMouseGrabbed();
+
+private:
+	bool mIgnoreNextDelta;
+	bool mMouseGrabbed;
+	int mMouseDelta[2];
+	EventManager* mEventManager;
+
+	SDLKey toSDLKey(VirtualKey code) const;
+
+	VirtualKey fromSDLKey(SDLKey code) const;
 
 }; // </SDLGameInput>
 

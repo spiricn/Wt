@@ -14,7 +14,7 @@ using namespace lua;
 
 AEngineFramework::AEngineFramework() : mInitialized(false), mWindow(NULL), mInput(NULL), 
 	mEventManager(NULL), mLuaState(NULL), mLogFile(NULL), mProcessManager(NULL), mRunning(false),
-	mAssets(NULL), mScene(NULL), mPhysics(NULL), mRenderer(NULL){
+	mAssets(NULL), mScene(NULL), mPhysics(NULL), mRenderer(NULL), mActiveSystems(0xFFFFFFFF), mPhysicsTimeMod(1.0f){
 
 	// Main scripting state
 	mLuaState = new wt::lua::State;
@@ -131,13 +131,21 @@ void AEngineFramework::mainLoop(){
 		mEventManager->tick();
 
 		// Update all processes
-		mProcessManager->update(dt);
+		if(mActiveSystems & eSYSTEM_PROCESS){
+			mProcessManager->update(dt);
+		}
 			
-		mPhysics->update(dt);
+		if(mActiveSystems & eSYSTEM_PHYSICS){
+			mPhysics->update(dt * mPhysicsTimeMod);
+		}
 
-		mScene->update(dt);
+		if(mActiveSystems & eSYSTEM_SCENE){
+			mScene->update(dt);
+		}
 
-		mAssets->getSoundSystem()->update(dt);
+		if(mActiveSystems & eSYSTEM_SOUND){
+			mAssets->getSoundSystem()->update(dt);
+		}
 	
 		// Update engine core (user defined)
 		onUpdate(dt);
@@ -303,6 +311,22 @@ void AEngineFramework::onAppQuit(){
 	if(mRunning){
 		stopMainLoop();
 	}
+}
+
+uint32_t AEngineFramework::getActiveSystems() const{
+	return mActiveSystems;
+}
+
+void AEngineFramework::setActiveSystems(uint32_t systems){
+	mActiveSystems = systems;
+}
+
+void AEngineFramework::setSystemTimeMod(uint32_t systems, float timeMod){
+	if(systems & eSYSTEM_PHYSICS){
+		mPhysicsTimeMod = timeMod;
+	}
+
+	// TODO handle other systems
 }
 
 } // </wt>

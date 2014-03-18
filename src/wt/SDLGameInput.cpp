@@ -4,9 +4,8 @@
 
 #define TD_TRACE_TAG "SDLGameInput"
 
-namespace wt{
-
-const char* SDLGameInput::TAG = "SDLGameInput";
+namespace wt
+{
 
 SDLKey SDLGameInput::toSDLKey(VirtualKey code) const{
 	return (SDLKey)code;
@@ -120,8 +119,15 @@ void SDLGameInput::pollAndDispatch(){
 			{
 				MouseMotionEvent* e = new MouseMotionEvent(evt.button.x, evt.button.y, evt.motion.xrel, evt.motion.yrel);
 				mEventManager->queueEvent(e);
-				mMouseDelta[0] = evt.motion.xrel;
-				mMouseDelta[1] = evt.motion.yrel;
+				if(mIgnoreNextDelta){
+					mIgnoreNextDelta = false;
+					mMouseDelta[0] = 0;
+					mMouseDelta[1] = 0;
+				}
+				else{
+					mMouseDelta[0] = evt.motion.xrel;
+					mMouseDelta[1] = evt.motion.yrel;
+				}
 				break;
 			}
 		case SDL_QUIT:
@@ -143,6 +149,10 @@ void SDLGameInput::setMouseGrabbed(bool state){
 	SDL_ShowCursor(!state);
 	SDL_WM_GrabInput(state==true?SDL_GRAB_ON:SDL_GRAB_OFF);
 	mMouseGrabbed=state;
+
+	if(state){
+		mIgnoreNextDelta = true;
+	}
 }
 
 bool SDLGameInput::isMouseGrabbed(){
