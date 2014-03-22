@@ -21,14 +21,16 @@ public:
 	}
 
 
-	void setDrawProgress(bool state){ DIRTY
+	void setDrawProgress(bool state){
+		DIRTY;
+
 		mDrawProgress = state;
 	}
 
 	void setProgress(float progress){
 		if(mProgress != progress){
 			mProgress = progress;
-			DIRTY
+			DIRTY;
 		}
 	}
 

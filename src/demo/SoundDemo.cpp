@@ -40,7 +40,7 @@ public:
 		mUi = getScene()->getUIWindow();
 
 		// Setup GUI
-		mUi->setDefaultScaleMode( gui::View::eGRID );
+		mUi->setDefaultScaleMode( gui::View::eSCALE_MODE_GRID );
 		mUi->setGridSize(20, 20);
 
 		

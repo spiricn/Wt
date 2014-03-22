@@ -36,7 +36,7 @@ private:
 
 public:
 
-	GuiDemo() : mProgress(0.0f), mProgressBarPaused(false){
+	GuiDemo() : mProgress(0.0f), mProgressBarPaused(true){
 	}
 
 	void onRender(float dt){
@@ -73,7 +73,7 @@ public:
 		gui::Button* btn;
 		
 		getScene()->getUIWindow()->setGridSize(20, 10);
-		getScene()->getUIWindow()->setDefaultScaleMode(gui::View::eGRID);
+		getScene()->getUIWindow()->setDefaultScaleMode(gui::View::eSCALE_MODE_GRID);
 		
 		{
 			btn = getScene()->getUIWindow()->createView<gui::Button>();
@@ -139,7 +139,7 @@ public:
 			
 			gui::TextView* v = getScene()->getUIWindow()->createView<gui::TextView>("clr_text");
 			v->setGridLocation(2, 5, 1, 4);
-			v->setScalingMode(gui::TextView::eAUTO);
+			v->setScalingMode(gui::TextView::eSCALE_AUTO);
 			v->setBackgroundColor(Color::White());
 			v->setText("Current text color: default");
 			v->setTextColor(Color::Black());
@@ -189,7 +189,7 @@ public:
 	void onSliderChanged(){
 		float val = ((gui::SliderView*)getScene()->getUIWindow()->findView("slider"))->getValue()/100.0f;
 
-		setColor(Color::fromHSV(val, 0.5, 0.5));
+		((gui::TextView*)getScene()->getUIWindow()->findView("text"))->setFontScale( glm::mix(0.5f, 2.0f, val ) );
 	}
 
 	void onToast(){

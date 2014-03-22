@@ -17,7 +17,7 @@ namespace gui
 
 using namespace gl;
 
-#define DIRTY setDirty(true);
+#define DIRTY do{ setDirty(true); }while(0)
 
 class ViewClickedEvent : public Event{
 protected:
@@ -43,7 +43,6 @@ public:
 class View{
 friend class Window;
 public:
-
 	struct GridLocation{
 		uint32_t row;
 		uint32_t column;
@@ -65,9 +64,100 @@ public:
 	}; // </ViewBackground>
 
 	enum ScalingMode{
-		eFIXED,
-		eGRID
-	};
+		eSCALE_MODE_FIXED,
+		eSCALE_MODE_GRID
+	}; // </ScalingMode>
+
+	View();
+
+	const GridLocation& getGridLoation() const;
+
+	void setGridLocation(uint32_t row, uint32_t column, uint32_t rowSpan=1, uint32_t columnSpan=1);
+
+	void setScalingMode(ScalingMode mode);
+
+	ScalingMode getScalingMode() const;
+
+	virtual void setFont(Font* font);
+
+	Font* getFont() const;
+
+	virtual void onHook(EventManager* manager);
+
+	virtual	void onClicked();
+
+	EventManager* getEventManager() const;
+
+	virtual ~View();
+
+	bool isVisible() const;
+
+	void setVisible(bool state);
+
+	glm::vec2& getPosition();
+
+	glm::vec2 toLocalCoords(float x, float y) const;
+
+	glm::vec2 toGlobalCoords(float x, float y) const;
+
+	virtual void onMouseDrag(const MouseMotionEvent* evt);
+
+	virtual void onMouseDown(const MousePressEvent* evt);
+
+	virtual void onMouseUp(const MousePressEvent* evt);
+
+	virtual void onMouseMotion(const MouseMotionEvent* evt);
+
+	virtual void onMouseEnter(const MouseMotionEvent* evt);
+
+	virtual void onMouseLeave(const MouseMotionEvent* evt);
+
+	virtual void onKeyDown(VirtualKey key);
+
+	uint32_t getId() const;
+
+	const String& getName() const;
+
+	void setPosition(float x, float y);
+
+	void emitEvent(Event* e);
+
+	void setPosition(const glm::vec2& position);
+
+	glm::vec2& getSize();
+
+	void setSize(const glm::vec2& size);
+
+	float getWidth() const;
+
+	float getHeight() const;
+
+	bool contains(float x, float y) const;
+
+	void setBackgroundColor(const Color& clr);
+
+	void setBackgroundTexture(Texture2D* texture);
+
+	void setSize(float w, float h);
+
+	virtual void draw(Canvas& c);
+
+protected:
+	void setId(uint32_t id);
+
+	void setName(const String& name);
+
+	void setEventManager(EventManager* manager);
+
+	void setDirty(bool dirty);
+
+	bool isDirty() const;
+
+	bool needsRescaling();
+
+	void setNeedsScaling(bool state);
+
+	Texture2D& getTexture();
 
 private:
 	glm::vec2 mPosition;
@@ -85,218 +175,6 @@ private:
 	ScalingMode mScalingMode;
 	bool mNeedsScale;
 
-protected:
-
-	void setId(uint32_t id){
-		mId = id;
-	}
-
-	void setName(const String& name){
-		mName = name;
-	}
-
-	void setEventManager(EventManager* manager){
-		mEventManager = manager;
-		onHook(manager);
-	}
-
-	void setDirty(bool dirty){
-		mDirty = dirty;
-	}
-
-	bool isDirty() const{
-		return mDirty;
-	}
-
-	bool needsRescaling(){
-		return mNeedsScale;
-	}
-
-	void setNeedsScaling(bool state){
-		mNeedsScale = state;
-	}
-
-	Texture2D& getTexture(){
-		return mTexture;
-	}
-
-public:
-	View() : mSize(0,0), mPosition(0,0), mId(0),
-		mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eFIXED), mNeedsScale(false){
-
-		mTexture.create();
-	}
-
-	const GridLocation& getGridLoation() const{
-		return mGridLocation;
-	}
-
-	void setGridLocation(uint32_t row, uint32_t column, uint32_t rowSpan=1, uint32_t columnSpan=1){
-		mGridLocation.row = row;
-		mGridLocation.column = column;
-		mGridLocation.rowSpan = rowSpan;
-		mGridLocation.columnSpan = columnSpan;
-
-		DIRTY;
-		mNeedsScale = true;
-	}
-
-	void setScalingMode(ScalingMode mode){
-		if(mScalingMode != mode){
-			if(mode == eGRID){
-				DIRTY;
-				mNeedsScale = true;
-			}
-
-			mScalingMode = mode;
-		}
-	}
-
-	ScalingMode getScalingMode() const{
-		return mScalingMode;
-	}
-
-	virtual void setFont(Font* font){ DIRTY
-		mFont = font;
-	}
-
-	Font* getFont() const{
-		return mFont;
-	}
-
-	virtual void onHook(EventManager* manager){
-	}
-
-	virtual	void onClicked(){
-	}
-
-	EventManager* getEventManager() const{
-		return mEventManager;
-	}
-
-	virtual ~View(){
-	}
-
-	bool isVisible() const{
-		return mIsVisible;
-	}
-
-	void setVisible(bool state){
-		mIsVisible = state;
-	}
-
-	glm::vec2& getPosition(){
-		return mPosition;
-	}
-
-	glm::vec2 toLocalCoords(float x, float y) const{
-		return glm::vec2(x-mPosition.x, y-mPosition.y);
-	}
-
-	glm::vec2 toGlobalCoords(float x, float y) const{
-		return glm::vec2(mPosition.x+x, mPosition.y+y);
-	}
-
-	virtual void onMouseDrag(const MouseMotionEvent* evt){
-	}
-
-	virtual void onMouseDown(const MousePressEvent* evt){
-	}
-
-	virtual void onMouseUp(const MousePressEvent* evt){
-	}
-
-	virtual void onMouseMotion(const MouseMotionEvent* evt){
-		WT_UNUSED(evt);
-	}
-
-	virtual void onMouseEnter(const MouseMotionEvent* evt){
-	}
-
-	virtual void onMouseLeave(const MouseMotionEvent* evt){
-	}
-
-	virtual void onKeyDown(VirtualKey key){
-		WT_UNUSED(key);
-	}
-
-	uint32_t getId() const{
-		return mId;
-	}
-
-	const String& getName() const{
-		return mName;
-	}
-
-	void setPosition(float x, float y){
-		mPosition.x = x;
-		mPosition.y = y;
-	}
-
-	void emitEvent(Event* e){
-		e->setEmitterData( mId );
-		mEventManager->queueEvent(e);
-	}
-
-	void setPosition(const glm::vec2& position){
-		mPosition = position;
-	}
-
-	glm::vec2& getSize(){
-		return mSize;
-	}
-
-	void setSize(const glm::vec2& size){
-		setSize(size.x, size.y);
-	}
-
-	float getWidth() const{
-		return mSize.x;
-	}
-
-	float getHeight() const{
-		return mSize.y;
-	}
-
-	bool contains(float x, float y) const{
-		return x >= mPosition.x && x < mPosition.x+mSize.x &&
-			y >= mPosition.y && y < mPosition.y+mSize.y;
-	}
-
-	void setBackgroundColor(const Color& clr){
-		DIRTY;
-
-		mBackground.color = clr;
-	}
-
-	void setBackgroundTexture(Texture2D* texture){
-		DIRTY;
-
-		mBackground.texture = texture;
-	}
-
-	void setSize(float w, float h){
-		DIRTY;
-
-		mSize.x = w;
-		mSize.y = h;
-
-		// resize texture
-		mTexture.bind();
-		mTexture.setData(w, h, GL_RGBA, GL_RGBA8, NULL, GL_FLOAT);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-
-	virtual void draw(Canvas& c){
-		if(mBackground.texture){
-			c.drawTexture(mBackground.texture, 0, 0, mSize.x, mSize.y, mBackground.color);
-		}
-		else{
-			c.drawRect(0, 0, mSize.x, mSize.y, mBackground.color);
-		}
-	}
 
 }; // </View>
 

@@ -39,11 +39,15 @@ private:
 	glm::vec2 mTextSize;
 
 protected:
-	void onMouseEnter(const MouseMotionEvent* evt){ DIRTY
+	void onMouseEnter(const MouseMotionEvent* evt){
+		DIRTY;
+
 		setBackgroundColor(Color(195/255.0, 195/255.0, 195/255.0));
 	}
 
-	void onMouseLeave(const MouseMotionEvent* evt){ DIRTY
+	void onMouseLeave(const MouseMotionEvent* evt){
+		DIRTY;
+
 		setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
 	}
 
@@ -65,7 +69,9 @@ public:
 		getEventManager()->queueEvent(evt);
 	}
 
-	void setText(const String& text){ DIRTY
+	void setText(const String& text){
+		DIRTY;
+
 		WT_ASSERT(getFont(), "No font specified for button instance");
 
 		mText = text;

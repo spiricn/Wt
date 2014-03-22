@@ -3,11 +3,31 @@
 
 #include "wt/gui/View.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace gui{
+namespace gui
+{
 
-class Checkbox;
+class Checkbox : public View{
+public:
+	Checkbox();
+
+	Checkbox* setText(const String& text);
+
+	Checkbox* setChecked(bool checked);
+
+	bool isChecked() const;
+
+	void draw(Canvas& c);
+
+	void onClicked();
+
+private:
+	String mText;
+	bool mChecked;
+
+}; // </Checkbox>
 
 class CheckboxClickedEvent : public Event{
 protected:
@@ -31,66 +51,6 @@ public:
 
 }; // </CheckboxClickedEvent>
 
-
-class Checkbox : public View{
-private:
-	String mText;
-	bool mChecked;
-
-protected:
-	void onClicked(){
-		setChecked(!mChecked);
-
-		CheckboxClickedEvent* e = new CheckboxClickedEvent;
-		e->view = this;
-
-		emitEvent(e);
-	}
-
-public:
-	Checkbox() : mChecked(false){
-		setBackgroundColor(Color::Gray());
-	}
-
-	Checkbox* setText(const String& text){
-		DIRTY;
-		mText = text;
-
-		glm::vec2 size = getFont()->measureString(mText);
-		size.y = ((getFont()->getFace()->bbox.yMax-getFont()->getFace()->bbox.yMin)>>6)/2;
-
-		size += glm::vec2(size.y, 0);
-
-		setSize(size);
-
-		return this;
-	}
-
-	Checkbox* setChecked(bool checked){
-		if(checked != mChecked){
-			DIRTY;
-
-			mChecked = checked;
-		}
-
-		return this;
-	}
-
-	bool isChecked() const{
-		return mChecked;
-	}
-
-	void draw(Canvas& c){
-		View::draw(c);
-
-		c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/2, Color::White());
-		if(mChecked){
-			c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/4, Color::Black());
-		}
-
-		c.drawText(getFont(), mText, getSize().y, 0, Color::Black());
-	}
-};
 
 }; // </gui>
 
