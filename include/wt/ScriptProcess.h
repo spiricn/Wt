@@ -3,6 +3,7 @@
 
 #include "wt/AProcess.h"
 #include "wt/lua/State.h"
+#include "wt/OwnPtr.h"
 
 namespace wt{
 
@@ -26,9 +27,13 @@ protected:
 
 private:
 	lua::ScriptPtr mScript;
-	lua::LuaFunction<void> mStartFnc;
-	lua::LuaFunction<void> mEndFnc;
-	lua::LuaFunction<void> mUpdateFnc;
+
+	typedef lua::LuaFunction<void> CallbackFnc;
+	typedef OwnPtr<CallbackFnc> CallbackPtr;
+
+	CallbackPtr mStartFnc;
+	CallbackPtr mEndFnc;
+	CallbackPtr mUpdateFnc;
 
 }; // </ScriptProcess>
 

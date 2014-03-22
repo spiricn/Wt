@@ -203,7 +203,7 @@ public:
 
 
 
-class FontManager : public Singleton<FontManager>, public AResourceManager<Font>{
+class FontManager : public AResourceManager<Font>{
 private:
 	FT_Library mFt;
 	

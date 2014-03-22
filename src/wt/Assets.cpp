@@ -29,9 +29,7 @@ void Assets::init(){
 	mSoundManager = new SFSoundManager(this);
 	mParticleManager = new ParticleEffectResourceManager(this);
 	mHeightmapManager = new AResourceManager<Heightmap>(this);
-
-	// TODO remvoe singleton
-	mFontManager = &FontManager::getSingleton();
+	mFontManager = new FontManager(this);
 
 	mImageManager->setLoader( &DevilImageLoader::getSingleton() );
 	mTextureManager->setLoader( &TextureLoader::getSingleton() );
@@ -347,6 +345,8 @@ Assets::~Assets(){
 	delete mSoundManager;
 
 	delete mHeightmapManager;
+
+	delete mFontManager;
 }
 
 } // </wt>

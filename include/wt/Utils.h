@@ -73,6 +73,8 @@ namespace utils{
 
 	String formatSize(uint64_t size);
 
+	String getPathBaseName(const String& path);
+
 } // </Utils>
 
 } // </wt>

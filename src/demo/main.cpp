@@ -13,6 +13,8 @@ WT_DECLARE_DEMO(FogDemo);
 WT_DECLARE_DEMO(PhysicsDemo);
 WT_DECLARE_DEMO(GuiDemo);
 WT_DECLARE_DEMO(ParticleDemo);
+WT_DECLARE_DEMO(ScriptDemo);
+WT_DECLARE_DEMO(SoundDemo);
 
 #if defined(WT_DEMO_NO_CONSOLE) && defined(WIN32)
 	#pragma comment(linker, "/SUBSYSTEM:windows")
@@ -32,6 +34,7 @@ int main(){
 #endif
 	DemoManager::getSingleton().initialize();
 
+
 	// Demo registrations
 	{
 		WT_REGISTER_DEMO(TestDemo);
@@ -45,6 +48,10 @@ int main(){
 		WT_REGISTER_DEMO(GuiDemo);
 
 		WT_REGISTER_DEMO(ParticleDemo);
+
+		WT_REGISTER_DEMO(ScriptDemo);
+
+		WT_REGISTER_DEMO(SoundDemo);
 	}
 
 	DemoManager::getSingleton().start();

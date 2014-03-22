@@ -3,15 +3,17 @@
 #include "demo/ADemo.h"
 
 #include <wt/MusicPlayer.h>
-#include <wt/OwnPtr.h>
+#include <wt/TransformableAnimator.h>
+
 
 using namespace wt;
 
-#define TD_TRACE_TAG "TestDemo"
+#define TD_TRACE_TAG "SoundDemo"
 
-class TestDemo : public ADemo{
+class SoundDemo : public ADemo{
 public:
-	TestDemo(){
+
+	SoundDemo(){
 	}
 
 	void onUpdate(float dt){
@@ -49,7 +51,7 @@ public:
 			btn->setText("Next track");
 
 			getEventManager()->registerCallback(
-				new MemberCallback<TestDemo>(this, &TestDemo::onNextClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
+				new MemberCallback<SoundDemo>(this, &SoundDemo::onNextClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
 				);
 		}
 
@@ -69,7 +71,7 @@ public:
 			v->setGridLocation(19, 6, 1, 3);
 
 			getEventManager()->registerCallback(
-				new MemberCallback<TestDemo>(this, &TestDemo::onVolumeChanged), gui::SliderValueChangedEvent::TYPE, true, v->getId()
+				new MemberCallback<SoundDemo>(this, &SoundDemo::onVolumeChanged), gui::SliderValueChangedEvent::TYPE, true, v->getId()
 				);
 		}
 	}
@@ -93,6 +95,14 @@ public:
 
 		// Create GUI
 		setupGui();
+
+
+		// Start camera animation
+		getProcessManager()->attach
+			(new TransformableAnimator(&getScene()->getCamera(),
+			getAssets()->getAnimationManager()->getFromPath("$ROOT/sound_demo/camera"), "default", true)
+			);
+
 	}
 
 	void onVolumeChanged(){
@@ -109,11 +119,11 @@ public:
 	}
 
 	String getScriptPath() const{
-		return "demo_workspace/TestDemo/main.lua";
+		return "demo_workspace/SoundDemo/main.lua";
 	}
 
 	MusicPlayer* mMusic;
 	gui::Window* mUi;
-};
+}; // </SoundDemo>
 
-WT_DECLARE_DEMO_IMPL(TestDemo);
+WT_DECLARE_DEMO_IMPL(SoundDemo);

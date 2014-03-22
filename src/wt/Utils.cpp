@@ -537,6 +537,18 @@ String toRelative(const String& base, const String& path){
 #endif
 }
 
+String getPathBaseName(const String& path){
+	String tmp = utils::replacePathSplitters(path, '/');
+	size_t pos = tmp.rfind('/');
+	if(pos == String::npos){
+		return path;
+	}
+	else{
+		return tmp.substr(pos + 1);
+	}
+}
+
+
 String getHomeDir(){
 #if defined(WIN32)
 	char bfr[MAX_PATH];

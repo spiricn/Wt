@@ -110,6 +110,22 @@ void ADemo::createDemo(DemoManager* manager){
 	}
 
 	getEventManager()->registerGlobalListener(this);
+
+	// Setup UI
+	mUi.create(
+		getWindow()->getWidth(),
+		getWindow()->getHeight()
+	);
+
+	mUi.setInput(getInput());
+
+	Font* font = getAssets()->getFontManager()->create("_demo_font");
+	font->load("demo_workspace/shared/font/cour.ttf", 20);
+
+	mUi.hook(getEventManager() );
+	mUi.setDefaultFont( font );
+
+	getScene()->setUIWindow(&mUi);
 }
 
 void ADemo::onDemoStart(const LuaObject&){
@@ -121,11 +137,11 @@ void ADemo::onDemoStop(){
 void ADemo::startDemo(){
 	onDemoStart( mMainScript->getState() );
 
-	startMainLoop();
-
 	if(mMainScript->getState().Get("startProcess").GetBoolean() ){
 		getProcessManager()->attach( new ScriptProcess( mMainScript ) );
 	}
+
+	startMainLoop();
 
 //	// Default font
 //	Font* font = getAssets()->getFontManager()->create("_demo_font");
@@ -244,25 +260,14 @@ void ADemo::onKeyUp(wt::VirtualKey code){
 
 			break;
 		}
-		//default:
-		//	onKeyDown(code);
+		default:
+			onKeyDown(code);
 	}
 }
 
 void ADemo::setName(const String& name){
 	mName = name;
 }
-
-//void ADemo::stopDemo(){
-//	mRunning = false;
-//}
-
-
-//ADemo::~ADemo(){
-//}
-//
-//ADemo::ADemo() : mDemoManager(NULL), mRunning(false){
-//}
 
 bool ADemo::isRunning() const{
 	return mRunning;

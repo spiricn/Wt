@@ -15,7 +15,7 @@
 #include "wt/TPSCamControler.h"
 #include "wt/CameraControler.h"
 #include "wt/SkyBox.h"
-
+#include "wt/OwnPtr.h"
 #include "wt/Buffer.h"
 #include "wt/Animation.h"
 #include "wt/Font.h"
@@ -37,11 +37,10 @@
 
 #include "wt/AEngineFramework.h"
 
-namespace wt{
+namespace wt
+{
 
 class DemoManager;
-
-#if 1
 
 class ADemo : public AEngineFramework, public EventListener{
 public:
@@ -79,120 +78,9 @@ private:
 	lua::ScriptPtr mMainScript;
 	bool mRunning;
 	math::FPSCameraControler mFpsCam;
-};
-
-#else
-class ADemo  : public AEngineFramework{
-friend class DemoManager;
-
-public:
-	enum CameraControlMode{
-		eCAMERA_FPS,
-		eCAMERA_TPS
-	};
-
-	ADemo();
-
-	virtual ~ADemo();
-
-	EventManager* getEventManager() const{
-		return mEventManager;
-	}
-
-	lua::State& getLuaState();
-
-	void update(float dt);
-
-	Assets* getAssets() const;
-
-	Scene* getScene() const;
-
-	gui::Window& getUi();
-
-	Physics* getPhysics() const;
-
-	void stopDemo();
-
-	ProcessManager& getProcManager(){
-		return mProcManager;
-	}
-
-	Renderer* getRenderer() const;
-
-	bool isRunning() const;
-
-	math::CameraControler* getCameraControl();
-
-	void setCameraControlMode(CameraControlMode mode);
-
-	const String& getName() const;
-
-	virtual void onRender(float dt);
-
-	virtual void onMouseDown(float x, float y, MouseButton btn);
-
-	virtual void onMouseUp(float x, float y, MouseButton btn);
-
-	virtual void printHelp();
-
-	virtual void onWindowSizeChanged(Uint32 w, Uint32 h);
-
-	virtual void onKeyUp(VirtualKey code);
-
-	virtual void onKeyDown(VirtualKey code);
-
-	virtual void onUpdate(float dt);
-
-	virtual void onMouseMotion(const MouseMotionEvent* evt);
-
-	virtual void onStart(const LuaObject&);
-
-	virtual void onStop();
-
-	virtual String getScriptPath() const;
-
-protected:
-	DemoManager* getManager();
-	
-	void createDemo(DemoManager* manager, AGameWindow* window, AGameInput* input, EventManager* evtManager);
-
-	void destroyDemo();
-
-	void startDemo();
-
-	void setName(const String& name);
-
-	void onKeyDownPriv(VirtualKey code);
-
-	void printHelpPriv();
-
-private:
-	lua::ScriptPtr mMainScript;
-	math::FPSCameraControler mFpsCam;
-	math::TPSCameraControler mTpsCam;
-	String mName;
-
-	DemoManager* mDemoManager;
-	Renderer* mRenderer;
-	Physics* mPhysics;
-	Assets* mAssets;
-	Scene* mScene;
-
-	AGameInput* mInput;
-	AGameWindow* mWindow;
-	CameraControlMode mCameraCtrlMode;
-	bool mRunning;
-	bool mShowGrid;
-	ProcessManager mProcManager;
 	gui::Window mUi;
-	FPSCalculator mFpsCalc;
-	gui::TextView* mFpsTextView;
-	PhysicsActor* mCamController;
-	EventManager* mEventManager;
-	lua::State mLuaState;
-	bool mGuiEnabled;
-};
-#endif
+}; // </ADemo>
+
 #define WT_DECLARE_DEMO(name) ADemo* createDemoFunc_ ## name();
 
 #define WT_DECLARE_DEMO_IMPL(name) ADemo* createDemoFunc_ ## name(){ return new name; }

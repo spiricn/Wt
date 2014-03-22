@@ -1,5 +1,19 @@
 -------------------------------------------------------------------------------
 
+Font system rework
+	Font class is usesless at the moment
+	Fix up font scaling
+
+-------------------------------------------------------------------------------
+
+Sound stream resource implementation
+
+-------------------------------------------------------------------------------
+
+fix renderer clear color
+
+-------------------------------------------------------------------------------
+
 remote $ROOT as the beggining of the resource tree
 just use linux-like convention (start with /)
 
