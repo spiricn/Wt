@@ -29,11 +29,6 @@ static const char* kTEST_TEXT =
 using namespace wt;
 
 class GuiDemo : public ADemo{
-private:
-
-	float mProgress;
-	bool mProgressBarPaused;
-
 public:
 
 	GuiDemo() : mProgress(0.0f), mProgressBarPaused(true){
@@ -234,8 +229,12 @@ public:
 
 	String getScriptPath() const{
 		return "assets/GuiDemoConfig.lua";
-
 	}
+
+private:
+	float mProgress;
+	bool mProgressBarPaused;
+
 }; // </GuiDemo>
 
 WT_DECLARE_DEMO_IMPL(GuiDemo)

@@ -43,7 +43,9 @@ public:
 
 	bool getAttachPointTransform(const String& pointId, glm::mat4& res) const;
 
-	void physicsControl(const glm::vec3& translation, const glm::quat& rotation);
+	void physicsControl(const glm::vec3& translation);
+
+	void physicsControl(const glm::quat& rotation);
 
 	void update(float dt);
 

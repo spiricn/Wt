@@ -24,10 +24,7 @@ public:
 	}
 
 	void onUpdate(float dt){
-		getPhysics()->update(dt);
-		getScene()->update(dt);
 		getCameraControl()->handle(dt, getInput());
-
 
 		FogDesc fog = getScene()->getFogDesc();
 

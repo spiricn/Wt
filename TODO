@@ -1,10 +1,8 @@
 -------------------------------------------------------------------------------
 
-Font system rework
-	Font class is usesless at the moment
-	Fix up font scaling
+rework the current bounding box system
 
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 Sound stream resource implementation
 

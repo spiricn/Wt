@@ -146,9 +146,7 @@ void WorldEditTab::onGLContextCreated(){
 }
 
 void WorldEditTab::onSetSkybox(){
-	ResourcePickerDialog picker(this);
-
-	wt::SkyBox* sky = picker.pickResource(this, WTE_CTX.getAssets()->getSkyBoxManager());
+	wt::SkyBox* sky = ResourcePickerDialog::pickResource(this, WTE_CTX.getAssets()->getSkyBoxManager());
 	if(sky){
 		WTE_CTX.getScene()->setSkyBox(sky);
 	}

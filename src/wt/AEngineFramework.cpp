@@ -132,26 +132,34 @@ void AEngineFramework::mainLoop(){
 
 		// Update all processes
 		if(mActiveSystems & eSYSTEM_PROCESS){
+			onBeforeSystemUpdate(eSYSTEM_PROCESS, dt);
 			mProcessManager->update(dt);
 		}
 			
 		if(mActiveSystems & eSYSTEM_PHYSICS){
+			onBeforeSystemUpdate(eSYSTEM_PHYSICS, dt);
 			mPhysics->update(dt * mPhysicsTimeMod);
 		}
 
 		if(mActiveSystems & eSYSTEM_SCENE){
+			onBeforeSystemUpdate(eSYSTEM_SCENE, dt);
 			mScene->update(dt);
 		}
 
 		if(mActiveSystems & eSYSTEM_SOUND){
+			onBeforeSystemUpdate(eSYSTEM_SOUND, dt);
 			mAssets->getSoundSystem()->update(dt);
 		}
 	
 		// Update engine core (user defined)
 		onUpdate(dt);
 
-		// Render scene
-		getRenderer()->render(*mScene);
+		if(mActiveSystems &  eSYSTEM_RENDERER){
+			onBeforeSystemUpdate(eSYSTEM_RENDERER, dt);
+
+			// Render scene
+			getRenderer()->render(*mScene);
+		}
 
 		// Display the resulting frame
 		mWindow->swapBuffers();
@@ -327,6 +335,9 @@ void AEngineFramework::setSystemTimeMod(uint32_t systems, float timeMod){
 	}
 
 	// TODO handle other systems
+}
+
+void AEngineFramework::onBeforeSystemUpdate(int32_t system, float dt){
 }
 
 } // </wt>

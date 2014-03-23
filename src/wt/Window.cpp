@@ -1,6 +1,8 @@
 #include "wt/stdafx.h"
 #include "wt/gui/Window.h"
 
+#include "wt/gui/ListView.h"
+
 #define TD_TRACE_TAG "Window"
 
 namespace wt

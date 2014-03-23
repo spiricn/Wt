@@ -52,7 +52,7 @@ protected:
 	}
 
 public:
-	Button(){
+	Button(Window* parent) : RectView(parent){
 		setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
 
 		setDrawBorder(true);

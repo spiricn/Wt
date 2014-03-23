@@ -8,12 +8,16 @@
 #include "wt/math.h"
 #include "wt/lua/Object.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace math{
+namespace math
+{
 
 class Transform : public lua::Object<Transform>, public ATransformable{
 public:
+	Transform(const ATransformable& tf);
+
 	Transform(const glm::mat4&);
 
 	Transform();
@@ -104,8 +108,8 @@ Transform operator*(const Transform&, const glm::mat4&);
 
 Transform operator*(const glm::mat4&, const Transform&);
 
-}; // </math>
+} // </math>
 
-}; // </wt>
+} // </wt>
 
 #endif

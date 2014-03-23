@@ -145,7 +145,7 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f){
     mDefaultMaterial = mSdk->createMaterial(0.5, 0.5, 0.5);
 
     // ground plane
-    PxTransform pose = PxTransform(PxVec3(0.0f, -1, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f))
+    PxTransform pose = PxTransform(PxVec3(0.0f, -200.0f, 0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f))
         );
     PxRigidStatic* plane = mSdk->createRigidStatic(pose);
     PxShape* shape = plane->createShape(PxPlaneGeometry(), *mDefaultMaterial);
@@ -244,6 +244,7 @@ bool Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t 
 }
 
 void Physics::update(float dt){
+
 #if 0
 	if(!mTimeAccumulator.update(dt)){
 		return;
@@ -273,44 +274,27 @@ void Physics::update(float dt){
 			continue;
 		}
 
-
 		if(actor->isControlled()){
 			const PxExtendedVec3& pos = actor->getController()->getFootPosition();
 
 			// Since we're the controller of the object we need to const cast this in order to change it
-#if 0
-			ATransformable* transformable = const_cast<ATransformable*>(actor->getSceneActor()->getTransformable());
-			transformable->setTranslation(glm::vec3(pos.x, pos.y, pos.z));
-#else
-			// TODO optimize this
-			glm::quat rot;
-			actor->getSceneActor()->getTransformable()->getRotation(rot);
-
 			if(actor->getSceneActorCtrl()){
-				(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(
-					glm::vec3(pos.x, pos.y, pos.z), rot
-				);
+				// Translation
+				(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(glm::vec3(pos.x, pos.y, pos.z));
 			}
-#endif
 		}
 		else if(actor->getSceneActor()){
 			// Since we're the controller of the object we need to const cast this in order to change it
-#if 0
-			ATransformable* transformable = const_cast<ATransformable*>(actor->getSceneActor()->getTransformable());
-
-			pxConvert(activeTransforms[i].actor2World,
-				*transformable
-			);
-#else
 			glm::vec3 pos;
 			glm::quat rot;
 
 			pxConvert(activeTransforms[i].actor2World.p, pos);
 			pxConvert(activeTransforms[i].actor2World.q, rot);
 
-			(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(pos, rot);
+			(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(pos);
 
-#endif
+			(const_cast<ASceneActor*>(actor->getSceneActor()))->physicsControl(rot);
+
 		}
 		else{
 			LOGW("No scene actor associated with physx actor!");
@@ -801,7 +785,7 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 			
 			controller->getActor()->getShapes((PxShape**)shape, 1);
 
-			// TODO
+			// TODO - todo what :| ?
 			filterData.word0 = 0xAAAA;
 			shape[0]->setQueryFilterData(filterData);
 			shape[0]->setSimulationFilterData(filterData);
@@ -838,7 +822,12 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 			pxConvert(pose.p, pos);
 			pxConvert(pose.q, rot);
 
-			sceneActor->physicsControl(pos, rot);
+			sceneActor->physicsControl(pos);
+
+			// Only control rotation for non-controlled actors
+			if(!createdActor->isControlled()){
+				sceneActor->physicsControl(rot);
+			}
 		}
 	}
 

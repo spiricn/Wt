@@ -2,8 +2,10 @@
 
 #include "wt/ModelledActor.h"
 
-namespace wt{
+#define TD_TRACE_TAG "ModelledActor"
 
+namespace wt
+{
 
 ModelledActor::ModelledActor(Scene* parent, uint32_t id, const String& name) : ASceneActor(parent, ASceneActor::eTYPE_MODELLED, id, name),
 	mModel(NULL), mSkin(NULL), mAnimationPlayer(NULL){
@@ -20,6 +22,8 @@ Model* ModelledActor::getModel() const{
 SkeletalAnimationPlayer* ModelledActor::blendToAnimation(const String& name, float time, bool loopBlended){
 	mBlendTotal = time;
 	mBlendCurrent = 0.0f;
+
+	mAnimationChannels.erase( mAnimationChannels.begin(), mAnimationChannels.begin() + mAnimationChannels.size() - 1);
 
 	SkeletalAnimationPlayer* res = addAnimationChannel();
 	res->play(name, loopBlended);
@@ -145,7 +149,6 @@ void ModelledActor::update(float dt){
 			mBlendCurrent += dt;
 			if(mBlendCurrent > mBlendTotal){
 				mAnimationChannels.erase(mAnimationChannels.begin());
-				LOG("done blending");
 			}
 		}
 
@@ -268,8 +271,11 @@ void ModelledActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObjec
 	}
 }
 
-void ModelledActor::physicsControl(const glm::vec3& translation, const glm::quat& rotation){
+void ModelledActor::physicsControl(const glm::vec3& translation){
 	mTransform.setTranslation(translation);
+}
+
+void ModelledActor::physicsControl(const glm::quat& rotation){
 	mTransform.setRotation(rotation);
 }
 
@@ -280,7 +286,16 @@ void ModelledActor::setTranslation(const glm::vec3& translation){
 }
 
 void ModelledActor::setRotation(const glm::quat& rotation){
-	ATransformable* tf = getPhysicsActor() ? dynamic_cast<ATransformable*>(getPhysicsActor()) : &mTransform;
+	PhysicsActor* pxActor = getPhysicsActor() ;
+	ATransformable* tf = NULL;
+
+	// We don't want to rotate through a controlled actor since all it does is update the position
+	if(!pxActor || (pxActor && pxActor->isControlled())){
+		tf = &mTransform;
+	}
+	else{
+		tf = dynamic_cast<ATransformable*>(getPhysicsActor());
+	}
 
 	tf->setRotation(rotation);
 }

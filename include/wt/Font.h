@@ -27,6 +27,8 @@ public:
 
 	FT_Glyph_Metrics& getMetrics();
 
+	float getLineHeight() const;
+
 	void setSize(uint32_t size);
 
 	FontAtlas& getFontAtlas();

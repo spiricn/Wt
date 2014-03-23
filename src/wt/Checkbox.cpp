@@ -19,7 +19,7 @@ void Checkbox::onClicked(){
 	emitEvent(e);
 }
 
-Checkbox::Checkbox() : mChecked(false){
+Checkbox::Checkbox(Window* parent) : mChecked(false), View(parent){
 	setBackgroundColor(Color::Gray());
 }
 

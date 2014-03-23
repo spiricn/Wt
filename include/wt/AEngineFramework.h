@@ -25,6 +25,8 @@ public:
 
 	static const int32_t eSYSTEM_SOUND = 1 << 3;
 
+	static const int32_t eSYSTEM_RENDERER = 1 << 4;
+
 	struct Desc;
 
 	AEngineFramework();
@@ -78,6 +80,8 @@ public:
 	virtual AResourceSystem* getAssets() const;
 
 	virtual Renderer* getRenderer() const;
+
+	virtual void onBeforeSystemUpdate(int32_t system, float dt);
 
 	struct Desc : public lua::ASerializable{
 		struct Logging{

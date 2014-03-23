@@ -117,6 +117,7 @@ private:
 	wt::Scene mScene;
 	wt::Renderer mRenderer;
 	QTimer mTimer;
+	wt::Timer mStopwatch;
 
 friend class WtEditor;
 

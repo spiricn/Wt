@@ -12,6 +12,12 @@ Transform::Transform(const glm::mat4& mat) : mDirty(true){
 	setMatrix(mat);
 }
 
+Transform::Transform(const ATransformable& tf){
+	glm::mat4 mat;
+	tf.getTransformMatrix(mat);
+	setMatrix(mat);
+}
+
 Transform::Transform() : mScale(glm::vec3(1.0f, 1.0f, 1.0f)),
 	mPosition(glm::vec3(0.0f, 0.0f, 0.0f)), mDirty(true){
 		setRotation(0, 1, 0, 0);

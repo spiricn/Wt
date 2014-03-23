@@ -60,6 +60,10 @@ FontAtlas& Font::getFontAtlas(){
 	return *mAtlas;
 }
 
+float Font::getLineHeight() const{
+	return ( ( (mFace->bbox.yMax-mFace->bbox.yMin)>>6)/2 );
+}
+
 bool Font::sFtLibInitialized = false;
 
 FT_Library Font::sFtLib = NULL;

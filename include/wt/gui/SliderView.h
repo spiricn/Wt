@@ -11,7 +11,12 @@ namespace gui{
 
 class SliderView : public View{
 public:
-	SliderView();
+	enum Mode{
+		eMODE_HORIZONTAL,
+		eMODE_VERTICAL
+	}; // </Mode>
+
+	SliderView(Window* parent);
 
 	void setValue(float val);
 
@@ -21,12 +26,15 @@ public:
 
 	void draw(Canvas& c);
 
+	void setMode(Mode mode);
+
 private:
 	float mValue;
 	float mBarWidth;
 	Color mBaseColor;
 	Color mSliderColor;
 	Color mBorderColor;
+	Mode mMode;
 }; // </SliderView>
 
 

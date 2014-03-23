@@ -17,7 +17,7 @@ private:
 
 public:
 
-	ProgressView() : mProgress(0.0f), mDrawProgress(true), mProgressText(""){
+	ProgressView(Window* parent) : mProgress(0.0f), mDrawProgress(true), mProgressText(""), View(parent){
 	}
 
 

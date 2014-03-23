@@ -83,7 +83,7 @@ void Canvas::drawTextFmt(Font* font, const String& text,
 	String bfr = text;
 
 	// Height, in pixels, of a single line of text
-	const float lineHeight = ( ((font->getFace()->bbox.yMax-font->getFace()->bbox.yMin)>>6)/2 ) * scale;
+	const float lineHeight = font->getLineHeight();
 
 	if(lineHeight > size.y){
 		// No text can fit in this area
@@ -210,8 +210,11 @@ void Canvas::drawText(Font* font, const String& text, float startX, float startY
 
 	glDisable(GL_DEPTH_TEST);
 
+	// TODO investigate this further, will probably cause some problems
 	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+		GL_SRC_ALPHA, 1.0f);
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	mFontBatch.render();
@@ -266,7 +269,7 @@ void Canvas::clear(){
 	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 	gl( DrawBuffers(1, bfrMap) );
 
-	gl( ClearColor(0.0, 0.0, 0.0, 0.0) );
+	gl( ClearColor(1.0, 0.0, 0.0, 0.0) );
 	gl( Clear(GL_COLOR_BUFFER_BIT) );
 }
 

@@ -2,23 +2,73 @@
 
 #include "demo/ADemo.h"
 
+#include <wt/ActorMoveController.h>
+
 using namespace wt;
 
 #define TD_TRACE_TAG "PhysicsDemo"
 
 using namespace wt;
 
+
 class PhysicsDemo : public ADemo{
 public:
 	PhysicsDemo() : mPhysicsPaused(false), mSlowMotion(false){
 	}
 
-	void onRender(float dt){
-		getRenderer()->render( *getScene() );
+	ActorMoveController* mMover;
+
+	void onBeforeSystemUpdate(int32_t system, float dt){
+		if(system == eSYSTEM_PHYSICS){
+
+			mMover->update(
+				getInput()->isKeyDown(KEY_UP),
+				getInput()->isKeyDown(KEY_DOWN),
+				false,
+				false,
+				getInput()->isKeyDown(KEY_LEFT),
+				getInput()->isKeyDown(KEY_RIGHT),
+				dt);
+
+			String newAnimation = "";
+			bool loop = true;
+
+			if(mMover->isJumping()){
+				if(mMover->startedJumping()){
+					newAnimation = "jump_start";
+					loop = false;
+				}
+			}
+			else{
+				if(mMover->isMoving()){
+					if(mMover->startedMoving() || mMover->changedMoveDirection() || mMover->stoppedJumping()){
+						newAnimation = mMover->movingBackward() ? "walk_backwards" : "run";
+					}
+				}
+				else{
+					if(mMover->isRotating()){
+						if(mMover->startedRotating() || mMover->stoppedMoving() || mMover->stoppedJumping()){
+							newAnimation = getInput()->isKeyDown(KEY_LEFT) ? "shuffle_left" : "shuffle_right";
+						}
+					}
+					else{
+						if(mMover->stoppedMoving() || mMover->stoppedRotating() || mMover->stoppedJumping()){
+							newAnimation = "stand_1";
+						}
+					}
+				}
+			}
+
+			if(newAnimation.size()){
+				mActor->blendToAnimation(newAnimation, 0.2, loop);
+			}
+		}
+		else if(system == eSYSTEM_RENDERER){
+			getCameraControl()->handle(dt, getInput());
+		}
 	}
 
 	void onUpdate(float dt){
-		getCameraControl()->handle(dt, getInput());
 	}
 
 	void onMouseDown(float x, float y, MouseButton btn){
@@ -51,6 +101,9 @@ public:
 		if(c == KEY_t){
 			spawnBox(
 				pos, fw*30.0f /* collide only with terrain */);
+		}
+		else if(c == KEY_j){
+			mMover->jump();
 		}
 		else if(c == KEY_p){
 			if(mPhysicsPaused){
@@ -94,6 +147,32 @@ public:
 
 		spawnBall(glm::vec3(38.950851, 37.107651, 190.842422),
 			glm::vec3(0.525316, -0.850524, -0.025836)*20.0f);
+
+		{
+			mActor = dynamic_cast<wt::ModelledActor*>(getScene()->findActorByName("actor"));
+			WT_ASSERT(mActor != NULL, "Missing actor");
+
+
+			mActor->getAnimationPlayer()->play("stand_1", true);
+
+			PhysicsActor::Desc desc;
+			desc.type = PhysicsActor::eTYPE_DYNAMIC;
+			desc.controlMode = PhysicsActor::eCTRL_MODE_CONTROLLER;
+			desc.controllerDesc.geometryType = PhysicsActor::eCTRL_GEOMETRY_CAPSULE;
+			desc.controllerDesc.geometryDesc.capsuleController.height = 1.0f;
+			desc.controllerDesc.geometryDesc.capsuleController.radius = 1.0f;
+			mActor->getTransformable()->getTransformMatrix(desc.pose);
+			getScene()->getPhysics()->createActor(mActor, desc);
+
+			mMover = new ActorMoveController(mActor);
+		}
+
+		{
+			setCameraController(eCAM_CTRL_FPS);
+			/*math::TPSCameraControler* ctrl = dynamic_cast<math::TPSCameraControler*>(getCameraControl());
+			ctrl->zoomOut(10);
+			ctrl->setTarget(mActor->getTransformable());*/
+		}
 	}
 
 
@@ -207,6 +286,7 @@ private:
 		// Slow-motion enabled
 		bool mSlowMotion;
 
+		wt::ModelledActor* mActor;
 }; // </PhysicsDemo>
 
 WT_DECLARE_DEMO_IMPL(PhysicsDemo)

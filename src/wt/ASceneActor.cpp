@@ -128,8 +128,11 @@ bool ASceneActor::attach(ASceneActor* actor, const String& pointId){
 	}
 }
 
-void ASceneActor::physicsControl(const glm::vec3& translation, const glm::quat& rotation){
+void ASceneActor::physicsControl(const glm::vec3& translation){
 	getTransformable()->setTranslation(translation);
+}
+
+void ASceneActor::physicsControl(const glm::quat& rotation){
 	getTransformable()->setRotation(rotation);
 }
 

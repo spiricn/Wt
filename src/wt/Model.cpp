@@ -290,6 +290,27 @@ void Model::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 			skinEntry.Set("normal_map", mesh->normalMap? mesh->normalMap->getPath().c_str() : "");
 
 			skinEntry.Set("alpha_tested", mesh->material.isAlphaTested());
+
+
+			CullMode cullMode = mesh->material.getCullMode();
+			String cullModeStr;
+
+			switch(cullMode){
+			case eCULL_FRONT:
+				cullModeStr = "front";
+				break;
+			case eCULL_BACK:
+				cullModeStr = "back";
+				break;
+			case eCULL_FRONT_AND_BACK:
+				cullModeStr = "front_and_back";
+				break;
+			case eCULL_NONE:
+				cullModeStr = "none";
+				break;
+			}
+
+			skinEntry.Set("cull_mode", cullModeStr.c_str());
 		}
 	}
 
@@ -341,6 +362,26 @@ void Model::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
 				mesh->material.setAlphaTest(alphaTested);
 
 				mesh->geometryName = meshName;
+
+
+				String cullModeStr;
+				CullMode cullMode;
+				if(lua::luaConv(skinEntry.Get("cull_mode"), cullModeStr)){
+					if(cullModeStr.compare("front") == 0){
+						cullMode = eCULL_FRONT;
+					}
+					else if(cullModeStr.compare("back") == 0){
+						cullMode = eCULL_BACK;
+					}
+					else if(cullModeStr.compare("front_and_back") == 0){
+						cullMode = eCULL_FRONT_AND_BACK;
+					}
+					else if(cullModeStr.compare("none") == 0){
+						cullMode = eCULL_NONE;
+					}
+
+					mesh->material.setCullMode(cullMode);
+				}
 			}
 		}
 	}

@@ -19,16 +19,19 @@ WtEditorContext::WtEditorContext() : mAssetsFilePath(""), mSceneFilePath(""), mS
 }
 
 void WtEditorContext::onTimeout(){
-	static wt::Timer timer;
-
-	emit update(timer.getSeconds());
+	emit update(mStopwatch.getSeconds());
 }
 
 void WtEditorContext::startLoop(){
+	mStopwatch.reset();
+
 	mTimer.start( (1.0/25)*1000 );
 }
 
 void WtEditorContext::stopLoop(){
+	if(mTimer.isActive()){
+		mTimer.stop();
+	}
 }
 
 wt::Assets* WtEditorContext::getAssets(){

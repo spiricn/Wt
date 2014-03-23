@@ -113,6 +113,8 @@ public:
 
 	~ResourceTreeWidget();
 
+	QList<RTWItem*> getSelectedItems();
+
 private slots:
 	void onItemActivated(QTreeWidgetItem* item, int col);
 

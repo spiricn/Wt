@@ -108,3 +108,15 @@ RTWItem* ResourceTreeWidget::createItem(RTWItem* parent, RTWItem::Type type, con
 
 	return item;
 }
+
+QList<RTWItem*> ResourceTreeWidget::getSelectedItems(){
+	QList<RTWItem*> treeItems;
+
+	QList<QTreeWidgetItem*> selection = selectedItems();
+
+	for(QList<QTreeWidgetItem*>::Iterator iter=selection.begin(); iter!=selection.end(); iter++){
+		treeItems.push_back( getTreeItem(*iter) );
+	}
+
+	return treeItems;
+}

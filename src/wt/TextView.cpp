@@ -9,7 +9,7 @@ namespace wt
 namespace gui
 {
 
-TextView::TextView() : mTextColor(Color::White()), mFontScale(1.0f), mScalingMode(eSCALE_FIXED){
+TextView::TextView(Window* parent) : mTextColor(Color::White()), mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent){
 }
 
 void TextView::setScalingMode(ScalingMode mode){
@@ -51,6 +51,7 @@ void TextView::draw(Canvas& c){
 	WT_ASSERT(getFont(), "No font specified for TextView instance");
 
 	View::draw(c);
+
 	c.drawTextFmt(getFont(), mText, glm::vec2(0, 0), getSize(), mTextColor, mFontScale);
 }
 

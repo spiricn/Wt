@@ -47,8 +47,9 @@ Texture2D& View::getTexture(){
 	return mTexture;
 }
 
-View::View() : mSize(0,0), mPosition(0,0), mId(0),
-	mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eSCALE_MODE_FIXED), mNeedsScale(false){
+View::View(Window* parent) : mSize(0,0), mPosition(0,0), mId(0),
+	mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eSCALE_MODE_FIXED),
+	mNeedsScale(false), mParent(parent){
 
 	mTexture.create();
 }
@@ -226,6 +227,9 @@ void View::draw(Canvas& c){
 	}
 }
 
+Window* View::getParent() const{
+	return mParent;
+}
 
 } // </gui>
 

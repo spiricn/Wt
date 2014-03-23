@@ -11,7 +11,7 @@ namespace gui
 
 class Checkbox : public View{
 public:
-	Checkbox();
+	Checkbox(Window* parent);
 
 	Checkbox* setText(const String& text);
 

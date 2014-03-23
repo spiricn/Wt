@@ -68,7 +68,7 @@ public:
 		eSCALE_MODE_GRID
 	}; // </ScalingMode>
 
-	View();
+	View(Window* parent);
 
 	const GridLocation& getGridLoation() const;
 
@@ -142,6 +142,8 @@ public:
 
 	virtual void draw(Canvas& c);
 
+	Window* getParent() const;
+
 protected:
 	void setId(uint32_t id);
 
@@ -171,7 +173,7 @@ private:
 	Font* mFont;
 	bool mDirty;
 	GridLocation mGridLocation;
-
+	Window* mParent;
 	ScalingMode mScalingMode;
 	bool mNeedsScale;
 

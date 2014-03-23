@@ -48,7 +48,12 @@ bool ADemo::handleEvent(const Sp<Event> e){
 	return false;
 }
 math::CameraControler* ADemo::getCameraControl(){
-	return &mFpsCam;
+	if( mCamCtrl == eCAM_CTRL_FPS){
+		return &mFpsCam;
+	}
+	else{
+		return &mTpsCam;
+	}
 }
 
 void ADemo::createDemo(DemoManager* manager){
@@ -92,6 +97,7 @@ void ADemo::createDemo(DemoManager* manager){
 	getInput()->setMouseGrabbed(true);
 
 	mFpsCam.setCamera(&getScene()->getCamera());
+	mTpsCam.setCamera(&getScene()->getCamera());
 
 	String scenePath, assetsPath;
 
@@ -178,20 +184,6 @@ void ADemo::startDemo(){
 //	}
 //
 //	mRunning = true;
-//
-//#if 0
-//	// Setup camera controller
-//	PhysicsActor::Desc desc;
-//	desc.type = PhysicsActor::eTYPE_DYNAMIC;
-//	desc.controlMode = PhysicsActor::eCTRL_MODE_CONTROLLER;
-//	desc.controllerDesc.geometryType = PhysicsActor::eCTRL_GEOMETRY_CAPSULE;
-//	desc.controllerDesc.geometryDesc.capsuleController.height = 1.0f;
-//	desc.controllerDesc.geometryDesc.capsuleController.radius = 1.0f;
-//	math::Transform t;
-//	t.setPosition(200, 3, 200);
-//	desc.pose = t;
-//	mCamController = getPhysics()->createActor(NULL, desc);
-//#endif
 //
 //	printHelp();
 //	onStart( mMainScript->getState() );
@@ -283,5 +275,12 @@ String ADemo::getScriptPath() const{
 	return "";
 }
 
-}; // </wt>
+void ADemo::update(float dt){
+}
+
+void ADemo::setCameraController(CameraController type){
+	mCamCtrl = type;
+}
+
+} // </wt>
 

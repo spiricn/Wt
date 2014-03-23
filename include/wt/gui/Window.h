@@ -97,7 +97,7 @@ T* Window::createView(const String& name){
 		id++;
 	}
 
-	T* tView = new T;
+	T* tView = new T(this);
 	View* view = static_cast<View*>(tView);
 	view->setScalingMode(mDefaultScaleMode);
 	view->setId(id);
