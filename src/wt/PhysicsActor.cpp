@@ -29,7 +29,7 @@ physx::PxU32 PhysicsActor::move(const glm::vec3& disp, float dt, float minDistan
 	pxConvert(disp, pxDisp);
 
 	PxControllerFilters filters;
-	//filters.mFilterCallback = mParent;
+	filters.mFilterCallback = mParent;
 
 	// Get the actor shape
 	physx::PxShape* shapes[1];

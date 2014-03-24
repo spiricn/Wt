@@ -1,9 +1,7 @@
 #ifndef WT_PHYSICS_H
 #define WT_PHYSICS_H
 
-
 #include "wt/stdafx.h"
-
 #include "wt/EventManager.h"
 #include "wt/ASceneActor.h"
 #include "wt/ASerializable.h"
@@ -30,49 +28,28 @@ class RaycastHitEvent;
 
 class RegionEvent;
 
-
-class Physics : public PxQueryFilterCallback, public PxErrorCallback{
-private:
-    PxPhysics* mSdk;
-    PxDefaultAllocator mDefaultAllocator;
-    PxDefaultCpuDispatcher* mCpuDispatcher;
-    PxScene* mScene;
-    PxFoundation* mFoundation;
-    PxSimulationFilterShader mDefaultFilterShader;
-    PxMaterial* mDefaultMaterial;
-    PxControllerManager* mCtrlManager;
-    PxCooking* mCooking;
-	EventManager* mEventManager;
-	EventEmitter mEventEmitter;
-
-	TimeAccumulator mTimeAccumulator;
-
-	Sp<PxGeometry> createGeometry(const PhysicsActor::Desc& desc);
-
-	PxController* createController(const PhysicsActor::Desc& desc);
-
+class Physics : public PxQueryFilterCallback, public PxErrorCallback, public PxSimulationEventCallback{
+public:
 	typedef std::map<uint32_t, Sp<PhysicsActor>> ActorMap;
-
-	ActorMap mActors;
-
-	PxTriangleMesh* cook(PxBoundedData& vertices, PxBoundedData& indices);
-
-    PxTriangleMesh* cook(gl::Batch& src);
-
-	static PxFilterFlags filterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
-		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
-		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize);
-
-	PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags);
-
-	PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit);
-
-	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
+	
+	enum PickFlag{
+		ePICK_TERRAIN = 1 << 1,
+		ePICK_BOUNDING_BOXES = 1 << 2,
+		ePICK_ACTORS = 1 << 3
+	}; // </PickFlags>
 
 public:
 	Physics(EventManager* eventManager);
 
     virtual ~Physics();
+
+	Sp<PxGeometry> createGeometry(const PhysicsActor::Desc& desc);
+
+	PxController* createController(const PhysicsActor::Desc& desc);
+
+	PxTriangleMesh* cook(PxBoundedData& vertices, PxBoundedData& indices);
+
+    PxTriangleMesh* cook(gl::Batch& src);
 
 	uint32_t createRegion(const String& name, const glm::vec3& position, float radius);
 
@@ -102,26 +79,45 @@ public:
 
 	void createBBox(ASceneActor* actor);
 
-	enum PickFlag{
-		ePICK_TERRAIN = 1 << 1,
-		ePICK_BOUNDING_BOXES = 1 << 2,
-		ePICK_ACTORS = 1 << 3
-
-	}; // </PickFlags>
-
 	bool pick(const glm::vec3& origin, const glm::vec3& direction, RaycastHitEvent& res, uint32_t groups=0xFFFFFFFF, PickFlag flags=ePICK_ACTORS);
 
 	bool pick(math::Camera& camera, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0xFFFFFFFF, PickFlag flags=ePICK_ACTORS);
 
-	///**********************/
-	///**** Lua bindings ****/
-	///**********************/
-	//LuaObject lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter);
+private:
+	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 
-	//int32_t lua_createRegion(LuaObject luaPos, LuaObject luaRadius);
+	static PxFilterFlags filterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
+		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize);
 
-	//void expose(LuaObject& meta);
+	PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags);
 
+	PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit);
+
+	void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
+
+	void onTrigger(PxTriggerPair* pairs, PxU32 count);
+
+	void onConstraintBreak(PxConstraintInfo*, PxU32);
+
+	void onWake(PxActor** , PxU32 );
+
+	void onSleep(PxActor** , PxU32 );
+
+private:
+    PxPhysics* mSdk;
+    PxDefaultAllocator mDefaultAllocator;
+    PxDefaultCpuDispatcher* mCpuDispatcher;
+    PxScene* mScene;
+    PxFoundation* mFoundation;
+    PxSimulationFilterShader mDefaultFilterShader;
+    PxMaterial* mDefaultMaterial;
+    PxControllerManager* mCtrlManager;
+    PxCooking* mCooking;
+	EventManager* mEventManager;
+	EventEmitter mEventEmitter;
+	ActorMap mActors;
+	TimeAccumulator mTimeAccumulator;
 }; // </Physics>
 
 Physics::PickFlag operator|(Physics::PickFlag a, Physics::PickFlag b);

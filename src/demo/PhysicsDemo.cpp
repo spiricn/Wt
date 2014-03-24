@@ -81,7 +81,14 @@ public:
 
 	bool handleEvent(const Sp<Event> e){
 		if(e->getType() == RegionEvent::TYPE){
-			LOG("########\nRegion event\n##########");
+			const RegionEvent* evt = dynamic_cast<const RegionEvent*>(e.get());
+
+			LOGI("Actor %p %s region %d", evt->actor, evt->type == RegionEvent::eACTOR_LEFT_REGION ? "left" : "entered", evt->regionId);
+
+			if(mActor == evt->actor->getSceneActor()){
+				mMover->jump();
+			}
+
 			return true;
 		}
 		else{

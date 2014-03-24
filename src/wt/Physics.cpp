@@ -5,92 +5,16 @@
 
 #define TD_TRACE_TAG "Physics"
 
-namespace wt{
+namespace wt
+{
 
 enum InternalGroups{
 	eIG_HEIGHTMAP = (1 << 0),
 	eIG_BBOX = (1 << 1)
 }; // </EngineGroups>
 
-const EvtType RaycastHitEvent::TYPE = "RaycastHit";
-const EvtType RegionEvent::TYPE = "RegionEvent";
-
-class SimulationCalblack : public PxSimulationEventCallback{
-private:
-	EventManager* mEventManager;
-
-public:
-	SimulationCalblack(EventManager* eventManager) : mEventManager(eventManager){
-	}
-
-	void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs){
-		LOG("onContact");
-
-		if(pairHeader.flags & PxContactPairHeaderFlag::eDELETED_ACTOR_0 || 
-					pairHeader.flags & PxContactPairHeaderFlag::eDELETED_ACTOR_1){
-			// One of the actors was removed from the scene
-			LOG("Actor deleted, ignoring contact...");
-			return;
-		}
-
-		for(int i=0; i<nbPairs; i++){
-			const PxContactPair& pair = pairs[i];
-
-			if(pair.events & PxPairFlag::eNOTIFY_TOUCH_FOUND || pair.events & PxPairFlag::eNOTIFY_TOUCH_LOST){
-				
-				PhysicsActor* actor1 = static_cast<PhysicsActor*>( pair.shapes[0]->getActor()->userData );
-				PhysicsActor* actor2 = static_cast<PhysicsActor*>( pair.shapes[1]->getActor()->userData );
-
-				LOG("TOUCH FOUND! %d %d", actor1->getType(), actor2->getType());
-
-				RegionEvent* evt = new RegionEvent(
-					actor1->getType() == PhysicsActor::eTYPE_REGION ? actor2 : actor1, 
-					actor1->getType() == PhysicsActor::eTYPE_REGION ? actor1->getId() : actor2->getId(),
-					pair.events & PxPairFlag::eNOTIFY_TOUCH_FOUND ? RegionEvent::eACTOR_ENTERED_REGION : RegionEvent::eACTOR_LEFT_REGION
-				);
-
-				mEventManager->queueEvent(evt);
-			}
-			else{
-				LOG("WTF?");
-			}
-		}
-	}
-
-	void onTrigger(PxTriggerPair* pairs, PxU32 count){
-		for(int i=0; i<count; i++){
-			const PxTriggerPair& pair = pairs[i];
-
-			if(pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND || pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST){
-				
-				
-				PhysicsActor* actor1 = static_cast<PhysicsActor*>( pair.triggerActor->userData );
-				PhysicsActor* actor2 = static_cast<PhysicsActor*>( pair.otherActor->userData );
-
-				//LOG("TOUCH FOUND! %d %d", actor1->getType(), actor2->getType());
-
-				RegionEvent* evt = new RegionEvent(
-					actor1->getType() == PhysicsActor::eTYPE_REGION ? actor2 : actor1, 
-					actor1->getType() == PhysicsActor::eTYPE_REGION ? actor1->getId() : actor2->getId(),
-					pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ? RegionEvent::eACTOR_ENTERED_REGION : RegionEvent::eACTOR_LEFT_REGION
-				);
-
-				mEventManager->queueEvent(evt);
-			}
-		}
-	}
-
-	void onConstraintBreak(PxConstraintInfo*, PxU32){
-	}
-
-	void onWake(PxActor** , PxU32 ){
-	}
-
-	void onSleep(PxActor** , PxU32 ){
-	}
-};
-
-
+// TODO move this to Physics class
+static bool handleCollision(PxFilterData filterData0, PxFilterData filterData1);
 
 Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f){
     LOGV("Initializing Physx");
@@ -138,20 +62,12 @@ Physics::Physics(EventManager* eventManager) : mTimeAccumulator(1/60.0f){
 
 	// Filter shader
     mDefaultFilterShader = filterShader;
-
-#if 1
     sceneDesc.filterShader = mDefaultFilterShader;
-#else
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-#pragma message ("TODO Causing a segfault")
-	TRACEW("FIXME");
-#endif
-	
 	
     sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
     sceneDesc.cpuDispatcher = mCpuDispatcher;
     sceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS | PxSceneFlag::eENABLE_KINEMATIC_PAIRS | PxSceneFlag::eENABLE_KINEMATIC_STATIC_PAIRS ;
-	sceneDesc.simulationEventCallback = new SimulationCalblack(mEventManager);;
+	sceneDesc.simulationEventCallback = this;
 
     if(!sceneDesc.isValid()){
         WT_THROW("Invalid Px scene description");
@@ -199,34 +115,13 @@ PxFilterFlags Physics::filterShader(PxFilterObjectAttributes attributes0, PxFilt
 		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
 		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize){
 
-	//LOG("Filter shader");
-	// let triggers through
-	if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
-	{
+	// Let triggers through
+	if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1)){
 		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-		//LOG("Trigger");
 		return PxFilterFlag::eDEFAULT;
 	}
 
-	/*
-		Groups are stored in word0 of filter data structure:
-			object A group = filterData0.word0
-			object B group = filterData1.word0
-
-		Information if a specific object collides with another object's group is stored in word1:
-			object A collides with object B group ? filterData1.word0 & filterData0.word1
-			object B collides with object A group ? filterData0.word0 & filterData1.word1
-
-			Both of these conditions need to be satisfied in order for a collision to occur!
-	*/
-
-	// Is either one of these a region?
-	//if(filterData0.word3 & eIG_REGION || filterData1.word3 & eIG_REGION){
-	//	LOG("region collision");
-	//	// If so, don't allow collision but do allow callback notifications
-	//	pairFlags |= PxPairFlag::eNOTIFY_TOUCH_LOST | PxPairFlag::eNOTIFY_TOUCH_FOUND;
-	//}
-	if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1)){
+	if(handleCollision(filterData0, filterData1)){
 		// Collision occured
 		pairFlags |= PxPairFlag::eCONTACT_DEFAULT /* allow collision, no need for callbacks yet*/;
 	}
@@ -330,49 +225,6 @@ void Physics::update(float dt){
 			LOGW("No scene actor associated with physx actor!");
 		}
     }
-
-	//// regions
-	//static float regionTimer = 0.5f;
-	//regionTimer -= dt;
-	//if(regionTimer <= 0.0f){
-	//	regionTimer = 0.5f;
-
-	//	const PxU32 bufferSize = 256;
-	//	PxShape* hitBuffer[bufferSize];
-
-	//	for(RegionMap::iterator i=mRegions.begin(); i!=mRegions.end(); i++){
-	//		PxI32 hitNum = mScene->overlapMultiple(i->second->getGeometry(), i->second->getPose(), hitBuffer, bufferSize);
-
-	//		std::vector<PhysicsActor*> containedAtors;
-	//		for(PxI32 j=0; j<hitNum; j++){
-	//			PhysicsActor* actor = static_cast<PhysicsActor*>(hitBuffer[j]->getActor().userData);
-	//			containedAtors.push_back(actor);
-
-	//			if(!i->second->containsActor(actor)){
-	//				i->second->addActor(actor);
-
-	//				mEventManager->queueEvent(
-	//					new ActorEnteredRegionEvent(actor, i->second)
-	//				);
-	//			}
-	//		}
-
-	//		for(ActorMap::iterator j=mActors.begin(); j!=mActors.end(); j++){
-
-	//			if(std::find(containedAtors.begin(), containedAtors.end(), j->second) == containedAtors.end() && i->second->containsActor(j->second)){
-	//				i->second->removeActor(j->second);
-	//			
-	//				mEventManager->queueEvent(
-	//					new ActorLeftRegionEvent(j->second, i->second)
-	//					);
-	//			}
-	//			else{
-	//			}
-
-	//			//if(i->second
-	//		}
-	//	}
-	//}
 }
 
 void Physics::setTimeStep(float step){
@@ -536,8 +388,6 @@ bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastH
 	PxSceneQueryFilterData f;
 	f.data.setToDefault();
 
-	// bool hit = ( word0 & word0 ) || ( word1 & word1 ) || ( word2 & word2 ) || ( word3 & word3 );
-
 	if(flags & ePICK_BOUNDING_BOXES){
 		f.data.word3 |= eIG_BBOX;
 	}
@@ -666,59 +516,6 @@ Sp<PxGeometry> Physics::createGeometry(const PhysicsActor::Desc& desc){
 }
 
 
-class Behave : public PxControllerBehaviorCallback{
-public:
-		virtual PxControllerBehaviorFlags getBehaviorFlags(const PxShape& shape, const PxActor& actor){
-			return (PxControllerBehaviorFlags )0;
-		}
-
-		virtual PxControllerBehaviorFlags getBehaviorFlags(const PxController& controller){
-			return (PxControllerBehaviorFlags )0;
-		}
-
-		virtual PxControllerBehaviorFlags getBehaviorFlags(const PxObstacle& obstacle){
-			return (PxControllerBehaviorFlags )0;
-		}
-};
-
-
-
-class CtrlHitReport : public PxUserControllerHitReport
-{
-public:
-
-	/**
-	\brief Called when current controller hits a shape.
-
-	\param[in] hit Provides information about the hit.
-
-	@see PxControllerShapeHit
-	*/
-	virtual void onShapeHit(const PxControllerShapeHit& hit){
-	}
-
-	/**
-	\brief Called when current controller hits another controller.
-
-	\param[in] hit Provides information about the hit.
-
-	@see PxControllersHit
-	*/
-	virtual void onControllerHit(const PxControllersHit& hit){
-	}
-
-	/**
-	\brief Called when current controller hits a user-defined obstacle.
-
-	\param[in] hit Provides information about the hit.
-
-	@see PxControllerObstacleHit PxObstacleContext
-	*/
-	virtual void onObstacleHit(const PxControllerObstacleHit& hit){
-	}
-};
-
-
 PxController* Physics::createController(const PhysicsActor::Desc& desc){
 	glm::vec3 pos;
 	math::extractTranslation(desc.pose, pos);
@@ -726,14 +523,6 @@ PxController* Physics::createController(const PhysicsActor::Desc& desc){
 	if(desc.controllerDesc.geometryType == PhysicsActor::eCTRL_GEOMETRY_CAPSULE){
 		// Capsule
 		PxCapsuleControllerDesc pxDesc;
-
-		static Behave behave;
-
-		static CtrlHitReport hitReport;
-
-		pxDesc.reportCallback = &hitReport;
-
-		pxDesc.behaviorCallback = &behave;
 
 		pxConvert(pos, pxDesc.position);
 
@@ -959,58 +748,18 @@ void Physics::createBBox(ASceneActor* actor){
 
 	PhysicsActor* pxActor = createActor(actor, desc);
 }
-//
-//LuaObject Physics::lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter){
-//	//float radius;
-//	//glm::vec3 pos;
-//
-//	//LuaObject res;
-//	//LUA_NEW_TABLE(res);
-//
-//	//// TODO checks
-//	//lua::luaConv(luaPos, pos);
-//	//lua::luaConv(luaRadius, radius);
-//
-//	//Sp<Buffer<PhysicsActor*>> actors = getActorsInRegion(pos, radius, groupFilter.IsNil() ? 0x00 : groupFilter.ToInteger() );
-//
-//	//uint32_t actorIdx=0;
-//	//for(uint32_t i=0; i<actors->getCapacity(); i++){
-//	//	ASceneActor* actor =  actors->operator[](i)->getSceneActor();
-//	//	if(actor){
-//	//		res.Set(++actorIdx, actor->getId());
-//	//	}
-//	//}
-//
-//	return LuaObject();
-//}
-//
-//int32_t Physics::lua_createRegion(LuaObject luaPos, LuaObject luaRadius){
-//	glm::vec3 pos;
-//	float radius;
-//
-//	if(!lua::luaConv(luaPos, pos) || !lua::luaConv(luaRadius, radius)){
-//		LOGE("Error creating region, invalid position or radius value");
-//		return -1;
-//	}
-//
-//	return createRegion("", pos, radius);
-//}
-//
-//
-//void Physics::expose(LuaObject& meta){
-//	meta.RegisterObjectDirect("getActorsInRegion", (Physics*)0, &Physics::lua_getActorsInRegion);
-//	meta.RegisterObjectDirect("createRegion", (Physics*)0, &Physics::lua_createRegion);
-//}
 
 Physics::PickFlag operator|(Physics::PickFlag a, Physics::PickFlag b){
 	return static_cast<Physics::PickFlag>( static_cast<int>(a) | static_cast<int>(b) );
 }
 
 PxQueryHitType::Enum Physics::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags){
-	const PxFilterData& filterData0 = filterData;
+
+	
 	const PxFilterData filterData1 = shape->getSimulationFilterData();
 
-	if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1)){
+	
+	if(handleCollision(filterData, filterData1)){
 		return PxQueryHitType::eTOUCH;
 	}
 	else{
@@ -1023,10 +772,51 @@ PxQueryHitType::Enum Physics::postFilter(const PxFilterData& filterData, const P
 }
 
 void Physics::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line){
-	if( code != 128 /* static actor moved (safe to ignore)*/
-		){
+	if( code != 128 /* static actor moved (safe to ignore)*/){
 		TRACEE("Error (code %d): \"%s\" at %s:%d", code, message, file, line);
 	}
 }
+
+void Physics::onContact(const PxContactPairHeader&, const PxContactPair*, PxU32){
+}
+
+void Physics::onTrigger(PxTriggerPair* pairs, PxU32 count){
+	for(int i=0; i<count; i++){
+		const PxTriggerPair& pair = pairs[i];
+
+		if(pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND || pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST){
+			PhysicsActor* actor1 = static_cast<PhysicsActor*>( pair.triggerActor->userData );
+
+			PhysicsActor* actor2 = static_cast<PhysicsActor*>( pair.otherActor->userData );
+
+			// Generate trigger event
+			RegionEvent* evt = new RegionEvent(
+				actor1->getType() == PhysicsActor::eTYPE_REGION ? actor2 : actor1, 
+				actor1->getType() == PhysicsActor::eTYPE_REGION ? actor1->getId() : actor2->getId(),
+				pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ? RegionEvent::eACTOR_ENTERED_REGION : RegionEvent::eACTOR_LEFT_REGION
+			);
+
+			mEventManager->queueEvent(evt);
+		}
+	}
+}
+
+void Physics::onConstraintBreak(PxConstraintInfo*, PxU32){
+}
+
+void Physics::onWake(PxActor** , PxU32 ){
+}
+
+void Physics::onSleep(PxActor** , PxU32 ){
+}
+
+bool handleCollision(PxFilterData filterData0, PxFilterData filterData1){
+	return (filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1);
+}
+
+
+const EvtType RaycastHitEvent::TYPE = "RaycastHit";
+
+const EvtType RegionEvent::TYPE = "RegionEvent";
 
 }; // </wt>
