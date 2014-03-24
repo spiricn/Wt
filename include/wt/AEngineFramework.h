@@ -142,6 +142,7 @@ private:
 	Physics* mPhysics;
 	uint32_t mActiveSystems;
 	float mPhysicsTimeMod;
+	float mSceneTimeMod;
 }; // </AEngineFramework>
 
 

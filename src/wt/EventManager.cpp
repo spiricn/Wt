@@ -206,86 +206,20 @@ void EventManager::queueEvent(EvtPtr evt){
 	//mMutex.unlock();
 }
 
-/** process active queue by popping from front of the list (FIFO) untill the time constraint runs out
-	we do not use a iterator because the list size might change during the processing (one event adds another one to the queue) */
 void EventManager::tick(){
 	// TODO Will cause deadlock if an event handler queues another event
 	// Should probably use concurrent queue for this instead
 
 	//mMutex.lock();
 
-	/* Using a counter to prevent recursive event adition (i.e. notification of one event causes another to be queued) */
+	// Using a counter to prevent recursive event adition (i.e. notification of one event causes another to be queued)
 	uint32_t maxEvents = mEventList.size();
 
 	while(!mEventList.empty() && maxEvents > 0){
 		EvtPtr evt = mEventList.front();
 		maxEvents--;
 
-		{ // Callbacks
-			EvtCallbackTable::iterator iter = mEvtCallbackTable.find( evt->getType().getHashCode() );
-			if(iter != mEvtCallbackTable.end()){
-				for(CallbackList::iterator i=iter->second.begin(); i!=iter->second.end(); i++){
-					if(!i->isFiltered  || (i->isFiltered && i->filterData==evt->getEmitterData())){
-						i->callback->handleCallback();
-					}
-				}
-			}
-		}
-
-		{ // Code listeners
-			EvtListenerTable::iterator iter = mEvtListenerTable.find(evt->getType().getHashCode());
-
-			// Global handlers
-			for(ListenerList::iterator i=mGlobalListeners.begin(); i!=mGlobalListeners.end(); i++){
-				dispatchEvent(*i, evt);
-			}
-
-			// Specialized handlers
-			if(iter!=mEvtListenerTable.end()){ // event is being handled by some listeners
-				ListenerList& list = iter->second;
-
-				for(ListenerList::iterator i=list.begin(); i!=list.end(); i++){
-
-#if 0
-					bool isGlobal = false;
-
-					// TODO should optimize this part
-					// perhaps disallow global listeners to register for a events all together?
-					for(ListenerList::iterator globalIter=mGlobalListeners.begin(); globalIter!=mGlobalListeners.end(); globalIter++){
-						if(*globalIter == *i){
-							// This listener is also a global listener so we should skip this
-							// (so that it doesn't get the same event twice)
-							isGlobal = true;
-							break;
-						}
-					}
-
-					
-					if(isGlobal){
-						continue;
-					}
-#endif
-
-					if( ! dispatchEvent(*i, evt) ){
-						break; // listener consumed the event
-					}
-				}
-			}
-		}
-
-		// Script listeners
-		{
-			ScriptListenerMap::iterator iter = mScriptListeners.find(evt->getType());
-			if(iter != mScriptListeners.end()){
-				ScriptListenerMap::iterator end = mScriptListeners.upper_bound(iter->first);
-				while(iter != end){
-					if(!dispatchEvent(iter->second, evt)){
-						break;
-					}
-					iter++;
-				}
-			}
-		}
+		fireEvent(evt);
 
 		mEventList.pop_front();
 	}
@@ -302,4 +236,58 @@ void EventManager::queueEvent(const char* type, LuaObject data){
 	mRegisteredEvents.find(type)->second->queueFromScript(data);
 }
 
-}; // </wt>
+void EventManager::fireEvent(EvtPtr evt){
+	{ 
+		// Callbacks
+		EvtCallbackTable::iterator iter = mEvtCallbackTable.find( evt->getType().getHashCode() );
+		if(iter != mEvtCallbackTable.end()){
+			for(CallbackList::iterator i=iter->second.begin(); i!=iter->second.end(); i++){
+				if(!i->isFiltered  || (i->isFiltered && i->filterData==evt->getEmitterData())){
+					i->callback->handleCallback();
+				}
+			}
+		}
+	}
+
+	{ 
+		// Code listeners
+		EvtListenerTable::iterator iter = mEvtListenerTable.find(evt->getType().getHashCode());
+
+		// Global handlers
+		for(ListenerList::iterator i=mGlobalListeners.begin(); i!=mGlobalListeners.end(); i++){
+			(*i)->handleEvent(evt);
+		}
+
+		// Specialized handlers
+		if(iter!=mEvtListenerTable.end()){ // event is being handled by some listeners
+			ListenerList& list = iter->second;
+
+			for(ListenerList::iterator i=list.begin(); i!=list.end(); i++){
+				if( ! (*i)->handleEvent(evt) ){
+					break; // listener consumed the event
+				}
+			}
+		}
+	}
+
+	{
+		// Script listeners
+		ScriptListenerMap::iterator iter = mScriptListeners.find(evt->getType());
+
+		if(iter != mScriptListeners.end()){
+			ScriptListenerMap::iterator end = mScriptListeners.upper_bound(iter->first);
+
+			while(iter != end){
+				evt->buildLuaData(mLuaState);
+
+				if(!iter->second->handleEvent(evt)){
+					break;
+				}
+				iter++;
+			}
+		}
+	}
+
+}
+
+} // </wt>

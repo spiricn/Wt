@@ -1,64 +1,29 @@
 #ifndef WT_EVENTMANAGER_H
 #define WT_EVENTMANAGER_H
 
-
 #include "wt/stdafx.h"
 
 #include "wt/Exception.h"
-
 #include "wt/EventListener.h"
 #include "wt/Event.h"
 #include "wt/ScriptEvent.h"
-#include <td/td.h>
 #include "wt/Defines.h"
 #include "wt/Mutex.h"
-
 #include "wt/lua/State.h"
+#include "wt/MemberCallback.h"
 
+namespace lua
+{
 
-namespace lua{
-	class State;
-}; // </lua>
+class State;
 
-namespace wt{
+} // </lua>
 
-
-class ACallback{
-public:
-	virtual ~ACallback(){
-	}
-
-	virtual void handleCallback() = 0;
-
-}; // </ACallback>
-
-typedef wt::Sp<ACallback> CallbackPtr;
-
-template<class T>
-class MemberCallback : public ACallback{
-public:
-	typedef void (T::*MemberCallbackFnc)();
-
-private:
-	T* mInstance;
-	MemberCallbackFnc mCallback;
-
-public:
-	MemberCallback(T* instance, MemberCallbackFnc callback) : mInstance(instance), mCallback(callback){
-	}
-
-	void handleCallback(){
-		(mInstance->*(mCallback))();
-	}
-
-}; // </MemberCallback>
-
+namespace wt
+{
 
 class EventManager{
-WT_DISALLOW_COPY(EventManager)
-
 public:
-	
 	class ARegisteredEvent{
 	public:
 		enum Type{
@@ -70,18 +35,16 @@ public:
 
 			// defined by code and can be triggered both from script and code
 			eEVENT_SHARED,
-		};
+		}; // </Type>
 
-	private:
-		Type mType;
-
-	public:	
 		ARegisteredEvent(Type type);
 
 		Type getType() const;
 
 		virtual void queueFromScript(LuaObject& data) = 0;
 
+	private:
+		Type mType;
 	}; // </ARegisteredEvent>
 
 	
@@ -96,9 +59,6 @@ public:
 
 
 	class ScriptEventReg : public ARegisteredEvent{
-	private:
-		EvtType mEventType;
-		EventManager* mEventManager;
 	public:
 		virtual ~ScriptEventReg(){
 		}
@@ -109,6 +69,10 @@ public:
 		void queueFromScript(LuaObject& data){
 			mEventManager->queueEvent( new ScriptEvent(mEventType, data) );
 		}
+
+	private:
+		EvtType mEventType;
+		EventManager* mEventManager;
 
 	}; // </ScriptEventReg>
 
@@ -135,11 +99,9 @@ public:
 
 	inline bool isRegistered(const EvtType& type);
 
-
 	void registerGlobalListener(EventListener* listener);
 
 	void registerListener(EventListener* listener, const EvtType& eventType);
-
 
 	void registerInternalEvent(const EvtType& eventType);
 
@@ -164,23 +126,13 @@ public:
 
 	void queueEvent(const char* type, LuaObject data);
 
+	void fireEvent(EvtPtr evt);
+
 	void tick();
-
-	virtual bool dispatchEvent(EventListener* listener, EvtPtr evt){
-		return listener->handleEvent(evt);
-	}
-
-	virtual bool dispatchEvent(Sp<ScriptEventListener> listener, EvtPtr evt){
-		evt->buildLuaData(mLuaState);
-
-		return listener->handleEvent(evt);
-	}
 
 	void generateMetaTable();
 
 private:
-	static const char* TAG;
-
 	struct RegisteredCallback{
 		CallbackPtr callback;
 		uint32_t filterData;
@@ -201,6 +153,12 @@ private:
 	typedef std::multimap<EvtType, Sp<ScriptEventListener>> ScriptListenerMap;
 	typedef std::multimap<EvtType, ARegisteredEvtPtr> RegisteredEvtMap;
 
+private:
+
+	void registerEvent(const EvtType& type, ARegisteredEvtPtr evt);
+
+private:
+	
 	RegisteredEvtMap mRegisteredEvents;
 
 	/** list of active queued events */
@@ -221,8 +179,6 @@ private:
 
 	// used for thread safe event-queue
 	Mutex mMutex;
-
-	void registerEvent(const EvtType& type, ARegisteredEvtPtr evt);
 
 }; // </EventManager>
 

@@ -51,7 +51,7 @@ void SceneLoader::load(AIOStream& stream){
 				mScene->getPhysics()->createActor(actor, deserData.pxDesc);
 			}
 
-			//mScene->getPhysics()->createBBox(actor);
+			mScene->getPhysics()->createBBox(actor);
 		}
 		else if(!type.compare("terrain")){
 			// Terrain

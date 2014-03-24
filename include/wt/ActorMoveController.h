@@ -10,6 +10,13 @@ namespace wt
 
 class ActorMoveController{
 public:
+	enum JumpState{
+		eJUMP_START,
+		eJUMP_RISING,
+		eJUMP_FALLING,
+		eJUMP_LANDED,
+		eJUMP_NONE
+	}; // </JumpState>
 
 	ActorMoveController(ASceneActor* target);
 
@@ -33,18 +40,13 @@ public:
 
 	bool isRotating();
 
-	bool isJumping() const;
-
 	void jump();
 
-	bool startedJumping() const;
+	JumpState getJumpState() const;
 
-	bool stoppedJumping() const;
+	bool isJumping() const;
 
 private:
-	bool mStartedJumping;
-	bool mJumping;
-	bool mStoppedJumping;
 	bool mJumpPending;
 	bool mStoppedMoving;
 	bool mStartedMoving;
@@ -59,9 +61,14 @@ private:
 	float mSpeedBackward;
 	float mSpeedRotation;
 	float mSpeedStrife;
-	float mJumpMeter;
-
+	physx::PxU32 mPrevCollision;
 	ASceneActor* mActor;
+	float mJumpSpeed;
+	float mJumpHeight;
+
+	float mJumpMeter;
+	bool mOnGround;
+	JumpState mJumpState;
 }; // </ActorMoveController>
 
 } // </wt>

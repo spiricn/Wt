@@ -4,6 +4,9 @@
 #include "wt/PxWt.h"
 #include "wt/ASceneActor.h"
 
+// TODO handle circular dependency
+#include "wt/Physics.h"
+
 #define TD_TRACE_TAG "PhysicsActor"
 
 using namespace physx;
@@ -11,11 +14,34 @@ using namespace physx;
 namespace wt
 {
 
-PhysicsActor::PhysicsActor(uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
+PhysicsActor::PhysicsActor(Physics* parent, uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
 	PxController* controller, ASceneActor* sceneActor) : mActorType(type), mControlMode(mode),
-	mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id), mSceneActorCtrl(true){
+	mPxActor(actor), mPxController(controller), mSceneActor(sceneActor), mName(name), mId(id), mSceneActorCtrl(true), mParent(parent){
 }
 
+physx::PxU32 PhysicsActor::move(const glm::vec3& disp, float dt, float minDistance){
+	if(!isControlled()){
+		TRACEW("Attempting to move non-CCT actor");
+		return 0;
+	}
+
+	physx::PxVec3 pxDisp;
+	pxConvert(disp, pxDisp);
+
+	PxControllerFilters filters;
+	//filters.mFilterCallback = mParent;
+
+	// Get the actor shape
+	physx::PxShape* shapes[1];
+	uint32_t numShapes = getController()->getActor()->getShapes(&shapes[0], 1, 0);
+	
+	// Set the filter data
+	physx::PxFilterData filterData = shapes[0]->getSimulationFilterData();
+	filters.mFilterData = &filterData;
+
+	// Once we assembled the disposition vector we can move the actor
+	return getController()->move(pxDisp, minDistance, dt, filters);
+}
 
 PhysicsActor::Desc::Desc() : type(eTYPE_INVALID), geometryType(eGEOMETRY_INVALID), controlMode(eCTRL_MODE_NONE), collisionMask(0xFFFFFFFF), group(0x01), sceneActorCtrl(true){
 }

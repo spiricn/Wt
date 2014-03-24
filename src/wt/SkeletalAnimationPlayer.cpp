@@ -8,7 +8,7 @@
 namespace wt{
 
 SkeletalAnimationPlayer::SkeletalAnimationPlayer(Model* model) : mModel(model), mAnimationTime(0.0f),
-	mAnimationSpeed(1.0f), mIsLooping(false), mCurrentAnimation(NULL), mTimeAccumulator(1/30.0f) {
+	mAnimationSpeed(1.0f), mIsLooping(false), mCurrentAnimation(NULL), mTimeAccumulator(1/60.0f) {
 
 	uint32_t numBones = model->getRootBone()->getNumChildren(true) /* number of roots children */ + 1 /* root itself */;
 
@@ -105,7 +105,12 @@ const String& SkeletalAnimationPlayer::getCurrentAnimationName() const{
 
 void SkeletalAnimationPlayer::play(const String& name, bool loop){
 	mCurrentAnimationName = name;
-	play(mModel->getSkeletalAnimation(name), loop);
+
+	SkeletalAnimation* animation = mModel->getSkeletalAnimation(name);
+
+	WT_ASSERT(animation, "Invalid animation name \"%s\"", name.c_str());
+
+	play(animation, loop);
 }
 
 void SkeletalAnimationPlayer::play(SkeletalAnimation* animation, bool loop){
@@ -126,13 +131,18 @@ void SkeletalAnimationPlayer::advance(float delta){
 		return;
 	}
 
+#if 0
 	if(!mTimeAccumulator.update(delta)){
 		return;
 	}
 
 	float dt = mTimeAccumulator.getStep();
+#else
+	float dt = delta;
+#endif
 	
 	bool animationFinished=false;
+
 	if(mIsLooping){
 		mAnimationTime = fmod(mAnimationTime  + dt*mAnimationSpeed, mCurrentAnimation->getDuration());
 	}

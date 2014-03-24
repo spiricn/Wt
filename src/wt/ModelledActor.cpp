@@ -8,11 +8,13 @@ namespace wt
 {
 
 ModelledActor::ModelledActor(Scene* parent, uint32_t id, const String& name) : ASceneActor(parent, ASceneActor::eTYPE_MODELLED, id, name),
-	mModel(NULL), mSkin(NULL), mAnimationPlayer(NULL){
+	mModel(NULL), mSkin(NULL){
+		mAnimationChannels.first = NULL;
+		mAnimationChannels.second = NULL;
 }
 
 bool ModelledActor::hasAnimation() const{
-	return mAnimationPlayer != NULL;
+	return mAnimationChannels.first != NULL;
 }
 
 Model* ModelledActor::getModel() const{
@@ -23,26 +25,28 @@ SkeletalAnimationPlayer* ModelledActor::blendToAnimation(const String& name, flo
 	mBlendTotal = time;
 	mBlendCurrent = 0.0f;
 
-	mAnimationChannels.erase( mAnimationChannels.begin(), mAnimationChannels.begin() + mAnimationChannels.size() - 1);
+	if(mAnimationChannels.second){
+		SkeletalAnimationPlayer* tmp = mAnimationChannels.first;
 
-	SkeletalAnimationPlayer* res = addAnimationChannel();
-	res->play(name, loopBlended);
+		mAnimationChannels.first = mAnimationChannels.second;
 
-	return res;
+		delete tmp;
+
+		mAnimationChannels.second = NULL;
+	}
+
+	if(mAnimationChannels.first){
+		// Add the new channel
+		mAnimationChannels.second = new SkeletalAnimationPlayer(mModel);
+		mAnimationChannels.second->play(name, loopBlended);
+	}
+	else{
+		// Maybe handle this better ?
+		getAnimationPlayer()->play(name, loopBlended);
+	}
+
+	return getAnimationPlayer();
 }
-
-SkeletalAnimationPlayer* ModelledActor::addAnimationChannel(){
-	SkeletalAnimationPlayer* res = new SkeletalAnimationPlayer(mModel);
-
-	mAnimationChannels.push_back(res);
-
-	return res;
-}
-
-void ModelledActor::removeAnimationChannel(SkeletalAnimationPlayer* chanel){
-	mAnimationChannels.erase( std::find(mAnimationChannels.begin(), mAnimationChannels.end(), chanel) );
-}
-
 ATransformable* ModelledActor::getTransformable() const{
 	return const_cast<ATransformable*>( dynamic_cast<const ATransformable*>(this) );
 }
@@ -52,21 +56,21 @@ const Buffer<glm::mat4>& ModelledActor::getBoneMatrices() const{
 }
 
 bool ModelledActor::isAnimated() const{
-	for(AnimationChannelList::const_iterator iter=mAnimationChannels.begin(); iter!=mAnimationChannels.end(); iter++){
-		if((*iter)->isPlaying()){
-			return true;
-		}
-	}
-
-	return false;
+	return ( mAnimationChannels.first && mAnimationChannels.first->isPlaying() ) ||  ( mAnimationChannels.second && mAnimationChannels.second->isPlaying() );
 }
 
 void ModelledActor::setModel(Model* model, const String& skin){
-	if(mAnimationPlayer){
-		delete mAnimationPlayer;
-		mAnimationPlayer = NULL;
-		mBoneMatrices.destroy();
+	if(mAnimationChannels.first){
+		delete mAnimationChannels.first;
+		mAnimationChannels.first = NULL;
 	}
+
+	if(mAnimationChannels.second){
+		delete mAnimationChannels.second;
+		mAnimationChannels.second = NULL;
+	}
+
+	mBoneMatrices.destroy();
 
 	mModel = model;
 	if(!model){
@@ -74,18 +78,15 @@ void ModelledActor::setModel(Model* model, const String& skin){
 	}
 
 	if(model->hasSkeleton()){
-		mAnimationPlayer = new SkeletalAnimationPlayer(model);
-		mAnimationChannels.push_back(mAnimationPlayer);
-		mBoneMatrices.create(mAnimationPlayer->getNumBones());
+		mAnimationChannels.first = new SkeletalAnimationPlayer(model);
+		mBoneMatrices.create(mAnimationChannels.first->getNumBones());
 	}
 
 	setSkin(skin);
 }
 
-	
-
 SkeletalAnimationPlayer* ModelledActor::getAnimationPlayer() const{
-	return mAnimationPlayer;
+	return mAnimationChannels.second ? mAnimationChannels.second : mAnimationChannels.first;
 }
 
 ModelSkin* ModelledActor::getSkin() const{
@@ -118,9 +119,10 @@ bool ModelledActor::getAttachPointTransform(const String& point, glm::mat4& res)
 			return false;
 		}
 
+		// TODO handle blending
 		glm::mat4 boneTransf;
-		if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
-			boneTransf = mAnimationPlayer->getGlobalBoneTransform(bone->getIndex());
+		if(mAnimationChannels.first && mAnimationChannels.first->getCurrentAnimation()){
+			boneTransf = mAnimationChannels.first->getGlobalBoneTransform(bone->getIndex());
 		}
 		else{
 			bone->getGlobalTransform(boneTransf);
@@ -138,39 +140,44 @@ bool ModelledActor::getAttachPointTransform(const String& point, glm::mat4& res)
 }
 
 void ModelledActor::update(float dt){
-	if(mAnimationPlayer){
-	/*	mAnimationPlayer->advance(dt);
+	if(getAnimationPlayer()){
 
-		memcpy(mBoneMatrices.getData(),
-			mAnimationPlayer->getBoneMatrices(),
-			mAnimationPlayer->getNumBones() * sizeof(glm::mat4));*/
-
-		if(mAnimationChannels.size() == 2){
+		if(mAnimationChannels.second){
+			// We're blending
 			mBlendCurrent += dt;
+
 			if(mBlendCurrent > mBlendTotal){
-				mAnimationChannels.erase(mAnimationChannels.begin());
+				// Finished blending
+				SkeletalAnimationPlayer* tmp = mAnimationChannels.first;
+				mAnimationChannels.first = mAnimationChannels.second;
+				delete tmp;
+				mAnimationChannels.second = NULL;
 			}
 		}
 
 		// Reset bone matrices
 		memset(mBoneMatrices.getData(), 0x00, mBoneMatrices.getCapacity()*sizeof(glm::mat4));
 
+		if(mAnimationChannels.first){
+			mAnimationChannels.first->advance(dt);
+		}
 
-		for(AnimationChannelList::iterator iter=mAnimationChannels.begin(); iter!=mAnimationChannels.end(); iter++){
-			(*iter)->advance(dt);
+		if(mAnimationChannels.second){
+			mAnimationChannels.second->advance(dt);
 		}
 
 
-		for(uint32_t i=0; i<mAnimationChannels[0]->getNumBones(); i++){
-			if(mAnimationChannels.size() == 2){
-				float blendFactor = mBlendCurrent/mBlendTotal;
-				//LOG("Blending %f", blendFactor);
+		for(uint32_t i=0; i<mAnimationChannels.first->getNumBones(); i++){
+			if(mAnimationChannels.second){
+				// Blending
+				const float blendFactor = mBlendCurrent/mBlendTotal;
+
 				mBoneMatrices[i] =
-					( (1.0f - blendFactor) * mAnimationChannels[0]->getBoneMatrices()[i] ) + 
-					( (blendFactor) * mAnimationChannels[1]->getBoneMatrices()[i] );
+					( (1.0f - blendFactor) * mAnimationChannels.first->getBoneMatrices()[i] ) + 
+					( (blendFactor) * mAnimationChannels.second->getBoneMatrices()[i] );
 			}
 			else{
-				mBoneMatrices[i] = mAnimationChannels[0]->getBoneMatrices()[i];
+				mBoneMatrices[i] = mAnimationChannels.first->getBoneMatrices()[i];
 			}
 		}
 	}
@@ -192,21 +199,21 @@ void ModelledActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, 
 		dst.Set("skin", 0);
 	}
 
-	if(mAnimationPlayer && mAnimationPlayer->getCurrentAnimation()){
+	if(getAnimationPlayer() && getAnimationPlayer()->getCurrentAnimation()){
 		dst.Set("ani",
-			mAnimationPlayer->getCurrentAnimationName().c_str()
+			getAnimationPlayer()->getCurrentAnimationName().c_str()
 		);
 
 		dst.Set("ani.loop",
-			mAnimationPlayer->isLooping()
+			getAnimationPlayer()->isLooping()
 		);
 
 		dst.Set("ani.pos",
-			mAnimationPlayer->getPosition()
+			getAnimationPlayer()->getPosition()
 		);
 
 		dst.Set("ani.speed",
-			mAnimationPlayer->getSpeed()
+			getAnimationPlayer()->getSpeed()
 		);
 
 	}

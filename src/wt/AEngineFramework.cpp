@@ -14,7 +14,7 @@ using namespace lua;
 
 AEngineFramework::AEngineFramework() : mInitialized(false), mWindow(NULL), mInput(NULL), 
 	mEventManager(NULL), mLuaState(NULL), mLogFile(NULL), mProcessManager(NULL), mRunning(false),
-	mAssets(NULL), mScene(NULL), mPhysics(NULL), mRenderer(NULL), mActiveSystems(0xFFFFFFFF), mPhysicsTimeMod(1.0f){
+	mAssets(NULL), mScene(NULL), mPhysics(NULL), mRenderer(NULL), mActiveSystems(0xFFFFFFFF), mPhysicsTimeMod(1.0f), mSceneTimeMod(1.0f){
 
 	// Main scripting state
 	mLuaState = new wt::lua::State;
@@ -137,13 +137,13 @@ void AEngineFramework::mainLoop(){
 		}
 			
 		if(mActiveSystems & eSYSTEM_PHYSICS){
-			onBeforeSystemUpdate(eSYSTEM_PHYSICS, dt);
+			onBeforeSystemUpdate(eSYSTEM_PHYSICS, dt * mPhysicsTimeMod);
 			mPhysics->update(dt * mPhysicsTimeMod);
 		}
 
 		if(mActiveSystems & eSYSTEM_SCENE){
-			onBeforeSystemUpdate(eSYSTEM_SCENE, dt);
-			mScene->update(dt);
+			onBeforeSystemUpdate(eSYSTEM_SCENE, dt * mSceneTimeMod);
+			mScene->update(dt * mSceneTimeMod);
 		}
 
 		if(mActiveSystems & eSYSTEM_SOUND){
@@ -332,6 +332,10 @@ void AEngineFramework::setActiveSystems(uint32_t systems){
 void AEngineFramework::setSystemTimeMod(uint32_t systems, float timeMod){
 	if(systems & eSYSTEM_PHYSICS){
 		mPhysicsTimeMod = timeMod;
+	}
+
+	if(systems & eSYSTEM_SCENE){
+		mSceneTimeMod = timeMod;
 	}
 
 	// TODO handle other systems

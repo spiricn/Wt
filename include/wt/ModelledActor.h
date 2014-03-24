@@ -55,10 +55,6 @@ public:
 
 	ATransformable* getTransformable() const;
 
-	SkeletalAnimationPlayer* addAnimationChannel();
-
-	void removeAnimationChannel(SkeletalAnimationPlayer* chanel);
-
 	SkeletalAnimationPlayer* blendToAnimation(const String& name, float time, bool loopBlended);
 	
 	const Buffer<glm::mat4>& getBoneMatrices() const;
@@ -83,16 +79,13 @@ public:
 	}; // </DeserializationData>
 
 private:
-	typedef std::vector<SkeletalAnimationPlayer*> AnimationChannelList;
-
-	AnimationChannelList mAnimationChannels;
 	Buffer<glm::mat4> mBoneMatrices;
 
 	Model* mModel;
 	ModelSkin* mSkin;
-	SkeletalAnimationPlayer* mAnimationPlayer;
-	math::Transform mTransform;
+	std::pair<SkeletalAnimationPlayer*, SkeletalAnimationPlayer*> mAnimationChannels;
 
+	math::Transform mTransform;
 
 	float mBlendTotal, mBlendCurrent;
 

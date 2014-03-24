@@ -109,7 +109,7 @@ public:
 	}; // </Desc>
 
 public:
-	PhysicsActor(uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
+	PhysicsActor(Physics* parent, uint32_t id, const String& name, ActorType type, ControlMode mode, PxActor* actor,
 		PxController* controller, ASceneActor* sceneActor);
 
 	ControlMode getControlMode() const;
@@ -146,6 +146,8 @@ public:
 
 	bool getSceneActorCtrl() const;
 
+	physx::PxU32 move(const glm::vec3& disp, float dt, float minDistance);
+
 protected:
 	void setController(PxController* ctrl);
 
@@ -162,6 +164,7 @@ private:
 	uint32_t mId;
 	Desc mDesc;
 	bool mSceneActorCtrl;
+	Physics* mParent;
 }; // </PhysicsActor>
 
 }; // </wt>

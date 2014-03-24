@@ -30,37 +30,48 @@ public:
 				getInput()->isKeyDown(KEY_RIGHT),
 				dt);
 
+			static bool justJumped = false;
+
 			String newAnimation = "";
 			bool loop = true;
 
 			if(mMover->isJumping()){
-				if(mMover->startedJumping()){
+				if(mMover->getJumpState() == ActorMoveController::eJUMP_START){
 					newAnimation = "jump_start";
 					loop = false;
 				}
+				else if( (mMover->getJumpState() == ActorMoveController::eJUMP_RISING || mMover->getJumpState() == ActorMoveController::eJUMP_FALLING) && !mActor->getAnimationPlayer()->isPlaying()){
+					newAnimation = "jump";
+					loop = true;
+				}
+				else if(mMover->getJumpState() == ActorMoveController::eJUMP_LANDED){
+					newAnimation = mMover->isMoving() ? "jump_end_run" : "jump_end";
+					loop = false;
+
+					justJumped = true;
+				}
 			}
-			else{
-				if(mMover->isMoving()){
-					if(mMover->startedMoving() || mMover->changedMoveDirection() || mMover->stoppedJumping()){
-						newAnimation = mMover->movingBackward() ? "walk_backwards" : "run";
-					}
+			else if(mMover->isMoving()){
+				if(mMover->startedMoving() || mMover->changedMoveDirection() || ( justJumped && !mActor->getAnimationPlayer()->isPlaying())){
+					justJumped = false;
+					newAnimation = mMover->movingBackward() ? "walk_backwards" : "run";
+					loop = true;
 				}
-				else{
-					if(mMover->isRotating()){
-						if(mMover->startedRotating() || mMover->stoppedMoving() || mMover->stoppedJumping()){
-							newAnimation = getInput()->isKeyDown(KEY_LEFT) ? "shuffle_left" : "shuffle_right";
-						}
-					}
-					else{
-						if(mMover->stoppedMoving() || mMover->stoppedRotating() || mMover->stoppedJumping()){
-							newAnimation = "stand_1";
-						}
-					}
+			}
+			else if(mMover->isRotating()){
+				if(mMover->startedRotating() || mMover->stoppedMoving()){
+					newAnimation = getInput()->isKeyDown(KEY_LEFT) ? "shuffle_left" : "shuffle_right";
 				}
+			}
+			else if(mMover->stoppedMoving() || mMover->stoppedRotating() || ( justJumped && !mActor->getAnimationPlayer()->isPlaying())){
+				newAnimation = "stand_1";
+				justJumped = false;
 			}
 
 			if(newAnimation.size()){
-				mActor->blendToAnimation(newAnimation, 0.2, loop);
+				//LOG("%s", newAnimation.c_str());
+				//mActor->getAnimationPlayer()->play(newAnimation, loop);
+				mActor->blendToAnimation(newAnimation, 0.3, loop);
 			}
 		}
 		else if(system == eSYSTEM_RENDERER){
@@ -68,7 +79,18 @@ public:
 		}
 	}
 
+	bool handleEvent(const Sp<Event> e){
+		if(e->getType() == RegionEvent::TYPE){
+			LOG("########\nRegion event\n##########");
+			return true;
+		}
+		else{
+			return ADemo::handleEvent(e);
+		}
+	}
+
 	void onUpdate(float dt){
+		
 	}
 
 	void onMouseDown(float x, float y, MouseButton btn){
@@ -129,6 +151,21 @@ public:
 	}
 
 	void onDemoStart(const LuaObject& config){
+
+		{
+			glm::vec3 pos(187.071808, -7.917824, 236.465485);
+			float size = 5;
+			getScene()->getPhysics()->createRegion("test", pos, size);
+
+			ModelledActor* actor = getScene()->createModelledActor();
+			
+			actor->setModel(getAssets()->getModelManager()->find("sphere"), "default");
+			actor->getTransformable()->setScale(glm::vec3(size, size, size));
+			actor->getTransformable()->setTranslation(pos);
+		}
+
+		setSystemTimeMod(eSYSTEM_SCENE | eSYSTEM_PHYSICS, 1);
+
 		mCubeModel = getAssets()->getModelManager()->find("cube");
 		WT_ASSERT(mCubeModel != NULL, "Missing demo resource");
 
@@ -136,17 +173,17 @@ public:
 		WT_ASSERT(mSphereModel != NULL, "Missing demo resource");
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
-		// Create some stuff
-		spawnBoxStack(glm::vec3(304.983246, 45.222458, 245.641754), 2, 2, 3);
+		//// Create some stuff
+		//spawnBoxStack(glm::vec3(304.983246, 45.222458, 245.641754), 2, 2, 3);
 
-		spawnBoxStack(glm::vec3(304.983246, 50.222458, 245.641754), 1, 1, 4);
+		//spawnBoxStack(glm::vec3(304.983246, 50.222458, 245.641754), 1, 1, 4);
 
-		for(int i=0; i<3; i++){
-			spawnBoxStack(glm::vec3(137, 1 + 2.3f*i , 238), 3-i, 3-i, 1);
-		}
+		//for(int i=0; i<3; i++){
+		//	spawnBoxStack(glm::vec3(137, 1 + 2.3f*i , 238), 3-i, 3-i, 1);
+		//}
 
-		spawnBall(glm::vec3(38.950851, 37.107651, 190.842422),
-			glm::vec3(0.525316, -0.850524, -0.025836)*20.0f);
+		//spawnBall(glm::vec3(38.950851, 37.107651, 190.842422),
+		//	glm::vec3(0.525316, -0.850524, -0.025836)*20.0f);
 
 		{
 			mActor = dynamic_cast<wt::ModelledActor*>(getScene()->findActorByName("actor"));

@@ -14,91 +14,26 @@
 
 using namespace physx;
 
-namespace wt{
+namespace wt
+{
 
-namespace math{
+namespace math
+{
 	class Frustum;
 	class Camera;
-}
+} // </math>
 
-
-
-class RaycastHitEvent : public Event{
-protected:
-	void serialize(LuaObject& dst){
-	}
-
-	void deserialize(LuaObject& src){
-	}
-
-public:
-	static const EvtType TYPE;
-	PhysicsActor* mPickedActor;
-	float mDistance;
-	uint32_t mTriangleIndex;
-	glm::vec3 mImpact;
-
-	RaycastHitEvent(PhysicsActor* pickedActor=NULL, float distance=0, uint32_t faceIndex=0, 
-		const glm::vec3& impact=glm::vec3(0,0,0)) : mPickedActor(pickedActor), mDistance(distance),
-		mTriangleIndex(faceIndex), mImpact(impact){
-	}
-
-	const EvtType& getType() const {
-		return TYPE;
-	}
-
-}; // </RaycastHitEvent>
-
-class WtPxErrorCallback : public PxErrorCallback{
-	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line){
-		if( code != 128 /* static actor moved (safe to ignore)*/
-			){
-			TRACEE("Error (code %d): \"%s\" at %s:%d", code, message, file, line);
-		}
-	}
-}; // </WtPxErrorCallback>
 
 class Physics;
 
-class RegionEvent : public Event{
-protected:
-	void serialize(LuaObject& dst){
-		dst.Set("region", regionId);
-		dst.Set("actor", actor->getId());
-		dst.Set("type", type);
-	}
+class RaycastHitEvent;
 
-	void deserialize(LuaObject& /*src*/){
+class RegionEvent;
 
-	}
 
-public:
-	enum Type{
-		eACTOR_LEFT_REGION,
-		eACTOR_ENTERED_REGION
-	};
-
-	uint32_t regionId;
-	PhysicsActor* actor;
-	Type type;
-
-	static const EvtType TYPE;
-
-	RegionEvent(PhysicsActor* actor, uint32_t regionId, Type type) : actor(actor), regionId(regionId), type(type){
-	}
-
-	const EvtType& getType() const{
-		return TYPE;
-	}
-
-}; // </ActorEnteredRegionEvent>
-
-class Physics{
+class Physics : public PxQueryFilterCallback, public PxErrorCallback{
 private:
-    const String TAG;
-
     PxPhysics* mSdk;
-    WtPxErrorCallback mDefaultErrorCallback;
     PxDefaultAllocator mDefaultAllocator;
     PxDefaultCpuDispatcher* mCpuDispatcher;
     PxScene* mScene;
@@ -127,6 +62,12 @@ private:
 	static PxFilterFlags filterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, 
 		PxFilterObjectAttributes attributes1, PxFilterData filterData1,
 		PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize);
+
+	PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags);
+
+	PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit);
+
+	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 
 public:
 	Physics(EventManager* eventManager);
@@ -172,18 +113,78 @@ public:
 
 	bool pick(math::Camera& camera, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0xFFFFFFFF, PickFlag flags=ePICK_ACTORS);
 
-	/**********************/
-	/**** Lua bindings ****/
-	/**********************/
-	LuaObject lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter);
+	///**********************/
+	///**** Lua bindings ****/
+	///**********************/
+	//LuaObject lua_getActorsInRegion(LuaObject luaPos, LuaObject luaRadius, LuaObject groupFilter);
 
-	int32_t lua_createRegion(LuaObject luaPos, LuaObject luaRadius);
+	//int32_t lua_createRegion(LuaObject luaPos, LuaObject luaRadius);
 
-	void expose(LuaObject& meta);
+	//void expose(LuaObject& meta);
 
 }; // </Physics>
 
 Physics::PickFlag operator|(Physics::PickFlag a, Physics::PickFlag b);
+
+class RaycastHitEvent : public Event{
+protected:
+	void serialize(LuaObject& dst){
+	}
+
+	void deserialize(LuaObject& src){
+	}
+
+public:
+	static const EvtType TYPE;
+	PhysicsActor* mPickedActor;
+	float mDistance;
+	uint32_t mTriangleIndex;
+	glm::vec3 mImpact;
+
+	RaycastHitEvent(PhysicsActor* pickedActor=NULL, float distance=0, uint32_t faceIndex=0, 
+		const glm::vec3& impact=glm::vec3(0,0,0)) : mPickedActor(pickedActor), mDistance(distance),
+		mTriangleIndex(faceIndex), mImpact(impact){
+	}
+
+	const EvtType& getType() const {
+		return TYPE;
+	}
+
+}; // </RaycastHitEvent>
+
+
+class RegionEvent : public Event{
+protected:
+	void serialize(LuaObject& dst){
+		dst.Set("region", regionId);
+		dst.Set("actor", actor->getId());
+		dst.Set("type", type);
+	}
+
+	void deserialize(LuaObject& /*src*/){
+
+	}
+
+public:
+	enum Type{
+		eACTOR_LEFT_REGION,
+		eACTOR_ENTERED_REGION
+	};
+
+	uint32_t regionId;
+	PhysicsActor* actor;
+	Type type;
+
+	static const EvtType TYPE;
+
+	RegionEvent(PhysicsActor* actor, uint32_t regionId, Type type) : actor(actor), regionId(regionId), type(type){
+	}
+
+	const EvtType& getType() const{
+		return TYPE;
+	}
+
+}; // </ActorEnteredRegionEvent>
 
 }; // </wt>
 
