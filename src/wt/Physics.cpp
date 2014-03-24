@@ -140,7 +140,19 @@ uint32_t Physics::createRegion(const String& name, const glm::vec3& position, fl
 
 	PhysicsActor* actor = createActor(NULL, desc);
 
+	mRegions.insert(actor);
+
 	return actor->getId();
+}
+
+void Physics::deleteRegion(uint32_t region){
+	PhysicsActor* actor = getActorById(region);
+
+	WT_ASSERT(actor != NULL && actor->getType() == PhysicsActor::eTYPE_REGION, "Invalid region id %u", region);
+
+	removeActor(actor);
+
+	mRegions.erase(actor);
 }
 
 bool Physics::connectToVisualDebugger(const String& addr, int32_t port, int32_t timeout){
@@ -810,10 +822,13 @@ void Physics::onWake(PxActor** , PxU32 ){
 void Physics::onSleep(PxActor** , PxU32 ){
 }
 
+const Physics::ActorSet& Physics::getRegionSet() const{
+	return mRegions;
+}
+
 bool handleCollision(PxFilterData filterData0, PxFilterData filterData1){
 	return (filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1);
 }
-
 
 const EvtType RaycastHitEvent::TYPE = "RaycastHit";
 

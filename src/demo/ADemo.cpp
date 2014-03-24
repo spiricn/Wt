@@ -71,6 +71,8 @@ void ADemo::createDemo(DemoManager* manager){
 
 	AEngineFramework::Desc desc;
 
+	mCamCtrl = eCAM_CTRL_FPS;
+
 	// Window
 	desc.window.screenWidth = 1280;
 	desc.window.screenHeight = 720;
@@ -252,8 +254,6 @@ void ADemo::onKeyUp(wt::VirtualKey code){
 
 			break;
 		}
-		default:
-			onKeyDown(code);
 	}
 }
 

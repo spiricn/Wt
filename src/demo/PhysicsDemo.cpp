@@ -10,6 +10,83 @@ using namespace wt;
 
 using namespace wt;
 
+class MoverProcess : public AProcess{
+public:
+	MoverProcess(ASceneActor* actor) : mActor(actor){
+		mCtrl = new ActorMoveController(actor);
+	}
+
+	MoverProcess* addWaypoint(const glm::vec3& pos){
+		mWaypoints.push_back(pos);
+		return this;
+	}
+
+	void setAnimations(const String& run, const String& stand){
+		mAnimations[eANI_RUN] = run;
+		mAnimations[eANI_STAND] = stand;
+	}
+
+	void onProcUpdate(float dt){
+		bool move = true;
+
+		if(!mWaypoints.empty()){
+			/*glm::vec3 eye;
+			mActor->getScene()->getCamera().getTranslation(eye);*/
+
+			glm::vec3 currPos;
+			mActor->getTransformable()->getTranslation(currPos);
+
+			glm::vec3 waypoint = *mWaypoints.begin();
+
+			// Face the target
+			glm::vec3 direction = glm::cross(  glm::normalize( ((waypoint - currPos) * glm::vec3(1, 0, 1)) ), glm::vec3(0, 1, 0) );
+			mActor->getTransformable()->lookAt(currPos + direction);
+
+
+			if( glm::length(currPos - waypoint) < 5 ){
+				mWaypoints.erase(mWaypoints.begin());
+			}
+		}
+		else{
+			killProcess();
+			move = false;
+		}
+
+		mCtrl->update(move, false, false, false, false, false, dt);
+
+		String newAnimation = "";
+
+		if(mCtrl->isMoving()){
+			if(mCtrl->startedMoving() || mCtrl->changedMoveDirection()){
+				newAnimation = mAnimations[eANI_RUN];
+			}
+		}
+		else if(mCtrl->stoppedMoving()){
+			newAnimation = mAnimations[eANI_STAND];
+		}
+
+		if(newAnimation.size()){
+			ModelledActor* actor = dynamic_cast<ModelledActor*>(mActor);
+			actor->blendToAnimation(newAnimation, 0.3, true);
+		}
+	}
+
+private:
+	enum Animation{
+		eANI_RUN,
+		eANI_STAND,
+		eANI_MAX
+	};
+
+	String mAnimations[eANI_MAX];
+
+	typedef std::vector<glm::vec3> WaypointList;
+	WaypointList mWaypoints;
+
+	ASceneActor* mActor;
+	ActorMoveController* mCtrl;
+}; // </MoverProcess>
+
 
 class PhysicsDemo : public ADemo{
 public:
@@ -88,6 +165,13 @@ public:
 			if(mActor == evt->actor->getSceneActor()){
 				mMover->jump();
 			}
+			else{
+				if(evt->type == RegionEvent::eACTOR_ENTERED_REGION){
+					PxVec3 vel =((PxRigidDynamic*)evt->actor->getPxActor())->getLinearVelocity();
+					vel += PxVec3(0, 10, 0);
+					((PxRigidDynamic*)evt->actor->getPxActor())->setLinearVelocity(vel);
+				}
+			}
 
 			return true;
 		}
@@ -115,7 +199,7 @@ public:
 				
 				// Nudge it upwards
 				PxVec3 vel = pxActor->getLinearVelocity();
-				vel += PxVec3(0, 10, 0);
+				vel += PxVec3(0, 49, 0);
 				pxActor->setLinearVelocity(vel);
 		}
 	}
@@ -158,7 +242,6 @@ public:
 	}
 
 	void onDemoStart(const LuaObject& config){
-
 		{
 			glm::vec3 pos(187.071808, -7.917824, 236.465485);
 			float size = 5;
@@ -209,6 +292,17 @@ public:
 			getScene()->getPhysics()->createActor(mActor, desc);
 
 			mMover = new ActorMoveController(mActor);
+
+			MoverProcess* proc;
+			getProcessManager()->attach(
+				(proc = new MoverProcess(mActor))
+				->addWaypoint(glm::vec3(145.751724, -9.066059, 257.192505))
+				->addWaypoint(glm::vec3(120.660721, -7.656898, 242.724609))
+				->addWaypoint(glm::vec3(106.126564, -3.403854, 182.536392))
+				->addWaypoint(glm::vec3(101.544006, -2.540668, 92.131935))
+				->addWaypoint(glm::vec3(127.577583, -4.088352, 104.036400))
+			);
+			proc->setAnimations("run", "stand_1");
 		}
 
 		{

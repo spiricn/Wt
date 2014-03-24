@@ -17,7 +17,12 @@ void ATransformable::translate(const glm::vec3& offset){
 }
 
 void ATransformable::setOrientation(const glm::vec3& fw, const glm::vec3& up){
-	TRACEW("NOT IMPLEMENTED");
+	//TRACEW("NOT IMPLEMENTED");
+
+	glm::vec3 pos;
+	getTranslation(pos);
+
+	setRotation( glm::quat( glm::lookAt(pos, pos+fw, up) ) );
 }
 
 void ATransformable::rotate(const glm::vec3& axis, float angle){

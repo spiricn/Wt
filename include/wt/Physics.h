@@ -38,6 +38,8 @@ public:
 		ePICK_ACTORS = 1 << 3
 	}; // </PickFlags>
 
+	typedef std::set<PhysicsActor*> ActorSet;
+
 public:
 	Physics(EventManager* eventManager);
 
@@ -83,6 +85,10 @@ public:
 
 	bool pick(math::Camera& camera, const glm::vec2& screenPos, const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups=0xFFFFFFFF, PickFlag flags=ePICK_ACTORS);
 
+	const ActorSet& getRegionSet() const;
+
+	void deleteRegion(uint32_t region);
+
 private:
 	void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 
@@ -118,6 +124,7 @@ private:
 	EventEmitter mEventEmitter;
 	ActorMap mActors;
 	TimeAccumulator mTimeAccumulator;
+	ActorSet mRegions;
 }; // </Physics>
 
 Physics::PickFlag operator|(Physics::PickFlag a, Physics::PickFlag b);

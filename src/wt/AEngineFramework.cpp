@@ -80,7 +80,7 @@ void AEngineFramework::processEvent(const wt::Sp<wt::Event> evt){
 		if(e->mAction == KeyPressEvent::DOWN){
 			onKeyDown(e->mCode);
 		}
-		else{
+		else if(e->mAction == KeyPressEvent::UP){
 			onKeyUp(e->mCode);
 		}
 	}
