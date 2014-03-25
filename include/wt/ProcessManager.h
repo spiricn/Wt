@@ -10,15 +10,24 @@ namespace wt{
 
 class ProcessManager{
 public:
+	typedef std::list<ProcPtr> ProcList;
+
+	typedef ProcList::iterator ProcIterator;
+
+public:
 	~ProcessManager();
 
 	void update(float dt);
 	
 	ProcPtr attach(ProcPtr proc);
 
-private:
-	typedef std::list<ProcPtr> ProcList;
+	ProcPtr findProcess(AProcess::Pid pid);
 
+	ProcIterator getProcBeg();
+
+	ProcIterator getProcEnd();
+
+private:
 	ProcList mProcesses;
 	AProcess::Pid mPidCounter;
 

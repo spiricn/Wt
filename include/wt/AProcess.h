@@ -12,19 +12,21 @@ class ProcessManager;
 typedef wt::Sp<AProcess> ProcPtr;
 
 class AProcess{
-friend class ProcessManager;
-
 public:
 	typedef int32_t Pid;
 
+	static const int32_t kINVALID_PID = -1;
+
 public:
-	AProcess();
+	AProcess(const String& name="");
 
 	Pid getPid() const;
 
 	bool isAttached() const;
 
 	bool isAlive() const;
+
+	const String& getName() const;
 
 	ProcessManager* getManager();
 
@@ -36,27 +38,32 @@ public:
 
 	void detach();
 
-	/** called at every iteration of process manager update */
+	void susspend(bool state);
+
+	bool isSusspended() const;
+
 	virtual void onProcUpdate(float dt);
 
-	/** called when the process is attached to a process manager, before the first update */
 	virtual void onProcStart();
 
-	/** called when the process is deattached from a process manager, after the last update */
 	virtual void onProcEnd();
 
 	virtual ~AProcess();
 
 private:
-
 	void onProcessAttach(ProcessManager* manager, Pid pid);
 
+private:
 	Pid mPid;
 	ProcessManager* mManager;
-	bool mIsAlive;
-	bool mIsAttached;
 	ProcPtr mNextProc;
-
+	String mName;
+	bool mSusspended;
+	bool mAlive;
+	bool mAttached;
+	
+private:
+	friend class ProcessManager;
 }; // </AProcess>
 
 }; // </wt>

@@ -1,5 +1,25 @@
 -------------------------------------------------------------------------------
 
+allow pausing physics & scene simulation from the editor
+
+-------------------------------------------------------------------------------
+
+allow scripts to be ran from the editor
+
+-------------------------------------------------------------------------------
+
+process manager in WtEditor
+
+ability to see all current processes and their state
+
+ability to suspend all / specific processes
+
+-------------------------------------------------------------------------------
+
+add lua scripts as managed resources
+
+-------------------------------------------------------------------------------
+
 rework the current bounding box system
 
 ------------------------------------------------------------------------------
@@ -9,7 +29,6 @@ Sound stream resource implementation
 -------------------------------------------------------------------------------
 
 fix renderer clear color
-
 
 -------------------------------------------------------------------------------
 remote $ROOT as the beggining of the resource tree

@@ -1,20 +1,21 @@
 #include "wt/stdafx.h"
 
 #include "wt/AProcess.h"
+#include "wt/ProcessManager.h"
 
 #define TD_TRACE_TAG "AProcess"
 
 namespace wt
 {
 
-AProcess::AProcess() : mIsAlive(true), mNextProc(NULL), mManager(NULL), mIsAttached(false){
+AProcess::AProcess(const String& name) : mAlive(true), mNextProc(NULL), mManager(NULL), mAttached(false), mName(name), mPid(kINVALID_PID), mSusspended(false){
 }
 
 void AProcess::onProcessAttach(ProcessManager* manager, Pid pid){
 	WT_ASSERT(!isAttached(), "Process already attached to a manager");
 
 	mManager = manager;
-	mIsAttached = true;
+	mAttached = true;
 	mPid = pid;
 
 	onProcStart();
@@ -26,7 +27,7 @@ void AProcess::onProcUpdate(float){
 void AProcess::detach(){
 	WT_ASSERT(isAttached(), "Process not attached to a manager");
 
-	mIsAttached = false;
+	mAttached = false;
 	mManager = NULL;
 	mPid = 0;
 }
@@ -36,11 +37,11 @@ AProcess::Pid AProcess::getPid() const{
 }
 
 bool AProcess::isAttached() const{
-	return mIsAttached;
+	return mAttached;
 }
 
 bool AProcess::isAlive() const{
-	return mIsAlive;
+	return mAlive;
 }
 
 ProcessManager* AProcess::getManager(){
@@ -58,9 +59,9 @@ ProcPtr AProcess::setNext(ProcPtr proc){
 }
 
 void AProcess::killProcess(){
-	WT_ASSERT(mIsAlive, "Attempting to kill a dead process");
+	WT_ASSERT(mAlive, "Attempting to kill a dead process");
 
-	mIsAlive = false;
+	mAlive = false;
 }
 
 void AProcess::onProcStart(){
@@ -73,4 +74,16 @@ void AProcess::onProcEnd(){
 AProcess::~AProcess(){
 }
 
-}; // </wt>
+const String& AProcess::getName() const{
+	return mName;
+}
+
+void AProcess::susspend(bool state){
+	mSusspended = state;
+}
+
+bool AProcess::isSusspended() const{
+	return mSusspended;
+}
+
+} // </wt>

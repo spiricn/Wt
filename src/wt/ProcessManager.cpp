@@ -13,7 +13,7 @@ void ProcessManager::update(float dt){
 	while(procIter != procEnd){
 		ProcPtr proc = *procIter;
 
-		if(proc->isAlive()){
+		if(proc->isAlive() && !proc->isSusspended()){
 			proc->onProcUpdate(dt);
 		}
 		else{
@@ -52,5 +52,24 @@ ProcPtr ProcessManager::attach(ProcPtr proc){
 	return proc;
 }
 
+ProcPtr ProcessManager::findProcess(AProcess::Pid pid){
+	WT_ASSERT(pid != AProcess::kINVALID_PID, "Invalid process pid %d", pid);
 
-}; // </wt>
+	for(ProcList::iterator iter=mProcesses.begin(); iter!=mProcesses.end(); iter++){
+		if((*iter)->getPid() == pid){
+			return *iter;
+		}
+	}
+
+	return NULL;
+}
+
+ProcessManager::ProcIterator ProcessManager::getProcBeg(){
+	return mProcesses.begin();
+}
+
+ProcessManager::ProcIterator ProcessManager::getProcEnd(){
+	return mProcesses.end();
+}
+
+} // </wt>

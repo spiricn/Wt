@@ -7,9 +7,9 @@
 
 namespace wt{
 
-class ScriptProcess : public AProcess, public lua::Object<ScriptProcess>{
+class ScriptProcess : public AProcess{
 public:
-	ScriptProcess(lua::ScriptPtr);
+	ScriptProcess(LuaObject startFnc, LuaObject updateFnc, LuaObject endFnc, const String& name="");
 
 	~ScriptProcess();
 
@@ -19,15 +19,7 @@ public:
 
 	void onProcEnd();
 
-	void generateMetaTable();
-
-protected:
-
-	void stopProcess();
-
 private:
-	lua::ScriptPtr mScript;
-
 	typedef lua::LuaFunction<void> CallbackFnc;
 	typedef OwnPtr<CallbackFnc> CallbackPtr;
 

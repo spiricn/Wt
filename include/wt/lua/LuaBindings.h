@@ -9,6 +9,7 @@
 #include "wt/lua/LuaSound.h"
 #include "wt/lua/LuaEventManager.h"
 #include "wt/lua/LuaParticle.h"
+#include "wt/lua/LuaProcess.h"
 
 namespace wt
 {
@@ -25,6 +26,7 @@ inline void LuaBindings_expose(LuaObject obj){
 	Sound_expose(obj);
 	EventManager_expose(obj);
 	Particle_expose(obj);
+	Process_expose(obj);
 }
 
 } // </lua>

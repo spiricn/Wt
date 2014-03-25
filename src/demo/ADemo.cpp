@@ -95,6 +95,12 @@ void ADemo::createDemo(DemoManager* manager){
 	// Setup scripting lua state
 	getLuaState()->expose(*getScene(), "Scene");
 	getLuaState()->expose(*getEventManager(), "EventManager");
+	getLuaState()->expose(*getProcessManager(), "ProcessManager");
+
+	if(mMainScript->getState().Get("onDemoStart").IsFunction()){
+		lua::LuaFunction<void> fnc = mMainScript->getState().Get("onDemoStart");
+		fnc();
+	}
 
 	getInput()->setMouseGrabbed(true);
 
@@ -145,9 +151,9 @@ void ADemo::onDemoStop(){
 void ADemo::startDemo(){
 	onDemoStart( mMainScript->getState() );
 
-	if(mMainScript->getState().Get("startProcess").GetBoolean() ){
+	/*if(mMainScript->getState().Get("startProcess").GetBoolean() ){
 		getProcessManager()->attach( new ScriptProcess( mMainScript ) );
-	}
+	}*/
 
 	startMainLoop();
 
