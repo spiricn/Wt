@@ -4,17 +4,31 @@
 
 #define TD_TRACE_TAG "ProcessManager"
 
-namespace wt{
+namespace wt
+{
+
+ProcessManager::ProcessManager() : mPidCounter(0){
+}
 
 void ProcessManager::update(float dt){
 	ProcList::iterator procEnd = mProcesses.end();
 	ProcList::iterator procIter = mProcesses.begin();
 
+	float totalTime = 0.0f;
+
 	while(procIter != procEnd){
 		ProcPtr proc = *procIter;
 
-		if(proc->isAlive() && !proc->isSusspended()){
+		Timer procTime;
+
+		if(proc->isAlive() && !proc->isSuspended()){
+			procTime.reset();
+
 			proc->onProcUpdate(dt);
+
+			proc->setUsageTime(procTime.getSeconds());
+
+			totalTime += proc->getUsageTime();
 		}
 		else{
 			ProcPtr next = proc->getNext();
@@ -33,6 +47,10 @@ void ProcessManager::update(float dt){
 		if(procIter != mProcesses.end()){
 			procIter++;
 		}
+	}
+
+	for(ProcList::iterator iter=mProcesses.begin(); iter!=mProcesses.end(); iter++){
+		(*iter)->setUsage( (((*iter)->getUsageTime())/totalTime) );
 	}
 }
 

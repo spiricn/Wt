@@ -80,6 +80,7 @@
     </widget>
     <addaction name="menuSkybox"/>
     <addaction name="actionCapture_screenshot"/>
+    <addaction name="actionExecute_script"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuCamera">
@@ -138,6 +139,11 @@
   <action name="actionCamera_newAnimation">
    <property name="text">
     <string>New animation</string>
+   </property>
+  </action>
+  <action name="actionExecute_script">
+   <property name="text">
+    <string>Execute script</string>
    </property>
   </action>
  </widget>
@@ -233,6 +239,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionExecute_script</sender>
+   <signal>triggered()</signal>
+   <receiver>WorldEdit</receiver>
+   <slot>onExecuteScript()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onScreenshot()</slot>
@@ -249,5 +271,6 @@
   <slot>onClearSkybox()</slot>
   <slot>onCameraNewAnimation()</slot>
   <slot>onToggleToolFog()</slot>
+  <slot>onExecuteScript()</slot>
  </slots>
 </ui>

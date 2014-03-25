@@ -15,6 +15,8 @@ public:
 	typedef ProcList::iterator ProcIterator;
 
 public:
+	ProcessManager();
+
 	~ProcessManager();
 
 	void update(float dt);

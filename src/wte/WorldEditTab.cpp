@@ -16,6 +16,8 @@
 #include "wte/FogTool.h"
 #include "wte/TerrainEditDialog.h"
 #include "wte/GodrayTool.h"
+#include "wte/ProcessManagerTool.h"
+#include "wte/Scripter.h"
 
 #include <wt/SFSound.h>
 #include <wt/SceneLoader.h>
@@ -29,7 +31,6 @@ WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidg
 
 	// Scene setup
 	ui.sceneView->setScene(WTE_CTX.getScene());
-
 
 	addTool(
 		"Actor",
@@ -55,12 +56,19 @@ WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidg
 		"Fog",
 		mFogTool = new FogTool(ui.sceneView, this, this)
 	);
-
+	
+	addTool(
+		"Process",
+		new ProcessManagerTool(this, this)
+	);
 	connect(&WTE_CTX, SIGNAL(sceneLoaded()),
 		this, SLOT(onSceneLoaded()));
 
 	connect(&WTE_CTX, SIGNAL(update(float)),
 		this, SLOT(onUpdate(float)));
+
+
+	(new Scripter())->show();
 
 
 	// TODO move to WtEditor.cpp ?
@@ -92,6 +100,7 @@ WorldEditTab::~WorldEditTab(){
 void WorldEditTab::onUpdate(float dt){
 	WTE_CTX.getScene()->update(dt);
 	WTE_CTX.getScene()->getPhysics()->update(dt);
+	WTE_CTX.getProcManager()->update(dt);
 
 	ui.sceneView->update(dt);
 
@@ -216,4 +225,15 @@ void WorldEditTab::onAfterAssetsUnload(){
 	for(ToolList::Iterator iter=mTools.begin(); iter!=mTools.end(); iter++){
 		(*iter);
 	}
+}
+
+void WorldEditTab::onExecuteScript(){
+#if 0
+	QString path = QFileDialog::getOpenFileName(this,
+		tr("Open script file"), "", tr("Script files (*.lua)"));
+#else
+	QString path = "test_script.lua";
+#endif
+
+	WTE_CTX.getLuaState()->getStateOwner()->DoFile(path.toStdString().c_str());
 }

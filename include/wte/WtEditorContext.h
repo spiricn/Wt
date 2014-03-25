@@ -6,6 +6,7 @@
 #include <wt/Singleton.h>
 #include <wt/Scene.h>
 #include <wt/Renderer.h>
+#include <wt/ProcessManager.h>
 
 #include "stdafx.h"
 
@@ -75,6 +76,8 @@ public:
 
 	void stopLoop();
 
+	wt::ProcessManager* getProcManager();
+
 signals:
 	void workspaceUnloaded();
 
@@ -116,6 +119,8 @@ private:
 	wt::EventManager mEventManager;
 	wt::Scene mScene;
 	wt::Renderer mRenderer;
+	wt::ProcessManager mProcManager;
+
 	QTimer mTimer;
 	wt::Timer mStopwatch;
 

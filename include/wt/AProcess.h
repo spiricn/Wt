@@ -3,6 +3,7 @@
 
 #include "wt/Exception.h"
 #include "wt/Sp.h"
+#include "wt/Timer.h"
 
 namespace wt{
 
@@ -38,9 +39,9 @@ public:
 
 	void detach();
 
-	void susspend(bool state);
+	void suspend(bool state);
 
-	bool isSusspended() const;
+	bool isSuspended() const;
 
 	virtual void onProcUpdate(float dt);
 
@@ -50,15 +51,28 @@ public:
 
 	virtual ~AProcess();
 
+	float getRunTime() const;
+
+	float getUsage() const;
+
 private:
 	void onProcessAttach(ProcessManager* manager, Pid pid);
 
+	void setUsage(float usage);
+
+	void setUsageTime(float time);
+
+	float getUsageTime() const;
+
 private:
+	Timer mTimer;
+	float mUsage;
+	float mUsageTime;
 	Pid mPid;
 	ProcessManager* mManager;
 	ProcPtr mNextProc;
 	String mName;
-	bool mSusspended;
+	bool mSuspended;
 	bool mAlive;
 	bool mAttached;
 	

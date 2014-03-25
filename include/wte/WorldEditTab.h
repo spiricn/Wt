@@ -117,6 +117,8 @@ protected slots:
 
 	void onSceneLoaded();
 
+	void onExecuteScript();
+
 signals:
 	void initialized();
 

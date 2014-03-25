@@ -2,6 +2,7 @@
 
 #include "wte/WtEditorContext.h"
 
+#include <wt/lua/LuaBindings.h>
 #include <wt/SceneLoader.h>
 #include <wt/FileSystemFactory.h>
 #include <wt/Timer.h>
@@ -16,6 +17,10 @@ WtEditorContext::WtEditorContext() : mAssetsFilePath(""), mSceneFilePath(""), mS
 
 	connect(&mTimer, SIGNAL(timeout()),
 		this, SLOT(onTimeout()));
+}
+
+wt::ProcessManager* WtEditorContext::getProcManager(){
+	return &mProcManager;
 }
 
 void WtEditorContext::onTimeout(){
@@ -326,6 +331,14 @@ void WtEditorContext::unloadWorkspace(){
 	}
 
 	mLuaState = new wt::lua::State();
+
+		// Lua bindings
+	wt::lua::LuaBindings_expose( getLuaState()->getGlobals() );
+
+	// Setup scripting lua state
+	mLuaState->expose(mScene, "Scene");
+	mLuaState->expose(mEventManager, "EventManager");
+	mLuaState->expose(mProcManager, "ProcessManager");
 	
 	emit workspaceUnloaded();
 }

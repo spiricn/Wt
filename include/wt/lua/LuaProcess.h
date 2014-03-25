@@ -21,7 +21,7 @@ void Process_kill(void* ptr);
 
 void* Process_setNext(void* proc1, void* proc2);
 
-void Process_susspend(void* procPtr, bool state);
+void Process_suspend(void* procPtr, bool state);
 
 } // </lua>
 

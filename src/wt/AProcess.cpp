@@ -8,7 +8,8 @@
 namespace wt
 {
 
-AProcess::AProcess(const String& name) : mAlive(true), mNextProc(NULL), mManager(NULL), mAttached(false), mName(name), mPid(kINVALID_PID), mSusspended(false){
+AProcess::AProcess(const String& name) : mAlive(true), mNextProc(NULL), mManager(NULL),
+	mAttached(false), mName(name), mPid(kINVALID_PID), mSuspended(false), mUsage(0.0f), mUsageTime(0.0f){
 }
 
 void AProcess::onProcessAttach(ProcessManager* manager, Pid pid){
@@ -17,6 +18,8 @@ void AProcess::onProcessAttach(ProcessManager* manager, Pid pid){
 	mManager = manager;
 	mAttached = true;
 	mPid = pid;
+
+	mTimer.reset();
 
 	onProcStart();
 }
@@ -78,12 +81,32 @@ const String& AProcess::getName() const{
 	return mName;
 }
 
-void AProcess::susspend(bool state){
-	mSusspended = state;
+void AProcess::suspend(bool state){
+	mSuspended = state;
 }
 
-bool AProcess::isSusspended() const{
-	return mSusspended;
+bool AProcess::isSuspended() const{
+	return mSuspended;
+}
+
+float AProcess::getRunTime() const{
+	return const_cast<AProcess*>(this)->mTimer.peekSeconds();
+}
+
+float AProcess::getUsage() const{
+	return mUsage;
+}
+
+void AProcess::setUsage(float usage){
+	mUsage = usage;
+}
+
+void AProcess::setUsageTime(float time){
+	mUsageTime = time;
+}
+
+float AProcess::getUsageTime() const{
+	return mUsageTime;
 }
 
 } // </wt>
