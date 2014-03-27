@@ -30,6 +30,7 @@
 #include "wt/SFSoundLoader.h"
 #include "wt/Heightmap.h"
 #include "wt/lua/State.h"
+#include "wt/ScriptResource.h"
 
 namespace wt
 {
@@ -63,6 +64,8 @@ public:
 	AResourceManager<ASoundBuffer>* getSoundManager();
 
 	AResourceManager<Heightmap>* getHeightmapManager();
+
+	AResourceManager<ScriptResource>* getScriptManager();
 
 	template<class T>
 	void fixAbsolutePaths(AResourceManager<T>* manager);
@@ -179,6 +182,7 @@ private:
 	ParticleEffectResourceManager* mParticleManager;
 	lua::State mLuaState;
 	AResourceManager<Heightmap>* mHeightmapManager;
+	AResourceManager<ScriptResource>* mScriptManager;
 
 	template<class T>
 	void serialize(AResourceManager<T>* manager, const String& name, lua::LuaObject& table);

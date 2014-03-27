@@ -12,6 +12,7 @@
 #include "wte/Utils.h"
 #include "wte/WtEditorContext.h"
 #include "wte/HeightmapManagerTab.h"
+#include "wte/ScriptManagerTab.h"
 
 #define TD_TRACE_TAG "WtEditor"
 
@@ -71,6 +72,9 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 
 	// Heightmaps
 	addTab(new HeightmapManagerTab(this, WTE_CTX.getAssets()), "Heightmap manager");
+
+	// Scripts
+	addTab(new ScriptManagerTab(this, WTE_CTX.getAssets()), "Script manager");
 
 	try{
 		WTE_CTX.getScene()->getPhysics()->connectToVisualDebugger(

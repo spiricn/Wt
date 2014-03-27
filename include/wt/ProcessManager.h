@@ -6,7 +6,8 @@
 #include "wt/AProcess.h"
 #include "wt/Timer.h"
 
-namespace wt{
+namespace wt
+{
 
 class ProcessManager{
 public:

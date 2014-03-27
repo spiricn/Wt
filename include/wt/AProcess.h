@@ -14,9 +14,9 @@ typedef wt::Sp<AProcess> ProcPtr;
 
 class AProcess{
 public:
-	typedef int32_t Pid;
+	typedef uint32_t Pid;
 
-	static const int32_t kINVALID_PID = -1;
+	static const int32_t kINVALID_PID = 0xFFFFFFFF;
 
 public:
 	AProcess(const String& name="");

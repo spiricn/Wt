@@ -97,9 +97,15 @@ void ADemo::createDemo(DemoManager* manager){
 	getLuaState()->expose(*getEventManager(), "EventManager");
 	getLuaState()->expose(*getProcessManager(), "ProcessManager");
 
-	if(mMainScript->getState().Get("onDemoStart").IsFunction()){
-		lua::LuaFunction<void> fnc = mMainScript->getState().Get("onDemoStart");
-		fnc();
+	LuaObject mainFnc = mMainScript->getState().Get("onDemoStart");
+
+	if(mainFnc.IsFunction()){
+		try{
+			lua::LuaFunction<void> fnc(mainFnc);
+			fnc();
+		}catch(LuaException e){
+			TRACEE("Error executing startup function %s", e.GetErrorMessage());
+		}
 	}
 
 	getInput()->setMouseGrabbed(true);

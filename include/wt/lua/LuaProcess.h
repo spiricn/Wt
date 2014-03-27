@@ -23,6 +23,8 @@ void* Process_setNext(void* proc1, void* proc2);
 
 void Process_suspend(void* procPtr, bool state);
 
+void* Process_spawn(void* managerPtr, LuaObject startFnc, LuaObject updateFnc, LuaObject endFnc, LuaObject luaName);
+
 } // </lua>
 
 } // </wt>

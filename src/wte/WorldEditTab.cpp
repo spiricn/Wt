@@ -68,9 +68,6 @@ WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidg
 		this, SLOT(onUpdate(float)));
 
 
-	(new Scripter())->show();
-
-
 	// TODO move to WtEditor.cpp ?
 	WTE_CTX.startLoop();
 }

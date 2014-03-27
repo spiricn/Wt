@@ -3,15 +3,16 @@
 
 #include "ui_Scripter.h"
 
+#include <wt/ScriptResource.h>
+
 #include "stdafx.h"
 
 class Scripter : public QDialog{
 Q_OBJECT;
-
 public:
 	Scripter();
 
-	virtual ~Scripter();
+	void open(wt::ScriptResource* rsrc);
 
 private slots:
 
@@ -23,6 +24,8 @@ private slots:
 
 private:
 	Ui::Scripter ui;
+
+	wt::ScriptResource* mScript;
 	
 }; // </Scripter>
 

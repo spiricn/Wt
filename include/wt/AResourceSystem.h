@@ -17,6 +17,7 @@ class AFileSystem;
 class ASoundBuffer;
 class ASoundSystem;
 class Heightmap;
+class ScriptResource;
 
 namespace lua{
 	class State;
@@ -58,6 +59,8 @@ public:
 	virtual AResourceManager<Heightmap>* getHeightmapManager() = 0;
 
 	virtual AResourceManager<ParticleEffectResource>* getParticleResourceManager() = 0;
+
+	virtual AResourceManager<ScriptResource>* getScriptManager() = 0;
 
 	virtual void unloadAll() = 0;
 

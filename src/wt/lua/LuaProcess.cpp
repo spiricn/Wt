@@ -10,7 +10,7 @@
 	WT_ASSERT(name != NULL, "Invalid AProcess object pointer");
 
 
-#define MNGR_OBJ(name, obj, ret) \
+#define MNGR_OBJ(name, obj) \
 	ProcessManager* name = static_cast<ProcessManager*>(obj); \
 	WT_ASSERT(name != NULL, "Invalid ProcessManager object pointer");
 
@@ -26,6 +26,16 @@ void Process_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, Process_setNext);
 	MODULE_EXPOSE(obj, Process_attach);
 	MODULE_EXPOSE(obj, Process_suspend);
+	MODULE_EXPOSE(obj, Process_spawn);
+}
+
+void* Process_spawn(void* managerPtr, LuaObject startFnc, LuaObject updateFnc, LuaObject endFnc, LuaObject luaName){
+	MNGR_OBJ(procManager, managerPtr);
+	PROC_OBJ(proc, Process_create(managerPtr, startFnc, updateFnc, endFnc, luaName) );
+
+	procManager->attach(proc);
+
+	return static_cast<void*>(proc);
 }
 
 void Process_suspend(void* procPtr, bool state){

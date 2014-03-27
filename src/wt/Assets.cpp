@@ -12,6 +12,7 @@
 #define SOUND_MANAGER_TABLE_NAME "SOUND_MANAGER"
 #define PARTICLE_MANAGER_TABLE_NAME "PARTICLE_MANAGER"
 #define HEIGHTMAP_MANAGER_TABLE_NAME "HEIGHTMAP_MANAGER"
+#define SCRIPT_MANAGER_TABLE_NAME "SCRIPT_MANAGER"
 
 namespace wt
 {
@@ -30,6 +31,7 @@ void Assets::init(){
 	mParticleManager = new ParticleEffectResourceManager(this);
 	mHeightmapManager = new AResourceManager<Heightmap>(this);
 	mFontManager = new FontManager(this);
+	mScriptManager = new AResourceManager<ScriptResource>(this);
 
 	mImageManager->setLoader( &DevilImageLoader::getSingleton() );
 	mTextureManager->setLoader( &TextureLoader::getSingleton() );
@@ -39,6 +41,7 @@ void Assets::init(){
 	mSoundManager->setLoader( &SFSoundLoader::getSingleton() );
 	mParticleManager->setLoader( NULL );
 	mHeightmapManager->setLoader( &HeightmapLoader::getSingleton() );
+	mScriptManager->setLoader( &ScriptLoader::getSingleton() );
 }
 
 void Assets::deserialize(const LuaObject& assets){
@@ -50,6 +53,7 @@ void Assets::deserialize(const LuaObject& assets){
 	deserialize(mSoundManager, SOUND_MANAGER_TABLE_NAME, assets);
 	deserialize(mParticleManager, PARTICLE_MANAGER_TABLE_NAME, assets);
 	deserialize(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME, assets);
+	deserialize(mScriptManager, SCRIPT_MANAGER_TABLE_NAME, assets);
 }
 
 AFileSystem* Assets::getFileSystem(){
@@ -66,6 +70,10 @@ void Assets::setFileSystem(AFileSystem* fileSystem){
 
 AResourceManager<ParticleEffectResource>* Assets::getParticleResourceManager(){
 	return mParticleManager;
+}
+
+AResourceManager<ScriptResource>* Assets::getScriptManager(){
+	return mScriptManager;
 }
 
 TextureManager* Assets::getTextureManager(){
@@ -125,6 +133,8 @@ void Assets::unloadAll(){
 
 	mHeightmapManager->destroy();
 
+	mScriptManager->destroy();
+
 	LOGD("Done..");
 }
 
@@ -162,6 +172,7 @@ void Assets::chunkedLoadStart(const LuaObject& table){
 	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Font>(mFontManager) );
 	mChunkedLoadState.loaders.push_back( new ChunkedLoader<ParticleEffectResource>(mParticleManager) );
 	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Heightmap>(mHeightmapManager) );
+	mChunkedLoadState.loaders.push_back( new ChunkedLoader<ScriptResource>(mScriptManager) );
 
 	for(ChunkedLoaderList::iterator iter=mChunkedLoadState.loaders.begin(); iter!=mChunkedLoadState.loaders.end(); iter++){
 		mChunkedLoadState.totalResources += (*iter)->getTotalResources();
@@ -200,6 +211,7 @@ Assets::ChunkedLoadStatus Assets::chunkedLoad(){
 			mModelManager->createAll();
 			mParticleManager->createAll();
 			mHeightmapManager->createAll();
+			mScriptManager->createAll();
 		}
 		else{
 			return chunkedLoad();
@@ -234,6 +246,9 @@ void Assets::reload(){
 	LOGD("Loading heightmaps . . .");
 	mHeightmapManager->loadAll();
 
+	LOGD("Loading scripts . . .");
+	mScriptManager->loadAll();
+
 	LOGD("Creating resources");
 
 	mImageManager->createAll();
@@ -251,6 +266,8 @@ void Assets::reload(){
 	mParticleManager->createAll();
 
 	mHeightmapManager->createAll();
+
+	mScriptManager->createAll();
 
 	LOGD("All assets created.");
 }
@@ -308,6 +325,9 @@ void Assets::serialize(LuaObject& assets){
 
 	serialize(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME,
 		assets);
+
+	serialize(mScriptManager, SCRIPT_MANAGER_TABLE_NAME,
+		assets);
 }
 
 void Assets::serialize(const String& path){
@@ -347,6 +367,8 @@ Assets::~Assets(){
 	delete mHeightmapManager;
 
 	delete mFontManager;
+
+	delete mScriptManager;
 }
 
 } // </wt>

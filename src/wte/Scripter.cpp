@@ -2,19 +2,28 @@
 #include "wte/Scripter.h"
 
 #include <qtextstream.h>
-
+#include "wte/Utils.h"
 #include "wte/WtEditorContext.h"
 
 #define TD_TRACE_TAG "Scripter"
 
-Scripter::Scripter() : QDialog() {
+Scripter::Scripter() : QDialog(), mScript(NULL) {
 	ui.setupUi(this);
+}
+
+void Scripter::open(wt::ScriptResource* rsrc){
+	ui.textEdit->clear();
+
+	ui.textEdit->setText( rsrc->getSource().c_str() );
+
+	mScript = rsrc;
+
+	setWindowTitle(QString("%1 ( %2 )").arg(mScript->getPath().c_str()).arg(mScript->getUri().c_str()));
 }
 
 void Scripter::onOpen(){
 	
 	ui.textEdit->clear();
-
 
 	FILE* file = fopen("test_script.lua", "rb");
     QString src;
@@ -28,16 +37,25 @@ void Scripter::onOpen(){
 }
 
 void Scripter::onSave(){
-	FILE* file = fopen("test_script.lua", "wb");
+	if(mScript == NULL){
+		return;
+	}
 
-	fwrite(ui.textEdit->toPlainText().toStdString().c_str(), strlen(ui.textEdit->toPlainText().toStdString().c_str()), 1, file);
+	if(!askYesNo(this, QString("Save script ? %1 ( %2 )").arg(mScript->getPath().c_str()).arg(mScript->getUri().c_str()))){
+		return;
+	}
 
-	fclose(file);
+	// Update source
+	mScript->setSource( ui.textEdit->toPlainText().toStdString().c_str() );
+
+	// Save to file
+	wt::StreamPtr stream = WTE_CTX.getAssets()->getFileSystem()->open(mScript->getUri(), wt::AIOStream::eMODE_WRITE);
+
+	WTE_CTX.getAssets()->getScriptManager()->getLoader()->save(stream, mScript);
 }
 
 void Scripter::onRun(){
-	WTE_CTX.getLuaState()->getStateOwner()->DoString(ui.textEdit->toPlainText().toStdString().c_str());
-}
-
-Scripter::~Scripter(){
+	if(mScript){
+		WTE_CTX.getLuaState()->getStateOwner()->DoString(mScript->getSource().c_str());
+	}
 }

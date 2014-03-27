@@ -61,9 +61,19 @@ ProcessManager::~ProcessManager(){
 ProcPtr ProcessManager::attach(ProcPtr proc){
 	WT_ASSERT(proc->getManager() == NULL, "Process already attached to a manager");
 
-	// TODO should probably think of a better way of generating PIDs
+	for(;;){
+		++mPidCounter;
 
-	proc->onProcessAttach(this, mPidCounter++);
+		if(mPidCounter == AProcess::kINVALID_PID){
+			mPidCounter = 0;
+		}
+
+		if(!findProcess(mPidCounter)){
+			break;
+		}
+	}
+
+	proc->onProcessAttach(this, mPidCounter);
 
 	mProcesses.push_back(proc);
 	
