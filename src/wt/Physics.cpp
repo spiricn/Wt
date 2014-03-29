@@ -336,28 +336,24 @@ PxScene* Physics::getScene(){
 }
 
 PxTriangleMesh* Physics::cook(PxBoundedData& vertices, PxBoundedData& indices){
-#if 0
 	// Setup mesh description
     PxTriangleMeshDesc desc;
 
 	desc.points = vertices;
 	desc.triangles = indices;
 
+	
     WT_ASSERT(desc.isValid(), "Invalid triangle mesh description");
-    PxToolkit::MemoryOutputStream writeBuffer;
+    PxDefaultMemoryOutputStream writeBuffer;
     if(!mCooking->cookTriangleMesh(desc, writeBuffer)){
         WT_THROW("Error cooking triangle mesh");
     }
 
-    PxToolkit::MemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-
+    PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 
     PxTriangleMesh* res = mSdk->createTriangleMesh(readBuffer);
 
     return res;
-#else
-	WT_THROW("Not implemented");
-#endif
 }
 
 PxTriangleMesh* Physics::cook(gl::Batch& src){

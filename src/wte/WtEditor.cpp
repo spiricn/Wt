@@ -33,7 +33,9 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 	ui.setupUi(this);
 
 	td_setCallbackFnc(logCallback, this);
-	
+
+	FILE* logFile = fopen("wt-editor.log", "wb");
+	td_setFileOutput(logFile);
 
 	// World edit tab
 	mWorldEdit = new WorldEditTab(this);

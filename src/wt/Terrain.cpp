@@ -259,6 +259,8 @@ void Terrain::editChunk(Buffer<int16_t>& samples, uint32_t startRow, uint32_t st
 	memset(pxSamples, 0x00, sizeof(physx::PxHeightFieldSample)*(numRows*numCols));
 
 	physx::PxHeightFieldDesc desc;
+	desc.setToDefault();
+
 	desc.format = physx::PxHeightFieldFormat::eS16_TM;
 	desc.nbColumns = numCols;
 	desc.nbRows = numRows;

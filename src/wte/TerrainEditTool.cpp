@@ -402,16 +402,23 @@ void TerrainEditTool::editAt(float x, float y){
 				tex->generateMipmap();
 		}
 		else{
-			// Index of the triangle the ray hit
-			const uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
-
 			// Total number of rows/columns
 			const int32_t numRows = mTerrain->getHeightmap()->getNumRows();
 			const int32_t numCols = mTerrain->getHeightmap()->getNumColumns();
+#if 1
+			// Normalized impact location ( height irelevant )
+			const glm::vec2 impact = glm::vec2(res.mImpact.swizzle(glm::X, glm::Z)) / glm::vec2(mTerrain->getWidth(), mTerrain->getDepth());
+
+			const int32_t row = numRows * impact.x;
+			const int32_t col = numCols * impact.y;
+#else
+			// Index of the triangle the ray hit
+			const uint32_t idx = mTerrain->getTriangleIndex(res.mTriangleIndex);
 
 			// The row/column the ray hit
 			const int32_t row = idx / numRows;
 			const int32_t col = idx % numCols;
+#endif
 
 			int32_t d = ui.brushSize->value(); // brush size
 
