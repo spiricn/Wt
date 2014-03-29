@@ -2,6 +2,9 @@
 
 #include "wt/lua/LuaScene.h"
 #include "wt/SceneLoader.h"
+#include "wt/ParticleEffectResource.h"
+#include "wt/ParticleEffect.h"
+
 
 #define TD_TRACE_TAG "LuaScene"
 

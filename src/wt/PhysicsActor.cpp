@@ -105,7 +105,18 @@ void PhysicsActor::getRotation(glm::quat& result) const{
 
 void PhysicsActor::Desc::serialize(LuaPlus::LuaObject& table){
 	// Actor type
-	table.Set("type", type == eTYPE_STATIC ? "static" : "dynamic");
+	if(type == eTYPE_STATIC){
+		table.Set("type", "static");
+	}
+	else if(type == eTYPE_DYNAMIC){
+		table.Set("type", "dynamic");
+	}
+	else if(type == eTYPE_REGION){
+		table.Set("type", "region");
+	}
+	else{
+		WT_THROW("Not implemented");
+	}
 
 	// Controll
 	table.Set("group", group);
@@ -177,6 +188,9 @@ void PhysicsActor::Desc::deserialize(const LuaPlus::LuaObject& table){
 	}
 	else if(!type.compare("dynamic")){
 		this->type = eTYPE_DYNAMIC;
+	}
+	else if(!type.compare("region")){
+		this->type = eTYPE_REGION;
 	}
 	else{
 		WT_THROW("TODO");

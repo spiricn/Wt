@@ -159,13 +159,12 @@ public:
 class RegionEvent : public Event{
 protected:
 	void serialize(LuaObject& dst){
-		dst.Set("region", regionId);
-		dst.Set("actor", actor->getId());
+		dst.Set("region", regionActor->getId());
+		dst.Set("actor", collidingActor->getId());
 		dst.Set("type", type);
 	}
 
 	void deserialize(LuaObject& /*src*/){
-
 	}
 
 public:
@@ -174,13 +173,14 @@ public:
 		eACTOR_ENTERED_REGION
 	};
 
-	uint32_t regionId;
-	PhysicsActor* actor;
+	PhysicsActor* regionActor;
+	PhysicsActor* collidingActor;
+
 	Type type;
 
 	static const EvtType TYPE;
 
-	RegionEvent(PhysicsActor* actor, uint32_t regionId, Type type) : actor(actor), regionId(regionId), type(type){
+	RegionEvent(PhysicsActor* regionActor, PhysicsActor* collidingActor, Type type) : type(type), regionActor(regionActor), collidingActor(collidingActor){
 	}
 
 	const EvtType& getType() const{

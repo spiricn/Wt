@@ -2,6 +2,7 @@
 
 #include "wt/TerrainRenderer.h"
 #include "wt/ShaderFactory.h"
+#include "wt/Terrain.h"
 
 #define  TD_TRACE_TAG "TerrainRenderer"
 

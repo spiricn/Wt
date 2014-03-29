@@ -218,7 +218,7 @@ void ModelledActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, 
 
 	}
 
-	// Physics
+	// TODO move physics serialiaztion to ASceneActor
 	if(getPhysicsActor()){
 		lua::LuaObject physicsActor = mModel->getManager()->getResourceSystem()->getLuastate()->newTable();
 
@@ -261,12 +261,25 @@ void ModelledActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObjec
 		}
 	}
 
-	// Physics
+
+	// TODO move physics related deserializetion to ASceneActor (since every scene actor can have a physics actor)
 	if(deserData){
 		const LuaObject& luaDesc = src.Get("physics");
 		if(luaDesc.IsTable()){
 			deserData->phyiscs = true;
 			deserData->pxDesc.deserialize(luaDesc);
+
+			math::Transform tf;
+			glm::vec3 pos;
+			glm::quat rot;
+
+			mTransform.getTranslation(pos);
+			mTransform.getRotation(rot);
+
+			tf.setTranslation(pos);
+			tf.setRotation(rot);
+
+			tf.getMatrix(deserData->pxDesc.pose);
 
 			if(deserData->pxDesc.geometryType == PhysicsActor::eGEOMETRY_MESH){
 				deserData->pxDesc.geometryDesc.meshGeometry.model = mModel;

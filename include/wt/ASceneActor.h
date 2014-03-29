@@ -27,6 +27,7 @@ public:
 		eTYPE_MODELLED,
 		eTYPE_POINT_LIGHT,
 		eTYPE_SOUND,
+		eTYPE_COLLIDER,
 		eTYPE_CUSTOM,
 		eTYPE_MAX
 	}; // </ActorType>

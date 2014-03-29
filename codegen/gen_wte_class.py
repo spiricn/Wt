@@ -23,13 +23,12 @@ Q_OBJECT;
 public:
 	<%= className %>();
 
-	virtual ~<%= className %>();
+	~<%= className %>();
 
 private:
 	Ui::<%= className %> ui;
 	
 }; // </<%= className %>>
-
 
 #endif // </<%= headerGuard %>>
 '''
@@ -50,6 +49,7 @@ sourceTemplate = '''\
 
 <%= className %>::~<%= className %>(){
 }
+
 '''
 
 CG_convertSource(sourceTemplate, '%s.cpp' % className)

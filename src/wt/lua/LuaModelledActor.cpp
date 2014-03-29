@@ -2,7 +2,9 @@
 
 #include "wt/lua/LuaModelledActor.h"
 
-#define GET_THIS ModelledActor* thiz = dynamic_cast<ModelledActor*>( static_cast<ASceneActor*>(ptr) )
+#define ACTOR_OBJ(name, ptr) \
+	WT_ASSERT( (ptr) != NULL, "Invalid actor object pointer" ); \
+	ModelledActor* name = dynamic_cast<ModelledActor*>( static_cast<ASceneActor*>(ptr) )
 
 namespace wt
 {
@@ -18,25 +20,25 @@ void ModelledActor_expose(LuaObject obj){
 }
 
 float ModelledActor_getAnimationPos(void* ptr){
-	GET_THIS;
+	ACTOR_OBJ(thiz, ptr);
 
 	return thiz->getAnimationPlayer()->getPosition();
 }
 
 bool ModelledActor_isAnimationPlaying(void* ptr){
-	GET_THIS;
+	ACTOR_OBJ(thiz, ptr);
 
 	return thiz->getAnimationPlayer()->isPlaying();
 }
 
 void ModelledActor_playAnimation(void* ptr, const char* name, bool loop){
-	GET_THIS;
+	ACTOR_OBJ(thiz, ptr);
 
 	thiz->getAnimationPlayer()->play(name, loop);
 }
 
 void ModelledActor_setAnimationSpeed(void* ptr, float speed){
-	GET_THIS;
+	ACTOR_OBJ(thiz, ptr);
 
 	thiz->getAnimationPlayer()->setSpeed(speed);
 }

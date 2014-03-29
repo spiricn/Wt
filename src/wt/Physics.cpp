@@ -606,6 +606,10 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 			);
 
 		pxActor->userData = static_cast<void*>(createdActor);
+		
+		if(sceneActor){
+			sceneActor->setPhysicsActor(createdActor);
+		}
 
 		mScene->addActor(*pxActor);
 	}
@@ -801,10 +805,14 @@ void Physics::onTrigger(PxTriggerPair* pairs, PxU32 count){
 
 			PhysicsActor* actor2 = static_cast<PhysicsActor*>( pair.otherActor->userData );
 
+			PhysicsActor* regionActor = actor1->getType() == PhysicsActor::eTYPE_REGION ? actor1 : actor2;
+
+			PhysicsActor* collidingActor = actor1->getType() == PhysicsActor::eTYPE_REGION ? actor2 : actor1;
+
 			// Generate trigger event
 			RegionEvent* evt = new RegionEvent(
-				actor1->getType() == PhysicsActor::eTYPE_REGION ? actor2 : actor1, 
-				actor1->getType() == PhysicsActor::eTYPE_REGION ? actor1->getId() : actor2->getId(),
+				regionActor,
+				collidingActor,
 				pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ? RegionEvent::eACTOR_ENTERED_REGION : RegionEvent::eACTOR_LEFT_REGION
 			);
 

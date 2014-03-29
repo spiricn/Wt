@@ -10,7 +10,7 @@ namespace wt
 
 ActorMoveController::ActorMoveController(ASceneActor* target) : mSpeedForward(40.0f), mSpeedBackward(10.0f), mSpeedRotation(180.0f),
 	mSpeedStrife(20.0f), mActor(target), mGravity(-30.0f), mMoving(false), mRotating(false), mStartedMoving(false), mStartedRotating(false),
-	mStoppedMoving(false), mStoppedRotating(false), mJumpMeter(0.0f), mJumpPending(false), mPrevCollision(0), mJumpState(eJUMP_NONE), mJumpHeight(5.0f), mJumpSpeed(12){
+	mStoppedMoving(false), mStoppedRotating(false), mJumpMeter(0.0f), mJumpPending(false), mPrevCollision(0), mJumpState(eJUMP_NONE), mJumpHeight(10.0f), mJumpSpeed(30){
 }
 
 

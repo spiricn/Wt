@@ -11,13 +11,20 @@
 #include "wt/TerrainRenderer.h"
 #include "wt/DeferredRenderer.h"
 #include "wt/ShaderFactory.h"
+#include "wt/Scene.h"
+#include "wt/Sound.h"
+#include "wt/ColliderActor.h"
+#include "wt/ModelledActor.h"
+#include "wt/ParticleEffect.h"
+#include "wt/SkyBox.h"
+#include "wt/Terrain.h"
 
 #define TD_TRACE_TAG "Renderer"
 
 
 
-namespace wt{
-
+namespace wt
+{
 
 class DependencyChecker : public Singleton<DependencyChecker>{
 private:

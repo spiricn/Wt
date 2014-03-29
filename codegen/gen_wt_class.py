@@ -15,7 +15,7 @@ class <%= className %>{
 public:
 	<%= className %>();
 
-	virtual ~<%= className %>();
+	~<%= className %>();
 
 private:
 }; // </<%= className %>>

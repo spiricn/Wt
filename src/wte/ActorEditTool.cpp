@@ -10,6 +10,15 @@
 #include "wte/ModelledActorDialog.h"
 #include "wte/ModelEditDialog.h"
 #include "wte/WtEditorContext.h"
+#include "wte/PhysicsDescDialog.h"
+
+#include <wt/ColliderActor.h>
+#include <wt/Sound.h>
+#include <wt/ColliderActor.h>
+#include <wt/ModelledActor.h>
+#include <wt/ParticleEffect.h>
+#include <wt/SkyBox.h>
+#include <wt/Terrain.h>
 
 #define TD_TRACE_TAG "ActorEditTool"
 
@@ -151,30 +160,11 @@ void ActorEditTool::editActor(){
 			return;
 		}
 
-		// Remove existing physics actor since we can't edit it on the fly
-		if(actor->getPhysicsActor()){
-			mScene->getPhysics()->removeActor(actor->getPhysicsActor());
-		}
-
-		// Create new physics actor
-		if(res.physics.enabled){
-			// Initial transform
-			actor->getTransformable()->getTransformMatrix(res.physics.desc.pose);
-
-			try{
-				mPhysics->createActor(actor, res.physics.desc);
-			}catch(wt::Exception& e){
-				QMessageBox::critical(this, "Error", 
-					QString("Error creating physics actor\n\n") + e.getDescription().c_str());
-			}
-		}
-
 		// Set new model/skin
 		actor->setModel(res.visual.model, res.visual.skin->getName());
 	}
-	else{
-		// TODO
-		TRACEW("NOT IMPLEMENTED");
+	else if(mSelectedActor->getActorType() == wt::ASceneActor::eTYPE_COLLIDER){
+		onEditPhysics();
 	}
 }
 
@@ -519,6 +509,9 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 
 			ui.pitch->setValue( sound->getSound()->getPitch() );
 		}
+		else if(actor->getActorType() == wt::ASceneActor::eTYPE_COLLIDER){
+			ui.stackedWidget->setCurrentIndex(4);
+		}
 		else{
 			WT_THROW("Unsupported actor type");
 		}
@@ -527,7 +520,6 @@ void ActorEditTool::selectActor(wt::ASceneActor* actor){
 		updateSelectionStats();
 	}
 	else if(mState == eSTATE_PICK_ATTACH_ACTOR){
-		LOGI("eSTATE_PICK_ATTACH_ACTOR");
 		if(actor == NULL){
 			mAttachActor = NULL;
 		}
@@ -608,6 +600,21 @@ void ActorEditTool::onNewActor(){
 
 			sceneActor = dynamic_cast<wt::ASceneActor*>( sound );
 		}
+		else if(res.type == wt::ASceneActor::eTYPE_COLLIDER){
+			PhysicsDescDialog::Result pres = PhysicsDescDialog::edit(this, NULL);
+
+			if(pres.accepted || pres.desc.type){
+				wt::math::Transform tf;
+				tf.setTranslation(eyePos - eyeFw*10.0f);
+				tf.getMatrix(pres.desc.pose);
+
+				wt::ColliderActor* actor = dynamic_cast<wt::ColliderActor*>( mScene->createActor(wt::ASceneActor::eTYPE_COLLIDER, res.name.toStdString()) );
+
+				mPhysics->createActor(actor, pres.desc);
+
+				sceneActor = dynamic_cast<wt::ASceneActor*>(actor);
+			}
+		}
 		else{
 			WT_THROW("Unsupported actor type");
 		}
@@ -653,5 +660,32 @@ void ActorEditTool::onPitchChanged(){
 		wt::Sound* sound = dynamic_cast<wt::Sound*>(mSelectedActor);
 
 		sound->getSound()->setPitch( ui.pitch->getValue() );
+	}
+}
+
+void ActorEditTool::onEditPhysics(){
+	if(!mSelectedActor){
+		return;
+	}
+
+	PhysicsDescDialog::Result res = PhysicsDescDialog::edit(this, mSelectedActor);
+
+	if(!res.accepted){
+		return;
+	}
+	
+	// Remove existing physics actor since we can't edit it on the fly
+	if(mSelectedActor->getPhysicsActor()){
+		mScene->getPhysics()->removeActor(mSelectedActor->getPhysicsActor());
+	}
+
+	// Create new physics actor
+	mSelectedActor->getTransformable()->getTransformMatrix(res.desc.pose);
+
+	try{
+		mPhysics->createActor(mSelectedActor, res.desc);
+	}catch(wt::Exception& e){
+		QMessageBox::critical(this, "Error", 
+			QString("Error creating physics actor\n\n") + e.getDescription().c_str());
 	}
 }

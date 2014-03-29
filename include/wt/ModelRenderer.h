@@ -4,6 +4,7 @@
 #include "wt/ARenderer.h"
 
 #include "wt/Scene.h"
+#include "wt/GLShaderProgram.h"
 
 namespace wt
 {

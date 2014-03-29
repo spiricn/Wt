@@ -2,6 +2,7 @@
 
 #include "wt/SkyboxRenderer.h"
 #include "wt/ShaderFactory.h"
+#include "wt/Skybox.h"
 
 #define  TD_TRACE_TAG "SkyboxRenderer"
 

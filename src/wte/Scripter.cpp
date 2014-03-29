@@ -22,18 +22,9 @@ void Scripter::open(wt::ScriptResource* rsrc){
 }
 
 void Scripter::onOpen(){
-	
-	ui.textEdit->clear();
-
-	FILE* file = fopen("test_script.lua", "rb");
-    QString src;
-
-    QTextStream s1(file, QIODevice::ReadOnly);
-    src.append(s1.readAll());
-	
-	fclose(file);
-
-	ui.textEdit->setText(src);
+	if(mScript){
+		open(mScript);
+	}
 }
 
 void Scripter::onSave(){
@@ -56,6 +47,6 @@ void Scripter::onSave(){
 
 void Scripter::onRun(){
 	if(mScript){
-		WTE_CTX.getLuaState()->getStateOwner()->DoString(mScript->getSource().c_str());
+		WTE_CTX.getLuaState()->getStateOwner()->DoString( ui.textEdit->toPlainText().toStdString().c_str()  );
 	}
 }

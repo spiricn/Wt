@@ -1,7 +1,12 @@
-
 #include "wt/stdafx.h"
 
 #include "wt/Scene.h"
+#include "wt/Sound.h"
+#include "wt/ColliderActor.h"
+#include "wt/ModelledActor.h"
+#include "wt/ParticleEffect.h"
+#include "wt/SkyBox.h"
+#include "wt/Terrain.h"
 
 #define TD_TRACE_TAG "Scene"
 
@@ -47,6 +52,9 @@ ASceneActor* Scene::createActor(ASceneActor::ActorType type, const String&  name
 		return dynamic_cast<ASceneActor*>(createSound(name));
 	case ASceneActor::eTYPE_TERRAIN:
 		return dynamic_cast<ASceneActor*>(createTerrain(name));
+	case ASceneActor::eTYPE_COLLIDER:
+		return dynamic_cast<ASceneActor*>(createColliderActor(name));
+
 	default:
 		WT_THROW("Unhandled actor type %d", type);
 	}
@@ -341,6 +349,18 @@ ParticleEffect* Scene::createParticleEffect(const String& name){
 	return effect;
 }
 
+ColliderActor* Scene::createColliderActor(const String& name){
+	ColliderActor* actor = new ColliderActor(this, generateActorId(), name);
+
+	actor->setLuaState(mLuaState);
+
+	mActors.insert( std::make_pair(actor->getId(), actor) );
+
+	setInsert(actor);
+
+	return actor;
+}
+
 ModelledActor* Scene::createModelledActor(const String& name){
 	ModelledActor* actor = new ModelledActor(this, generateActorId(), name);
 
@@ -413,4 +433,16 @@ SkyBox* Scene::getSkyBox(){
 	return mSkyBox;
 }
 
-}; // </wt>
+Scene::ActorSet& Scene::getActorSet(ASceneActor::ActorType type){
+	return *mActorSets.find(type)->second;
+}
+
+AResourceSystem* Scene::getAssets(){
+	return mAssets;
+}
+
+const Scene::ActorSet& Scene::getActorSet(ASceneActor::ActorType type) const{
+	return *mActorSets.find(type)->second;
+}
+
+} // </wt>

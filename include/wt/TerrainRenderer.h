@@ -2,10 +2,13 @@
 #define WT_TERRAINRENDERER_H
 
 #include "wt/ARenderer.h"
-
 #include "wt/Scene.h"
+#include "wt/GLShaderProgram.h"
 
-namespace wt{
+namespace wt
+{
+
+class TerrainNode;
 
 #define  TD_TRACE_TAG "TerrainRenderer"
 

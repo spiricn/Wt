@@ -1,6 +1,13 @@
 #include "wt/stdafx.h"
 
 #include "wt/SceneLoader.h"
+#include "wt/Scene.h"
+#include "wt/Sound.h"
+#include "wt/ColliderActor.h"
+#include "wt/ModelledActor.h"
+#include "wt/ParticleEffect.h"
+#include "wt/SkyBox.h"
+#include "wt/Terrain.h"
 
 #define TD_TRACE_TAG "SceneLoader"
 
@@ -84,6 +91,19 @@ void SceneLoader::load(AIOStream& stream){
 			sound->deserialize(mAssets, actorDesc, NULL);
 
 			mScene->getPhysics()->createBBox(sound);
+		}
+		else if(!type.compare("collider")){
+			// TODO duplicate code from "modelled"
+			ColliderActor* actor = mScene->createColliderActor();
+
+			ColliderActor::DeserializationData deserData;
+			actor->deserialize(mAssets, actorDesc, &deserData);
+
+			if(deserData.phyiscs){
+				mScene->getPhysics()->createActor(actor, deserData.pxDesc);
+			}
+
+			mScene->getPhysics()->createBBox(actor);
 		}
 		else{
 			TRACEW("Invalid actor type (%s), skipping table..", type.c_str());

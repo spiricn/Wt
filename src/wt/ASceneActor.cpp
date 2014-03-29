@@ -236,6 +236,9 @@ void ASceneActor::serialize(AResourceSystem* assets, LuaPlus::LuaObject& dst, vo
 	else if(mType == eTYPE_SOUND){
 		dst.Set("type", "sound");
 	}
+	else if(mType == eTYPE_COLLIDER){
+		dst.Set("type", "collider");
+	}
 	else{
 		WT_THROW("Unsupported actor type");
 	}

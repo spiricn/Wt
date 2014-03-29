@@ -2,6 +2,7 @@
 
 #include "wt/ParticleRenderer.h"
 #include "wt/ShaderFactory.h"
+#include "wt/ParticleEffect.h"
 
 #define  TD_TRACE_TAG "ParticleRenderer"
 

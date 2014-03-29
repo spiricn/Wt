@@ -11,36 +11,6 @@
 ModelledActorDialog::ModelledActorDialog(QWidget* parent, wt::ModelledActor* actor) : QDialog(parent), mActor(actor){
     ui.setupUi(this);
 	
-	ui.physicsGroup->setChecked( mActor->getPhysicsActor() != NULL );
-
-	ui.boxExtents->setValue(glm::vec3(1.0f, 1.0f, 1.0f));
-
-	if(mActor->getPhysicsActor()){
-		const wt::PhysicsActor::Desc& desc = mActor->getPhysicsActor()->getDesc();
-
-		ui.isDynamic->setChecked( desc.type == wt::PhysicsActor::eTYPE_DYNAMIC );
-
-
-		if(desc.geometryType == wt::PhysicsActor::eGEOMETRY_BOX){
-			ui.geometry->setCurrentIndex(0);
-
-			ui.boxExtents->setValue(glm::vec3(desc.geometryDesc.boxGeometry.hx,
-				desc.geometryDesc.boxGeometry.hy,
-				desc.geometryDesc.boxGeometry.hz));
-		}
-		else if(desc.geometryType == wt::PhysicsActor::eGEOMETRY_SPHERE){
-			ui.geometry->setCurrentIndex(1);
-
-			ui.sphereRadius->setValue(desc.geometryDesc.sphereGeometry.radius);
-		}
-		else if(desc.geometryType == wt::PhysicsActor::eGEOMETRY_MESH){
-			ui.geometry->setCurrentIndex(2);
-		}
-		else{
-			WT_THROW("Unsupported geometry type");
-		}
-	}
-
 	if(mActor->getModel()){
 		setModel(mActor->getModel());
 
@@ -87,37 +57,6 @@ ModelledActorDialog::Result ModelledActorDialog::edit(QWidget* parent, wt::Model
 
 void ModelledActorDialog::onSave(){
 	// Physics
-	mResult.physics.enabled = ui.physicsGroup->isChecked();
-
-	if(mResult.physics.enabled){
-		wt::PhysicsActor::Desc& pd = mResult.physics.desc;
-		pd.controlMode = wt::PhysicsActor::eCTRL_MODE_PHYSICS;
-		pd.type = ui.isDynamic->isChecked() ? wt::PhysicsActor::eTYPE_DYNAMIC : wt::PhysicsActor::eTYPE_STATIC;
-		int geometry = ui.geometry->currentIndex();
-
-		// Box geometry
-		if(geometry == 0){
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_BOX;
-			
-			pd.geometryDesc.boxGeometry.hx = ui.boxExtents->getX();
-			pd.geometryDesc.boxGeometry.hy = ui.boxExtents->getY();
-			pd.geometryDesc.boxGeometry.hz = ui.boxExtents->getZ();
-		}
-		// Sphere geometry
-		else if(geometry == 1){
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_SPHERE;
-
-			pd.geometryDesc.sphereGeometry.radius = ui.sphereRadius->value();
-		}
-		// Mesh geometry
-		else if(geometry == 2){
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_MESH;
-			pd.geometryDesc.meshGeometry.model = mActor->getModel();
-		}
-		else{
-			pd.geometryType = wt::PhysicsActor::eGEOMETRY_INVALID;
-		}
-	}
 
 	// Visual (model already set via setModel function)
 	wt::String skinName = ui.comboBoxSkin->itemData( ui.comboBoxSkin->currentIndex(), Qt::UserRole).toString().toStdString();
@@ -126,8 +65,4 @@ void ModelledActorDialog::onSave(){
 	mResult.accepted = true;
 
 	close();
-}
-
-void ModelledActorDialog::onGeometryTypeChanged(int idx){
-	ui.stackedWidget->setCurrentIndex(idx);
 }

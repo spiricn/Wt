@@ -9,17 +9,6 @@
 
 #define TD_TRACE_TAG "ActorCreationDialog"
 
-// TODO
-#define STACK_MODEL_IDX 3
-#define STACK_PARTICLE_IDX 0
-#define STACK_LIGHT_IDX 1
-#define STACK_SOUND_IDX 2
-
-#define DROP_MODEL_IDX 0
-#define DROP_PARTICLE_IDX 1
-#define DROP_LIGHT_IDX 2
-#define DROP_SOUND_IDX 3
-
 ActorCreationDialog::ActorCreationDialog(QWidget* parent, wt::AResourceSystem* assets) : QDialog(parent), mAssets(assets){
     ui.setupUi(this);
 
@@ -32,22 +21,7 @@ void ActorCreationDialog::setModel(wt::Model* model){
 }
 
 void ActorCreationDialog::onActorTypeChanged(int type){
-	int stackIdx;
-
-	if(type == DROP_MODEL_IDX){
-		stackIdx = STACK_MODEL_IDX;
-	}
-	else if(type == DROP_PARTICLE_IDX){
-		stackIdx = STACK_PARTICLE_IDX;
-	}
-	else if(type == DROP_LIGHT_IDX){
-		stackIdx = STACK_LIGHT_IDX;
-	}
-	else if(type == DROP_SOUND_IDX){
-		stackIdx = STACK_SOUND_IDX;
-	}
-
-	ui.stackedWidget->setCurrentIndex(stackIdx);
+	ui.stackedWidget->setCurrentIndex(type);
 }
 
 void ActorCreationDialog::onSoundPick(){
@@ -95,6 +69,10 @@ void ActorCreationDialog::onSave(){
 	}
 	else if(actorType == 3){
 		mResult.type = wt::ASceneActor::eTYPE_SOUND;
+		mResult.ok = true;
+	}
+	else if(actorType == 4){
+		mResult.type = wt::ASceneActor::eTYPE_COLLIDER;
 		mResult.ok = true;
 	}
 	else{

@@ -35,8 +35,6 @@ public:
 
 protected slots:
 
-	void onGeometryTypeChanged(int);
-
 	void onSave();
 
 	void onSetModel();

@@ -5,8 +5,6 @@
 #include "wt/stdafx.h"
 
 #include "wt/Camera.h"
-#include "wt/SkyBox.h"
-#include "wt/Terrain.h"
 #include "wt/Physics.h"
 #include "wt/ASerializable.h"
 #include "wt/Color.h"
@@ -16,12 +14,8 @@
 #include "wt/Assets.h"
 #include "wt/Fog.h"
 #include "wt/ASceneActor.h"
-#include "wt/ModelledActor.h"
-#include "wt/ParticleEffect.h"
 #include "wt/EventManager.h"
 #include "wt/EventEmitter.h"
-#include "wt/Sound.h"
-
 
 namespace wt
 {
@@ -32,14 +26,15 @@ namespace gui
 } // </gui>
 
 class Renderer;
-
-
 class ARenderer;
+class Sound;
+class ColliderActor;
+class ModelledActor;
+class ParticleEffect;
+class SkyBox;
+class Terrain;
 
 class Scene{
-friend class Renderer;
-friend class ARenderer;
-
 public:
 	typedef std::map<uint32_t, ASceneActor*> ActorMap;
 
@@ -65,10 +60,6 @@ public:
 			decay(1.0f), density(0.84f), weight(3.1f), sampleNumber(100), enabled(false), sourceTexture(NULL){
 		}
 	}; // </GodRayParams>
-
-	const ActorSet& getActorSet(ASceneActor::ActorType type) const{
-		return *mActorSets.find(type)->second;
-	}
 
 	struct ShadowMappingDesc{
 		bool enabled;
@@ -97,13 +88,14 @@ public:
 
 	}; // </IListener>
 
-	const ShadowMappingDesc& getShadowMappingDesc() const;
-
-	void setShadowMappingDesc(const ShadowMappingDesc& desc);
-
+public:
 	Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManager, lua::State* luaState);
 
 	virtual ~Scene();
+
+	const ShadowMappingDesc& getShadowMappingDesc() const;
+
+	void setShadowMappingDesc(const ShadowMappingDesc& desc);
 
 	ActorMap& getActorMap();
 
@@ -173,9 +165,7 @@ public:
 
 	void clear();
 
-	AResourceSystem* getAssets(){
-		return mAssets;
-	}
+	AResourceSystem* getAssets();
 
 	void setUIWindow(gui::Window* window);
 
@@ -184,14 +174,21 @@ public:
 	void unregisterListener(IListener* listener);
 
 	// TODO make this private
-	ActorSet& getActorSet(ASceneActor::ActorType type){
-		return *mActorSets.find(type)->second;
-	}
-
+	ActorSet& getActorSet(ASceneActor::ActorType type);
 
 	void insertCustomActor(ASceneActor* actor);
 
+	ColliderActor* createColliderActor(const String& name="");
+
+	const ActorSet& getActorSet(ASceneActor::ActorType type) const;
+
 private:
+	typedef std::vector<IListener*> ListenerList;
+
+	typedef std::map<uint32_t, SpotLight*> SpotLightMap;
+
+private:
+
 	template<class T>
 	void setErase(T* actor){
 		ActorSet& set = getActorSet(actor->getActorType());
@@ -206,49 +203,7 @@ private:
 		set.insert(dynamic_cast<ASceneActor*>(actor));
 	}
 
-	ShadowMappingDesc mShadowMapping;
-
-	typedef std::vector<IListener*> ListenerList;
-
-	ListenerList mListeners;
-
-	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
-
-	/** Master actor list */
-	ActorMap mActors;
-
-	ActorSetMap mActorSets;
-
-	math::Camera* mCamera;
-
-	math::Camera mDefaultCamera;
-
-	SpotLight* findSpotLight(uint32_t id);
-
-	PointLight* findPointLight(uint32_t id);
-	
-	SkyBox* mSkyBox;
-	FogDesc mFogDesc;
-	
-	Physics* mPhysics;
-
-
-	gui::Window* mUIWindow;
-
-	Sp<DirectionalLight> mDirectionalLight;
-	
-	EventManager* mEventManager;
-
-	typedef std::map<uint32_t, SpotLight*> SpotLightMap;
-	SpotLightMap mSpotLights;
-
-	lua::State* mLuaState;
-
-	AResourceSystem* mAssets;
-
 	uint32_t generateActorId();
-
-	GodRayParams mGodrayParams;
 
 	void onLightingModified(ALight* light);
 
@@ -256,7 +211,33 @@ private:
 
 	void onLightDeleted(ALight* light);
 
-	// Lighting
+	ActorMap::iterator eraseActor(ActorMap::iterator& iter);
+
+	SpotLight* findSpotLight(uint32_t id);
+
+	PointLight* findPointLight(uint32_t id);
+
+private:
+	GodRayParams mGodrayParams;
+	SpotLightMap mSpotLights;
+	lua::State* mLuaState;
+	AResourceSystem* mAssets;
+	SkyBox* mSkyBox;
+	FogDesc mFogDesc;
+	Physics* mPhysics;
+	gui::Window* mUIWindow;
+	Sp<DirectionalLight> mDirectionalLight;
+	EventManager* mEventManager;
+	ActorMap mActors;
+	ActorSetMap mActorSets;
+	math::Camera* mCamera;
+	ShadowMappingDesc mShadowMapping;
+	ListenerList mListeners;
+	math::Camera mDefaultCamera;
+
+private:
+friend class Renderer;
+friend class ARenderer;
 
 }; // </Scene>
 

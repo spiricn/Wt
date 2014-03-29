@@ -4,6 +4,8 @@
 
 #include <wt/ActorMoveController.h>
 
+#include <wt/ModelledActor.h>
+
 using namespace wt;
 
 #define TD_TRACE_TAG "PhysicsDemo"
@@ -160,16 +162,16 @@ public:
 		if(e->getType() == RegionEvent::TYPE){
 			const RegionEvent* evt = dynamic_cast<const RegionEvent*>(e.get());
 
-			LOGI("Actor %p %s region %d", evt->actor, evt->type == RegionEvent::eACTOR_LEFT_REGION ? "left" : "entered", evt->regionId);
+			LOGI("Actor %p %s region %d", evt->collidingActor, evt->type == RegionEvent::eACTOR_LEFT_REGION ? "left" : "entered", evt->regionActor->getId());
 
-			if(mActor == evt->actor->getSceneActor()){
+			if(mActor == evt->collidingActor->getSceneActor()){
 				mMover->jump();
 			}
 			else{
 				if(evt->type == RegionEvent::eACTOR_ENTERED_REGION){
-					PxVec3 vel =((PxRigidDynamic*)evt->actor->getPxActor())->getLinearVelocity();
+					PxVec3 vel =((PxRigidDynamic*)evt->collidingActor->getPxActor())->getLinearVelocity();
 					vel += PxVec3(0, 10, 0);
-					((PxRigidDynamic*)evt->actor->getPxActor())->setLinearVelocity(vel);
+					((PxRigidDynamic*)evt->collidingActor->getPxActor())->setLinearVelocity(vel);
 				}
 			}
 

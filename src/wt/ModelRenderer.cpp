@@ -4,7 +4,7 @@
 #include "wt/UniformBufferObject.h"
 #include "wt/FrameBuffer.h"
 #include "wt/IcosphereBuilder.h"
-
+#include "wt/ModelledActor.h"
 #include "wt/ShaderFactory.h"
 
 #define  TD_TRACE_TAG "ModelRenderer"

@@ -76,6 +76,7 @@ protected slots:
 	
 	void onPitchChanged();
 
+	void onEditPhysics();
 
 private:
 	enum State{
