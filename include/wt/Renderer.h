@@ -88,9 +88,9 @@ public:
 
 	void setRenderBoundingBoxes(bool state);
 
-	void render(const PxBounds3& bounds, math::Camera* camera, const Color& clr);
+	void render(const PxBounds3& bounds, Camera* camera, const Color& clr);
 
-	void render(const ATransformable* tf, math::Camera* camera);
+	void render(const ATransformable* tf, Camera* camera);
 
 	void init(uint32_t portW, uint32_t portH );
 
@@ -130,7 +130,7 @@ public:
 
 private:
 	/** Render entire scene in a single pass */
-	void render(Scene& scene, math::Camera& camera, ARenderer::PassType pass);
+	void render(Scene& scene, Camera& camera, ARenderer::PassType pass);
 
 	/** Render actor's bone and all its predecessors recursivley (used for debugging */
 	void Renderer::render(Scene* scene, const ModelledActor* actor, SkeletonBone* bone);

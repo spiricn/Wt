@@ -47,13 +47,9 @@ bool ADemo::handleEvent(const Sp<Event> e){
 	
 	return false;
 }
-math::CameraControler* ADemo::getCameraControl(){
-	if( mCamCtrl == eCAM_CTRL_FPS){
-		return &mFpsCam;
-	}
-	else{
-		return &mTpsCam;
-	}
+
+CameraController* ADemo::getCameraControl(){
+	return mCamCtrl;
 }
 
 void ADemo::createDemo(DemoManager* manager){
@@ -71,8 +67,6 @@ void ADemo::createDemo(DemoManager* manager){
 
 	AEngineFramework::Desc desc;
 
-	mCamCtrl = eCAM_CTRL_FPS;
-
 	// Window
 	desc.window.screenWidth = 1280;
 	desc.window.screenHeight = 720;
@@ -89,6 +83,9 @@ void ADemo::createDemo(DemoManager* manager){
 	// Initialize the engine
 	initializeFramework(desc);
 
+
+	mCamCtrl = new CameraController(getInput());
+
 	// Lua bindings
 	lua::LuaBindings_expose( getLuaState()->getGlobals() );
 
@@ -96,22 +93,11 @@ void ADemo::createDemo(DemoManager* manager){
 	getLuaState()->expose(*getScene(), "Scene");
 	getLuaState()->expose(*getEventManager(), "EventManager");
 	getLuaState()->expose(*getProcessManager(), "ProcessManager");
-
-	LuaObject mainFnc = mMainScript->getState().Get("onDemoStart");
-
-	if(mainFnc.IsFunction()){
-		try{
-			lua::LuaFunction<void> fnc(mainFnc);
-			fnc();
-		}catch(LuaException e){
-			TRACEE("Error executing startup function %s", e.GetErrorMessage());
-		}
-	}
+	getLuaState()->expose(*dynamic_cast<AEngineFramework*>(this), "Engine");
 
 	getInput()->setMouseGrabbed(true);
 
-	mFpsCam.setCamera(&getScene()->getCamera());
-	mTpsCam.setCamera(&getScene()->getCamera());
+	mCamCtrl->setCamera(&getScene()->getCamera());
 
 	String scenePath, assetsPath;
 
@@ -146,6 +132,17 @@ void ADemo::createDemo(DemoManager* manager){
 	mUi.setDefaultFont( font );
 
 	getScene()->setUIWindow(&mUi);
+
+	LuaObject mainFnc = mMainScript->getState().Get("onDemoStart");
+
+	if(mainFnc.IsFunction()){
+		try{
+			lua::LuaFunction<void> fnc(mainFnc);
+			fnc();
+		}catch(LuaException e){
+			TRACEE("Error executing startup function %s", e.GetErrorMessage());
+		}
+	}
 }
 
 void ADemo::onDemoStart(const LuaObject&){
@@ -288,10 +285,6 @@ String ADemo::getScriptPath() const{
 }
 
 void ADemo::update(float dt){
-}
-
-void ADemo::setCameraController(CameraController type){
-	mCamCtrl = type;
 }
 
 } // </wt>

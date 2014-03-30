@@ -6,9 +6,8 @@
 #include "wt/Transform.h"
 #include "wt/ATransformable.h"
 
-namespace wt{
-
-namespace math{
+namespace wt
+{
 
 class Camera : public ATransformable{
 public:
@@ -32,7 +31,9 @@ public:
 	enum ProjectionType{
 		ePROJECTION_PERSPECTIVE,
 		ePROJECTION_ORTHO
-	};
+	}; // </ProjectionType>
+
+public:
 
 	Camera();
 
@@ -77,6 +78,7 @@ public:
 private:
 	void rebuildProjectionMatrix();
 
+private:
 	// Projection params
 	ProjectionType mProjectionType;
 	PerspectiveParams mPerspectiveParams;
@@ -91,9 +93,6 @@ private:
 
 }; // </Camera>
 
-}; // </math>
+} // </wt>
 
-}; // </wt>
-
-#endif
-
+#endif // </WT_CAMERA_H>

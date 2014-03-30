@@ -62,13 +62,13 @@ public:
 
 	void bindForFinalPass();
 
-	void directionalLightPass(Scene* scene, math::Camera* camera);
+	void directionalLightPass(Scene* scene, Camera* camera);
 
 	void bindForStencilPass();
 
-	void stencilPass(Scene* scene, math::Camera* camera, const PointLight* light);
+	void stencilPass(Scene* scene, Camera* camera, const PointLight* light);
 
-	void pointLightPass(Scene* scene, math::Camera* camera, const PointLight* light);
+	void pointLightPass(Scene* scene, Camera* camera, const PointLight* light);
 
 	void startFrame();
 
@@ -92,7 +92,7 @@ public:
 
 	Texture2D* getDepthTexture(DepthTexture type) const;
 
-	void doLightPass(Scene* scene, math::Camera* camera);
+	void doLightPass(Scene* scene, Camera* camera);
 
 	Texture2D* getGTexture(TextureType type);
 

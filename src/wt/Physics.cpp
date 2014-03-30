@@ -431,7 +431,7 @@ bool Physics::pick(const glm::vec3& origin, const glm::vec3& direction, RaycastH
 	}
 }
 
-bool Physics::pick(math::Camera& camera, const glm::vec2& screenPos,
+bool Physics::pick(Camera& camera, const glm::vec2& screenPos,
 	const glm::vec2& screenSize, RaycastHitEvent& res, uint32_t groups, PickFlag flags){
 
 	glm::mat4x4 modelView;

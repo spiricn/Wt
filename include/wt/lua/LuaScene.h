@@ -37,6 +37,16 @@ void Scene_deleteActor(void* ptr, void* actor);
 
 void* Scene_createParticleEffect(void* ptr, const char* name, const char* rsrc);
 
+void* Scene_createCamCtrl(void* scenePtr, void* inputPtr);
+
+void Scene_deleteCamCtrl(void* ctrlPtr);
+
+void CamCtrl_update(void* ctrlPtr, float dt);
+
+void CamCtrl_setMode(void* ctrlPtr, const char* mode);
+
+void CamCtrl_setTarget(void* ctrlPtr, void* target, LuaObject offset);
+
 } // </lua>
 
 } // </wt>

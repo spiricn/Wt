@@ -14,10 +14,6 @@ public:
 	ParticleDemo() : mJetMover(0, 2*math::PI, 5, true){
 	}
 
-	void onRender(float dt){
-		getRenderer()->render( *getScene() );
-	}
-
 	void printHelp(){
 		LOGI(
 			"Press R to toggle rain");
@@ -27,7 +23,7 @@ public:
 	}
 
 	void onUpdate(float dt){
-		getCameraControl()->handle(dt, getInput());
+		getCameraControl()->handle(dt);
 
 		if(mRain->isVisible()){
 			// Make the rain follow the camera

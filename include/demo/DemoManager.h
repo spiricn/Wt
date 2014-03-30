@@ -11,9 +11,7 @@
 #include "wt/Renderer.h"
 #include "wt/AssimpModelLoader.h"
 #include "wt/DevilImageLoader.h"
-#include "wt/FPSCameraControler.h"
-#include "wt/TPSCamController.h"
-#include "wt/CameraControler.h"
+#include "wt/CameraController.h"
 #include "wt/SkyBox.h"
 
 #include "wt/Buffer.h"

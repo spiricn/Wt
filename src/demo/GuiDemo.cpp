@@ -44,10 +44,7 @@ public:
 
 
 	void onUpdate(float dt){
-		getPhysics()->update(dt);
-		getScene()->update(dt);
-		getCameraControl()->handle(dt, getInput());
-
+		getCameraControl()->handle(dt);
 
 		if(!mProgressBarPaused){
 			mProgress = fmod(mProgress + 10*dt, 100.0f);

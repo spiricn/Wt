@@ -382,7 +382,7 @@ void DeferredRender::bindForFinalPass(){
 	glReadBuffer(GL_COLOR_ATTACHMENT4);
 }
 
-void DeferredRender::directionalLightPass(Scene* scene, math::Camera* camera){
+void DeferredRender::directionalLightPass(Scene* scene, Camera* camera){
 	bindForLightPass();
 
 	glDisable(GL_CULL_FACE);
@@ -416,7 +416,7 @@ void DeferredRender::bindForStencilPass(){
 	glDrawBuffer(GL_NONE);
 }
 
-void DeferredRender::stencilPass(Scene* scene, math::Camera* camera, const PointLight* light){
+void DeferredRender::stencilPass(Scene* scene, Camera* camera, const PointLight* light){
 	bindForStencilPass();
 
 	mStencilPassShader.use();
@@ -475,7 +475,7 @@ void DeferredRender::setShadowCasterMatrix(const glm::mat4& matrix){
 	mShadowCasterMatrix = kBIAS_MATRIX * matrix;
 }
 
-void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const PointLight* light){
+void DeferredRender::pointLightPass(Scene* scene, Camera* camera, const PointLight* light){
 	ShaderPointLight* shaderPointLight = findShaderPointLight(light);
 	if(shaderPointLight == NULL){
 		// Event has not reached us yet
@@ -537,7 +537,7 @@ void DeferredRender::pointLightPass(Scene* scene, math::Camera* camera, const Po
 	glDisable(GL_BLEND);
 }
 
-void DeferredRender::doLightPass(Scene* scene, math::Camera* camera){
+void DeferredRender::doLightPass(Scene* scene, Camera* camera){
 	// When we get here the depth buffer is already populated and the stencil pass
     // depends on it, but it does not write to it.
     gl( DepthMask(GL_FALSE) );

@@ -5,7 +5,7 @@
 
 #include "wt/Camera.h"
 
-#define GET_THIS math::Camera* thiz = static_cast<math::Camera*>( ptr )
+#define GET_THIS Camera* thiz = static_cast<Camera*>( ptr )
 
 #define TD_TRACE_TAG "LuaCamera"
 
@@ -17,6 +17,9 @@ namespace lua
 
 void Camera_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, Camera_lookAt);
+
+	ENUM_DEF(obj, eCAM_TPS, 0);
+	ENUM_DEF(obj, eCAM_FPS, 1);
 }
 
 void Camera_lookAt(void* ptr, LuaObject luaPos){

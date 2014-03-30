@@ -112,7 +112,7 @@ void ModelRenderer::create(){
 
 }
 
-void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
+void ModelRenderer::render(Scene* scene, Camera* camera, PassType pass, Texture2D* shadowMap){
 	glm::mat4 viewMat;
 	camera->getCameraMatrix(viewMat);
 
@@ -206,7 +206,7 @@ void ModelRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Te
 	}
 }
 
-void ModelRenderer::render(Scene* scene, ModelledActor* actor, math::Camera* camera, PassType pass){
+void ModelRenderer::render(Scene* scene, ModelledActor* actor, Camera* camera, PassType pass){
 	if(!actor->getModel()){
 		return;
 	}

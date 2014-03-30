@@ -4,11 +4,15 @@
 #include "wt/SceneLoader.h"
 #include "wt/ParticleEffectResource.h"
 #include "wt/ParticleEffect.h"
-
+#include "wt/CameraController.h"
 
 #define TD_TRACE_TAG "LuaScene"
 
-#define GET_THIS Scene* thiz = static_cast<Scene*>(ptr);
+#define SCENE_OBJ(name, ptr) LUA_OBJ_DEC(Scene, name, ptr)
+
+#define CAM_CTRL_OBJ(name, ptr) LUA_OBJ_DEC(CameraController, name, ptr)
+
+#define TF_OBJ(name, ptr) LUA_OBJ_DEC(ATransformable, name, ptr)
 
 namespace wt
 {
@@ -27,10 +31,60 @@ void Scene_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, Scene_getCamera);
 	MODULE_EXPOSE(obj, Scene_load);
 	MODULE_EXPOSE(obj, Scene_createParticleEffect);
+	MODULE_EXPOSE(obj, Scene_createCamCtrl);
+	MODULE_EXPOSE(obj, Scene_deleteCamCtrl);
+	MODULE_EXPOSE(obj, CamCtrl_update);
+	MODULE_EXPOSE(obj, CamCtrl_setMode);
+	MODULE_EXPOSE(obj, CamCtrl_setTarget);
+}
+
+void CamCtrl_setMode(void* ctrlPtr, const char* mode){
+	CAM_CTRL_OBJ(ctrl, ctrlPtr);
+
+	if(!strcmp(mode, "tps")){
+		ctrl->setMode(CameraController::eCTRL_MODE_TPS);
+	}
+	else if(!strcmp(mode, "fps")){
+		ctrl->setMode(CameraController::eCTRL_MODE_FPS);
+	}
+}
+
+void CamCtrl_setTarget(void* ctrlPtr, void* targetPtr, LuaObject luaOffset){
+	TF_OBJ(target, targetPtr);
+	CAM_CTRL_OBJ(ctrl, ctrlPtr);	
+
+	glm::vec3 offset;
+	luaConv(luaOffset, offset);
+
+	ctrl->setTarget(target, offset);
+}
+
+void CamCtrl_update(void* ctrlPtr, float dt){
+	CAM_CTRL_OBJ(ctrl, ctrlPtr);
+
+	ctrl->handle(dt);
+}
+
+void* Scene_createCamCtrl(void* scenePtr, void* inputPtr){
+	SCENE_OBJ(scene, scenePtr);
+
+	AGameInput* input = static_cast<AGameInput*>(inputPtr);
+
+	CameraController* ctrl = new CameraController(input);
+	
+	ctrl->setCamera(&scene->getCamera());
+
+	return static_cast<void*>(ctrl);
+}
+
+void Scene_deleteCamCtrl(void* ctrlPtr){
+	CAM_CTRL_OBJ(ctrl, ctrlPtr);
+
+	delete ctrl;
 }
 
 void* Scene_createParticleEffect(void* ptr, const char* name, const char* rsrcPath){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	ParticleEffect* effect = thiz->createParticleEffect(name);
 
@@ -46,7 +100,7 @@ void* Scene_createParticleEffect(void* ptr, const char* name, const char* rsrcPa
 }
 
 void Scene_load(void* ptr, const char* path){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	SceneLoader loader(thiz, thiz->getAssets());
 
@@ -54,31 +108,31 @@ void Scene_load(void* ptr, const char* path){
 }
 
 void* Scene_getCamera(void* ptr){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	return &thiz->getCamera();
 }
 
 void* Scene_findActor(void* ptr, const char* name){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	return thiz->findActorByName(name);
 }
 
 void Scene_clear(void* ptr){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	thiz->clear();
 }
 
 void Scene_deleteActor(void* ptr, void* actor){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	thiz->deleteActor(static_cast<ASceneActor*>(actor));
 }
 
 void* Scene_findParticleEffect(void* ptr, const char* name){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	ASceneActor* res = thiz->findActorByName(name);
 
@@ -86,7 +140,7 @@ void* Scene_findParticleEffect(void* ptr, const char* name){
 }
 
 void* Scene_findPointLight(void* ptr, const char* name){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	ASceneActor* res = thiz->findActorByName(name);
 
@@ -94,7 +148,7 @@ void* Scene_findPointLight(void* ptr, const char* name){
 }
 
 void* Scene_findSound(void* ptr, const char* name){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	ASceneActor* res = thiz->findActorByName(name);
 
@@ -102,7 +156,7 @@ void* Scene_findSound(void* ptr, const char* name){
 }
 
 void* Scene_findModelledActor(void* ptr, const char* name){
-	GET_THIS;
+	SCENE_OBJ(thiz, ptr);
 
 	ASceneActor* res = thiz->findActorByName(name);
 

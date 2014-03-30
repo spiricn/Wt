@@ -13,7 +13,7 @@ public:
 
 	void create();
 
-	void render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap);
+	void render(Scene* scene, Camera* camera, PassType pass, Texture2D* shadowMap);
 
 	bool isDeferred() const;
 

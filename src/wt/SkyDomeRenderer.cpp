@@ -16,7 +16,7 @@ SkyDomeRenderer::~SkyDomeRenderer(){
 void SkyDomeRenderer::create(){
 }
 
-void SkyDomeRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
+void SkyDomeRenderer::render(Scene* scene, Camera* camera, PassType pass, Texture2D* shadowMap){
 	const Scene::ActorSet& actorSet = scene->getActorSet(ASceneActor::eTYPE_CUSTOM);
 
 	if(actorSet.empty()){

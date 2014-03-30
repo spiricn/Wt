@@ -24,7 +24,7 @@ public:
 	}
 
 	void onUpdate(float dt){
-		getCameraControl()->handle(dt, getInput());
+		getCameraControl()->handle(dt);
 
 		FogDesc fog = getScene()->getFogDesc();
 

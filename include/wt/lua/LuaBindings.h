@@ -10,6 +10,8 @@
 #include "wt/lua/LuaEventManager.h"
 #include "wt/lua/LuaParticle.h"
 #include "wt/lua/LuaProcess.h"
+#include "wt/lua/LuaActorMoveControler.h"
+#include "wt/lua/LuaEngine.h"
 
 namespace wt
 {
@@ -27,6 +29,8 @@ inline void LuaBindings_expose(LuaObject obj){
 	EventManager_expose(obj);
 	Particle_expose(obj);
 	Process_expose(obj);
+	MoveCtrl_expose(obj);
+	Engine_expose(obj);
 }
 
 } // </lua>

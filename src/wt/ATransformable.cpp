@@ -246,9 +246,9 @@ void ATransformable::lookAt(const glm::vec3& position){
 void ATransformable::orbit(float radius, float theta, float rho, const glm::vec3& pos){
 	glm::vec3 translation;
 	math::pointOnSphere(radius, theta, rho, pos, translation);
-	lookAt(pos);
-
 	setTranslation(translation);
+
+	lookAt(pos);
 }
 
 void ATransformable::yaw(float angle){

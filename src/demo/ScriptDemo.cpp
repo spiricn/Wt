@@ -12,7 +12,7 @@ public:
 	}
 
 	void onUpdate(float dt){
-		getCameraControl()->handle(dt, getInput());
+		getCameraControl()->handle(dt);
 	}
 	void onDemoStart(const LuaObject&){
 	}

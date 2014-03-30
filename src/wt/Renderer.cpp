@@ -592,7 +592,7 @@ Renderer::RenderState& Renderer::getRenderState(){
 	return mRenderState;
 }
 
-void Renderer::render(const ATransformable* tf, math::Camera* camera){
+void Renderer::render(const ATransformable* tf, Camera* camera){
 	static const float kLINE_LENGTH = 5.0f;
 	static const float kLINE_WIDTH = 3.0f;
 
@@ -656,7 +656,7 @@ void Renderer::render(const ATransformable* tf, math::Camera* camera){
 	gl( LineWidth(currentLineWidth) );
 }
 
-void Renderer::render(const PxBounds3& bounds, math::Camera* camera, const Color& clr){
+void Renderer::render(const PxBounds3& bounds, Camera* camera, const Color& clr){
 	gl( UseProgram(0) );
 
 	// projection
@@ -820,7 +820,7 @@ void Renderer::setShaderMaterialUniforms(Material* material, gl::ShaderProgram& 
 }
 
 
-void Renderer::render(Scene& scene, math::Camera& camera, ARenderer::PassType pass){
+void Renderer::render(Scene& scene, Camera& camera, ARenderer::PassType pass){
 	if(!scene.getShadowMappingDesc().enabled && pass == ARenderer::ePASS_SHADOW){
 		return;
 	}
@@ -1131,7 +1131,7 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	// Render entire scene
 	const Scene::ShadowMappingDesc& shadowMapping = scene.getShadowMappingDesc();
 	if(shadowMapping.enabled){
-		render(scene, const_cast<math::Camera&>(shadowMapping.casterSource), ARenderer::ePASS_SHADOW);	
+		render(scene, const_cast<Camera&>(shadowMapping.casterSource), ARenderer::ePASS_SHADOW);	
 	}
 
 	// TODO this seriously needs to be optimized (calling this function with an empty scene cuts down the framerate

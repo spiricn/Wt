@@ -8,7 +8,7 @@ namespace wt
 
 
 AnimatorProcess::AnimatorProcess(ModelledActor* actor, const String& animation, float speed, bool blend, float blendSpeed) : mActor(actor),
-	AProcess(utils::print("AnimatorProcess-%p", this)), mFirstAnimation(true){
+	AProcess(utils::print("AnimatorProcess-%p", static_cast<void*>(this))), mFirstAnimation(true){
 	if(animation.size()){
 		addAnimation(animation, speed, blend, blendSpeed);
 	}

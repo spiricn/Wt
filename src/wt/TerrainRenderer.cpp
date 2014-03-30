@@ -35,7 +35,7 @@ void TerrainRenderer::create(){
 	mShader.setUniformVal("map", 1);
 }
 
-void TerrainRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
+void TerrainRenderer::render(Scene* scene, Camera* camera, PassType pass, Texture2D* shadowMap){
 	//// Terrain is not a shadow caster
 	//if(pass != ePASS_NORMAL){
 	//	return;

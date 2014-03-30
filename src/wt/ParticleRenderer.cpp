@@ -50,7 +50,7 @@ void ParticleRenderer::create(){
 	mRandomTexture.setData(w, h, GL_RGB, GL_RGB, (const GLbyte*)bfr.getData(), GL_FLOAT);
 }
 
-void ParticleRenderer::render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap){
+void ParticleRenderer::render(Scene* scene, Camera* camera, PassType pass, Texture2D* shadowMap){
 	if(pass != ePASS_NORMAL){
 		return;
 	}

@@ -118,15 +118,13 @@ void AEngineFramework::setTimeMod(float mod){
 
 void AEngineFramework::mainLoop(){
 	Timer timer;
-	TimeAccumulator timeAccumulator(mDesc.mainLoopStep);
-		
 	timer.reset();
 
-	const float dt = mDesc.mainLoopStep * mTimeMod;
-
 	while(mRunning){
-		if(!timeAccumulator.update( timer.getSeconds() )){
-			continue;
+		float dt = timer.getSeconds() * mTimeMod;
+
+		if(dt == 0.0f){
+			dt = 1/60.0f;
 		}
 
 		// Poll inputs & queue events

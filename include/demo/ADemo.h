@@ -11,9 +11,7 @@
 #include "wt/Renderer.h"
 #include "wt/AssimpModelLoader.h"
 #include "wt/DevilImageLoader.h"
-#include "wt/FPSCameraControler.h"
-#include "wt/TPSCamController.h"
-#include "wt/CameraControler.h"
+#include "wt/CameraController.h"
 #include "wt/SkyBox.h"
 #include "wt/OwnPtr.h"
 #include "wt/Buffer.h"
@@ -44,11 +42,6 @@ class DemoManager;
 
 class ADemo : public AEngineFramework, public EventListener{
 public:
-	enum CameraController{
-		eCAM_CTRL_FPS,
-		eCAM_CTRL_TPS
-	}; // </CameraController>
-
 	const String& getName() const;
 
 	void createDemo(DemoManager* manager);
@@ -73,22 +66,18 @@ public:
 
 	virtual void onDemoStop();
 
-	math::CameraControler* getCameraControl();
+	CameraController* getCameraControl();
 
 	void onKeyUp(wt::VirtualKey code);
 
 	void update(float dt);
-
-	void setCameraController(CameraController type);
 
 private:
 	String mName;
 	DemoManager* mDemoManager;
 	lua::ScriptPtr mMainScript;
 	bool mRunning;
-	math::FPSCameraControler mFpsCam;
-	math::TPSCameraControler mTpsCam;
-	CameraController mCamCtrl;
+	CameraController* mCamCtrl;
 	gui::Window mUi;
 }; // </ADemo>
 

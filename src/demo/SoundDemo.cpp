@@ -17,9 +17,7 @@ public:
 	}
 
 	void onUpdate(float dt){
-		getCameraControl()->handle(dt, getInput());
-
-		getCameraControl()->handle(dt, getInput());
+		getCameraControl()->handle(dt);
 
 		glm::vec3 fw, pos;
 

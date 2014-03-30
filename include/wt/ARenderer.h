@@ -5,13 +5,7 @@
 namespace wt
 {
 
-namespace math
-{
-
 class Camera;
-
-} // </math>
-
 
 namespace gl
 {
@@ -43,7 +37,7 @@ public:
 	virtual void onSceneFogChanged(Scene* scene, Renderer*){
 	}
 
-	virtual void render(Scene* scene, math::Camera* camera, PassType pass, Texture2D* shadowMap) = 0;
+	virtual void render(Scene* scene, Camera* camera, PassType pass, Texture2D* shadowMap) = 0;
 
 	virtual void create() = 0;
 

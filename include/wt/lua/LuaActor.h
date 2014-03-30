@@ -41,6 +41,8 @@ void Actor_yaw(void* ptr, float angle);
 
 glm::vec3 Actor_getAttachPointPosition(void* ptr, const char* id);
 
+void* Actor_getTransformable(void* actorPtr);
+
 } // </lua>
 
 } // </wt>

@@ -17,7 +17,7 @@ public:
 	}
 
 	void onUpdate(float dt){
-		getCameraControl()->handle(dt, getInput());
+		getCameraControl()->handle(dt);
 	}
 	
 	void onKeyUp(wt::VirtualKey code){

@@ -20,7 +20,7 @@ public:
 
 	ActorMoveController(ASceneActor* target);
 
-	void update(bool moveForward, bool moveBackward, bool strifeLeft, bool strifeRight, bool rotateLeft, bool rotateRight, float dt);
+	void update(float dt, bool moveForward=false, bool moveBackward=false, bool strifeLeft=false, bool strifeRight=false, bool rotateLeft=false, bool rotateRight=false);
 
 	bool movingForward() const;
 
@@ -36,19 +36,19 @@ public:
 
 	bool stoppedRotating() const;
 
-	bool isMoving();
+	bool startedJumping() const;
 
-	bool isRotating();
+	bool landed() const;
+
+	bool jumping() const;
+
+	bool moving() const;
+
+	bool rotating() const;
 
 	void jump();
 
-	void setForwardSpeed(float speed){
-		mSpeedForward = speed;
-	}
-
-	JumpState getJumpState() const;
-
-	bool isJumping() const;
+	void setForwardSpeed(float speed);
 
 private:
 	bool mJumpPending;

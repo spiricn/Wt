@@ -47,7 +47,7 @@ public:
 
 	void setTimeOfDay(float p);
 
-	void render(math::Camera& camera);
+	void render(Camera& camera);
 
 	ATransformable* getTransformable(void) const;
 

@@ -119,7 +119,7 @@ void MatrixStack::pushAndConcat(const math::Transform& transform){
 	pushAndConcat(t);
 }
 
-void MatrixStack::pushAndConcat(math::Camera& camera){
+void MatrixStack::pushAndConcat(Camera& camera){
 	glm::mat4x4 t;
 	camera.getCameraMatrix(t);
 

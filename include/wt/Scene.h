@@ -63,7 +63,7 @@ public:
 
 	struct ShadowMappingDesc{
 		bool enabled;
-		math::Camera casterSource;
+		Camera casterSource;
 		float shadowIntensity;
 
 		ShadowMappingDesc();
@@ -99,7 +99,7 @@ public:
 
 	ActorMap& getActorMap();
 
-	void setCamera(math::Camera* camera);
+	void setCamera(Camera* camera);
 
 	Physics* getPhysics() const;
 
@@ -157,7 +157,7 @@ public:
 
 	void update(float dt);
 
-	math::Camera& getCamera();
+	Camera& getCamera();
 
 	void setSkyBox(SkyBox* sky);
 
@@ -230,10 +230,10 @@ private:
 	EventManager* mEventManager;
 	ActorMap mActors;
 	ActorSetMap mActorSets;
-	math::Camera* mCamera;
+	Camera* mCamera;
 	ShadowMappingDesc mShadowMapping;
 	ListenerList mListeners;
-	math::Camera mDefaultCamera;
+	Camera mDefaultCamera;
 
 private:
 friend class Renderer;

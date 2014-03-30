@@ -200,7 +200,7 @@ void SkyDome::setTimeOfDay(float p){
 	update(0.0f);
 }
 
-void SkyDome::render(math::Camera& camera){
+void SkyDome::render(Camera& camera){
 	mShader->use();
 		
 	glm::mat4 view;

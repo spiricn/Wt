@@ -224,7 +224,7 @@ Physics* Scene::getPhysics() const{
 	return mPhysics;
 }
 
-void Scene::setCamera(math::Camera* camera){
+void Scene::setCamera(Camera* camera){
 	mCamera = camera;
 }
 
@@ -319,7 +319,7 @@ void Scene::clear(){
 		eraseActor(iter++);
 	}
 	
-	mDefaultCamera = math::Camera();
+	mDefaultCamera = Camera();
 }
 
 ASceneActor* Scene::getActorById(uint32_t id){
@@ -421,7 +421,7 @@ void Scene::update(float dt){
 	}
 }
 
-math::Camera& Scene::getCamera(){
+Camera& Scene::getCamera(){
 	return *mCamera;
 }
 

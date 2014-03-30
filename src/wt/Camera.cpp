@@ -7,9 +7,6 @@
 namespace wt
 {
 
-namespace math
-{
-
 Camera::Camera() : mTranslation(0.0f, 0.0f, 0.0f), mForwardVector(kFORWARD_VEC), mRightVector(kRIGHT_VEC), mUpVector(kUP_VEC){
 	setProjectionType(ePROJECTION_PERSPECTIVE);
 	rebuildProjectionMatrix();
@@ -174,8 +171,5 @@ void Camera::getRightVector(glm::vec3& result) const{
 void Camera::getUpVector(glm::vec3& result) const{
 	result = mUpVector;
 }
-
-
-} // </math>
 
 } // </wt>

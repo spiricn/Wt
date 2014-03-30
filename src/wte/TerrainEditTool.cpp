@@ -243,8 +243,9 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 
 	const glm::vec2 center(startRow + numRows/2.0f, startCol + numCols/2.0f);
 
-
 //#define DEBUG_DUMP
+
+	int brushShape = ui.brushShape->currentIndex();
 
 #ifdef DEBUG_DUMP
 	FILE* f1 = fopen("factor.txt", "wb");
@@ -261,7 +262,7 @@ void TerrainEditTool::editTerrainChunk(wt::Terrain& terrain, uint32_t startRow, 
 			int16_t finalSample=0;
 
 			// Normalized distance from center (1 being the closest, and 0 the farthest)
-			const float factor = 1.0f - ( glm::length(center - glm::vec2(row, col)) / maxDistance );
+			const float factor = brushShape ? 1.0f : 1.0f - ( glm::length(center - glm::vec2(row, col)) / maxDistance );
 
 			// Minimum height delta
 			const float quantFactor = heightmap.getHeightScale();

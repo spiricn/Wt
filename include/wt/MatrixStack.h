@@ -59,7 +59,7 @@ public:
 
 	void pushAndConcat(const math::Transform& transform);
 
-	void pushAndConcat(math::Camera& camera);
+	void pushAndConcat(Camera& camera);
 
 }; // </MatrixStack>
 
