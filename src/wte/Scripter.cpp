@@ -12,18 +12,27 @@ Scripter::Scripter() : QDialog(), mScript(NULL) {
 }
 
 void Scripter::open(wt::ScriptResource* rsrc){
-	ui.textEdit->clear();
-
-	ui.textEdit->setText( rsrc->getSource().c_str() );
-
 	mScript = rsrc;
 
 	setWindowTitle(QString("%1 ( %2 )").arg(mScript->getPath().c_str()).arg(mScript->getUri().c_str()));
+
+	reload();
 }
 
-void Scripter::onOpen(){
+void Scripter::reload(){
+	ui.textEdit->clear();
+
+	ui.textEdit->setText( mScript->getSource().c_str() );
+}
+
+void Scripter::onReload(){
 	if(mScript){
-		open(mScript);
+		try{
+			WTE_CTX.getAssets()->getScriptManager()->load(mScript);
+			reload();
+		}catch(...){
+			LOGE("Error reloading script");
+		}
 	}
 }
 
@@ -40,9 +49,7 @@ void Scripter::onSave(){
 	mScript->setSource( ui.textEdit->toPlainText().toStdString().c_str() );
 
 	// Save to file
-	wt::StreamPtr stream = WTE_CTX.getAssets()->getFileSystem()->open(mScript->getUri(), wt::AIOStream::eMODE_WRITE);
-
-	WTE_CTX.getAssets()->getScriptManager()->getLoader()->save(stream, mScript);
+	WTE_CTX.getAssets()->getScriptManager()->save(mScript);
 }
 
 void Scripter::onRun(){

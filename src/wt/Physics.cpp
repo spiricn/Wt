@@ -342,7 +342,6 @@ PxTriangleMesh* Physics::cook(PxBoundedData& vertices, PxBoundedData& indices){
 	desc.points = vertices;
 	desc.triangles = indices;
 
-	
     WT_ASSERT(desc.isValid(), "Invalid triangle mesh description");
     PxDefaultMemoryOutputStream writeBuffer;
     if(!mCooking->cookTriangleMesh(desc, writeBuffer)){
@@ -612,6 +611,17 @@ PhysicsActor* Physics::createActor(ASceneActor* sceneActor, PhysicsActor::Desc& 
 	else if(desc.type == PhysicsActor::eTYPE_STATIC || desc.type == PhysicsActor::eTYPE_BOUNDING_BOX){
 		// static actor
 		Sp<PxGeometry> geometry = createGeometry(desc);
+
+
+		if(desc.geometryType == PhysicsActor::eGEOMETRY_MESH){
+			if(sceneActor){
+				PxTriangleMeshGeometry* meshGeo = (PxTriangleMeshGeometry*)(geometry.get());
+
+				glm::vec3 scale;
+				sceneActor->getTransformable()->getScale(scale);
+				pxConvert(scale, meshGeo->scale.scale);
+			}
+		}
 
 		PxRigidStatic* pxActor = mSdk->createRigidStatic(pxTransform);
 

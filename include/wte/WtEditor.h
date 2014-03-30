@@ -23,35 +23,21 @@
 #include "ui_WtEditor.h"
 
 class WtEditor : public QMainWindow{
-	Q_OBJECT
+Q_OBJECT
+
 public:
 	WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[]);
 
 	~WtEditor();
 
-	 static void logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message);
-
 private:
-	QString mCmdArg;
-
-	MainGLWidget* mMainGLWidget;
-
-	WorldEditTab* mWorldEdit;
-	QSettings* mSettings;
-	
-	Ui::WtEditorClass ui;
-
-	
-	typedef std::vector<ARsrcManagerTab*> TabList;
-
-	TabList mTabs;
-
-	void addTab(ARsrcManagerTab* tab, const QString& name);
+	static void logCallback(void* opaque, const tdchar* tag, enum TdTraceLevel level, const tdchar* message);
 
 	void updateTitle();
 
+	void addTab(ARsrcManagerTab* tab, const QString& name);
 
-protected slots:
+private slots:
 	void onAssetsNew();
 
 	void onAssetsOpen();
@@ -85,6 +71,14 @@ protected slots:
 	void onAssetsUnloaded();
 
 	void onAssetsLoaded();
-};
+
+private:
+	QString mCmdArg;
+	MainGLWidget* mMainGLWidget;
+	WorldEditTab* mWorldEdit;
+	QSettings* mSettings;
+	Ui::WtEditorClass ui;
+}; // </WtEditor>
 
 #endif // WTEDITOR_H
+

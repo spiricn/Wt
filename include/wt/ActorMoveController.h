@@ -42,6 +42,10 @@ public:
 
 	void jump();
 
+	void setForwardSpeed(float speed){
+		mSpeedForward = speed;
+	}
+
 	JumpState getJumpState() const;
 
 	bool isJumping() const;

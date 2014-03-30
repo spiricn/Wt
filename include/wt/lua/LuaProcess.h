@@ -25,6 +25,8 @@ void Process_suspend(void* procPtr, bool state);
 
 void* Process_spawn(void* managerPtr, LuaObject startFnc, LuaObject updateFnc, LuaObject endFnc, LuaObject luaName);
 
+void* AnimatorProcess_create(void* manager, void* actorPtr, const char* animation, float speed, bool blend, float blendSpeed);
+
 } // </lua>
 
 } // </wt>

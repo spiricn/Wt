@@ -61,6 +61,45 @@ protected slots:
 		close();
 	}
 
+	void onAutoPick(){
+		QList<wt::Image*> images;
+
+		if(!ResourcePickerDialog::pickMultiResources<wt::Image>(this, mAssets->getImageManager(), images, "Pick images")){
+			return;
+		}
+
+		for(QList<wt::Image*>::Iterator iter=images.begin(); iter!=images.end(); iter++){
+			wt::Image* img = *iter;
+
+			wt::SkyBox::Side side;
+
+			if(!strcmp(img->getName().c_str(), "pos_x")){
+				side = wt::SkyBox::ePOS_X;
+			}
+			else if(!strcmp(img->getName().c_str(), "pos_y")){
+				side = wt::SkyBox::ePOS_Y;
+			}
+			else if(!strcmp(img->getName().c_str(), "neg_x")){
+				side = wt::SkyBox::eNEG_X;
+			}
+			else if(!strcmp(img->getName().c_str(), "neg_y")){
+				side = wt::SkyBox::eNEG_Y;
+			}
+			else if(!strcmp(img->getName().c_str(), "pos_z")){
+				side = wt::SkyBox::ePOS_Z;
+			}
+			else if(!strcmp(img->getName().c_str(), "neg_z")){
+				side = wt::SkyBox::eNEG_Z;
+			}
+			else{
+				continue;
+			}
+
+			setSideImage(side, img);
+		}
+	}
+
+
 	void setSideImage(const wt::SkyBox* sky, wt::SkyBox::Side side){
 		setSideImage(side, (const wt::Image*)sky->getSideImage(side).getPtr());
 	}

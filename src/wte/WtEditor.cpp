@@ -7,12 +7,10 @@
 
 #include "wte/ModelImporterTab.h"
 #include "wte/FilePicker.h"
-#include "wte/ParticleManagerTab.h"
 #include "wte/WtEditor.h"
 #include "wte/Utils.h"
 #include "wte/WtEditorContext.h"
-#include "wte/HeightmapManagerTab.h"
-#include "wte/ScriptManagerTab.h"
+
 
 #define TD_TRACE_TAG "WtEditor"
 
@@ -50,33 +48,6 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 	ui.mainTabWidget->addTab(importer, "Model importer");
 	
 	ui.mainTabWidget->setCurrentWidget(mWorldEdit);
-
-	// Image
-	addTab(new ImageManagerTab(this, WTE_CTX.getAssets()), "Images");
-
-	// Texture
-	addTab(new TextureManagerTab(this, WTE_CTX.getAssets()), "Textures");
-
-	// Model
-	addTab(new ModelManagerTab(this, WTE_CTX.getAssets()), "Models");
-
-	// Animation 
-	addTab(new AnimationManagerTab(this, WTE_CTX.getAssets()), "Animations");
-
-	// SkyBox
-	addTab(new SkyBoxManagerTab(this, WTE_CTX.getAssets()), "Sky boxes");
-
-	// Sound
-	addTab(new SoundManagerTab(this, WTE_CTX.getAssets()), "Sound effects");
-
-	// Particles
-	addTab(new ParticleManagerTab(this, WTE_CTX.getAssets()), "Particle manager");
-
-	// Heightmaps
-	addTab(new HeightmapManagerTab(this, WTE_CTX.getAssets()), "Heightmap manager");
-
-	// Scripts
-	addTab(new ScriptManagerTab(this, WTE_CTX.getAssets()), "Script manager");
 
 	try{
 		WTE_CTX.getScene()->getPhysics()->connectToVisualDebugger(
@@ -218,11 +189,6 @@ void WtEditor::onWorkspaceSwitch(){
 #endif
 }
 
-void WtEditor::addTab(ARsrcManagerTab* tab, const QString& name){
-	ui.managersTabWidget->addTab(tab, name);
-	mTabs.push_back(tab);
-}
-
 void WtEditor::onAssetsSaveAs(){
 	if(!WTE_CTX.isAssetsLoaded()){
 		TRACEE("Assets file must first be loaded / created");
@@ -319,10 +285,11 @@ void WtEditor::onAssetsClear(){
 
 	// TODO callbacks
 
-	// Destroy all resource tab items & unload all resources
-	for(TabList::iterator i=mTabs.begin(); i!=mTabs.end(); i++){
-		(*i)->destroyAll();
-	}
+	//// Destroy all resource tab items & unload all resources
+	//for(TabList::iterator i=mTabs.begin(); i!=mTabs.end(); i++){
+	//	(*i)->destroyAll();
+	//}
+	TRACEW("Missing destroyAll call?");
 }
 
 void WtEditor::onAssetsReload(){

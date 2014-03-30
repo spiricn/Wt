@@ -16,11 +16,14 @@ public:
 
 private slots:
 
-	void onOpen();
+	void onReload();
 
 	void onSave();
 
 	void onRun();
+
+private:
+	void reload();
 
 private:
 	Ui::Scripter ui;

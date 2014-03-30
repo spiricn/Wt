@@ -18,6 +18,7 @@
 #include "wte/GodrayTool.h"
 #include "wte/ProcessManagerTool.h"
 #include "wte/Scripter.h"
+#include "wte/ResourceTool.h"
 
 #include <wt/SFSound.h>
 #include <wt/SceneLoader.h>
@@ -61,6 +62,12 @@ WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidg
 		"Process",
 		new ProcessManagerTool(this, this)
 	);
+
+	addTool(
+		"Resource",
+		new ResourceTool(this, this)
+	);
+
 	connect(&WTE_CTX, SIGNAL(sceneLoaded()),
 		this, SLOT(onSceneLoaded()));
 

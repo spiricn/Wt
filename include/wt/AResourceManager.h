@@ -116,6 +116,25 @@ public:
 		mLoader = ptr;
 	}
 
+	void load(T* src){
+		Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(src->getUri(), AIOStream::eMODE_READ);
+
+		if(!stream->isOpen()){
+			WT_THROW("Error openning resource file \"%s\"", src->getUri().c_str());
+		}
+
+		load(stream, src);
+	}
+
+	void save(T* src){
+		Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(src->getUri(), AIOStream::eMODE_WRITE);
+
+		if(!stream->isOpen()){
+			WT_THROW("Error openning resource file \"%s\"", src->getUri().c_str());
+		}
+
+		save(stream, src);
+	}
 
 	T* load(AIOStream* stream, T* dst){
 		mLoader->load(stream, dst);
@@ -126,8 +145,6 @@ public:
 	}
 
 	void save(AIOStream* stream, T* src){
-		WT_ASSERT(mLoader != NULL, "No resoruce loader set, cannot save \"%s\"", path.c_str());
-
 		mLoader->save(stream, src);
 	}
 
@@ -148,12 +165,10 @@ public:
 			i!=AResourceManager<T>::mResources.end(); i++){
 				if(!i->second->isResourceLoaded() && mLoader != NULL){
 					if(i->second->getUri().size()){
-						Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(i->second->getUri(), AIOStream::eMODE_READ);
-
 						try{
-							load(stream, i->second);
+							load(i->second);
 						}catch(...){
-							LOGE("Error loading resource from uri \"%s\"", i->second->getUri().c_str());
+							TRACEE("Error loading resource \"%s\"", i->second->getPath().c_str());
 						}
 					}
 				}

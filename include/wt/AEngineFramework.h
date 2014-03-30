@@ -83,6 +83,8 @@ public:
 
 	virtual void onBeforeSystemUpdate(int32_t system, float dt);
 
+	void setTimeMod(float mod);
+
 	struct Desc : public lua::ASerializable{
 		struct Logging{
 			String filePath;
@@ -135,13 +137,14 @@ private:
 	Desc mDesc;
 	bool mInitialized;
 	bool mRunning;
-
+	float mTimeMod;
 	AResourceSystem* mAssets;
 	Scene* mScene;
 	Renderer* mRenderer;
 	Physics* mPhysics;
 	uint32_t mActiveSystems;
 	float mPhysicsTimeMod;
+	float mProcTimeMod;
 	float mSceneTimeMod;
 }; // </AEngineFramework>
 

@@ -46,7 +46,7 @@
    <sender>pushButton</sender>
    <signal>clicked()</signal>
    <receiver>Scripter</receiver>
-   <slot>onOpen()</slot>
+   <slot>onReload()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>356</x>
@@ -92,7 +92,7 @@
   </connection>
  </connections>
  <slots>
-  <slot>onOpen()</slot>
+  <slot>onReload()</slot>
   <slot>onSave()</slot>
   <slot>onRun()</slot>
  </slots>

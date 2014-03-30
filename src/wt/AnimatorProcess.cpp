@@ -7,7 +7,7 @@ namespace wt
 {
 
 AnimatorProcess::AnimatorProcess(ModelledActor* actor, const String& animation, float speed, bool blend, float blendSpeed) : mActor(actor), 
-	mAnimation(animation), mSpeed(speed), mBlendSpeed(blendSpeed), mBlend(blend){
+	mAnimation(animation), mSpeed(speed), mBlendSpeed(blendSpeed), mBlend(blend), AProcess(utils::print("AnimatorProcess-%p", this)){
 }
 
 void AnimatorProcess::onProcStart(){

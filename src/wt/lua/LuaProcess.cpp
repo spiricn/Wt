@@ -2,6 +2,7 @@
 
 #include "wt/lua/LuaProcess.h"
 #include "wt/ScriptProcess.h"
+#include "wt/AnimatorProcess.h"
 
 #define TD_TRACE_TAG "LuaProcess"
 
@@ -13,6 +14,10 @@
 #define MNGR_OBJ(name, obj) \
 	ProcessManager* name = static_cast<ProcessManager*>(obj); \
 	WT_ASSERT(name != NULL, "Invalid ProcessManager object pointer");
+
+#define ACTOR_OBJ(name, obj) \
+	ASceneActor* name = static_cast<ASceneActor*>(obj); \
+	WT_ASSERT(name != NULL, "Invalid ASceneActor object pointer");
 
 namespace wt
 {
@@ -27,6 +32,18 @@ void Process_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, Process_attach);
 	MODULE_EXPOSE(obj, Process_suspend);
 	MODULE_EXPOSE(obj, Process_spawn);
+	MODULE_EXPOSE(obj, AnimatorProcess_create);
+}
+
+void* AnimatorProcess_create(void* managerPtr, void* actorPtr, const char* animation, float speed, bool blend, float blendSpeed){
+	MNGR_OBJ(manager, managerPtr);
+	ACTOR_OBJ(actor, actorPtr);
+
+	WT_ASSERT(actor->getActorType() == ASceneActor::eTYPE_MODELLED, "Invalid actor type; expected %d, got %d", ASceneActor::eTYPE_MODELLED, actor->getActorType());
+
+	AnimatorProcess* proc = new AnimatorProcess(dynamic_cast<ModelledActor*>(actor), animation, speed, blend, blendSpeed);
+
+	return static_cast<void*>( dynamic_cast<AProcess*>(proc) );
 }
 
 void* Process_spawn(void* managerPtr, LuaObject startFnc, LuaObject updateFnc, LuaObject endFnc, LuaObject luaName){

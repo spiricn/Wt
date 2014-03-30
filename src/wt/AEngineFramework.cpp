@@ -14,7 +14,8 @@ using namespace lua;
 
 AEngineFramework::AEngineFramework() : mInitialized(false), mWindow(NULL), mInput(NULL), 
 	mEventManager(NULL), mLuaState(NULL), mLogFile(NULL), mProcessManager(NULL), mRunning(false),
-	mAssets(NULL), mScene(NULL), mPhysics(NULL), mRenderer(NULL), mActiveSystems(0xFFFFFFFF), mPhysicsTimeMod(1.0f), mSceneTimeMod(1.0f){
+	mAssets(NULL), mScene(NULL), mPhysics(NULL), mRenderer(NULL), mActiveSystems(0xFFFFFFFF),
+	mPhysicsTimeMod(1.0f), mSceneTimeMod(1.0f), mProcTimeMod(1.0f), mTimeMod(1.0f){
 
 	// Main scripting state
 	mLuaState = new wt::lua::State;
@@ -111,13 +112,17 @@ void AEngineFramework::processEvent(const wt::Sp<wt::Event> evt){
 	}
 }
 
+void AEngineFramework::setTimeMod(float mod){
+	mTimeMod = mod;
+}
+
 void AEngineFramework::mainLoop(){
 	Timer timer;
 	TimeAccumulator timeAccumulator(mDesc.mainLoopStep);
 		
 	timer.reset();
 
-	const float dt = mDesc.mainLoopStep;
+	const float dt = mDesc.mainLoopStep * mTimeMod;
 
 	while(mRunning){
 		if(!timeAccumulator.update( timer.getSeconds() )){
@@ -132,8 +137,8 @@ void AEngineFramework::mainLoop(){
 
 		// Update all processes
 		if(mActiveSystems & eSYSTEM_PROCESS){
-			onBeforeSystemUpdate(eSYSTEM_PROCESS, dt);
-			mProcessManager->update(dt);
+			onBeforeSystemUpdate(eSYSTEM_PROCESS, dt * mProcTimeMod);
+			mProcessManager->update(dt * mProcTimeMod);
 		}
 			
 		if(mActiveSystems & eSYSTEM_PHYSICS){
@@ -337,6 +342,11 @@ void AEngineFramework::setSystemTimeMod(uint32_t systems, float timeMod){
 	if(systems & eSYSTEM_SCENE){
 		mSceneTimeMod = timeMod;
 	}
+
+	if(systems & eSYSTEM_PROCESS){
+		mProcTimeMod = timeMod;
+	}
+
 
 	// TODO handle other systems
 }
