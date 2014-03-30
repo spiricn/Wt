@@ -19,6 +19,10 @@
 	ASceneActor* name = static_cast<ASceneActor*>(obj); \
 	WT_ASSERT(name != NULL, "Invalid ASceneActor object pointer");
 
+#define ANI_PROC_OBJ(name, obj) \
+	AnimatorProcess* name = dynamic_cast<AnimatorProcess*>( static_cast<AProcess*>(obj) ); \
+	WT_ASSERT(name != NULL, "Invalid AnimatorProcess object pointer");
+
 namespace wt
 {
 
@@ -33,15 +37,24 @@ void Process_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, Process_suspend);
 	MODULE_EXPOSE(obj, Process_spawn);
 	MODULE_EXPOSE(obj, AnimatorProcess_create);
+	MODULE_EXPOSE(obj, AnimatorProcess_addAnimation);
 }
 
-void* AnimatorProcess_create(void* managerPtr, void* actorPtr, const char* animation, float speed, bool blend, float blendSpeed){
+void* AnimatorProcess_addAnimation(void* procPtr, const char* animation, float speed, bool blend, float blendSpeed, bool loop, float loopDuration){
+	ANI_PROC_OBJ(proc, procPtr);
+
+	proc->addAnimation(animation, speed, blend, blendSpeed, loop, loopDuration);
+
+	return procPtr;
+}
+
+void* AnimatorProcess_create(void* managerPtr, void* actorPtr){
 	MNGR_OBJ(manager, managerPtr);
 	ACTOR_OBJ(actor, actorPtr);
 
 	WT_ASSERT(actor->getActorType() == ASceneActor::eTYPE_MODELLED, "Invalid actor type; expected %d, got %d", ASceneActor::eTYPE_MODELLED, actor->getActorType());
 
-	AnimatorProcess* proc = new AnimatorProcess(dynamic_cast<ModelledActor*>(actor), animation, speed, blend, blendSpeed);
+	AnimatorProcess* proc = new AnimatorProcess(dynamic_cast<ModelledActor*>(actor));
 
 	return static_cast<void*>( dynamic_cast<AProcess*>(proc) );
 }
