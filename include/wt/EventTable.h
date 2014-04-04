@@ -7,12 +7,12 @@ namespace wt{
 
 
 template<class T>
-class EventTable : public EventListener{
+class EventTable : public IEventListener{
 friend T;
 
 
 public:
-	typedef bool (T::*EventCallback)(const Sp<Event>);
+	typedef bool (T::*EventCallback)(const Sp<AEvent>);
 	typedef void (T::*Callback)();
 
 
@@ -54,19 +54,19 @@ protected:
 	typedef std::vector<FilteredCallback> CallbackList;
 
 
-	void registerCallback(const EvtType& type, EventCallback callback){
+	void registerCallback(const EventType& type, EventCallback callback){
 		registerCallback(type, FilteredCallback(callback) );
 	}
 
-	void registerCallback(const EvtType& type, Callback callback){
+	void registerCallback(const EventType& type, Callback callback){
 		registerCallback(type, FilteredCallback(callback, false) );
 	}
 
-	void registerCallback(const EvtType& type, EventCallback callback, uint32_t filter){
+	void registerCallback(const EventType& type, EventCallback callback, uint32_t filter){
 		registerCallback(type, FilteredCallback(callback, true, filter) );
 	}
 
-	void registerCallback(const EvtType& type, Callback callback, uint32_t filter){
+	void registerCallback(const EventType& type, Callback callback, uint32_t filter){
 		registerCallback(type, FilteredCallback(callback, true, filter) );
 	}
 
@@ -83,11 +83,11 @@ private:
 
 	EventManager* mEventManager;
 
-	typedef std::map<EvtType, CallbackList> CallbackTable;
+	typedef std::map<EventType, CallbackList> CallbackTable;
 
 	CallbackTable mTable;
 
-	void registerCallback(const EvtType& type, const FilteredCallback& callback){
+	void registerCallback(const EventType& type, const FilteredCallback& callback){
 		if(mTable.find(type) == mTable.end()){
 			mTable.insert( std::make_pair(type, CallbackList()) );
 		}
@@ -101,7 +101,7 @@ public:
 		//mEventManager->unregisterGlobalListener(this);
 	}
 
-	bool handleEvent(const Sp<Event> e){
+	bool handleEvent(const Sp<AEvent> e){
 		CallbackTable::iterator iter = mTable.find(e->getType());
 		if(iter != mTable.end()){
 			for(CallbackList::iterator i=iter->second.begin(); i!=iter->second.end(); i++){

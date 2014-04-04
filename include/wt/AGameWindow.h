@@ -9,9 +9,9 @@
 
 namespace wt{
 
-class WindowSizeChange : public Event{
+class WindowSizeChange : public AEvent{
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	void serialize(LuaObject& dst){
 	}
@@ -27,7 +27,7 @@ public:
 		newWidth(nw), newHeight(nh){
 	}
 
-	const EvtType& getType() const { return TYPE; }
+	const EventType& getType() const { return TYPE; }
 }; // </WindowSizeChange>
 
 class AGameWindow{

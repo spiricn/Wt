@@ -29,7 +29,7 @@ private:
 
 }; // </Checkbox>
 
-class CheckboxClickedEvent : public Event{
+class CheckboxClickedEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -38,14 +38,14 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	Checkbox* view;
 
 	CheckboxClickedEvent(){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 

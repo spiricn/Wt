@@ -42,7 +42,7 @@ DemoManager* ADemo::getManager(){
 	return mDemoManager;
 }
 
-bool ADemo::handleEvent(const Sp<Event> e){
+bool ADemo::handleEvent(const EventPtr e){
 	processEvent(e);
 	
 	return false;
@@ -115,7 +115,7 @@ void ADemo::createDemo(DemoManager* manager){
 		loader.load(scenePath);
 	}
 
-	getEventManager()->registerGlobalListener(this);
+	getEventManager()->registerListener(this);
 
 	// Setup UI
 	mUi.create(

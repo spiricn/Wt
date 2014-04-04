@@ -1,293 +1,263 @@
-#include "wt/stdafx.h"
+/**
+ * @file EventManager.cpp
+ * @author Nikola Spiric <nikola.spiric.ns@gmail.com>
+ */
 
+#include "wt/stdafx.h"
 #include "wt/EventManager.h"
+#include "wt/IEventEmitter.h"
+#include "wt/IEventListener.h"
 
 #define TD_TRACE_TAG "EventManager"
 
-namespace wt{
+namespace wt
+{
 
+void EventManager::registerListener(IEventListener* listener, const EventType& type, ConnectionType connectionType, IEventEmitter* emitter){
+	const bool global = type == "";
 
-void EventManager::registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered, uint32_t filterData){
-	if(!isRegistered(eventType)){
-		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
-			eventType.c_str()
-			);
-	}
+	if(global){
+		WT_ASSERT(findListener(listener).empty(),
+			"Listener %p already registered", listener);
 
-	CallbackList* callbackList = NULL;
-
-	EvtCallbackTable::iterator i = mEvtCallbackTable.find( eventType.getValue() );
-	if(i!=mEvtCallbackTable.end()){
-		callbackList = &i->second;
+		// Global listener
+		mGlobalListeners[connectionType].push_back(listener);
 	}
 	else{
-		// TODO optimize this?
-		mEvtCallbackTable.insert( std::make_pair(eventType.getValue(), CallbackList()) );
-		callbackList = &mEvtCallbackTable.find( eventType.getValue() )->second;
+		RegisteredEvent* eventReg = findRegisteredEvent(type);
+
+		WT_ASSERT(eventReg != NULL,
+			"Error");
+
+		ListenerQueryList query = findListener(listener);
+
+		if(emitter == NULL){
+			// Listener registered somewhere?
+			for(ListenerQueryList::iterator iter=query.begin(); iter!=query.end(); iter++){
+				// Registered as 'unconnected' ?
+				if(!(*iter).connected){
+					// Already registered to event of this type ?
+					WT_ASSERT((*iter).eventReg->eventType != type,
+						"Listener %p already registered for event of type \"%s\"", listener, type.c_str());
+				}
+			}
+			// Unconnected listener
+			eventReg->listeners[connectionType].unconnectedListeners.push_back(listener);
+		}
+		else{
+			// Listener registered somewhere?
+			for(ListenerQueryList::iterator iter=query.begin(); iter!=query.end(); iter++){
+				// Registered as 'connected' ?
+				if((*iter).connected){
+					// Already registered to event of this type ?
+					WT_ASSERT((*iter).eventReg->eventType != type,
+						"Listener %p already registered for event of type \"%s\"", listener, type.c_str());
+				}
+			}
+
+			eventReg->listeners[connectionType].connectedListeners.push_back( EventConnection(emitter, listener) );
+		}
 	}
-
-	callbackList->push_back( RegisteredCallback(callback, filterData, filtered) );
 }
 
-EventManager::ARegisteredEvent::ARegisteredEvent(Type type) : mType(type){
-}
+void EventManager::unregisterListener(IEventListener* listener, EventType type, IEventEmitter* emitter){
+	// Get a list of registrations for this listener
+	ListenerQueryList queryList = findListener(listener);
+	WT_ASSERT(!queryList.empty(), "Listener %p not registered for any events");
 
-EventManager::ARegisteredEvent::Type EventManager::ARegisteredEvent::getType() const{
-	return mType;
-}
+	for(ListenerQueryList::iterator iter=queryList.begin(); iter!=queryList.end(); iter++){
+		ListenerQuery query = *iter;
 
+		if(query.global){
+			// Remove it from a global listener list
+			EventListenerList& list = mGlobalListeners[query.connection];
+			list.erase( std::find(mGlobalListeners[query.connection].begin(), mGlobalListeners[query.connection].end(), listener) );
+		}
+		else{
+			// Remove it from a 'connected' specialized list
+			if(query.connected){
+				EventConnectionList& l = query.eventReg->listeners[query.connection].connectedListeners;
 
-EventManager::InternalEventReg::InternalEventReg() : ARegisteredEvent(eEVENT_INTERNAL){
-}
-
-void EventManager::InternalEventReg::queueFromScript(LuaObject& data){
-	TRACEE("Internal events can not be queued from script");
-}
-
-EventManager::EventManager(lua::State* luaState) : mLuaState(luaState){
-}
-
-EventManager::~EventManager(){
-	mScriptListeners.clear();
-}
-
-bool EventManager::addScriptListener(const char* eventType, LuaObject callback){
-	if(!isRegistered(eventType)){
-		TRACEE("Trying to register a listener for an unregistered event type \"%s\"",
-			eventType
-		);
-		return false;
-	}
-
-	if(!callback.IsFunction()){
-		TRACEE("Invalid callback function object (got %s instead of function)", callback.TypeName());
-		return false;
-	}
-
-	mScriptListeners.insert( std::pair<EvtType,
-		ScriptEventListener*>(eventType, new ScriptEventListener(callback)) );
-
-	return true;
-}
-
-inline bool EventManager::isRegistered(const EvtType& type){
-	return mRegisteredEvents.find(type) != mRegisteredEvents.end();
-}
-
-void EventManager::registerGlobalListener(EventListener* listener){
-	if(std::find(mGlobalListeners.begin(), mGlobalListeners.end(), listener) != mGlobalListeners.end()){
-		WT_THROW("Global listener already registered");
-	}
-	else{
-		bool listenerRegistered = false;
-
-		// Check to see if this listener is already registered for some event
-		for(EvtListenerTable::iterator iter=mEvtListenerTable.begin(); iter!=mEvtListenerTable.end(); iter++){
-			if(std::find(iter->second.begin(), iter->second.end(), listener) != iter->second.end()){
-				listenerRegistered = true;
-				break;
+				for(EventConnectionList::iterator iter=l.begin(); iter!=l.end(); iter++){
+					if((*iter).listener == listener){
+						l.erase(iter);
+						break;
+					}
+				}
+			}
+			else if(emitter == NULL){
+				// Remove it from a 'unconnected' specialized list
+				EventListenerList& l = query.eventReg->listeners[query.connection].unconnectedListeners;
+				l.erase( std::find(l.begin(), l.end(), listener) );
 			}
 		}
+	}
+}
 
-		if(listenerRegistered){
-			WT_THROW("Global listener already registered for an event"); 
+bool EventManager::handleEvent(const EventPtr evt, EventListenerList& list){
+	for(EventListenerList::iterator iter=list.begin(); iter!=list.end(); iter++){
+		bool consumed = (*iter)->handleEvent(evt);
+
+		if(consumed){
+			return consumed;
 		}
-
-		mGlobalListeners.push_back(listener);
 	}
+
+	return false;
 }
 
+bool EventManager::handleEvent(const EventPtr evt, EventConnectionList& list, IEventEmitter* emitter){
+	for(EventConnectionList::iterator iter=list.begin(); iter!=list.end(); iter++){
+		if((*iter).emitter == emitter){
 
-void EventManager::unregisterGlobalListener(EventListener* listener){
-	ListenerList::iterator iter = std::find(mGlobalListeners.begin(), mGlobalListeners.end(), listener);
-
-	if(iter == mGlobalListeners.end()){
-		WT_THROW("Global listener not registered");
-	}
-	else{
-		mGlobalListeners.erase(iter);
-	}
-}
-
-void EventManager::unregisterInternalEvent(const EvtType& eventType){
-	WT_ASSERT(isRegistered(eventType),
-		"Trying to register an already registered event of type \"%s\"", eventType.getString().c_str());
-	
-	mRegisteredEvents.erase(eventType);
-}
-
-void EventManager::registerEvent(const EvtType& type, ARegisteredEvtPtr evt){
-	if(isRegistered(type)){
-		WT_THROW("Trying to register an already registered event of type \"%s\"", type.getString().c_str());
-	}
-	else{
-		mRegisteredEvents.insert(
-			std::pair<EvtType, ARegisteredEvtPtr>(type, evt)
-		);
-	}
-}
-
-void EventManager::registerInternalEvent(const EvtType& eventType){
-	registerEvent(eventType, new InternalEventReg);
-}
-
-void EventManager::registerScriptEvent(const char* eventType){
-	registerEvent(eventType, new ScriptEventReg(this, eventType) );
-}
-
-void EventManager::registerListener(EventListener* listener, const EvtType& eventType){
-	if(!isRegistered(eventType)){
-		WT_THROW("Trying to register a listener for an unregistered event type \"%s\"",
-			eventType.getString().c_str());
-	}
-
-	if(std::find(mGlobalListeners.begin(), mGlobalListeners.end(), listener) != mGlobalListeners.end()){
-		WT_THROW("Listener already registered as global");
-	}
-
-	// find event listener list in the table
-	EvtListenerTable::iterator iter = mEvtListenerTable.find(eventType.getValue());
-
-	// if the list for the given event doesn't exist, create it
-	if(iter==mEvtListenerTable.end()){
-		mEvtListenerTable[eventType.getValue()] = ListenerList();
-	}
-
-	// check if the given listener is already registered for the event
-	ListenerList& list = mEvtListenerTable[eventType.getValue()];
-	for(ListenerList::iterator i=list.begin(); i!=list.end(); i++){
-		if(*i==listener){
-			WT_THROW("Listener already registered for the event \"%s\"\n", eventType.getString().c_str()
-				);
+			bool consumed = (*iter).listener->handleEvent(evt);
+				
+			if(consumed){
+				return consumed;
+			}
 		}
+	}
+
+	return false;
+}
+
+bool EventManager::handleEvent(const EventPtr evt, IEventEmitter* emitter, ConnectionType connectionType){
+	RegisteredEvent* eventReg = findRegisteredEvent(evt->getType());
+
+	WT_ASSERT(eventReg != NULL,
+		"Attempting to process un-registered event of type \"%s\"", evt->getType().c_str());
+
+	bool consumed = false;
+
+	// Global directly connected listeners
+	if( handleEvent(evt, mGlobalListeners[connectionType]) ){
+		// AEvent consumed
+		return consumed;
 	}
 		
-	// add the listener to the list
-	list.push_back(listener);
-}
+	// Handle directly connected, emitter-unconnected, specialized listeners
+	if( handleEvent(evt, eventReg->listeners[connectionType].unconnectedListeners) ){
+		// AEvent consumed
+		return consumed;
+	}
 
-void EventManager::unregisterListener(EventListener* listener){
-	for(EvtListenerTable::iterator i=mEvtListenerTable.begin(); i!=mEvtListenerTable.end(); i++){
-		ListenerList::iterator listenerIter = std::find(i->second.begin(), i->second.end(), listener);
-		if(listenerIter != i->second.end()){
-			i->second.erase(listenerIter);
+	// If event came from an emitter..
+	if(emitter){
+		// Handle directly connected, emitter-connected, specialized listeners
+		if( handleEvent(evt, eventReg->listeners[connectionType].connectedListeners, emitter) ){
+			// AEvent consumed
+			return consumed;
 		}
 	}
+
+	return false;
 }
 
-void EventManager::unregisterListener(EventListener* listener, const EvtType& eventType){
-	// find event listener list in the table
-	EvtListenerTable::iterator listIter = mEvtListenerTable.find(eventType.getValue());
-
-	ListenerList::iterator listenerIter = std::find(listIter ->second.begin(), listIter ->second.end(), listener);
-	if(listenerIter == listIter->second.end()){
-		WT_THROW(
-				"Listener not registered for event \"%s\"\n", eventType.getString().c_str()
-		);
-	}
-	else{
-		listIter->second.erase(listenerIter);
-	}
-}
-
-void EventManager::queueEvent(EvtPtr evt){
-	//mMutex.lock();
-
-	if(!isRegistered(evt->getType())){
-		WT_THROW(
-			"Trying to queue an unregistered event \"%s\"   %d\n",
-				evt->getType().getString().c_str(), evt->getType().getValue()
-				);
-	}
-	else{
-		mEventList.push_back(evt); // add the event to back of the list
-	}
-
-	//mMutex.unlock();
-}
-
-void EventManager::tick(){
-	// TODO Will cause deadlock if an event handler queues another event
-	// Should probably use concurrent queue for this instead
-
-	//mMutex.lock();
-
-	// Using a counter to prevent recursive event adition (i.e. notification of one event causes another to be queued)
-	uint32_t maxEvents = mEventList.size();
-
-	while(!mEventList.empty() && maxEvents > 0){
-		EvtPtr evt = mEventList.front();
-		maxEvents--;
-
-		fireEvent(evt);
-
-		mEventList.pop_front();
-	}
-
-	//mMutex.unlock();
-}
-
-void EventManager::queueEvent(const char* type, LuaObject data){
-	if(!isRegistered(type)){
-		TRACEE("Trying to queue an unregistered event of type \"%s\"", type);
+void EventManager::emit(const EventPtr evt, IEventEmitter* emitter){
+	if( handleEvent(evt, emitter, eCONNECTION_DIRECT) ){
+		// AEvent consumed
 		return;
 	}
 	
-	mRegisteredEvents.find(type)->second->queueFromScript(data);
+	// Queue the event
+	mEventQueue.push( EventQueueEntry(evt, emitter) );
 }
 
-void EventManager::fireEvent(EvtPtr evt){
-	{ 
-		// Callbacks
-		EvtCallbackTable::iterator iter = mEvtCallbackTable.find( evt->getType().getValue() );
-		if(iter != mEvtCallbackTable.end()){
-			for(CallbackList::iterator i=iter->second.begin(); i!=iter->second.end(); i++){
-				if(!i->isFiltered  || (i->isFiltered && i->filterData==evt->getEmitterData())){
-					i->callback->handleCallback();
+void EventManager::update(){
+	uint32_t numEvents = mEventQueue.size();
+
+	while(numEvents--){
+		EventQueueEntry entry = mEventQueue.front();
+		mEventQueue.pop();
+
+		if( handleEvent(entry.event, entry.emitter, eCONNECTION_QUEUED) ){
+			// AEvent consumed
+			continue;
+		}
+	}
+}
+
+void EventManager::registerEvent(const EventType& type){
+	// Already registered event of this type?
+	WT_ASSERT(findRegisteredEvent(type) == NULL,
+		"AEvent of type \"%s\" already registered", type.c_str());
+
+	mEventConnections.insert( std::make_pair(type.getValue(), RegisteredEvent(type)) );
+}
+
+void EventManager::unregisterEvent(const EventType& type){
+	EventConnectionTable::iterator iter = mEventConnections.find(type.getValue());
+
+	WT_ASSERT(iter != mEventConnections.end(),
+		"AEvent of type \"%s\" not registered", type.c_str());
+
+	mEventConnections.erase(iter);
+}
+
+EventManager::RegisteredEvent* EventManager::findRegisteredEvent(const EventType& type){
+	EventConnectionTable::iterator iter = mEventConnections.find(type.getValue());
+
+	return iter == mEventConnections.end() ? NULL : &iter->second;
+}
+
+EventManager::ListenerQueryList EventManager::findListener(IEventListener* listener){
+	ListenerQueryList res;
+
+	// Check global listeners
+	for(uint32_t i=0; i<eCONNECTION_MAX; i++){
+		EventListenerList::iterator iter = std::find(mGlobalListeners[i].begin(), mGlobalListeners[i].end(), listener);
+
+		if(iter != mGlobalListeners[i].end()){
+			ListenerQuery query;
+
+			// Found the listener
+			query.connected = false;
+			query.connection = static_cast<ConnectionType>(i);
+			query.global = true;
+
+			res.push_back(query);
+
+			return res;
+		}
+	}
+
+
+	for(EventConnectionTable::iterator i=mEventConnections.begin(); i != mEventConnections.end(); i++){
+		RegisteredEvent& eventReg = i->second;
+
+		for(uint32_t j=0; j<eCONNECTION_MAX; j++){
+			EventListenerList::iterator k = std::find(eventReg.listeners[j].unconnectedListeners.begin(), eventReg.listeners[j].unconnectedListeners.end(), listener);
+
+			if(k != eventReg.listeners[j].unconnectedListeners.end()){
+				ListenerQuery query;
+
+				// Found the listener
+				query.connected = false;
+				query.connection = static_cast<ConnectionType>(j);
+				query.global = false;
+				query.eventReg = &eventReg;
+
+				res.push_back(query);
+			}
+
+			for(EventConnectionList::iterator k = eventReg.listeners[j].connectedListeners.begin(); k!=eventReg.listeners[j].connectedListeners.end(); k++){
+				if((*k).listener == listener){
+					ListenerQuery query;
+
+					// Found the listener
+					query.connected = true;
+					query.connection = static_cast<ConnectionType>(j);
+					query.global = false;
+					query.eventReg = &eventReg;
+
+					res.push_back(query);
 				}
 			}
 		}
 	}
 
-	{ 
-		// Code listeners
-		EvtListenerTable::iterator iter = mEvtListenerTable.find(evt->getType().getValue());
-
-		// Global handlers
-		for(ListenerList::iterator i=mGlobalListeners.begin(); i!=mGlobalListeners.end(); i++){
-			(*i)->handleEvent(evt);
-		}
-
-		// Specialized handlers
-		if(iter!=mEvtListenerTable.end()){ // event is being handled by some listeners
-			ListenerList& list = iter->second;
-
-			for(ListenerList::iterator i=list.begin(); i!=list.end(); i++){
-				if( ! (*i)->handleEvent(evt) ){
-					break; // listener consumed the event
-				}
-			}
-		}
-	}
-
-	{
-		// Script listeners
-		ScriptListenerMap::iterator iter = mScriptListeners.find(evt->getType());
-
-		if(iter != mScriptListeners.end()){
-			ScriptListenerMap::iterator end = mScriptListeners.upper_bound(iter->first);
-
-			while(iter != end){
-				evt->buildLuaData(mLuaState);
-
-				if(!iter->second->handleEvent(evt)){
-					break;
-				}
-				iter++;
-			}
-		}
-	}
-
+	return res;
 }
 
 } // </wt>
+

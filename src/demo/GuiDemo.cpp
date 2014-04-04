@@ -60,6 +60,9 @@ public:
 	}
 
 	void onDemoStart(const LuaObject& config){
+#if 1
+		TRACEW("TODO");
+#else
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
 		gui::Button* btn;
@@ -168,7 +171,7 @@ public:
 				);
 		}
 
-
+#endif
 		getRenderer()->setClearColor( Color::Black() );
 
 		getInput()->setMouseGrabbed(false);

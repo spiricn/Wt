@@ -822,7 +822,7 @@ void Physics::onTrigger(PxTriggerPair* pairs, PxU32 count){
 				pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ? RegionEvent::eACTOR_ENTERED_REGION : RegionEvent::eACTOR_LEFT_REGION
 			);
 
-			mEventManager->queueEvent(evt);
+			mEventManager->emit(evt);
 		}
 	}
 }
@@ -844,8 +844,8 @@ bool handleCollision(PxFilterData filterData0, PxFilterData filterData1){
 	return (filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1);
 }
 
-const EvtType RaycastHitEvent::TYPE = "RaycastHit";
+const EventType RaycastHitEvent::TYPE = "RaycastHit";
 
-const EvtType RegionEvent::TYPE = "RegionEvent";
+const EventType RegionEvent::TYPE = "RegionEvent";
 
 }; // </wt>

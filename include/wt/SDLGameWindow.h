@@ -24,7 +24,7 @@ public:
 
 	void hook(EventManager* evtManager);
 
-	bool handleEvent(const Sp<Event> evt);
+	bool handleEvent(const Sp<AEvent> evt);
 
 	void setVsyncEnabled(bool state);
 

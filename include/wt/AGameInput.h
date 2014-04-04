@@ -3,7 +3,7 @@
 
 
 
-#include "wt/Event.h"
+#include "wt/AEvent.h"
 #include "wt/EventManager.h"
 #include "wt/AGameWindow.h"
 
@@ -23,7 +23,7 @@ enum MouseButton {
 };
 
 
-class KeyPressEvent : public Event{
+class KeyPressEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 		dst.SetInteger("keyCode", mCode);
@@ -38,7 +38,7 @@ protected:
 public:
 	enum Action {DOWN=0, UP=1};
 
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	VirtualKey mCode;
 	Action mAction;
@@ -47,13 +47,13 @@ public:
 		mAction(action){
 	}
 
-	const EvtType& getType() const {
+	const EventType& getType() const {
 		return TYPE;
 	}
 
 }; // </KeyPressEvent>
 
-class MouseMotionEvent : public Event{
+class MouseMotionEvent : public AEvent{
 protected:
 
 	void serialize(LuaObject& dst){
@@ -67,7 +67,7 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	uint32_t mX, mY;
 	int32_t mDx, mDy;
@@ -76,13 +76,13 @@ public:
 		mDx(dx), mDy(dy){
 	}
 
-	const EvtType& getType() const {
+	const EventType& getType() const {
 		return TYPE;
 	}
 
 }; // </MouseMotionEvent>
 
-class MousePressEvent : public Event{
+class MousePressEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 		dst.SetInteger("x", mX);
@@ -100,7 +100,7 @@ public:
 	};
 
 
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	Action mAction;
 	MouseButton mButton;
@@ -109,14 +109,14 @@ public:
 	MousePressEvent(MouseButton btn, uint32_t x, uint32_t y, Action action) : mButton(btn), mX(x), mY(y), mAction(action){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 
 }; // </MousePressEvent>
 
 
-class AppQuitEvent : public Event{
+class AppQuitEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -125,9 +125,9 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
-	const EvtType& getType() const {
+	const EventType& getType() const {
 		return TYPE;
 
 	}
@@ -169,10 +169,10 @@ public:
 	virtual bool isMouseGrabbed()=0;
 
 	virtual void hook(EventManager* evtManager){
-		evtManager->registerInternalEvent(KeyPressEvent::TYPE);
-		evtManager->registerInternalEvent(MousePressEvent::TYPE);
-		evtManager->registerInternalEvent(MouseMotionEvent::TYPE);
-		evtManager->registerInternalEvent(AppQuitEvent::TYPE);
+		evtManager->registerEvent(KeyPressEvent::TYPE);
+		evtManager->registerEvent(MousePressEvent::TYPE);
+		evtManager->registerEvent(MouseMotionEvent::TYPE);
+		evtManager->registerEvent(AppQuitEvent::TYPE);
 	}
 
 }; // </GameInput>

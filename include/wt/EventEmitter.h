@@ -10,7 +10,7 @@ class EventEmitter{
 private:
 	EventManager* mManager;
 	bool mHooked;
-	typedef std::vector<EvtType> EventList;
+	typedef std::vector<EventType> EventList;
 	EventList mEvents;
 
 public:
@@ -19,7 +19,7 @@ public:
 
 	~EventEmitter(){
 		for(EventList::iterator i=mEvents.begin(); i!=mEvents.end(); i++){
-			mManager->unregisterInternalEvent(*i);
+			mManager->unregisterEvent(*i);
 		}
 	}
 
@@ -32,10 +32,10 @@ public:
 		va_start(vlist, numEvents);
 
 		for(uint32_t i=0; i<numEvents; i++){
-			EvtType type = va_arg(vlist, EvtType);
+			EventType type = va_arg(vlist, EventType);
 			mEvents.push_back(type);
 
-			manager->registerInternalEvent(type);
+			manager->registerEvent(type);
 		}
 		
 		mHooked = true;

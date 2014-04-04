@@ -113,7 +113,7 @@ public:
 	void onBeforeSystemUpdate(int32_t system, float dt){
 	}
 
-	bool handleEvent(const Sp<Event> e){
+	bool handleEvent(const EventPtr e){
 		if(e->getType() == RegionEvent::TYPE){
 			const RegionEvent* evt = (const RegionEvent*)e.get();
 

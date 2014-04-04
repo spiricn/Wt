@@ -38,7 +38,7 @@ private:
 }; // </SliderView>
 
 
-class SliderValueChangedEvent : public Event{
+class SliderValueChangedEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -47,7 +47,7 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	SliderView* view;
 	float value;
@@ -55,7 +55,7 @@ public:
 	SliderValueChangedEvent(){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 

@@ -129,7 +129,7 @@ private:
 
 Physics::PickFlag operator|(Physics::PickFlag a, Physics::PickFlag b);
 
-class RaycastHitEvent : public Event{
+class RaycastHitEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -138,7 +138,7 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 	PhysicsActor* mPickedActor;
 	float mDistance;
 	uint32_t mTriangleIndex;
@@ -149,14 +149,14 @@ public:
 		mTriangleIndex(faceIndex), mImpact(impact){
 	}
 
-	const EvtType& getType() const {
+	const EventType& getType() const {
 		return TYPE;
 	}
 
 }; // </RaycastHitEvent>
 
 
-class RegionEvent : public Event{
+class RegionEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 		dst.Set("region", static_cast<void*>(regionActor));
@@ -178,12 +178,12 @@ public:
 
 	Type type;
 
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	RegionEvent(PhysicsActor* regionActor, PhysicsActor* collidingActor, Type type) : type(type), regionActor(regionActor), collidingActor(collidingActor){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 

@@ -72,8 +72,8 @@ void AEngineFramework::Desc::deserialize(lua::State* luaState, const LuaPlus::Lu
 	luaConv(src.Get("main_loop_step"), mainLoopStep);
 }
 
-void AEngineFramework::processEvent(const wt::Sp<wt::Event> evt){
-		const EvtType& type = evt->getType();
+void AEngineFramework::processEvent(const wt::Sp<wt::AEvent> evt){
+		const EventType& type = evt->getType();
 
 	if(type == KeyPressEvent::TYPE){
 		const KeyPressEvent* e = static_cast<const KeyPressEvent*>(evt.get());
@@ -131,7 +131,7 @@ void AEngineFramework::mainLoop(){
 		mInput->pollAndDispatch();
 
 		// Dispatch all previously queued events
-		mEventManager->tick();
+		mEventManager->update();
 
 		// Update all processes
 		if(mActiveSystems & eSYSTEM_PROCESS){
@@ -200,7 +200,7 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 	LOG("New log session %s", wt::utils::getCurrentTime("%H:%M:%S %d/%b/%Y").c_str());
 
 	// Main event manager
-	mEventManager = new EventManager(mLuaState);
+	mEventManager = new EventManager;
 
 	// Process manager
 	mProcessManager = new ProcessManager;

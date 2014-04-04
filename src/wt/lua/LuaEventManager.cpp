@@ -21,7 +21,8 @@ void EventManager_expose(LuaObject obj){
 void EventManager_registerListener(void* ptr, const char* evt, LuaObject fnc){
 	GET_THIS;
 
-	thiz->addScriptListener(evt, fnc);
+	//WT_THROW("Not implemented");
+	//thiz->addScriptListener(evt, fnc);
 }
 
 } // </lua>

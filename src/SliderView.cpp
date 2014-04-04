@@ -66,7 +66,7 @@ void SliderView::setMode(Mode mode){
 	mMode = mode;
 }
 
-const EvtType SliderValueChangedEvent::TYPE = "SliderValueChanged";
+const EventType SliderValueChangedEvent::TYPE = "SliderValueChanged";
 
 } // </gui>
 

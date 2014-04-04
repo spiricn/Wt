@@ -478,7 +478,7 @@ void DeferredRender::setShadowCasterMatrix(const glm::mat4& matrix){
 void DeferredRender::pointLightPass(Scene* scene, Camera* camera, const PointLight* light){
 	ShaderPointLight* shaderPointLight = findShaderPointLight(light);
 	if(shaderPointLight == NULL){
-		// Event has not reached us yet
+		// AEvent has not reached us yet
 		return;
 	}
 

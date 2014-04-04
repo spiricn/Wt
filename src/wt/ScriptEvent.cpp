@@ -6,10 +6,10 @@
 namespace wt
 {
 
-ScriptEvent::ScriptEvent(EvtType type, LuaObject& data) : mEventType(type), Event(data){
+ScriptEvent::ScriptEvent(EventType type, LuaObject& data) : mEventType(type), AEvent(data){
 }
 
-const EvtType& ScriptEvent::getType() const {
+const EventType& ScriptEvent::getType() const {
 	return mEventType;
 }
 

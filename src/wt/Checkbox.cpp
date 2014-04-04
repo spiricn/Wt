@@ -67,7 +67,7 @@ void Checkbox::draw(Canvas& c){
 	c.drawText(getFont(), mText, getSize().y, getSize().y/2.0f - textSize.y/2.0f, Color::Black());
 }
 
-const EvtType CheckboxClickedEvent::TYPE = "CheckboxClicked";
+const EventType CheckboxClickedEvent::TYPE = "CheckboxClicked";
 
 } // </gui>
 

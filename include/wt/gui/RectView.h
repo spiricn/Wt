@@ -9,7 +9,7 @@ namespace gui{
 
 class RectView;
 
-class RectViewClickedEvent : public Event{
+class RectViewClickedEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -18,7 +18,7 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	glm::vec2 point;
 	RectView* view;
@@ -26,7 +26,7 @@ public:
 	RectViewClickedEvent(){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 
@@ -67,9 +67,10 @@ public:
 		RectViewClickedEvent* evt = new RectViewClickedEvent;
 		evt->point = glm::vec2(e->mX, e->mY);
 		evt->view = this;
-		evt->setEmitterData( getId() );
+		//evt->setEmitterData( getId() );
 
-		getEventManager()->queueEvent(evt);
+		//getEventManager()->emit(evt);
+		TRACEW("TODO");
 	}
 
 	void draw(Canvas& c){

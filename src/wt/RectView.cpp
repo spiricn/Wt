@@ -8,7 +8,7 @@ namespace wt{
 
 namespace gui{
 
-const EvtType RectViewClickedEvent::TYPE = "RectViewClicked";
+const EventType RectViewClickedEvent::TYPE = "RectViewClicked";
 
 }; // </gui>
 

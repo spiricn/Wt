@@ -1,187 +1,109 @@
+/**
+ * @file EventManager.h
+ * @author Nikola Spiric <nikola.spiric.ns@gmail.com>
+ */
+ 
 #ifndef WT_EVENTMANAGER_H
 #define WT_EVENTMANAGER_H
 
-#include "wt/stdafx.h"
-
-#include "wt/Exception.h"
-#include "wt/EventListener.h"
-#include "wt/Event.h"
-#include "wt/ScriptEvent.h"
-#include "wt/Defines.h"
-#include "wt/Mutex.h"
-#include "wt/lua/State.h"
-#include "wt/MemberCallback.h"
-
-namespace lua
-{
-
-class State;
-
-} // </lua>
+#include "wt/AEvent.h"
+#include "wt/IEventListener.h"
+#include "wt/IEventEmitter.h"
 
 namespace wt
 {
 
 class EventManager{
 public:
-	class ARegisteredEvent{
-	public:
-		enum Type{
-			// defined by code, can not be triggered from script
-			eEVENT_INTERNAL,
-
-			// defined by script and can be triggered both from script and code
-			eEVENT_SCRIPT,
-
-			// defined by code and can be triggered both from script and code
-			eEVENT_SHARED,
-		}; // </Type>
-
-		ARegisteredEvent(Type type);
-
-		Type getType() const;
-
-		virtual void queueFromScript(LuaObject& data) = 0;
-
-	private:
-		Type mType;
-	}; // </ARegisteredEvent>
-
-	
-	class InternalEventReg : public ARegisteredEvent{
-	public:
-		InternalEventReg();
-
-		void queueFromScript(LuaObject& data);
-
-	}; // </InternalEventReg>
-
-
-
-	class ScriptEventReg : public ARegisteredEvent{
-	public:
-		virtual ~ScriptEventReg(){
-		}
-
-		ScriptEventReg(EventManager* manager, const EvtType& eventType) : mEventManager(manager), mEventType(eventType), ARegisteredEvent(eEVENT_SCRIPT){
-		}
-
-		void queueFromScript(LuaObject& data){
-			mEventManager->queueEvent( new ScriptEvent(mEventType, data) );
-		}
-
-	private:
-		EvtType mEventType;
-		EventManager* mEventManager;
-
-	}; // </ScriptEventReg>
-
-	template<class T>
-	class SharedEventReg : public ARegisteredEvent{
-	public:
-		SharedEventReg () : ARegisteredEvent(eEVENT_SHARED){
-		}
-
-		void queueFromScript(LuaObject& data){
-			queueEvent( new T(data) );
-		}
-
-	}; // </SharedEventReg>
-
-	typedef Sp<ARegisteredEvent> ARegisteredEvtPtr;
+	enum ConnectionType{
+		eCONNECTION_DIRECT,
+		eCONNECTION_QUEUED,
+		eCONNECTION_MAX
+	};
 
 public:
-	EventManager(lua::State* luaState);
+	void registerListener(IEventListener* listener, const EventType& type="", ConnectionType connectionType=eCONNECTION_DIRECT, IEventEmitter* emitter=NULL);
 
-	virtual ~EventManager();
+	void unregisterListener(IEventListener* listener, EventType type="", IEventEmitter* emitter=NULL);
 
-	bool addScriptListener(const char*, LuaObject callback);
+	void emit(const EventPtr evt, IEventEmitter* emitter=NULL);
 
-	inline bool isRegistered(const EvtType& type);
+	void update();
 
-	void registerGlobalListener(EventListener* listener);
+	void registerEvent(const EventType& type);
 
-	void registerListener(EventListener* listener, const EvtType& eventType);
-
-	void registerInternalEvent(const EvtType& eventType);
-
-	void unregisterInternalEvent(const EvtType& eventType);
-
-	void registerScriptEvent(const char* eventType);
-
-	template<class T>
-	void registerSharedEvent(const EvtType& eventType){
-		registerEvent(eventType, new SharedEventReg<T>);
-	}
-
-	void unregisterGlobalListener(EventListener* listener);
-
-	void unregisterListener(EventListener* listener, const EvtType& eventType);
-
-	void registerCallback(CallbackPtr callback, const EvtType& eventType, bool filtered=false, uint32_t filterData=0);
-
-	void unregisterListener(EventListener* listener);
-
-	void queueEvent(EvtPtr evt);
-
-	void queueEvent(const char* type, LuaObject data);
-
-	void fireEvent(EvtPtr evt);
-
-	void tick();
-
-	void generateMetaTable();
+	void unregisterEvent(const EventType& type);
 
 private:
-	struct RegisteredCallback{
-		CallbackPtr callback;
-		uint32_t filterData;
-		bool isFiltered;
+	struct EventQueueEntry{
+		const EventPtr event;
+		IEventEmitter* emitter;
 
-		RegisteredCallback(CallbackPtr callback, uint32_t filterData, bool isFiltered) : callback(callback), filterData(filterData), isFiltered(isFiltered){
+		EventQueueEntry(const EventPtr event, IEventEmitter* emitter) : emitter(emitter), event(event){
 		}
-	}; // </RegisteredCallback>;
+	};
 
-	typedef Sp<ACallback> CallbackPtr;
+	typedef std::vector<EventType> EventTypeList;
 
-	typedef std::list<RegisteredCallback> CallbackList;
-	typedef std::map<uint32_t, CallbackList> EvtCallbackTable;
+	typedef std::queue<EventQueueEntry> EventQueue; 
 
-	typedef std::list<EventListener*> ListenerList;
-	typedef std::map<uint32_t, ListenerList> EvtListenerTable;
-	typedef std::list<EvtPtr> EventList;
-	typedef std::multimap<EvtType, Sp<ScriptEventListener>> ScriptListenerMap;
-	typedef std::multimap<EvtType, ARegisteredEvtPtr> RegisteredEvtMap;
+	struct EventConnection{
+		IEventEmitter* emitter;
+		IEventListener* listener;
+
+		EventConnection(IEventEmitter* emitter=NULL, IEventListener* listener=NULL) : emitter(emitter), listener(listener){
+		}
+	};
+
+	typedef std::vector<EventConnection> EventConnectionList;
+
+	typedef std::vector<IEventListener*> EventListenerList;
+
+	struct EventListeners{
+		/** List of listneers subscribed to a specific emitter */
+		EventConnectionList connectedListeners;
+
+		/* List of listeners subscribed to all emitters */
+		EventListenerList unconnectedListeners;
+	};
+
+	struct RegisteredEvent{
+		RegisteredEvent(const EventType eventType) : eventType(eventType){
+		}
+
+		const EventType eventType;
+		EventListeners listeners[eCONNECTION_MAX];
+	};
+
+	typedef std::map<EventType::HashValue, RegisteredEvent> EventConnectionTable;
+
+	struct ListenerQuery{
+		bool global;
+		ConnectionType connection;
+		bool connected;
+		RegisteredEvent* eventReg;
+	};
+
+	typedef std::vector<ListenerQuery> ListenerQueryList;
 
 private:
+	ListenerQueryList findListener(IEventListener* listener);
 
-	void registerEvent(const EvtType& type, ARegisteredEvtPtr evt);
+	RegisteredEvent* findRegisteredEvent(const EventType& type);
+
+	bool handleEvent(const EventPtr evt, EventListenerList& list);
+
+	bool handleEvent(const EventPtr evt, EventConnectionList& list, IEventEmitter* emitter);
+
+	bool handleEvent(const EventPtr evt, IEventEmitter* emitter, ConnectionType connectionType);
 
 private:
-	
-	RegisteredEvtMap mRegisteredEvents;
-
-	/** list of active queued events */
-	EventList mEventList;
-
-	/** table used for mapping an event to a SCRIPT callback */
-	ScriptListenerMap mScriptListeners;
-
-	/** table used for mapping an event to a CODE listeners */
-	EvtListenerTable mEvtListenerTable;
-
-	/** list of "global" listeners (listening to all events) */
-	ListenerList mGlobalListeners;
-	
-	EvtCallbackTable mEvtCallbackTable;
-
-	lua::State* mLuaState;
-
-	// used for thread safe event-queue
-	Mutex mMutex;
+	EventListenerList mGlobalListeners[eCONNECTION_MAX];
+	EventConnectionTable mEventConnections;
+	EventQueue mEventQueue;
 
 }; // </EventManager>
 
-}; // </wt>
+} // </wt>
 
-#endif
+#endif // </WT_EVENTMANAGER_H>

@@ -4,26 +4,14 @@
 
 #include "wt/stdafx.h"
 
-#include "wt/Event.h"
+#include "wt/AEvent.h"
 #include "wt/Sp.h"
 
 namespace wt{
 
-#define TD_TRACE_TAG "EventListener"
-
-class EventListener{
-public:
-	virtual bool handleEvent(const Sp<Event> e) = 0 {
-		return true;
-	}
-
-	virtual ~EventListener(){
-	}
-
-}; // </EventListener>
 
 
-class ScriptEventListener : public EventListener{
+class ScriptEventListener : public IEventListener{
 private:
 	LuaObject mCallback;
 public:
@@ -31,8 +19,8 @@ public:
 		WT_ASSERT(callback.IsFunction(), "Invalid lua callback function");
 	}
 
-	bool handleEvent(const Sp<Event> evt){
-		const LuaObject& evtData = const_cast<Event*>(evt.get())->getLuaData();
+	bool handleEvent(const Sp<AEvent> evt){
+		const LuaObject& evtData = const_cast<AEvent*>(evt.get())->getLuaData();
 
 		LuaFunction<bool> func(mCallback);
 		bool res=true;

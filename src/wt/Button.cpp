@@ -8,7 +8,7 @@ namespace wt{
 
 namespace gui{
 
-const EvtType ButtonClickedEvent::TYPE = "ButtonClicked";
+const EventType ButtonClickedEvent::TYPE = "ButtonClicked";
 
 }; // </gui>
 

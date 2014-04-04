@@ -39,7 +39,7 @@ public:
 
 	void startMainLoop();
 
-	void processEvent(const wt::Sp<wt::Event> evt);
+	void processEvent(const wt::Sp<wt::AEvent> evt);
 
 	void initializeFramework(const Desc& desc);
 

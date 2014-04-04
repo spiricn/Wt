@@ -93,6 +93,6 @@ AGameWindow::Desc::Desc(uint32_t screenWidth, uint32_t screenHeight, const Strin
 
 
 
-const EvtType WindowSizeChange::TYPE = "WindowSizeChange";
+const EventType WindowSizeChange::TYPE = "WindowSizeChange";
 
 } // </wt>

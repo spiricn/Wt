@@ -19,7 +19,7 @@ using namespace gl;
 
 #define DIRTY do{ setDirty(true); }while(0)
 
-class ViewClickedEvent : public Event{
+class ViewClickedEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -28,12 +28,12 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	ViewClickedEvent(){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 
@@ -120,7 +120,7 @@ public:
 
 	void setPosition(float x, float y);
 
-	void emitEvent(Event* e);
+	void emitEvent(AEvent* e);
 
 	void setPosition(const glm::vec2& position);
 

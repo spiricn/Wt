@@ -5,9 +5,9 @@
 #define TD_TRACE_TAG "AGameInput"
 
 namespace wt{
-	const EvtType KeyPressEvent::TYPE = "KeyPress";
-	const EvtType AppQuitEvent::TYPE = "AppQuit";
-	const EvtType MouseMotionEvent::TYPE = "MouseMotion";
-	const EvtType MousePressEvent::TYPE = "MousePress";
+	const EventType KeyPressEvent::TYPE = "KeyPress";
+	const EventType AppQuitEvent::TYPE = "AppQuit";
+	const EventType MouseMotionEvent::TYPE = "MouseMotion";
+	const EventType MousePressEvent::TYPE = "MousePress";
 	
 }; // </wt>

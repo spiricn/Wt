@@ -40,7 +40,7 @@ namespace wt
 
 class DemoManager;
 
-class ADemo : public AEngineFramework, public EventListener{
+class ADemo : public AEngineFramework, public IEventListener{
 public:
 	const String& getName() const;
 
@@ -60,7 +60,7 @@ public:
 
 	virtual String getScriptPath() const;
 
-	virtual bool handleEvent(const Sp<Event> e);
+	virtual bool handleEvent(const EventPtr e);
 
 	virtual void onDemoStart(const LuaObject&);
 

@@ -10,7 +10,7 @@
 
 namespace wt{
 
-class RemoteConsoleCmdEvent : public Event{
+class RemoteConsoleCmdEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 		dst.Set("command", command.c_str());
@@ -20,20 +20,20 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	String command;
 
 	RemoteConsoleCmdEvent(const String& command) : command(command){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 
 }; // </RemoteConsoleCmdEvent>
 
-const EvtType RemoteConsoleCmdEvent::TYPE = "RemoteConsoleCmd";
+const EventType RemoteConsoleCmdEvent::TYPE = "RemoteConsoleCmd";
 
 
 class RemoteConsole : public Thread{
@@ -44,7 +44,7 @@ private:
 
 public:
 	RemoteConsole(){
-		EventManager::getSingleton().registerInternalEvent(RemoteConsoleCmdEvent::TYPE);
+		EventManager::getSingleton().registerEvent(RemoteConsoleCmdEvent::TYPE);
 	}
 
 	void run(){
@@ -69,7 +69,7 @@ public:
 				break;
 			}
 
-			EventManager::getSingleton().queueEvent(
+			EventManager::getSingleton().emit(
 				new RemoteConsoleCmdEvent((const char*)packet.getPayload())
 				);
 		}

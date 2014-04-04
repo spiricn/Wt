@@ -11,7 +11,7 @@ namespace wt
 namespace gui
 {
 
-const EvtType ViewClickedEvent::TYPE = "ViewClicked";
+const EventType ViewClickedEvent::TYPE = "ViewClicked";
 
 
 void View::setId(uint32_t id){
@@ -162,9 +162,11 @@ void View::setPosition(float x, float y){
 	mPosition.y = y;
 }
 
-void View::emitEvent(Event* e){
-	e->setEmitterData( mId );
-	mEventManager->queueEvent(e);
+void View::emitEvent(AEvent* e){
+	//e->setEmitterData( mId );
+	//mEventManager->emit(e);
+
+	TRACEW("TODO");
 }
 
 void View::setPosition(const glm::vec2& position){

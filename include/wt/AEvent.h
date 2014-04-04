@@ -1,5 +1,5 @@
-#ifndef WT_EVENT_H
-#define WT_EVENT_H
+#ifndef WT_AEVENT_H
+#define WT_AEVENT_H
 
 #include "wt/stdafx.h"
 
@@ -11,21 +11,17 @@
 namespace wt
 {
 
-typedef HashedString EvtType;
+typedef HashedString EventType;
 
-class Event{
+class AEvent{
 public:
-	Event();
+	AEvent();
 
-	Event(LuaObject& data);
+	AEvent(LuaObject& data);
 
-	uint32_t getEmitterData() const;
+	virtual ~AEvent();
 
-	void setEmitterData(uint32_t data);
-
-	virtual ~Event();
-
-	virtual const EvtType& getType() const = 0;
+	virtual const EventType& getType() const = 0;
 
 	virtual const LuaObject& getLuaData();
 
@@ -41,11 +37,11 @@ private:
 
 	LuaObject mLuaData;
 	bool mLuaDataBuilt;
-	uint32_t mEmitterData;
-}; // </Event>
+}; // </AEvent>
 
-typedef Sp<Event> EvtPtr;
+typedef Sp<AEvent> EventPtr;
 
-}; // </wt>
+} // </wt>
 
-#endif
+#endif // </WT_AEVENT_H>
+

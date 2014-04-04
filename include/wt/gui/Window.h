@@ -22,7 +22,7 @@ namespace wt
 namespace gui
 {
 
-class Window : public EventListener{
+class Window : public IEventListener{
 public:
 	Window();
 
@@ -58,7 +58,7 @@ public:
 	template<class T>
 	T* findView(const String& name);
 
-	bool handleEvent(const Sp<Event> evt);
+	bool handleEvent(const Sp<AEvent> evt);
 
 	View* viewAt(float x, float y);
 

@@ -10,7 +10,7 @@ namespace gui{
 
 class Button;
 
-class ButtonClickedEvent : public Event{
+class ButtonClickedEvent : public AEvent{
 protected:
 	void serialize(LuaObject& dst){
 	}
@@ -19,14 +19,14 @@ protected:
 	}
 
 public:
-	static const EvtType TYPE;
+	static const EventType TYPE;
 
 	Button* button;
 
 	ButtonClickedEvent(){
 	}
 
-	const EvtType& getType() const{
+	const EventType& getType() const{
 		return TYPE;
 	}
 
@@ -64,9 +64,11 @@ public:
 	void onClicked(){
 		ButtonClickedEvent* evt = new ButtonClickedEvent;
 		evt->button = this;
-		evt->setEmitterData(getId());
+		TRACEW("TODO");
 
-		getEventManager()->queueEvent(evt);
+		//evt->setEmitterData(getId());
+
+		//getEventManager()->emit(evt);
 	}
 
 	void setText(const String& text){

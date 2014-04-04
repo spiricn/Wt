@@ -1,19 +1,19 @@
 #ifndef WT_SCRIPTEVENT_H
 #define WT_SCRIPTEVENT_H
 
-#include "wt/Event.h"
+#include "wt/AEvent.h"
 
 namespace wt
 {
 
-class ScriptEvent : public Event{
+class ScriptEvent : public AEvent{
 public:
-	ScriptEvent(EvtType type, LuaObject& data);
+	ScriptEvent(EventType type, LuaObject& data);
 
-	const EvtType& getType() const;
+	const EventType& getType() const;
 
 private:
-	EvtType mEventType;
+	EventType mEventType;
 	LuaObject mData;
 
 	void serialize(LuaObject& dst);

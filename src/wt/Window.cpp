@@ -115,7 +115,7 @@ View* Window::findView(const String& name){
 
 
 
-bool Window::handleEvent(const Sp<Event> evt){
+bool Window::handleEvent(const Sp<AEvent> evt){
 	if(!mVisible){
 		return true;
 	}
