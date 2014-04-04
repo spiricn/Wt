@@ -15,6 +15,8 @@ namespace lua
 
 void Scene_expose(LuaObject obj);
 
+const char* Scene_getActorName(void* actorPtr);
+
 void Scene_load(void* ptr, const char* path);
 
 void* Scene_getCamera(void* ptr);

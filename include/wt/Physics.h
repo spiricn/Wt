@@ -159,9 +159,9 @@ public:
 class RegionEvent : public Event{
 protected:
 	void serialize(LuaObject& dst){
-		dst.Set("region", regionActor->getId());
-		dst.Set("actor", collidingActor->getId());
-		dst.Set("type", type);
+		dst.Set("region", static_cast<void*>(regionActor));
+		dst.Set("collidingActor", static_cast<void*>(collidingActor));
+		dst.Set("type", type == eACTOR_LEFT_REGION ? "left" : "entered");
 	}
 
 	void deserialize(LuaObject& /*src*/){

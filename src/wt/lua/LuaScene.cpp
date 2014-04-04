@@ -10,6 +10,8 @@
 
 #define SCENE_OBJ(name, ptr) LUA_OBJ_DEC(Scene, name, ptr)
 
+#define SCENE_ACTOR_OBJ(name, ptr) LUA_OBJ_DEC(ASceneActor, name, ptr)
+
 #define CAM_CTRL_OBJ(name, ptr) LUA_OBJ_DEC(CameraController, name, ptr)
 
 #define TF_OBJ(name, ptr) LUA_OBJ_DEC(ATransformable, name, ptr)
@@ -36,6 +38,13 @@ void Scene_expose(LuaObject obj){
 	MODULE_EXPOSE(obj, CamCtrl_update);
 	MODULE_EXPOSE(obj, CamCtrl_setMode);
 	MODULE_EXPOSE(obj, CamCtrl_setTarget);
+	MODULE_EXPOSE(obj, Scene_getActorName);
+}
+
+const char* Scene_getActorName(void* actorPtr){
+	SCENE_ACTOR_OBJ(actor, actorPtr);
+
+	return actor->getName().c_str();
 }
 
 void CamCtrl_setMode(void* ctrlPtr, const char* mode){

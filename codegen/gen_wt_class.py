@@ -4,7 +4,15 @@ headerGuard = 'WT_%s_H' % className.upper()
 
 ###############################################################################
 
+
+headerFileName =  '%s.h' % className
+
 headerTemplate = '''\
+/**
+ * @file <%= headerFileName %>
+ * @author Nikola Spiric <nikola.spiric.ns@gmail.com>
+ */
+ 
 #ifndef <%= headerGuard %>
 #define <%= headerGuard %>
 
@@ -25,11 +33,18 @@ private:
 #endif // </<%= headerGuard %>>
 '''
 
-CG_convertSource(headerTemplate, '%s.h' % className)
+CG_convertSource(headerTemplate, headerFileName)
 
 ###############################################################################
 
+cppFileName = '%s.cpp' % className
+
 sourceTemplate = '''\
+/**
+ * @file <%= cppFileName %>
+ * @author Nikola Spiric <nikola.spiric.ns@gmail.com>
+ */
+
 #include "wt/stdafx.h"
 #include "wt/<%= className %>.h"
 
@@ -48,6 +63,6 @@ namespace wt
 
 '''
 
-CG_convertSource(sourceTemplate, '%s.cpp' % className)
+CG_convertSource(sourceTemplate, cppFileName)
 
 ###############################################################################

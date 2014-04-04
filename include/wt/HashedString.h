@@ -1,35 +1,31 @@
 #ifndef WT_HASHEDSTRING_H
 #define WT_HASHEDSTRING_H
 
-
 #include "wt/stdafx.h"
 
-
-#include <td/td.h>
 #include "wt/Exception.h"
 
-namespace wt{
+namespace wt
+{
 
 class HashedString{
-private:
-	String mString;
-	uint32_t mHash;
-
-	uint32_t hash(const String& x, int M=200);
-
+public:
+	typedef uint32_t HashValue;
 
 public:
 	HashedString();
 
-	HashedString(const std::string& str);
+	HashedString(const String& str);
 
 	HashedString(const char* str);
 
 	const String& getString() const;
 
-	const uint32_t getHashCode() const;
+	const HashValue getValue() const;
 
-	HashedString& operator=(const std::string& str);
+	const char* c_str() const;
+
+	HashedString& operator=(const String& str);
 
 	HashedString& operator=(const char* str);
 
@@ -37,15 +33,16 @@ public:
 
 	bool operator==(const HashedString& other) const;
 
-	const char* c_str() const;
-
 	bool operator!=(const HashedString& other) const;
 
 	bool operator<(const HashedString& other) const;
-};
 
-inline size_t hash_value(const HashedString& str);
+private:
+	String mString;
+	HashValue mValue;
 
-}; // </wt>
+}; // </HashedString>
 
-#endif
+} // </wt>
+
+#endif  // </WT_HASHEDSTRING_H>

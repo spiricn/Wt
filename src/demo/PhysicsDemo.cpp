@@ -118,10 +118,20 @@ public:
 			const RegionEvent* evt = (const RegionEvent*)e.get();
 
 			if(evt->type == RegionEvent::eACTOR_ENTERED_REGION){
-				getProcessManager()->attach( (new AnimatorProcess((ModelledActor*)getScene()->findActorByName("door")))
-				->addAnimation("open", 0.5, false)
-				->addAnimation("openned", 0, 0, 0, true, 0)
-				);
+				if(!evt->regionActor->getSceneActor()->getName().compare("door_region")){
+					ModelledActor* door = (ModelledActor*)getScene()->findActorByName("door");
+
+					getProcessManager()->attach( (new AnimatorProcess(door))
+					->addAnimation("open", 0.5, false)
+					->addAnimation("openned", 0, 0, 0, true, 0)
+					);
+
+					getScene()->deleteActor(evt->regionActor->getSceneActor());
+					getScene()->getPhysics()->removeActor(door->getPhysicsActor());
+				}
+				else if(!evt->regionActor->getSceneActor()->getName().compare("scene_end_region")){
+					LOGI("END!");
+				}
 			}
 		}
 

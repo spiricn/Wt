@@ -16,14 +16,14 @@ void EventManager::registerCallback(CallbackPtr callback, const EvtType& eventTy
 
 	CallbackList* callbackList = NULL;
 
-	EvtCallbackTable::iterator i = mEvtCallbackTable.find( eventType.getHashCode() );
+	EvtCallbackTable::iterator i = mEvtCallbackTable.find( eventType.getValue() );
 	if(i!=mEvtCallbackTable.end()){
 		callbackList = &i->second;
 	}
 	else{
 		// TODO optimize this?
-		mEvtCallbackTable.insert( std::make_pair(eventType.getHashCode(), CallbackList()) );
-		callbackList = &mEvtCallbackTable.find( eventType.getHashCode() )->second;
+		mEvtCallbackTable.insert( std::make_pair(eventType.getValue(), CallbackList()) );
+		callbackList = &mEvtCallbackTable.find( eventType.getValue() )->second;
 	}
 
 	callbackList->push_back( RegisteredCallback(callback, filterData, filtered) );
@@ -146,15 +146,15 @@ void EventManager::registerListener(EventListener* listener, const EvtType& even
 	}
 
 	// find event listener list in the table
-	EvtListenerTable::iterator iter = mEvtListenerTable.find(eventType.getHashCode());
+	EvtListenerTable::iterator iter = mEvtListenerTable.find(eventType.getValue());
 
 	// if the list for the given event doesn't exist, create it
 	if(iter==mEvtListenerTable.end()){
-		mEvtListenerTable[eventType.getHashCode()] = ListenerList();
+		mEvtListenerTable[eventType.getValue()] = ListenerList();
 	}
 
 	// check if the given listener is already registered for the event
-	ListenerList& list = mEvtListenerTable[eventType.getHashCode()];
+	ListenerList& list = mEvtListenerTable[eventType.getValue()];
 	for(ListenerList::iterator i=list.begin(); i!=list.end(); i++){
 		if(*i==listener){
 			WT_THROW("Listener already registered for the event \"%s\"\n", eventType.getString().c_str()
@@ -177,7 +177,7 @@ void EventManager::unregisterListener(EventListener* listener){
 
 void EventManager::unregisterListener(EventListener* listener, const EvtType& eventType){
 	// find event listener list in the table
-	EvtListenerTable::iterator listIter = mEvtListenerTable.find(eventType.getHashCode());
+	EvtListenerTable::iterator listIter = mEvtListenerTable.find(eventType.getValue());
 
 	ListenerList::iterator listenerIter = std::find(listIter ->second.begin(), listIter ->second.end(), listener);
 	if(listenerIter == listIter->second.end()){
@@ -196,7 +196,7 @@ void EventManager::queueEvent(EvtPtr evt){
 	if(!isRegistered(evt->getType())){
 		WT_THROW(
 			"Trying to queue an unregistered event \"%s\"   %d\n",
-				evt->getType().getString().c_str(), evt->getType().getHashCode()
+				evt->getType().getString().c_str(), evt->getType().getValue()
 				);
 	}
 	else{
@@ -239,7 +239,7 @@ void EventManager::queueEvent(const char* type, LuaObject data){
 void EventManager::fireEvent(EvtPtr evt){
 	{ 
 		// Callbacks
-		EvtCallbackTable::iterator iter = mEvtCallbackTable.find( evt->getType().getHashCode() );
+		EvtCallbackTable::iterator iter = mEvtCallbackTable.find( evt->getType().getValue() );
 		if(iter != mEvtCallbackTable.end()){
 			for(CallbackList::iterator i=iter->second.begin(); i!=iter->second.end(); i++){
 				if(!i->isFiltered  || (i->isFiltered && i->filterData==evt->getEmitterData())){
@@ -251,7 +251,7 @@ void EventManager::fireEvent(EvtPtr evt){
 
 	{ 
 		// Code listeners
-		EvtListenerTable::iterator iter = mEvtListenerTable.find(evt->getType().getHashCode());
+		EvtListenerTable::iterator iter = mEvtListenerTable.find(evt->getType().getValue());
 
 		// Global handlers
 		for(ListenerList::iterator i=mGlobalListeners.begin(); i!=mGlobalListeners.end(); i++){
