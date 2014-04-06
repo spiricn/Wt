@@ -212,7 +212,7 @@ bool EventManager::handleEvent(const EventPtr evt, IEventEmitter* emitter, Conne
 	return false;
 }
 
-void EventManager::emit(const EventPtr evt, IEventEmitter* emitter){
+void EventManager::emitEvent(const EventPtr evt, IEventEmitter* emitter){
 	const_cast<AEvent*>(evt.get())->setManager(this);
 	const_cast<AEvent*>(evt.get())->setEmitter(emitter);
 

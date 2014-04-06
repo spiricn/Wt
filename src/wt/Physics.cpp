@@ -822,7 +822,7 @@ void Physics::onTrigger(PxTriggerPair* pairs, PxU32 count){
 				pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND ? RegionEvent::eACTOR_ENTERED_REGION : RegionEvent::eACTOR_LEFT_REGION
 			);
 
-			mEventManager->emit(evt);
+			mEventManager->emitEvent(evt);
 		}
 	}
 }

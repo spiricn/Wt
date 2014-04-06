@@ -108,7 +108,7 @@ void WorldEditTab::onUpdate(float dt){
 
 	ui.sceneView->update(dt);
 
-	WTE_CTX.getEventManager()->tick();
+	WTE_CTX.getEventManager()->update();
 
 	glm::vec3 eyePos, eyeFw;
 	WTE_CTX.getScene()->getCamera().getForwardVector(eyeFw);

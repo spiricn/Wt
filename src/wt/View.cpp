@@ -169,7 +169,7 @@ void View::setPosition(float x, float y){
 }
 
 void View::emitEvent(AEvent* e){
-	mEventManager->emit(e, this);
+	mEventManager->emitEvent(e, this);
 }
 
 void View::setPosition(const glm::vec2& position){

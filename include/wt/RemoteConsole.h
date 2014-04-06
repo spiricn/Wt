@@ -69,7 +69,7 @@ public:
 				break;
 			}
 
-			EventManager::getSingleton().emit(
+			EventManager::getSingleton().emitEvent(
 				new RemoteConsoleCmdEvent((const char*)packet.getPayload())
 				);
 		}

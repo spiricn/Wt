@@ -32,7 +32,7 @@ public:
 
 	void unregisterListener(IEventListener* listener, EventType type="", IEventEmitter* emitter=NULL);
 
-	void emit(const EventPtr evt, IEventEmitter* emitter=NULL);
+	void emitEvent(const EventPtr evt, IEventEmitter* emitter=NULL);
 
 	void update();
 

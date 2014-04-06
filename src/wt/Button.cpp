@@ -35,7 +35,7 @@ void Button::onClicked(){
 	ButtonClickedEvent* evt = new ButtonClickedEvent;
 	evt->button = this;
 
-	getEventManager()->emit(evt, this);
+	getEventManager()->emitEvent(evt, this);
 }
 
 void Button::setText(const String& text){

@@ -82,7 +82,7 @@ void SDLGameInput::pollAndDispatch(){
 		{
 		case SDL_VIDEORESIZE:
 			{
-				mEventManager->emit(
+				mEventManager->emitEvent(
 					new WindowSizeChange(0, 0, evt.resize.w, evt.resize.h)
 					);
 			break;
@@ -91,14 +91,14 @@ void SDLGameInput::pollAndDispatch(){
 			{
 				KeyPressEvent* e = new KeyPressEvent(fromSDLKey(evt.key.keysym.sym),
 					KeyPressEvent::UP);
-				mEventManager->emit(e);
+				mEventManager->emitEvent(e);
 				break;
 			}
 		case SDL_KEYDOWN:
 			{
 				KeyPressEvent* e = new KeyPressEvent(fromSDLKey(evt.key.keysym.sym),
 					KeyPressEvent::DOWN);
-				mEventManager->emit(e);
+				mEventManager->emitEvent(e);
 				break;
 			}
 
@@ -112,13 +112,13 @@ void SDLGameInput::pollAndDispatch(){
 					evt.type == SDL_MOUSEBUTTONUP ? MousePressEvent::eBUTTON_UP : MousePressEvent::eBUTTON_DOWN
 				);
 
-				mEventManager->emit(e);
+				mEventManager->emitEvent(e);
 				break;
 			}
 		case SDL_MOUSEMOTION:
 			{
 				MouseMotionEvent* e = new MouseMotionEvent(evt.button.x, evt.button.y, evt.motion.xrel, evt.motion.yrel);
-				mEventManager->emit(e);
+				mEventManager->emitEvent(e);
 				if(mIgnoreNextDelta){
 					mIgnoreNextDelta = false;
 					mMouseDelta[0] = 0;
@@ -132,7 +132,7 @@ void SDLGameInput::pollAndDispatch(){
 			}
 		case SDL_QUIT:
 			{
-				mEventManager->emit(new AppQuitEvent);
+				mEventManager->emitEvent(new AppQuitEvent);
 				break;
 			}
 		}

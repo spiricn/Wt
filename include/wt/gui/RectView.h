@@ -68,7 +68,7 @@ public:
 		evt->point = glm::vec2(e->mX, e->mY);
 		evt->view = this;
 
-		getEventManager()->emit(evt, this);
+		getEventManager()->emitEvent(evt, this);
 	}
 
 	void draw(Canvas& c){
