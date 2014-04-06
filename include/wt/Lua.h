@@ -60,7 +60,7 @@ bool luaConv(const Color& src, LuaObject& dst);
 
 bool luaConv(const LuaObject& src, Color& dst);
 
-void serializeTable(LuaObject& table, AIOStream& stream, uint32_t depth=0);
+void serializeTable(LuaObject& table, AIOStream& stream, const String& name);
 
 void doStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject* fenv=NULL);
 

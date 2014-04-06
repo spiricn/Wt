@@ -385,6 +385,11 @@ void Physics::removeActor(PhysicsActor* actor){
 	else{
 		mScene->removeActor(*actor->getPxActor());
 	}
+
+	if(actor->getSceneActor()){
+		actor->getSceneActor()->setPhysicsActor(NULL);
+	}
+
 	mActors.erase(actor->getId());
 }
 

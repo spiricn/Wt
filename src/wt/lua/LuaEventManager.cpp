@@ -25,7 +25,7 @@ void* EventManager_registerListener(void* ptr, const char* evt, LuaObject fnc){
 
 	ScriptEventListener* listener = new ScriptEventListener(fnc);
 
-	manager->registerListener(listener, EventType(evt), EventManager::eCONNECTION_DIRECT, NULL, true);
+	manager->registerListener(listener, EventType(evt), EventManager::eCONNECTION_QUEUED, NULL, true);
 
 	return static_cast<void*>(listener);
 }

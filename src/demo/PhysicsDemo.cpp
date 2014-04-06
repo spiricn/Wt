@@ -128,10 +128,11 @@ public:
 
 					getScene()->deleteActor(evt->regionActor->getSceneActor());
 					getScene()->getPhysics()->removeActor(door->getPhysicsActor());
+					return true;
 				}
-				else if(!evt->regionActor->getSceneActor()->getName().compare("scene_end_region")){
+			/*	else if(!evt->regionActor->getSceneActor()->getName().compare("scene_end_region")){
 					LOGI("END!");
-				}
+				}*/
 			}
 		}
 

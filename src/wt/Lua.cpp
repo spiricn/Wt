@@ -233,13 +233,13 @@ void serialize(LuaObject& obj, AIOStream& stream){
 
 			if(key.IsInteger()){ // array
 				serialize(value, stream);
-				stream.print(", ");
+				stream.print(",");
 			}
 			else if(key.IsString()){
 				stream.print("[");
 				serialize(key, stream);
 
-				stream.print("] = ");
+				stream.print("]=");
 				serialize(value, stream);
 
 				stream.print(",");
@@ -249,15 +249,18 @@ void serialize(LuaObject& obj, AIOStream& stream){
 			}
 		}
 
-		stream.print("}\n");
+		stream.print("}");
 		break;
 	}
 }
 
-void serializeTable(LuaObject& table, AIOStream& stream, uint32_t depth){
-	WT_UNUSED(depth);
+void serializeTable(LuaObject& table, AIOStream& stream, const String& name){
+	if(!name.empty()){
+		stream.print("%s=", name.c_str());
+	}
 	serialize(table, stream);
 }
+
 void luaDoStream(LuaPlus::LuaStateOwner& state, AIOStream& stream, LuaPlus::LuaObject& fenv){
 }
 

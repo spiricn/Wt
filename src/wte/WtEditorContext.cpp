@@ -400,8 +400,7 @@ void WtEditorContext::saveWorkspace(QString filePath){
 	// Serialize
 	wt::FileIOStream stream(filePath.toStdString(), wt::AIOStream::eMODE_WRITE);
 
-	stream.print("%s=", WORKSPACE_TABLE_NAME);
-	wt::lua::serializeTable(workspace, stream);
+	wt::lua::serializeTable(workspace, stream, WORKSPACE_TABLE_NAME);
 
 	LOGI("Workspace saved to \"%s\"", filePath.toStdString().c_str());
 }

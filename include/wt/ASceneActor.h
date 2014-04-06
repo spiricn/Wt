@@ -49,6 +49,9 @@ public:
 		}
 	}; // </AttachDesc>
 
+	struct Desc{
+	}; // </Desc>
+
 	void detach();
 
 	lua::State* getLuaState();

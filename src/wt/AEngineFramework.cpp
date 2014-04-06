@@ -228,13 +228,13 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 	}catch(...){
 	}
 
-	// Scene
-	mScene = new Scene(mPhysics, mAssets, mEventManager, mLuaState);
-
 	// Resource system
 	mAssets = ResourceSystemFactory::create(mDesc.assets);
 
 	mAssets->setFileSystem( FileSystemFactory::create(mDesc.fileSystem) );
+
+	// Scene
+	mScene = new Scene(mPhysics, mAssets, mEventManager, mLuaState);
 
 	// Scene renderer
 	mRenderer = new Renderer(getEventManager(), mScene);

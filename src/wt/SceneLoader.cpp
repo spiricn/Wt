@@ -339,8 +339,7 @@ void SceneLoader::save(AIOStream& stream){
 		sceneTable.Set("camera", cameraTable);
 	}
 
-	stream.print("%s = \n", SCENE_TABLE_NAME);
-	lua::serializeTable(sceneTable, stream);
+	lua::serializeTable(sceneTable, stream, SCENE_TABLE_NAME);
 	stream.print("\n");
 }
 

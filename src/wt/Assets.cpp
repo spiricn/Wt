@@ -13,6 +13,7 @@
 #define PARTICLE_MANAGER_TABLE_NAME "PARTICLE_MANAGER"
 #define HEIGHTMAP_MANAGER_TABLE_NAME "HEIGHTMAP_MANAGER"
 #define SCRIPT_MANAGER_TABLE_NAME "SCRIPT_MANAGER"
+#define ASSETS_TABLE_NAME "ASSETS"
 
 namespace wt
 {
@@ -341,8 +342,7 @@ void Assets::serialize(const String& path){
 
 	StreamPtr stream = mFileSystem->open(relativePath, AIOStream::eMODE_WRITE);
 
-	stream->print("ASSETS=");
-	lua::serializeTable(assets, *stream.get());
+	lua::serializeTable(assets, *stream.get(), ASSETS_TABLE_NAME );
 }
 
 Assets::~Assets(){
