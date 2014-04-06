@@ -18,13 +18,13 @@ public:
 	}
 
 	void setColor(const Color& color){
-		DIRTY;
+		dirty();
 
 		mColor = color;
 	}
 
 	void setRadius(float r){
-		DIRTY;
+		dirty();
 
 		mRadius = r;
 		setSize(r, r);

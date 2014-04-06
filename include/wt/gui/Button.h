@@ -3,21 +3,35 @@
 
 #include "wt/gui/View.h"
 #include "wt/gui/RectView.h"
+#include "wt/IEventEmitter.h"
 
 namespace wt{
 
 namespace gui{
 
-class Button;
+class Button : public RectView{
+public:
+	Button(Window* parent);
+
+	void onClicked();
+
+	void setText(const String& text);
+
+	void draw(Canvas& c);
+
+private:
+	void onMouseEnter(const MouseMotionEvent* evt);
+
+	void onMouseLeave(const MouseMotionEvent* evt);
+
+private:
+	String mText;
+	glm::vec2 mTextSize;
+
+}; // </Button>
+
 
 class ButtonClickedEvent : public AEvent{
-protected:
-	void serialize(LuaObject& dst){
-	}
-
-	void deserialize(LuaObject& src){
-	}
-
 public:
 	static const EventType TYPE;
 
@@ -29,69 +43,7 @@ public:
 	const EventType& getType() const{
 		return TYPE;
 	}
-
 }; // </ButtonClickedEvent>
-
-
-class Button : public RectView{
-private:
-	String mText;
-	glm::vec2 mTextSize;
-
-protected:
-	void onMouseEnter(const MouseMotionEvent* evt){
-		DIRTY;
-
-		setBackgroundColor(Color(195/255.0, 195/255.0, 195/255.0));
-	}
-
-	void onMouseLeave(const MouseMotionEvent* evt){
-		DIRTY;
-
-		setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
-	}
-
-public:
-	Button(Window* parent) : RectView(parent){
-		setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
-
-		setDrawBorder(true);
-		setBorderWidth(3.0f);
-		setBorderColor(Color(112/255.0, 146/255.0, 190/255.0));
-	}
-
-
-	void onClicked(){
-		ButtonClickedEvent* evt = new ButtonClickedEvent;
-		evt->button = this;
-		TRACEW("TODO");
-
-		//evt->setEmitterData(getId());
-
-		//getEventManager()->emit(evt);
-	}
-
-	void setText(const String& text){
-		DIRTY;
-
-		WT_ASSERT(getFont(), "No font specified for button instance");
-
-		mText = text;
-
-		mTextSize = getFont()->measureString(text);
-	}
-
-	void draw(Canvas& c){
-		WT_ASSERT(getFont(), "No font specified for button instance");
-
-		RectView::draw(c);
-
-		glm::vec2 pos = (getSize()/2.0f) - (mTextSize/2.0f);
-
-		c.drawText(getFont(),
-			mText, pos.x, pos.y, Color::Black(), 1.0f);
-	}
-}; // </Button>
 
 }; // </gui>
 

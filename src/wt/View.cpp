@@ -27,8 +27,12 @@ void View::setEventManager(EventManager* manager){
 	onHook(manager);
 }
 
-void View::setDirty(bool dirty){
-	mDirty = dirty;
+void View::dirty(){
+	mDirty = true;
+}
+
+void View::clean(){
+	mDirty = false;
 }
 
 bool View::isDirty() const{
@@ -64,14 +68,16 @@ void View::setGridLocation(uint32_t row, uint32_t column, uint32_t rowSpan, uint
 	mGridLocation.rowSpan = rowSpan;
 	mGridLocation.columnSpan = columnSpan;
 
-	DIRTY;
+	dirty();
+
 	mNeedsScale = true;
 }
 
 void View::setScalingMode(ScalingMode mode){
 	if(mScalingMode != mode){
 		if(mode == eSCALE_MODE_GRID){
-			DIRTY;
+			dirty();
+
 			mNeedsScale = true;
 		}
 
@@ -84,7 +90,7 @@ View::ScalingMode View::getScalingMode() const{
 }
 
 void View::setFont(Font* font){
-	DIRTY;
+	dirty();
 
 	mFont = font;
 }
@@ -163,10 +169,7 @@ void View::setPosition(float x, float y){
 }
 
 void View::emitEvent(AEvent* e){
-	//e->setEmitterData( mId );
-	//mEventManager->emit(e);
-
-	TRACEW("TODO");
+	mEventManager->emit(e, this);
 }
 
 void View::setPosition(const glm::vec2& position){
@@ -195,19 +198,19 @@ bool View::contains(float x, float y) const{
 }
 
 void View::setBackgroundColor(const Color& clr){
-	DIRTY;
+	dirty();
 
 	mBackground.color = clr;
 }
 
 void View::setBackgroundTexture(Texture2D* texture){
-	DIRTY;
+	dirty();
 
 	mBackground.texture = texture;
 }
 
 void View::setSize(float w, float h){
-	DIRTY;
+	dirty();
 
 	mSize.x = w;
 	mSize.y = h;

@@ -274,7 +274,7 @@ void Window::draw(){
 			i->second->draw(mCanvas);
 
 			mCanvas.setOutput(NULL);
-			i->second->setDirty(false);
+			i->second->clean();
 		}
 
 		mCanvas.setTranslation( i->second->getPosition() );

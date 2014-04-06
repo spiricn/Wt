@@ -97,13 +97,13 @@ void DemoManager::startDemo(const String& name){
 		WT_THROW("Unexisting demo named \"%s\"", name.c_str());
 	}
 
-	mActiveDemo->createDemo(this);
-
-	mActiveDemo->startDemo();
-
 	std::ofstream out(".lastdemo");
 	out << name;
 	out.close();
+
+	mActiveDemo->createDemo(this);
+
+	mActiveDemo->startDemo();
 
 	LOGI("Demo running");
 }

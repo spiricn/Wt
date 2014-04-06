@@ -13,15 +13,49 @@
 namespace wt
 {
 
-void EventManager::registerListener(IEventListener* listener, const EventType& type, ConnectionType connectionType, IEventEmitter* emitter){
+EventManager::EventManager(lua::State* luaState) : mLuaState(luaState){
+}
+
+EventManager::~EventManager(){
+	// Delete any unregistered listeners set to auto destroy
+	for(RegisteredListenerList::iterator iter=mRegisteredListeners.begin(); iter!=mRegisteredListeners.end(); iter++){
+		if((*iter).autoDestroy){
+			delete (*iter).listener;
+		}
+	}
+}
+
+void EventManager::addListener(IEventListener* listener, bool autoDestroy){
+	mRegisteredListeners.push_back( RegisteredListener(listener, autoDestroy) );
+}
+
+void EventManager::removeListener(IEventListener* listener){
+	for(RegisteredListenerList::iterator iter=mRegisteredListeners.begin(); iter!=mRegisteredListeners.end(); iter++){
+		if((*iter).listener == listener){
+			if((*iter).autoDestroy){
+				delete (*iter).listener;
+			}
+
+			mRegisteredListeners.erase(iter);
+
+			return;
+		}
+	}
+}
+
+void EventManager::registerListener(IEventListener* listener, const EventType& type, ConnectionType connectionType, IEventEmitter* emitter, bool autoDestroy){
 	const bool global = type == "";
+
+	bool added = false;
 
 	if(global){
 		WT_ASSERT(findListener(listener).empty(),
 			"Listener %p already registered", listener);
 
 		// Global listener
-		mGlobalListeners[connectionType].push_back(listener);
+		mGlobalListeners[connectionType].push_back( listener );
+
+		added = true;
 	}
 	else{
 		RegisteredEvent* eventReg = findRegisteredEvent(type);
@@ -43,6 +77,8 @@ void EventManager::registerListener(IEventListener* listener, const EventType& t
 			}
 			// Unconnected listener
 			eventReg->listeners[connectionType].unconnectedListeners.push_back(listener);
+
+			added = true;
 		}
 		else{
 			// Listener registered somewhere?
@@ -56,7 +92,14 @@ void EventManager::registerListener(IEventListener* listener, const EventType& t
 			}
 
 			eventReg->listeners[connectionType].connectedListeners.push_back( EventConnection(emitter, listener) );
+
+			added = true;
 		}
+	}
+
+	ListenerQueryList query = findListener(listener);
+	if(query.size() == 1){
+		addListener(listener, autoDestroy);
 	}
 }
 
@@ -65,13 +108,19 @@ void EventManager::unregisterListener(IEventListener* listener, EventType type, 
 	ListenerQueryList queryList = findListener(listener);
 	WT_ASSERT(!queryList.empty(), "Listener %p not registered for any events");
 
+
+	bool autoDestroy = false;
+
 	for(ListenerQueryList::iterator iter=queryList.begin(); iter!=queryList.end(); iter++){
 		ListenerQuery query = *iter;
 
 		if(query.global){
 			// Remove it from a global listener list
 			EventListenerList& list = mGlobalListeners[query.connection];
-			list.erase( std::find(mGlobalListeners[query.connection].begin(), mGlobalListeners[query.connection].end(), listener) );
+
+			EventListenerList::iterator iter = std::find(mGlobalListeners[query.connection].begin(), mGlobalListeners[query.connection].end(), listener);
+
+			list.erase(iter);
 		}
 		else{
 			// Remove it from a 'connected' specialized list
@@ -88,9 +137,19 @@ void EventManager::unregisterListener(IEventListener* listener, EventType type, 
 			else if(emitter == NULL){
 				// Remove it from a 'unconnected' specialized list
 				EventListenerList& l = query.eventReg->listeners[query.connection].unconnectedListeners;
-				l.erase( std::find(l.begin(), l.end(), listener) );
+
+				EventListenerList::iterator iter = std::find(l.begin(), l.end(), listener);
+
+				l.erase(iter);
 			}
 		}
+	}
+
+	queryList = findListener(listener);
+
+	// We can safely remove it from the list	
+	if(queryList.empty()){
+		removeListener(listener);
 	}
 }
 
@@ -154,6 +213,10 @@ bool EventManager::handleEvent(const EventPtr evt, IEventEmitter* emitter, Conne
 }
 
 void EventManager::emit(const EventPtr evt, IEventEmitter* emitter){
+	const_cast<AEvent*>(evt.get())->setManager(this);
+	const_cast<AEvent*>(evt.get())->setEmitter(emitter);
+
+
 	if( handleEvent(evt, emitter, eCONNECTION_DIRECT) ){
 		// AEvent consumed
 		return;
@@ -257,6 +320,10 @@ EventManager::ListenerQueryList EventManager::findListener(IEventListener* liste
 	}
 
 	return res;
+}
+
+lua::State* EventManager::getLuaState() const{
+	return mLuaState;
 }
 
 } // </wt>

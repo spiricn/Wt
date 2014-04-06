@@ -200,7 +200,7 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 	LOG("New log session %s", wt::utils::getCurrentTime("%H:%M:%S %d/%b/%Y").c_str());
 
 	// Main event manager
-	mEventManager = new EventManager;
+	mEventManager = new EventManager(mLuaState);
 
 	// Process manager
 	mProcessManager = new ProcessManager;

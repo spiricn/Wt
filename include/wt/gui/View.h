@@ -8,6 +8,7 @@
 #include "wt/HashedString.h"
 #include "wt/EventManager.h"
 #include "wt/AGameInput.h"
+#include "wt/IEventEmitter.h"
 
 namespace wt
 {
@@ -17,31 +18,9 @@ namespace gui
 
 using namespace gl;
 
-#define DIRTY do{ setDirty(true); }while(0)
+class Window;
 
-class ViewClickedEvent : public AEvent{
-protected:
-	void serialize(LuaObject& dst){
-	}
-
-	void deserialize(LuaObject& src){
-	}
-
-public:
-	static const EventType TYPE;
-
-	ViewClickedEvent(){
-	}
-
-	const EventType& getType() const{
-		return TYPE;
-	}
-
-}; // </ViewClickedEvent>
-
-
-class View{
-friend class Window;
+class View : public IEventEmitter{
 public:
 	struct GridLocation{
 		uint32_t row;
@@ -68,6 +47,7 @@ public:
 		eSCALE_MODE_GRID
 	}; // </ScalingMode>
 
+public:
 	View(Window* parent);
 
 	const GridLocation& getGridLoation() const;
@@ -151,7 +131,9 @@ protected:
 
 	void setEventManager(EventManager* manager);
 
-	void setDirty(bool dirty);
+	void dirty();
+
+	void clean();
 
 	bool isDirty() const;
 
@@ -177,8 +159,29 @@ private:
 	ScalingMode mScalingMode;
 	bool mNeedsScale;
 
-
+private:
+	friend class Window;
 }; // </View>
+
+class ViewClickedEvent : public AEvent{
+protected:
+	void serialize(LuaObject& dst){
+	}
+
+	void deserialize(LuaObject& src){
+	}
+
+public:
+	static const EventType TYPE;
+
+	ViewClickedEvent(){
+	}
+
+	const EventType& getType() const{
+		return TYPE;
+	}
+}; // </ViewClickedEvent>
+
 
 }; // </gui>
 

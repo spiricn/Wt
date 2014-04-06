@@ -8,19 +8,18 @@ namespace wt
 {
 
 template<class T>
-class MemberCallback : public ACallback{
+class MemberCallback :  public IEventListener{
 public:
 	typedef void (T::*MemberCallbackFnc)();
 
+public:
 	MemberCallback(T* instance, MemberCallbackFnc callback) : mInstance(instance), mCallback(callback){
 	}
 
-	void handleCallback(){
-		WT_ASSERT(mInstance != NULL, "Invalid instance pointer");
-
-		WT_ASSERT(mCallback != NULL, "Invalid callback pointer");
-
+	bool handleEvent(const EventPtr event){
 		(mInstance->*(mCallback))();
+
+		return false;
 	}
 
 private:

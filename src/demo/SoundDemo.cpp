@@ -48,10 +48,7 @@ public:
 			btn->setGridLocation(19, 0, 1, 2);
 			btn->setText("Next track");
 
-			/*getEventManager()->registerCallback(
-				new MemberCallback<SoundDemo>(this, &SoundDemo::onNextClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
-				);*/
-			TRACEW("TODO");
+			getEventManager()->registerCallback(this, &SoundDemo::onNextClicked, gui::ButtonClickedEvent::TYPE, btn);
 		}
 
 		// Current track display
@@ -69,10 +66,7 @@ public:
 			
 			v->setGridLocation(19, 6, 1, 3);
 
-			/*getEventManager()->registerCallback(
-				new MemberCallback<SoundDemo>(this, &SoundDemo::onVolumeChanged), gui::SliderValueChangedEvent::TYPE, true, v->getId()
-				);*/
-			TRACEW("TODO");
+			getEventManager()->registerCallback(this, &SoundDemo::onVolumeChanged, gui::SliderValueChangedEvent::TYPE, v);
 		}
 	}
 	

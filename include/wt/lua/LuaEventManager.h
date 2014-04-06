@@ -11,7 +11,9 @@ namespace lua
 
 void EventManager_expose(LuaObject obj);
 
-void EventManager_registerListener(void* ptr, const char* evt, LuaObject fnc);
+void* EventManager_registerListener(void* ptr, const char* evt, LuaObject fnc);
+
+void EventManager_unregisterListener(void* managerPtr, void* listenerPtr, const char* evt);
 
 } // </lua>
 

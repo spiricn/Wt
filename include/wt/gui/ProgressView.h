@@ -22,7 +22,7 @@ public:
 
 
 	void setDrawProgress(bool state){
-		DIRTY;
+		dirty();
 
 		mDrawProgress = state;
 	}
@@ -30,7 +30,7 @@ public:
 	void setProgress(float progress){
 		if(mProgress != progress){
 			mProgress = progress;
-			DIRTY;
+			dirty();
 		}
 	}
 

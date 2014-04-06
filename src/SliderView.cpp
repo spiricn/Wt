@@ -16,7 +16,7 @@ SliderView::SliderView(Window* parent) : mValue(30.0f), mBarWidth(25.0f), mBaseC
 
 void SliderView::setValue(float val){
 	if(mValue != val){
-		DIRTY;
+		dirty();
 		mValue = val;
 	}
 }

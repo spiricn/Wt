@@ -46,19 +46,19 @@ public:
 	}
 
 	void setDrawBorder(bool state){
-		DIRTY;
+		dirty();
 
 		mBorderEnabled = state;
 	}
 
 	void setBorderColor(const Color& clr){
-		DIRTY;
+		dirty();
 
 		mBorderColor = clr;
 	}
 
 	void setBorderWidth(float width){
-		DIRTY;
+		dirty();
 
 		mBorderWidth = width;
 	}
@@ -67,10 +67,8 @@ public:
 		RectViewClickedEvent* evt = new RectViewClickedEvent;
 		evt->point = glm::vec2(e->mX, e->mY);
 		evt->view = this;
-		//evt->setEmitterData( getId() );
 
-		//getEventManager()->emit(evt);
-		TRACEW("TODO");
+		getEventManager()->emit(evt, this);
 	}
 
 	void draw(Canvas& c){

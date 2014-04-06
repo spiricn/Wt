@@ -7,7 +7,7 @@
 #include "wt/EventTable.h"
 #include "wt/gui/SliderView.h"
 #include "wt/gui/CircleView.h"
-
+#include "wt/MemberCallback.h"
 
 #define TD_TRACE_TAG "GuiDemo"
 
@@ -27,6 +27,7 @@ static const char* kTEST_TEXT =
 	"humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.";
 
 using namespace wt;
+
 
 class GuiDemo : public ADemo{
 public:
@@ -60,9 +61,6 @@ public:
 	}
 
 	void onDemoStart(const LuaObject& config){
-#if 1
-		TRACEW("TODO");
-#else
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
 		gui::Button* btn;
@@ -74,11 +72,9 @@ public:
 			btn = getScene()->getUIWindow()->createView<gui::Button>();
 			btn->setGridLocation(2, 2, 1, 2);
 			btn->setText("Change color");
-			
 
-			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
-				);
+			getEventManager()->registerCallback(this, &GuiDemo::onBtnClicked, 
+				gui::ButtonClickedEvent::TYPE, btn);
 		}
 
 		{
@@ -88,9 +84,8 @@ public:
 			btn->setGridLocation(4, 2, 1, 2);
 			btn->setText("Nudge");
 
-			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnNudgeClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
-				);
+			getEventManager()->registerCallback(this, &GuiDemo::onBtnNudgeClicked, 
+				gui::ButtonClickedEvent::TYPE, btn);
 		}
 
 		{
@@ -98,9 +93,8 @@ public:
 			btn->setGridLocation(6, 2, 1, 2);
 			btn->setText("Stop demo");
 
-			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onBtnStopClicked), gui::ButtonClickedEvent::TYPE, true, btn->getId()
-				);
+			getEventManager()->registerCallback(this, &GuiDemo::onBtnStopClicked, 
+				gui::ButtonClickedEvent::TYPE, btn);
 		}
 
 		{
@@ -108,9 +102,8 @@ public:
 			btn->setGridLocation(8, 2, 1, 2);
 			btn->setText("Toast !");
 
-			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onToast), gui::ButtonClickedEvent::TYPE, true, btn->getId()
-				);
+			getEventManager()->registerCallback(this, &GuiDemo::onToast, 
+				gui::ButtonClickedEvent::TYPE, btn);
 		}
 
 		{
@@ -145,9 +138,8 @@ public:
 			
 			v->setGridLocation(12, 2, 1, 2);
 
-			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onSliderChanged), gui::SliderValueChangedEvent::TYPE, true, v->getId()
-				);
+			getEventManager()->registerCallback(this, &GuiDemo::onSliderChanged, 
+				gui::SliderValueChangedEvent::TYPE, v);
 		}
 
 		{
@@ -155,9 +147,8 @@ public:
 			v->setText("Camera rotation paused");
 			v->setGridLocation(14, 2, 1, 2);
 
-			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::onCheckboxClicked), gui::CheckboxClickedEvent::TYPE, true, v->getId()
-				);
+			getEventManager()->registerCallback(this, &GuiDemo::onCheckboxClicked, 
+				gui::CheckboxClickedEvent::TYPE, v);
 		}
 
 		{
@@ -166,12 +157,10 @@ public:
 			
 			v->setGridLocation(16, 2, 1, 2);
 
-			getEventManager()->registerCallback(
-				new MemberCallback<GuiDemo>(this, &GuiDemo::rotateCamera), gui::SliderValueChangedEvent::TYPE, true, v->getId()
-				);
+			getEventManager()->registerCallback(this, &GuiDemo::rotateCamera, 
+				gui::SliderValueChangedEvent::TYPE, v);
 		}
 
-#endif
 		getRenderer()->setClearColor( Color::Black() );
 
 		getInput()->setMouseGrabbed(false);
@@ -198,8 +187,7 @@ public:
 	}
 
 	void onBtnStopClicked(){
-		// TODO
-		//stopDemo();
+		stopMainLoop();
 	}
 
 	void onBtnNudgeClicked(){

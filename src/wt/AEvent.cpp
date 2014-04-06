@@ -1,12 +1,24 @@
 #include "wt/stdafx.h"
 #include "wt/AEvent.h"
 
+#include "wt/EventManager.h"
+
 #define TD_TRACE_TAG "AEvent"
 
 namespace wt
 {
 
+AEvent::AEvent() : mLuaDataBuilt(false), mManager(NULL){
+}
+
+AEvent::AEvent(LuaObject& data) : mLuaDataBuilt(true), mLuaData(data){
+}
+
+AEvent::~AEvent(){
+}
+
 void AEvent::serialize(LuaObject& dst){
+	dst.Set("eventType", getType().c_str());
 }
 
 void AEvent::deserialize(LuaObject& src){
@@ -23,19 +35,28 @@ void AEvent::buildLuaData(lua::State* luaState){
 	}
 }
 
-AEvent::AEvent() : mLuaDataBuilt(false){
-}
-
-AEvent::AEvent(LuaObject& data) : mLuaDataBuilt(true), mLuaData(data){
-}
-
-AEvent::~AEvent(){
-}
-
 const LuaObject& AEvent::getLuaData(){
-	WT_ASSERT(mLuaDataBuilt, "Lua data not built");
+	if(!mLuaDataBuilt){
+		buildLuaData( mManager->getLuaState() );
+	}
 
 	return mLuaData;
+}
+
+EventManager* AEvent::getManager() const{
+	return mManager;
+}
+
+void AEvent::setManager(EventManager* manager){
+	mManager = manager;
+}
+
+IEventEmitter* AEvent::getEmitter() const{
+	return mEmitter;
+}
+
+void AEvent::setEmitter(IEventEmitter* emitter){
+	mEmitter = emitter;
 }
 
 } // </wt>

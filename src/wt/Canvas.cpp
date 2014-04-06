@@ -83,7 +83,7 @@ void Canvas::drawTextFmt(Font* font, const String& text,
 	String bfr = text;
 
 	// Height, in pixels, of a single line of text
-	const float lineHeight = font->getLineHeight();
+	const float lineHeight = font->getLineHeight() * scale;
 
 	if(lineHeight > size.y){
 		// No text can fit in this area

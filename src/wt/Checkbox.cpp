@@ -24,7 +24,8 @@ Checkbox::Checkbox(Window* parent) : mChecked(false), View(parent){
 }
 
 Checkbox* Checkbox::setText(const String& text){
-	DIRTY;
+	dirty();
+
 	mText = text;
 
 	glm::vec2 size = getFont()->measureString(mText);
@@ -39,7 +40,7 @@ Checkbox* Checkbox::setText(const String& text){
 
 Checkbox* Checkbox::setChecked(bool checked){
 	if(checked != mChecked){
-		DIRTY;
+		dirty();
 
 		mChecked = checked;
 	}

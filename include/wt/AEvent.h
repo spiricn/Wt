@@ -11,6 +11,10 @@
 namespace wt
 {
 
+class IEventEmitter;
+
+class EventManager;
+
 typedef HashedString EventType;
 
 class AEvent{
@@ -25,6 +29,10 @@ public:
 
 	virtual const LuaObject& getLuaData();
 
+	EventManager* getManager() const;
+
+	IEventEmitter* getEmitter() const;
+
 protected:
 	virtual void serialize(LuaObject& dst);
 
@@ -32,11 +40,19 @@ protected:
 
 	virtual void buildLuaData(lua::State* luaState);
 
-private:
-	friend class EventManager;
+	void setEmitter(IEventEmitter* emitter);
 
+private:
+	void setManager(EventManager* manager);
+
+private:
 	LuaObject mLuaData;
 	bool mLuaDataBuilt;
+	EventManager* mManager;
+	IEventEmitter* mEmitter;
+
+private:
+	friend class EventManager;
 }; // </AEvent>
 
 typedef Sp<AEvent> EventPtr;

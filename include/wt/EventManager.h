@@ -9,6 +9,8 @@
 #include "wt/AEvent.h"
 #include "wt/IEventListener.h"
 #include "wt/IEventEmitter.h"
+#include "wt/lua/State.h"
+#include "wt/MemberCallback.h"
 
 namespace wt
 {
@@ -19,10 +21,14 @@ public:
 		eCONNECTION_DIRECT,
 		eCONNECTION_QUEUED,
 		eCONNECTION_MAX
-	};
+	}; // </ConnectionType>
 
 public:
-	void registerListener(IEventListener* listener, const EventType& type="", ConnectionType connectionType=eCONNECTION_DIRECT, IEventEmitter* emitter=NULL);
+	EventManager(lua::State* luaState=NULL);
+
+	~EventManager();
+
+	void registerListener(IEventListener* listener, const EventType& type="", ConnectionType connectionType=eCONNECTION_QUEUED, IEventEmitter* emitter=NULL, bool autoDestroy=false);
 
 	void unregisterListener(IEventListener* listener, EventType type="", IEventEmitter* emitter=NULL);
 
@@ -34,18 +40,43 @@ public:
 
 	void unregisterEvent(const EventType& type);
 
+	lua::State* getLuaState() const;
+
+	template<class T>
+	void registerCallback(T* instance, void (T::*callbackFnc)(), const EventType& type="", IEventEmitter* emitter=NULL, ConnectionType connectionType=eCONNECTION_QUEUED){
+		registerListener(new MemberCallback<T>(instance, callbackFnc),
+				type, connectionType, emitter, true);
+	}
+
 private:
+	struct RegisteredListener{
+		bool autoDestroy;
+		IEventListener* listener;
+
+		RegisteredListener(IEventListener* listener, bool autoDestroy) : listener(listener), autoDestroy(autoDestroy){
+		}
+
+		bool operator==(const IEventListener* other) const{
+			return listener == other;
+		}
+
+	}; // </RegisteredListener>
+
 	struct EventQueueEntry{
 		const EventPtr event;
 		IEventEmitter* emitter;
 
 		EventQueueEntry(const EventPtr event, IEventEmitter* emitter) : emitter(emitter), event(event){
 		}
-	};
+	}; // </EventQueueEntry>
 
 	typedef std::vector<EventType> EventTypeList;
 
 	typedef std::queue<EventQueueEntry> EventQueue; 
+
+	typedef std::vector<IEventListener*> EventListenerList;
+
+	typedef std::vector<RegisteredListener> RegisteredListenerList;
 
 	struct EventConnection{
 		IEventEmitter* emitter;
@@ -53,27 +84,26 @@ private:
 
 		EventConnection(IEventEmitter* emitter=NULL, IEventListener* listener=NULL) : emitter(emitter), listener(listener){
 		}
-	};
+	}; // </EventConnection>
 
 	typedef std::vector<EventConnection> EventConnectionList;
 
-	typedef std::vector<IEventListener*> EventListenerList;
-
 	struct EventListeners{
-		/** List of listneers subscribed to a specific emitter */
+		/** List of listeners subscribed to a specific emitter of this event */
 		EventConnectionList connectedListeners;
 
-		/* List of listeners subscribed to all emitters */
+		/** List of listeners subscribed to all emitters of this event */
 		EventListenerList unconnectedListeners;
-	};
+
+	}; // </EventListeners>
 
 	struct RegisteredEvent{
-		RegisteredEvent(const EventType eventType) : eventType(eventType){
-		}
-
 		const EventType eventType;
 		EventListeners listeners[eCONNECTION_MAX];
-	};
+
+		RegisteredEvent(const EventType eventType) : eventType(eventType){
+		}
+	}; // </RegisteredEvent>
 
 	typedef std::map<EventType::HashValue, RegisteredEvent> EventConnectionTable;
 
@@ -97,11 +127,16 @@ private:
 
 	bool handleEvent(const EventPtr evt, IEventEmitter* emitter, ConnectionType connectionType);
 
+	void addListener(IEventListener* listener, bool autoDestroy);
+
+	void removeListener(IEventListener* listener);
+
 private:
+	RegisteredListenerList mRegisteredListeners;
 	EventListenerList mGlobalListeners[eCONNECTION_MAX];
 	EventConnectionTable mEventConnections;
 	EventQueue mEventQueue;
-
+	lua::State* mLuaState;
 }; // </EventManager>
 
 } // </wt>

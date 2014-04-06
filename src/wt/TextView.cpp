@@ -13,19 +13,19 @@ TextView::TextView(Window* parent) : mTextColor(Color::White()), mFontScale(1.0f
 }
 
 void TextView::setScalingMode(ScalingMode mode){
-	DIRTY;
+	dirty();
 
 	mScalingMode = mode;
 }
 
 void TextView::setFontScale(float size){
-	DIRTY;
+	dirty();
 
 	mFontScale = size;
 }
 
 void TextView::setText(const String& text){
-	DIRTY;
+	dirty();
 
 	WT_ASSERT(getFont(), "No font specified for button instance");
 
@@ -42,7 +42,7 @@ String TextView::getText() const{
 }
 
 void TextView::setTextColor(const Color& color){
-	DIRTY;
+	dirty();
 
 	mTextColor = color;
 }
