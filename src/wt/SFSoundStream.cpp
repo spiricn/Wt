@@ -11,36 +11,36 @@ SFSoundStream::SFSoundStream(const String& src){
 }
 
 SFSoundStream::~SFSoundStream(){
-	mMusic.Stop();
+	mMusic.stop();
 }
 
 void SFSoundStream::setRelativeToListener(bool state){
-	mMusic.SetRelativeToListener(state);
+	mMusic.setRelativeToListener(state);
 }
 
 void SFSoundStream::setSource(const String& src){
 	ASoundStream::setSource(src);
 
-	if(!mMusic.OpenFromFile(src)){
+	if(!mMusic.openFromFile(src)){
 		WT_THROW(
 			"Error openning sound stream from \"%s\"", src.c_str());
 	}
 }
 
 float SFSoundStream::getPitch() const{
-	return mMusic.GetPitch();
+	return mMusic.getPitch();
 }
 
 void SFSoundStream::setPitch(float pitch){
-	mMusic.SetPitch(pitch);
+	mMusic.setPitch(pitch);
 }
 
 float SFSoundStream::getVolume() const{
-	return mMusic.GetVolume();
+	return mMusic.getVolume();
 }
 
 SFSoundStream::Status SFSoundStream::getStatus() const{
-	switch( mMusic.GetStatus() ){
+	switch( mMusic.getStatus() ){
 	case sf::Sound::Stopped:
 		return eSTOPPED;
 	case sf::Sound::Playing:
@@ -53,22 +53,22 @@ SFSoundStream::Status SFSoundStream::getStatus() const{
 }
 
 void SFSoundStream::play(){
-	mMusic.Play();
+	mMusic.play();
 }
 
 void SFSoundStream::setVolume(float volume){
 	WT_ASSERT(volume >= 0.0f && volume <= 1.0f,
 		"Sound volume must be in range [0, 1] got %f", volume);
 
-	mMusic.SetVolume(volume * 100.0f);
+	mMusic.setVolume(volume * 100.0f);
 }
 
 void SFSoundStream::setLoop(bool state){
-	mMusic.SetLoop(state);
+	mMusic.setLoop(state);
 }
 
 void SFSoundStream::stop(){
-	mMusic.Stop();
+	mMusic.stop();
 }
 
 void SFSoundStream::setPosition(const glm::vec3& position){

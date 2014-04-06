@@ -70,6 +70,7 @@ void ADemo::createDemo(DemoManager* manager){
 	// Window
 	desc.window.screenWidth = 1280;
 	desc.window.screenHeight = 720;
+	desc.window.vsyncEnabled = false;
 
 	// PhysX
 	desc.physicsDebugging.remoteDebuggingEnabled = true;

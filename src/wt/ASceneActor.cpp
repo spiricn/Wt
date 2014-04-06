@@ -69,7 +69,6 @@ lua::State* ASceneActor::getLuaState(){
 
 void ASceneActor::setBBox(PhysicsActor* box){
 	mBBox = box;
-	PxShape* shape;
 }
 
 void ASceneActor::setBounds(const glm::vec3& bounds){

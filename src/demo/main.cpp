@@ -15,6 +15,8 @@ WT_DECLARE_DEMO(ParticleDemo);
 WT_DECLARE_DEMO(ScriptDemo);
 WT_DECLARE_DEMO(SoundDemo);
 
+#undef WT_DEMO_NO_CONSOLE
+
 #if defined(WT_DEMO_NO_CONSOLE) && defined(WIN32)
 	#pragma comment(linker, "/SUBSYSTEM:windows")
 #endif

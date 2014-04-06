@@ -7,11 +7,11 @@ namespace wt
 {
 
 SFSound::SFSound(ASoundBuffer* buffer) : mBuffer(buffer){
-	mSound.SetBuffer( static_cast<SFSoundBuffer*>(buffer)->getSFSoundBuffer() );
+	mSound.setBuffer( static_cast<SFSoundBuffer*>(buffer)->getSFSoundBuffer() );
 }
 
 SFSound::~SFSound(){
-	mSound.Stop();
+	mSound.stop();
 }
 
 ASoundBuffer* SFSound::getSoundBuffer(){
@@ -19,19 +19,19 @@ ASoundBuffer* SFSound::getSoundBuffer(){
 }
 
 float SFSound::getVolume() const{
-	return mSound.GetVolume()/100.0f;
+	return mSound.getVolume()/100.0f;
 }
 
 float SFSound::getPitch() const{
-	return mSound.GetPitch();
+	return mSound.getPitch();
 }
 
 void SFSound::setPitch(float pitch){
-	mSound.SetPitch(pitch);
+	mSound.setPitch(pitch);
 }
 
 SFSound::Status SFSound::getStatus() const{
-	switch(mSound.GetStatus()){
+	switch(mSound.getStatus()){
 	case sf::Sound::Playing:
 		return ePLAYING;
 	case sf::Sound::Stopped:
@@ -44,52 +44,52 @@ SFSound::Status SFSound::getStatus() const{
 }
 
 void SFSound::stop(){
-	mSound.Stop();
+	mSound.stop();
 }
 
 void SFSound::setRelativeToListener(bool state){
-	mSound.SetRelativeToListener(state);
+	mSound.setRelativeToListener(state);
 }
 
 void SFSound::setVolume(float volume){
 	WT_ASSERT(volume >= 0.0f && volume <= 1.0f,
 	"Sound volume must be in range [0, 1] got %f", volume);
 
-	mSound.SetVolume(volume * 100.0f);
+	mSound.setVolume(volume * 100.0f);
 }
 
 void SFSound::setPosition(const glm::vec3& pos){
-	mSound.SetPosition(pos.x, pos.y, pos.z);
+	mSound.setPosition(pos.x, pos.y, pos.z);
 }
 
 void SFSound::setLoop(bool state){
-	mSound.SetLoop(state);
+	mSound.setLoop(state);
 }
 
 void SFSound::play(){
-	mSound.Play();
+	mSound.play();
 }
 
 glm::vec3 SFSound::getPosition() const{
 	glm::vec3 res;
-	sfConvert(mSound.GetPosition(), res);
+	sfConvert(mSound.getPosition(), res);
 	return res;
 }
 
 void SFSound::setMinimumDistance(float distance){
-	mSound.SetMinDistance(distance);
+	mSound.setMinDistance(distance);
 }
 
 void SFSound::setAttenuation(float att){
-	mSound.SetAttenuation(att);
+	mSound.setAttenuation(att);
 }
 
 float SFSound::getMinimumDistance() const{
-	return mSound.GetMinDistance();
+	return mSound.getMinDistance();
 }
 
 float SFSound::getAttenuation() const{
-	return mSound.GetAttenuation();
+	return mSound.getAttenuation();
 }
 
 void sfConvert(const sf::Vector3f& src, glm::vec3& dst){

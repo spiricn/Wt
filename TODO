@@ -1,30 +1,10 @@
 -------------------------------------------------------------------------------
 
-Region actor
-
-Region managing in the editor
-
 region rendering
 
 -------------------------------------------------------------------------------
 
 allow pausing physics & scene simulation from the editor
-
--------------------------------------------------------------------------------
-
-allow scripts to be ran from the editor
-
--------------------------------------------------------------------------------
-
-process manager in WtEditor
-
-ability to see all current processes and their state
-
-ability to suspend all / specific processes
-
--------------------------------------------------------------------------------
-
-add lua scripts as managed resources
 
 -------------------------------------------------------------------------------
 

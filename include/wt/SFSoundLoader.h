@@ -16,7 +16,7 @@ public:
 
 		stream->read(data, stream->getSize());
 
-		if(!bfr->getSFSoundBuffer().LoadFromMemory(data, stream->getSize())){
+		if(!bfr->getSFSoundBuffer().loadFromMemory(data, stream->getSize())){
 			WT_THROW("Error loading sound from stream");
 		}
 

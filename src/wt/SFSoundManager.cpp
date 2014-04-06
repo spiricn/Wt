@@ -25,11 +25,11 @@ SoundPtr SFSoundManager::createSound(ASoundBuffer* bfr){
 }
 
 void SFSoundManager::setListenerPosition(const glm::vec3& pos){
-	sf::Listener::SetPosition(pos.x, pos.y, pos.z);
+	sf::Listener::setPosition(pos.x, pos.y, pos.z);
 }
 
 void SFSoundManager::setListenerForwardVec(const glm::vec3& fw){
-	sf::Listener::SetTarget(fw.x, fw.y, fw.z);
+	sf::Listener::setDirection(fw.x, fw.y, fw.z);
 }
 
 SoundStreamPtr SFSoundManager::createSoundStream(const String& path){
@@ -38,11 +38,11 @@ SoundStreamPtr SFSoundManager::createSoundStream(const String& path){
 
 void SFSoundManager::setGlobalVolume(float volume){
 
-	sf::Listener::SetGlobalVolume(volume*100);
+	sf::Listener::setGlobalVolume(volume*100);
 }
 
 float SFSoundManager::getGlobalVolume() const{
-	return sf::Listener::GetGlobalVolume();
+	return sf::Listener::getGlobalVolume();
 }
 
 bool SFSoundManager::isMuted() const{
