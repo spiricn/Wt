@@ -33,6 +33,7 @@ void ListView::addItem(const String& name, void* data){
 }
 
 void ListView::draw(Canvas& c){
+#if 0
 	// Background
 	c.drawRect(0, 0, getSize().x, getSize().y, Color::Gray());
 
@@ -45,6 +46,7 @@ void ListView::draw(Canvas& c){
 	}
 
 	mVerticalSlider->draw(c);
+#endif
 }
 
 void ListView::onMouseDrag(const MouseMotionEvent* evt){

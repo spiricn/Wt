@@ -53,14 +53,20 @@ bool Checkbox::isChecked() const{
 }
 
 void Checkbox::draw(Canvas& c){
-	View::draw(c);
+	Canvas::Paint paint;
+	paint.style = Canvas::Paint::eSTYLE_FILL;
+	
+	// Base rect
+	c.drawRect(0, 0, getWidth(), getHeight(), &paint);
 
 	// Outer circle
-	c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/4, Color::White());
+	paint.fillColor = Color::White();
+	c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/4, &paint);
 
 	// Inner circle
 	if(mChecked){
-		c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/8, Color::Black());
+		paint.fillColor = Color::Black();
+		c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/8, &paint);
 	}
 
 	glm::vec2 textSize = getFont()->measureString(mText);

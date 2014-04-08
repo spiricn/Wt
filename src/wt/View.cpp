@@ -11,8 +11,12 @@ namespace wt
 namespace gui
 {
 
-const EventType ViewClickedEvent::TYPE = "ViewClicked";
+View::View(Layout* parent) : mRect(0, 0, 1, 1), mId(0),
+	mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eSCALE_MODE_FIXED),
+	mNeedsScale(false), mLayout(parent), mBackgroundColor(Color::White()){
 
+	mTexture.create();
+}
 
 void View::setId(uint32_t id){
 	mId = id;
@@ -49,13 +53,6 @@ void View::setNeedsScaling(bool state){
 
 Texture2D& View::getTexture(){
 	return mTexture;
-}
-
-View::View(Layout* parent) : mRect(0, 0, 1, 1), mId(0),
-	mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eSCALE_MODE_FIXED),
-	mNeedsScale(false), mLayout(parent){
-
-	mTexture.create();
 }
 
 const View::GridLocation& View::getGridLoation() const{
@@ -199,13 +196,7 @@ bool View::contains(float x, float y) const{
 void View::setBackgroundColor(const Color& clr){
 	dirty();
 
-	mBackground.color = clr;
-}
-
-void View::setBackgroundTexture(Texture2D* texture){
-	dirty();
-
-	mBackground.texture = texture;
+	mBackgroundColor = clr;
 }
 
 void View::setSize(float w, float h){
@@ -222,14 +213,6 @@ void View::setSize(float w, float h){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void View::draw(Canvas& c){
-	if(mBackground.texture){
-		c.drawTexture(mBackground.texture, 0, 0, mRect.width, mRect.height, mBackground.color);
-	}
-	else{
-		c.drawRect(0, 0, mRect.width, mRect.height, mBackground.color);
-	}
-}
 
 Layout* View::getLayout() const{
 	return mLayout;
@@ -238,6 +221,12 @@ Layout* View::getLayout() const{
 const Rect& View::getRect() const{
 	return mRect;
 }
+
+const Color& View::getBackgroundColor() const{
+	return mBackgroundColor;
+}
+
+const EventType ViewClickedEvent::TYPE = "ViewClicked";
 
 } // </gui>
 

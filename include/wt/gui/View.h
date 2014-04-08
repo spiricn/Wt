@@ -34,15 +34,6 @@ public:
 
 	}; // </GridLocation>
 
-	struct ViewBackground{
-		Color color;
-		Texture2D* texture;
-
-		ViewBackground() : color(Color::White()), texture(NULL){
-		}
-
-	}; // </ViewBackground>
-
 	enum ScalingMode{
 		eSCALE_MODE_FIXED,
 		eSCALE_MODE_GRID
@@ -117,15 +108,15 @@ public:
 
 	bool contains(float x, float y) const;
 
-	void setBackgroundColor(const Color& clr);
-
-	void setBackgroundTexture(Texture2D* texture);
-
 	void setSize(float w, float h);
 
-	virtual void draw(Canvas& c);
+	virtual void draw(Canvas& c) = 0;
 
 	Layout* getLayout() const;
+
+	void setBackgroundColor(const Color& clr);
+
+	const Color& getBackgroundColor() const;
 
 protected:
 	void setId(uint32_t id);
@@ -149,7 +140,6 @@ protected:
 private:
 	Rect mRect;
 	uint32_t mId;
-	ViewBackground mBackground;
 	bool mIsVisible;
 	String mName;
 	EventManager* mEventManager;
@@ -160,6 +150,7 @@ private:
 	Layout* mLayout;
 	ScalingMode mScalingMode;
 	bool mNeedsScale;
+	Color mBackgroundColor;
 
 private:
 	friend class Layout;

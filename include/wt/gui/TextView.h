@@ -25,9 +25,20 @@ public:
 		eSCALE_FIXED
 	}; // </ScalingMode>
 
+	typedef uint32_t PosFlag;
+
+public:
+	static const PosFlag ePOS_CENTER_VERTICAL = 1 << 0;
+
+	static const PosFlag ePOS_CENTER_HORIZONTAL = 1 << 1;
+
+public:
+
 	TextView(Layout* parent);
 
-	void setScalingMode(ScalingMode mode);
+	void setTextScaleMode(ScalingMode mode);
+
+	void setPositionFlags(PosFlag flags);
 
 	void setFontScale(float size);
 
@@ -45,6 +56,7 @@ private:
 	String mText;
 	float mFontScale;
 	ScalingMode mScalingMode;
+	PosFlag mPosFlags;
 }; // </TextView>
 
 }; // </gui>

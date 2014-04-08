@@ -10,26 +10,21 @@ namespace wt
 namespace gui
 {
 
+Button::Button(Layout* parent) : View(parent), mHovering(false){
+}
+
+
 void Button::onMouseEnter(const MouseMotionEvent* evt){
 	dirty();
 
-	setBackgroundColor(Color(195/255.0, 195/255.0, 195/255.0));
+	mHovering = true;
 }
 
 void Button::onMouseLeave(const MouseMotionEvent* evt){
 	dirty();
 
-	setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
+	mHovering = false;
 }
-
-Button::Button(Layout* parent) : RectView(parent){
-	setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
-
-	setDrawBorder(true);
-	setBorderWidth(3.0f);
-	setBorderColor(Color(112/255.0, 146/255.0, 190/255.0));
-}
-
 
 void Button::onClicked(){
 	ButtonClickedEvent* evt = new ButtonClickedEvent;
@@ -51,10 +46,19 @@ void Button::setText(const String& text){
 void Button::draw(Canvas& c){
 	WT_ASSERT(getFont(), "No font specified for button instance");
 
-	RectView::draw(c);
 
+	Canvas::Paint paint;
+
+	paint.style = Canvas::Paint::eSTYLE_FILL_AND_STROKE;
+
+	paint.fillColor = mHovering ? Color(0.85, 0.85, 0.85) : Color::White();
+	paint.strokeColor = Color::Black();
+
+	// Draw base
+	c.drawRect(0, 0, getWidth(), getHeight(), &paint);
+
+	// Draw text
 	glm::vec2 pos = (getSize()/2.0f) - (mTextSize/2.0f);
-
 	c.drawText(getFont(),
 		mText, pos.x, pos.y, Color::Black(), 1.0f);
 }

@@ -3,40 +3,30 @@
 
 #include "wt/gui/View.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace gui{
+namespace gui
+{
 
 class CircleView : public View{
+public:
+	CircleView(Layout* parent);
+
+	void setColor(const Color& color);
+
+	void setRadius(float r);
+
+	void draw(Canvas& c);
+
 private:
 	float mRadius;
 	Color mColor;
 
-public:
+}; // </CircleView>
 
-	CircleView(Layout* parent) : mRadius(1.0f), mColor(Color::White()), View(parent){
-	}
+} // </gui>
 
-	void setColor(const Color& color){
-		dirty();
-
-		mColor = color;
-	}
-
-	void setRadius(float r){
-		dirty();
-
-		mRadius = r;
-		setSize(r, r);
-	}
-
-	void draw(Canvas& c){
-		c.drawCircle(mRadius/2, mRadius/2, mRadius/2, mColor);
-	}
-};
-
-}; // </gui>
-
-}; // </wt>
+} // </wt>
 
 #endif // </WT_CIRCLEVIEW_H>

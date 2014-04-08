@@ -9,7 +9,6 @@
 #include "wt/gui/View.h"
 #include "wt/gui/ProgressView.h"
 #include "wt/gui/Button.h"
-#include "wt/gui/RectView.h"
 #include "wt/gui/SliderView.h"
 #include "wt/gui/CircleView.h"
 #include "wt/gui/Checkbox.h"

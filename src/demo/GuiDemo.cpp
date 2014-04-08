@@ -130,10 +130,11 @@ public:
 			
 			gui::TextView* v = mUi->createView<gui::TextView>("clr_text");
 			v->setGridLocation(2, 5, 1, 4);
-			v->setScalingMode(gui::TextView::eSCALE_AUTO);
+			v->setTextScaleMode(gui::TextView::eSCALE_AUTO);
 			v->setBackgroundColor(Color::White());
 			v->setText("Current text color: default");
 			v->setTextColor(Color::Black());
+			v->setPositionFlags(gui::TextView::ePOS_CENTER_HORIZONTAL | gui::TextView::ePOS_CENTER_VERTICAL );
 		}
 		{
 			
@@ -181,7 +182,7 @@ public:
 
 	void onToast(){
 		getProcessManager()->attach(
-			(new Toast(mUi, glm::vec2(500, 100), glm::vec2(500, 500), getAssets()->getTextureManager()->find("toasty")))
+			(new Toast(mUi, glm::vec2(getWindow()->getWidth()/2, getWindow()->getHeight()/2), "Toast !"))
 			->setDuration(1)
 			->setFadeInTime(0.3)
 			->setFadeOutTime(0.3)

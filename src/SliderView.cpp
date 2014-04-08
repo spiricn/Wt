@@ -43,23 +43,30 @@ void SliderView::onMouseDrag(const MouseMotionEvent* evt){
 }
 
 void SliderView::draw(Canvas& c){
+	Canvas::Paint paint;
+
+	paint.style = Canvas::Paint::eSTYLE_FILL_AND_STROKE;
+	paint.fillColor = mBaseColor;
+	paint.strokeColor = mBorderColor;
+
 	// Base rect
-	c.drawRect(0, 0, getSize().x, getSize().y, mBaseColor);
+	c.drawRect(0, 0, getSize().x, getSize().y, &paint);
+	
+	// Slider
+	paint.style = Canvas::Paint::eSTYLE_FILL;
+	paint.fillColor = mSliderColor;
 
 	if(mMode == eMODE_HORIZONTAL){
 		// Progress rect
 		float pos = glm::mix(0.0f, getSize().x - mBarWidth, mValue/100.0f);
 
-		c.drawRect(pos, 0, mBarWidth, getSize().y, mSliderColor);
+		c.drawRect(pos, 0, mBarWidth, getSize().y, &paint);
 	}
 	else{
 		float pos = glm::mix(0.0f, getSize().y - mBarWidth, mValue/100.0f);
 
-		c.drawRect(0, pos, mBarWidth, getSize().x, mSliderColor);
+		c.drawRect(0, pos, mBarWidth, getSize().x, &paint);
 	}
-
-	// Border rect
-	c.drawRect(0, 0, getSize().x, getSize().y, mBorderColor, Canvas::eRECT_LINE);
 }
 
 void SliderView::setMode(Mode mode){

@@ -8,6 +8,13 @@
 namespace wt
 {
 
+namespace gui
+{
+
+class TextView;
+
+} // </gui>
+
 class Toast : public AProcess{
 public:
 	enum State{
@@ -19,7 +26,7 @@ public:
 	}; // </State>
 
 public:
-	Toast(gui::Layout* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture);
+	Toast(gui::Layout* parent, const glm::vec2& pos, const String& text);
 
 	State getState() const;
 
@@ -47,17 +54,20 @@ public:
 	Toast* setFadeOutValue(float val);
 
 private:
-	gui::Layout* mParent;
-	gui::View* mView;
-	Interpolator<float> mFadeInterpolator;
-
-	State mState;
-	float mDuration, mFadeInTime, mFadeOutTime, mFadeOutVal, mFadeInVal;
-	bool mLinger;
-	float mCurrentAlpha;
-
 	void setAlpha(float a);
 
+private:
+	gui::Layout* mParent;
+	gui::TextView* mView;
+	Interpolator<float> mFadeInterpolator;
+	State mState;
+	float mDuration;
+	float mFadeInTime;
+	float mFadeOutTime;
+	float mFadeOutVal;
+	float mFadeInVal;
+	bool mLinger;
+	float mCurrentAlpha;
 }; // </Toast>
 
 }; // </wt>

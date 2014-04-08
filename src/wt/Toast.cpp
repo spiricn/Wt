@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/Toast.h"
+#include "wt/gui/TextView.h"
 
 #define TD_TRACE_TAG "Toast"
 
@@ -14,20 +15,15 @@ void Toast::setAlpha(float a){
 	mView->setBackgroundColor(clr);
 }
 
-Toast::Toast(gui::Layout* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture) : 
-mParent(parent), mState(eSTATE_IDLE), mDuration(3), mFadeInTime(0.5), mFadeOutTime(2), mFadeOutVal(0.0f), mFadeInVal(.8f), mLinger(false){
-	
-	gui::RectView* view = mParent->createView<gui::RectView>();
-	view->setScalingMode(gui::View::eSCALE_MODE_FIXED);
+Toast::Toast(gui::Layout* parent, const glm::vec2& pos, const String& text) :  mParent(parent), mState(eSTATE_IDLE),mDuration(3), mFadeInTime(0.5), mFadeOutTime(2), mFadeOutVal(0.0f), mFadeInVal(.8f), mLinger(false){
+	mView = mParent->createView<gui::TextView>();
+	mView->setTextScaleMode(gui::TextView::eSCALE_AUTO);
+	mView->setScalingMode(gui::View::eSCALE_MODE_FIXED);
+	mView->setText(text);
+	mView->setTextColor(Color::Black());
+	mView->setBackgroundColor( Color(0, 0, 0, 0) );
 
-	view->setPosition(pos);
-	view->setSize(size);
-	view->setBackgroundTexture(texture);
-	view->setBackgroundColor( Color(0, 0, 0, 0) );
-
-	view->setDrawBorder(false);
-
-	mView = view;
+	mView->setPosition(pos - mView->getSize()/2.0f);
 }
 
 Toast::State Toast::getState() const{

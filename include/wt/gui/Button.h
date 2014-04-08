@@ -2,14 +2,15 @@
 #define WT_BUTTON_H
 
 #include "wt/gui/View.h"
-#include "wt/gui/RectView.h"
 #include "wt/IEventEmitter.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace gui{
+namespace gui
+{
 
-class Button : public RectView{
+class Button : public View{
 public:
 	Button(Layout* parent);
 
@@ -27,6 +28,7 @@ private:
 private:
 	String mText;
 	glm::vec2 mTextSize;
+	bool mHovering;
 
 }; // </Button>
 
@@ -45,8 +47,8 @@ public:
 	}
 }; // </ButtonClickedEvent>
 
-}; // </gui>
+} // </gui>
 
-}; // </wt>
+} // </wt>
 
 #endif // </WT_BUTTON_H>

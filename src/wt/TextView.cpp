@@ -9,10 +9,11 @@ namespace wt
 namespace gui
 {
 
-TextView::TextView(Layout* parent) : mTextColor(Color::White()), mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent){
+TextView::TextView(Layout* parent) : mTextColor(Color::White()),
+	mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent), mPosFlags(0){
 }
 
-void TextView::setScalingMode(ScalingMode mode){
+void TextView::setTextScaleMode(ScalingMode mode){
 	dirty();
 
 	mScalingMode = mode;
@@ -37,6 +38,10 @@ void TextView::setText(const String& text){
 	}
 }
 
+void TextView::setPositionFlags(PosFlag flags){
+	mPosFlags = flags;
+}
+
 String TextView::getText() const{
 	return mText;
 }
@@ -50,9 +55,25 @@ void TextView::setTextColor(const Color& color){
 void TextView::draw(Canvas& c){
 	WT_ASSERT(getFont(), "No font specified for TextView instance");
 
-	View::draw(c);
+	// TODO hardcoded
+	Canvas::Paint backgroundPaint;
+	backgroundPaint.style = Canvas::Paint::eSTYLE_FILL;
+	backgroundPaint.fillColor = Color::White();
 
-	c.drawTextFmt(getFont(), mText, glm::vec2(0, 0), getSize(), mTextColor, mFontScale);
+	c.drawRect(0, 0, getSize().x, getSize().y, &backgroundPaint);
+
+	glm::vec2 textPos(0, 0);
+	glm::vec2 textSize = getFont()->measureString(mText, mFontScale);
+
+	if(mPosFlags & ePOS_CENTER_HORIZONTAL){
+		textPos.x = ( getWidth() / 2.0f ) - ( textSize.x / 2.0f );
+	}
+
+	if(mPosFlags & ePOS_CENTER_VERTICAL){
+		textPos.x = ( getHeight() / 2.0f ) - ( textSize.y / 2.0f );
+	}
+	
+	c.drawTextFmt(getFont(), mText, textPos, getSize(), mTextColor, mFontScale);
 }
 
 } // </gui>

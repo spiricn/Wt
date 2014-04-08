@@ -33,15 +33,31 @@ public:
 
 class Canvas{
 public:
-	enum FillMode{
-		eFILL,
-		eLINE
-	}; // </FillMode>
+	//enum FillMode{
+	//	eFILL,
+	//	eLINE
+	//}; // </FillMode>
 
-	enum RectMode{
-		eRECT_FILL=GL_FILL,
-		eRECT_LINE=GL_LINE,
-	}; // </RectMode>
+	//enum RectMode{
+	//	eRECT_FILL=GL_FILL,
+	//	eRECT_LINE=GL_LINE,
+	//}; // </RectMode>
+
+	struct Paint{
+		enum Style{
+			eSTYLE_FILL,
+			eSTYLE_STROKE,
+			eSTYLE_FILL_AND_STROKE
+		}; // </Style>
+
+		Color fillColor;
+		Color strokeColor;
+		float strokeWidth;
+		Style style;
+
+		Paint() : style(eSTYLE_FILL_AND_STROKE), strokeWidth(1.0f), fillColor(Color::White()), strokeColor(Color::Black()){
+		}
+	}; // </Paint>
 
 	glm::vec2 getSize() const;
 
@@ -75,11 +91,11 @@ public:
 
 	glm::mat4& getModelViewMat();
 
-	void drawCircle(float x, float y, float radius, const Color& color, FillMode fill = eFILL);
+	void drawCircle(float x, float y, float radius, Paint* paint=NULL);
 
-	void drawRect(float x, float y, float w, float h, const Color& color,  RectMode mode=eRECT_FILL);
+	void drawRect(float x, float y, float w, float h, Paint* paint=NULL);
 
-	void drawLine(float sx, float sy, float ex, float ey, const Color& color, float lineWidth = 1.0f);
+	void drawLine(float sx, float sy, float ex, float ey, Paint* paint=NULL);
 
 protected:
 	void create();
@@ -92,7 +108,7 @@ private:
 	Texture2D* mTargetTex;
 	FontShader mFontShader;
 	gl::Batch mFontBatch;
-
+	Paint mDefaultPaint;
 }; // </Canvas>
 
 } // </gui>

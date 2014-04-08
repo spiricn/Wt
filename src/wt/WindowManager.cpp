@@ -67,8 +67,7 @@ void WindowManager::hook(EventManager* evtManager){
 	mEventManager->registerListener(this, MouseMotionEvent::TYPE);
 
 	mEventEmitter.hook(mEventManager,
-		4,
-		RectViewClickedEvent::TYPE,
+		3,
 		ButtonClickedEvent::TYPE,
 		SliderValueChangedEvent::TYPE,
 		CheckboxClickedEvent::TYPE

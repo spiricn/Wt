@@ -238,6 +238,7 @@ void Layout::draw(){
 			continue;
 		}
 
+		// Handle view grid scaling
 		if(view->getScalingMode() == View::eSCALE_MODE_GRID && (view->needsRescaling() || mNeedsRescale)){
 			glm::vec2 size = cellSize * glm::vec2(view->getGridLoation().columnSpan, view->getGridLoation().rowSpan) ;
 			glm::vec2 pos = cellSize * glm::vec2(view->getGridLoation().column, view->getGridLoation().row) ;
@@ -250,10 +251,10 @@ void Layout::draw(){
 			view->setNeedsScaling(false);
 		}
 
+		// Redraw the view if necessary
 		if(i->second->isDirty()){
 			mCanvas.setTranslation( glm::vec2(0, 0) );
 			glLoadMatrixf( glm::value_ptr(mCanvas.getModelViewMat()) );
-
 
 			mCanvas.setOutput(&i->second->getTexture());
 			mCanvas.clear();
@@ -264,12 +265,14 @@ void Layout::draw(){
 			i->second->clean();
 		}
 
+		// Render the view
 		mCanvas.setTranslation( i->second->getPosition() );
 		glLoadMatrixf( glm::value_ptr(mCanvas.getModelViewMat()) );
 
 		mCanvas.drawTexture(&i->second->getTexture(), 
 			0, 0,
-			i->second->getSize().x, i->second->getSize().y, Color::White());
+			i->second->getSize().x, i->second->getSize().y, i->second->getBackgroundColor()
+		);
 	}
 
 	mNeedsRescale = false;

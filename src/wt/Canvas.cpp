@@ -308,7 +308,11 @@ glm::mat4& Canvas::getModelViewMat(){
 }
 
 
-void Canvas::drawCircle(float x, float y, float radius, const Color& color, FillMode fill){
+void Canvas::drawCircle(float x, float y, float radius, Paint* paint){
+	if(!paint){
+		paint = &mDefaultPaint;
+	}
+
 	glUseProgram(0);
 
 	// blending
@@ -318,55 +322,90 @@ void Canvas::drawCircle(float x, float y, float radius, const Color& color, Fill
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
-		
-	glColor4f(color.red, color.green, color.blue, color.alpha);
+	
+	if(paint->style == Paint::eSTYLE_FILL){
+		glColor4f(paint->fillColor.red, paint->fillColor.green, paint->fillColor.blue, paint->fillColor.alpha);
+	}
+	else if(paint->style == Paint::eSTYLE_STROKE){
+		glColor4f(paint->strokeColor.red, paint->strokeColor.green, paint->strokeColor.blue, paint->strokeColor.alpha);
+	}
+	else{
+		TRACEW("Not implemented");
+	}
 
-	glBegin(fill == eFILL ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+	glBegin(paint->style == Paint::eSTYLE_FILL ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
 
 	for(float angle=0.0f; angle<360.0f; angle+=5.0f){
 		glVertex2f(x + glm::sin(angle) * radius, y + glm::cos(angle) * radius);
 	}
+
 	glEnd();
 }
 
-void Canvas::drawRect(float x, float y, float w, float h, const Color& color,  RectMode mode){
-	glUseProgram(0);
+void Canvas::drawRect(float x, float y, float w, float h, Paint* paint){
+	if(!paint){
+		paint = &mDefaultPaint;
+	}
 
-	// blending
+	// State setup
+	glUseProgram(0);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-
-	glPolygonMode(GL_FRONT_AND_BACK,
-		mode
-		);
-
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 
-	glColor4f(color.red, color.green, color.blue, color.alpha);
+	if(paint->style == Paint::eSTYLE_FILL || paint->style == Paint::eSTYLE_FILL_AND_STROKE){
+		// Draw fill
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	glBegin(GL_QUADS);
+		glColor4f(paint->fillColor.red, paint->fillColor.green, paint->fillColor.blue, paint->fillColor.alpha);
+
+		glBegin(GL_QUADS);
 		glVertex2f(x + 0, y + 0);
 		glVertex2f(x + w, (y) + 0);
 		glVertex2f(x + w, (y) + h);
 		glVertex2f(x + 0, (y) + h);
-	glEnd();
+		glEnd();
+		glFlush();
+	}
 
-	glFlush();
+	if(paint->style == Paint::eSTYLE_STROKE || paint->style == Paint::eSTYLE_FILL_AND_STROKE){
+		// Draw stroke
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		glColor4f(paint->strokeColor.red, paint->strokeColor.green, paint->strokeColor.blue, paint->strokeColor.alpha);
+
+		gl( LineWidth(paint->strokeWidth) );
+
+		const float o = paint->strokeWidth/2.0f;
+
+		glBegin(GL_QUADS);
+		glVertex2f(x + o, y + o);
+		glVertex2f(x + w - o, y + o);
+		glVertex2f(x + w - o, y + h - o);
+		glVertex2f(x + o, y + h - o);
+		glEnd();
+		glFlush();
+	}
+	
 }
 
-void Canvas::drawLine(float sx, float sy, float ex, float ey, const Color& color, float lineWidth){
+void Canvas::drawLine(float sx, float sy, float ex, float ey, Paint* paint){
+	if(!paint){
+		paint = &mDefaultPaint;
+	}
+
 	gl( Disable(GL_BLEND) );
 
 	gl( Enable(GL_LINE_SMOOTH) );
 
-	gl( LineWidth(lineWidth) );
+	gl( LineWidth(paint->strokeWidth) );
 	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
 
 	gl( Disable(GL_DEPTH_TEST) );
 	gl( Disable(GL_TEXTURE_2D) );
-	gl( Color4f(color.red, color.green, color.blue, color.alpha) );
+	gl( Color4f(paint->strokeColor.red, paint->strokeColor.green, paint->strokeColor.blue, paint->strokeColor.alpha) );
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 
 	glBegin(GL_LINES);
