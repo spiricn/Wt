@@ -52,7 +52,7 @@ public:
 
 			getScene()->getCamera().setRotation( glm::angleAxis( (mProgress/100.0f)*360.0f, glm::vec3(0, 1, 0)) );
 
-			((gui::ProgressView*)getScene()->getUIWindow()->findView("PROGRESS_VIEW"))->setProgress(mProgress );
+			((gui::ProgressView*)mUi->findView("PROGRESS_VIEW"))->setProgress(mProgress );
 		}
 	}
 
@@ -64,12 +64,15 @@ public:
 		getCameraControl()->setCamera(&getScene()->getCamera());
 
 		gui::Button* btn;
+
+		// TODO a better way of getting the default window?
+		mUi = *getScene()->getWindowManager()->getWindowsBeg();
 		
-		getScene()->getUIWindow()->setGridSize(20, 10);
-		getScene()->getUIWindow()->setDefaultScaleMode(gui::View::eSCALE_MODE_GRID);
+		mUi->setGridSize(20, 10);
+		mUi->setDefaultScaleMode(gui::View::eSCALE_MODE_GRID);
 		
 		{
-			btn = getScene()->getUIWindow()->createView<gui::Button>();
+			btn = mUi->createView<gui::Button>();
 			btn->setGridLocation(2, 2, 1, 2);
 			btn->setText("Change color");
 
@@ -79,7 +82,7 @@ public:
 
 		{
 			
-			btn = getScene()->getUIWindow()->createView<gui::Button>("");
+			btn = mUi->createView<gui::Button>("");
 
 			btn->setGridLocation(4, 2, 1, 2);
 			btn->setText("Nudge");
@@ -89,7 +92,7 @@ public:
 		}
 
 		{
-			btn = getScene()->getUIWindow()->createView<gui::Button>();
+			btn = mUi->createView<gui::Button>();
 			btn->setGridLocation(6, 2, 1, 2);
 			btn->setText("Stop demo");
 
@@ -98,7 +101,7 @@ public:
 		}
 
 		{
-			btn = getScene()->getUIWindow()->createView<gui::Button>();
+			btn = mUi->createView<gui::Button>();
 			btn->setGridLocation(8, 2, 1, 2);
 			btn->setText("Toast !");
 
@@ -107,7 +110,7 @@ public:
 		}
 
 		{
-			gui::ProgressView* v = getScene()->getUIWindow()->createView<gui::ProgressView>("PROGRESS_VIEW");
+			gui::ProgressView* v = mUi->createView<gui::ProgressView>("PROGRESS_VIEW");
 
 			v->setGridLocation(10, 2, 1, 2);
 			v->setDrawProgress(true);
@@ -115,7 +118,7 @@ public:
 		}
 		{
 			
-			gui::TextView* v = getScene()->getUIWindow()->createView<gui::TextView>("text");
+			gui::TextView* v = mUi->createView<gui::TextView>("text");
 			v->setGridLocation(3, 5, 12, 4);
 			v->setBackgroundColor(Color::Gray());
 			v->setTextColor(Color::Black());
@@ -125,7 +128,7 @@ public:
 
 		{
 			
-			gui::TextView* v = getScene()->getUIWindow()->createView<gui::TextView>("clr_text");
+			gui::TextView* v = mUi->createView<gui::TextView>("clr_text");
 			v->setGridLocation(2, 5, 1, 4);
 			v->setScalingMode(gui::TextView::eSCALE_AUTO);
 			v->setBackgroundColor(Color::White());
@@ -134,7 +137,7 @@ public:
 		}
 		{
 			
-			gui::SliderView* v = getScene()->getUIWindow()->createView<gui::SliderView>("slider");
+			gui::SliderView* v = mUi->createView<gui::SliderView>("slider");
 			
 			v->setGridLocation(12, 2, 1, 2);
 
@@ -143,7 +146,7 @@ public:
 		}
 
 		{
-			gui::Checkbox* v = getScene()->getUIWindow()->createView<gui::Checkbox>("cb");
+			gui::Checkbox* v = mUi->createView<gui::Checkbox>("cb");
 			v->setText("Camera rotation paused");
 			v->setGridLocation(14, 2, 1, 2);
 
@@ -153,7 +156,7 @@ public:
 
 		{
 			
-			gui::SliderView* v = getScene()->getUIWindow()->createView<gui::SliderView>("camera_slider");
+			gui::SliderView* v = mUi->createView<gui::SliderView>("camera_slider");
 			
 			v->setGridLocation(16, 2, 1, 2);
 
@@ -171,14 +174,14 @@ public:
 	}
 
 	void onSliderChanged(){
-		float val = ((gui::SliderView*)getScene()->getUIWindow()->findView("slider"))->getValue()/100.0f;
+		float val = ((gui::SliderView*)mUi->findView("slider"))->getValue()/100.0f;
 
-		((gui::TextView*)getScene()->getUIWindow()->findView("text"))->setFontScale( glm::mix(0.5f, 2.0f, val ) );
+		((gui::TextView*)mUi->findView("text"))->setFontScale( glm::mix(0.5f, 2.0f, val ) );
 	}
 
 	void onToast(){
 		getProcessManager()->attach(
-			(new Toast(getScene()->getUIWindow(), glm::vec2(500, 100), glm::vec2(500, 500), getAssets()->getTextureManager()->find("toasty")))
+			(new Toast(mUi, glm::vec2(500, 100), glm::vec2(500, 500), getAssets()->getTextureManager()->find("toasty")))
 			->setDuration(1)
 			->setFadeInTime(0.3)
 			->setFadeOutTime(0.3)
@@ -191,7 +194,7 @@ public:
 	}
 
 	void onBtnNudgeClicked(){
-		gui::View* v = getScene()->getUIWindow()->findView("text");
+		gui::View* v = mUi->findView("text");
 		
 		v->setPosition(v->getPosition() + glm::vec2(-5 + math::random()*10, -5 + math::random()*10) );
 	}
@@ -200,12 +203,12 @@ public:
 		String t = "Current text color: ";
 		t.append(clr.hex());
 
-		((gui::TextView*)getScene()->getUIWindow()->findView("clr_text"))->setText(t);
-		((gui::TextView*)getScene()->getUIWindow()->findView("text"))->setTextColor(clr);
+		((gui::TextView*)mUi->findView("clr_text"))->setText(t);
+		((gui::TextView*)mUi->findView("text"))->setTextColor(clr);
 	}
 
 	void rotateCamera(){
-		float val = dynamic_cast<gui::SliderView*>(getScene()->getUIWindow()->findView("camera_slider"))->getValue()/100.0f;
+		float val = dynamic_cast<gui::SliderView*>(mUi->findView("camera_slider"))->getValue()/100.0f;
 
 		
 		getScene()->getCamera().setRotation( glm::angleAxis(val*360.0f, glm::vec3(0, 1, 0)) );
@@ -222,6 +225,7 @@ public:
 private:
 	float mProgress;
 	bool mProgressBarPaused;
+	gui::Window* mUi;
 
 }; // </GuiDemo>
 

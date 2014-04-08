@@ -3,7 +3,7 @@
 
 #include "wt/ProcessManager.h"
 #include "wt/Interpolator.h"
-#include "wt/gui/Window.h"
+#include "wt/gui/Layout.h"
 
 namespace wt
 {
@@ -19,7 +19,7 @@ public:
 	}; // </State>
 
 public:
-	Toast(gui::Window* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture);
+	Toast(gui::Layout* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture);
 
 	State getState() const;
 
@@ -47,7 +47,7 @@ public:
 	Toast* setFadeOutValue(float val);
 
 private:
-	gui::Window* mParent;
+	gui::Layout* mParent;
 	gui::View* mView;
 	Interpolator<float> mFadeInterpolator;
 

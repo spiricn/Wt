@@ -9,6 +9,7 @@
 #include "wt/EventManager.h"
 #include "wt/AGameInput.h"
 #include "wt/IEventEmitter.h"
+#include "wt/gui/Rect.h"
 
 namespace wt
 {
@@ -18,7 +19,7 @@ namespace gui
 
 using namespace gl;
 
-class Window;
+class Layout;
 
 class View : public IEventEmitter{
 public:
@@ -48,7 +49,7 @@ public:
 	}; // </ScalingMode>
 
 public:
-	View(Window* parent);
+	View(Layout* parent);
 
 	const GridLocation& getGridLoation() const;
 
@@ -74,7 +75,9 @@ public:
 
 	void setVisible(bool state);
 
-	glm::vec2& getPosition();
+	const Rect& getRect() const;
+
+	glm::vec2 getPosition() const;
 
 	glm::vec2 toLocalCoords(float x, float y) const;
 
@@ -104,7 +107,7 @@ public:
 
 	void setPosition(const glm::vec2& position);
 
-	glm::vec2& getSize();
+	glm::vec2 getSize() const;
 
 	void setSize(const glm::vec2& size);
 
@@ -122,7 +125,7 @@ public:
 
 	virtual void draw(Canvas& c);
 
-	Window* getParent() const;
+	Layout* getLayout() const;
 
 protected:
 	void setId(uint32_t id);
@@ -144,8 +147,7 @@ protected:
 	Texture2D& getTexture();
 
 private:
-	glm::vec2 mPosition;
-	glm::vec2 mSize;
+	Rect mRect;
 	uint32_t mId;
 	ViewBackground mBackground;
 	bool mIsVisible;
@@ -155,12 +157,12 @@ private:
 	Font* mFont;
 	bool mDirty;
 	GridLocation mGridLocation;
-	Window* mParent;
+	Layout* mLayout;
 	ScalingMode mScalingMode;
 	bool mNeedsScale;
 
 private:
-	friend class Window;
+	friend class Layout;
 }; // </View>
 
 class ViewClickedEvent : public AEvent{

@@ -22,7 +22,9 @@ namespace wt
 
 namespace gui
 {
-	class Window;
+
+class WindowManager;
+
 } // </gui>
 
 class Renderer;
@@ -103,7 +105,7 @@ public:
 
 	Physics* getPhysics() const;
 
-	gui::Window* getUIWindow();
+	gui::WindowManager* getWindowManager() const;
 
 	void deleteActor(ASceneActor* actor);
 
@@ -167,7 +169,7 @@ public:
 
 	AResourceSystem* getAssets();
 
-	void setUIWindow(gui::Window* window);
+	void setWindowManager(gui::WindowManager* manager);
 
 	void registerListener(IListener* listener);
 
@@ -225,7 +227,7 @@ private:
 	SkyBox* mSkyBox;
 	FogDesc mFogDesc;
 	Physics* mPhysics;
-	gui::Window* mUIWindow;
+	gui::WindowManager* mWindowManager;
 	Sp<DirectionalLight> mDirectionalLight;
 	EventManager* mEventManager;
 	ActorMap mActors;

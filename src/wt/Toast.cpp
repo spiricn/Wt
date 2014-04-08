@@ -14,7 +14,7 @@ void Toast::setAlpha(float a){
 	mView->setBackgroundColor(clr);
 }
 
-Toast::Toast(gui::Window* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture) : 
+Toast::Toast(gui::Layout* parent, const glm::vec2& pos, const glm::vec2& size, Texture2D* texture) : 
 mParent(parent), mState(eSTATE_IDLE), mDuration(3), mFadeInTime(0.5), mFadeOutTime(2), mFadeOutVal(0.0f), mFadeInVal(.8f), mLinger(false){
 	
 	gui::RectView* view = mParent->createView<gui::RectView>();

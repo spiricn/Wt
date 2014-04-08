@@ -9,7 +9,7 @@ namespace wt
 namespace gui
 {
 
-TextView::TextView(Window* parent) : mTextColor(Color::White()), mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent){
+TextView::TextView(Layout* parent) : mTextColor(Color::White()), mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent){
 }
 
 void TextView::setScalingMode(ScalingMode mode){

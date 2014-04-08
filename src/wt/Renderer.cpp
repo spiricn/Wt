@@ -4,7 +4,7 @@
 #include "wt/DevilImageLoader.h"
 #include "wt/RenderBuffer.h"
 #include "wt/Singleton.h"
-#include "wt/gui/Window.h"
+#include "wt/gui/Layout.h"
 #include "wt/Interpolator.h"
 #include "wt/ParticleRenderer.h"
 #include "wt/ModelRenderer.h"
@@ -18,6 +18,7 @@
 #include "wt/ParticleEffect.h"
 #include "wt/SkyBox.h"
 #include "wt/Terrain.h"
+#include "wt/gui/WindowManager.h"
 
 #define TD_TRACE_TAG "Renderer"
 
@@ -1078,7 +1079,7 @@ void Renderer::godrayPass(Scene& scene){
 	mGodray.quadBatch.render();
 }
 
-void Renderer::render(Scene& scene, gui::Window* window){
+void Renderer::render(Scene& scene, gui::Layout* window){
 	if(!window->isVisible()){
 		return;
 	}
@@ -1098,9 +1099,10 @@ void Renderer::render(Scene& scene, gui::Window* window){
 
 	// Render the GUI texture on top of everything
 	render(
-		window->getCanvas().getTexture(),
+		window->getTexture(),
 		glm::vec2(mViewPort.x, mViewPort.y),
-		0, 0, mViewPort.x, mViewPort.y
+		window->getRect().x, window->getRect().y,
+		window->getRect().width, window->getRect().height
 	);
 }
 
@@ -1142,8 +1144,10 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	godrayPass(scene);
 
 	// Render UI
-	if(scene.getUIWindow()){
-		render(scene, scene.getUIWindow());
+	if(scene.getWindowManager()){
+		for(gui::WindowManager::WindowSet::iterator iter=scene.getWindowManager()->getWindowsBeg(); iter!=scene.getWindowManager()->getWindowsEnd(); iter++){
+			render(scene, *iter);
+		}
 	}
 
 	if(!target){

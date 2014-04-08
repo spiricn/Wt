@@ -10,7 +10,7 @@ namespace wt
 namespace gui
 {
 
-SliderView::SliderView(Window* parent) : mValue(30.0f), mBarWidth(25.0f), mBaseColor(127.0/255.0, 127.0/255.0, 127.0/255.0),
+SliderView::SliderView(Layout* parent) : mValue(30.0f), mBarWidth(25.0f), mBaseColor(127.0/255.0, 127.0/255.0, 127.0/255.0),
 	mSliderColor(181.0/255.0, 230.0/255.0, 29.0/255.0), mBorderColor(195.0/255.0, 195.0/255.0, 195.0/255.0), mMode(eMODE_HORIZONTAL), View(parent){
 }
 

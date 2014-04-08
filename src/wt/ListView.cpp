@@ -3,7 +3,7 @@
 
 #define TD_TRACE_TAG "ListView"
 
-#include <wt/gui/Window.h>
+#include <wt/gui/Layout.h>
 
 namespace wt
 {
@@ -11,7 +11,7 @@ namespace wt
 namespace gui
 {
 
-ListView::ListView(Window* parent) : View(parent){
+ListView::ListView(Layout* parent) : View(parent){
 	setSize(300, 600);
 
 	mVerticalSlider = new SliderView(NULL);

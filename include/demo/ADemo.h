@@ -28,7 +28,7 @@
 #include "wt/Font.h"
 #include "wt/net/Socket.h"
 #include "wt/Lua.h"
-#include "wt/gui/Window.h"
+#include "wt/gui/WindowManager.h"
 #include "wt/gui/TextView.h"
 #include "wt/ProcessManager.h"
 #include "wt/lua/State.h"
@@ -78,7 +78,7 @@ private:
 	lua::ScriptPtr mMainScript;
 	bool mRunning;
 	CameraController* mCamCtrl;
-	gui::Window mUi;
+	gui::WindowManager mWindowManager;
 }; // </ADemo>
 
 #define WT_DECLARE_DEMO(name) ADemo* createDemoFunc_ ## name();

@@ -14,7 +14,7 @@ private:
 
 public:
 
-	CircleView(Window* parent) : mRadius(1.0f), mColor(Color::White()), View(parent){
+	CircleView(Layout* parent) : mRadius(1.0f), mColor(Color::White()), View(parent){
 	}
 
 	void setColor(const Color& color){

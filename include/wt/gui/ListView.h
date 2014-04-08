@@ -19,7 +19,7 @@ public:
 		String name;
 	};
 
-	ListView(Window* parent);
+	ListView(Layout* parent);
 
 	virtual ~ListView();
 

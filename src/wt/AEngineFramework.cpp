@@ -34,7 +34,7 @@ void AEngineFramework::Desc::serialize(lua::State* luaState, LuaPlus::LuaObject&
 	loggingTable.Set("enabled", logging.enabled);
 	dst.Set("logging", loggingTable);
 
-	// Window
+	// Layout
 	LuaObject windowTable = luaState->newTable();
 	window.serialize(luaState, windowTable);
 	dst.Set("window", windowTable);
@@ -59,7 +59,7 @@ void AEngineFramework::Desc::deserialize(lua::State* luaState, const LuaPlus::Lu
 		luaConv(loggingTable.Get("enabled"), logging.enabled);
 	}
 
-	// Window
+	// Layout
 	LuaObject windowTable = src.Get("window");
 	window.deserialize(luaState, windowTable);
 

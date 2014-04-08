@@ -35,7 +35,7 @@ public:
 	void setupGui(){
 		getInput()->setMouseGrabbed(false);
 
-		mUi = getScene()->getUIWindow();
+		mUi = *getScene()->getWindowManager()->getWindowsBeg();
 
 		// Setup GUI
 		mUi->setDefaultScaleMode( gui::View::eSCALE_MODE_GRID );
@@ -62,7 +62,7 @@ public:
 		// Music volume slider
 		{
 			
-			gui::SliderView* v = getScene()->getUIWindow()->createView<gui::SliderView>("volume_slider");
+			gui::SliderView* v = mUi->createView<gui::SliderView>("volume_slider");
 			
 			v->setGridLocation(19, 6, 1, 3);
 
@@ -117,7 +117,7 @@ public:
 	}
 
 	MusicPlayer* mMusic;
-	gui::Window* mUi;
+	gui::Layout* mUi;
 }; // </SoundDemo>
 
 WT_DECLARE_DEMO_IMPL(SoundDemo);

@@ -16,7 +16,7 @@ public:
 		eMODE_VERTICAL
 	}; // </Mode>
 
-	SliderView(Window* parent);
+	SliderView(Layout* parent);
 
 	void setValue(float val);
 

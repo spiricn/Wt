@@ -17,7 +17,7 @@
 namespace wt{
 
 Scene::Scene(Physics* physics, AResourceSystem* assets, EventManager* eventManager, lua::State* luaState) :  mSkyBox(NULL), mEventManager(eventManager),
-	mAssets(assets), mPhysics(physics), mLuaState(luaState), mDirectionalLight(NULL), mUIWindow(NULL){
+	mAssets(assets), mPhysics(physics), mLuaState(luaState), mDirectionalLight(NULL), mWindowManager(NULL){
 
 	setCamera(&mDefaultCamera);
 
@@ -61,12 +61,12 @@ ASceneActor* Scene::createActor(ASceneActor::ActorType type, const String&  name
 }
 
 
-gui::Window* Scene::getUIWindow(){
-	return mUIWindow;
+gui::WindowManager* Scene::getWindowManager() const{
+	return mWindowManager;
 }
 
-void Scene::setUIWindow(gui::Window* window){
-	mUIWindow = window;
+void Scene::setWindowManager(gui::WindowManager* manager){
+	mWindowManager = manager;
 }
 
 void Scene::registerListener(IListener* listener){

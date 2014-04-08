@@ -118,21 +118,21 @@ void ADemo::createDemo(DemoManager* manager){
 
 	getEventManager()->registerListener(this);
 
-	// Setup UI
-	mUi.create(
-		getWindow()->getWidth(),
-		getWindow()->getHeight()
-	);
+	mWindowManager.hook(getEventManager() );
 
-	mUi.setInput(getInput());
+	// Setup UI
+	gui::Window* window = mWindowManager.createWindow();
+
+	window->setSize(glm::vec2(getWindow()->getWidth(), getWindow()->getHeight()));
+
+	mWindowManager.getActiveWindow()->setInput(getInput());
 
 	Font* font = getAssets()->getFontManager()->create("_demo_font");
 	font->load("demo_workspace/shared/font/cour.ttf", 20);
 
-	mUi.hook(getEventManager() );
-	mUi.setDefaultFont( font );
+	mWindowManager.getActiveWindow()->setDefaultFont( font );
 
-	getScene()->setUIWindow(&mUi);
+	getScene()->setWindowManager(&mWindowManager);
 
 	LuaObject mainFnc = mMainScript->getState().Get("onDemoStart");
 

@@ -51,9 +51,9 @@ Texture2D& View::getTexture(){
 	return mTexture;
 }
 
-View::View(Window* parent) : mSize(0,0), mPosition(0,0), mId(0),
+View::View(Layout* parent) : mRect(0, 0, 1, 1), mId(0),
 	mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eSCALE_MODE_FIXED),
-	mNeedsScale(false), mParent(parent){
+	mNeedsScale(false), mLayout(parent){
 
 	mTexture.create();
 }
@@ -120,16 +120,16 @@ void View::setVisible(bool state){
 	mIsVisible = state;
 }
 
-glm::vec2& View::getPosition(){
-	return mPosition;
+glm::vec2 View::getPosition() const{
+	return mRect.getPosition();
 }
 
 glm::vec2 View::toLocalCoords(float x, float y) const{
-	return glm::vec2(x-mPosition.x, y-mPosition.y);
+	return glm::vec2(x-mRect.x, y-mRect.y);
 }
 
 glm::vec2 View::toGlobalCoords(float x, float y) const{
-	return glm::vec2(mPosition.x+x, mPosition.y+y);
+	return glm::vec2(mRect.x+x, mRect.y+y);
 }
 
 void View::onMouseDrag(const MouseMotionEvent* evt){
@@ -164,8 +164,8 @@ const String& View::getName() const{
 }
 
 void View::setPosition(float x, float y){
-	mPosition.x = x;
-	mPosition.y = y;
+	mRect.x = x;
+	mRect.y = y;
 }
 
 void View::emitEvent(AEvent* e){
@@ -173,11 +173,11 @@ void View::emitEvent(AEvent* e){
 }
 
 void View::setPosition(const glm::vec2& position){
-	mPosition = position;
+	setPosition(position.x, position.y);
 }
 
-glm::vec2& View::getSize(){
-	return mSize;
+glm::vec2 View::getSize() const{
+	return mRect.getSize();
 }
 
 void View::setSize(const glm::vec2& size){
@@ -185,16 +185,15 @@ void View::setSize(const glm::vec2& size){
 }
 
 float View::getWidth() const{
-	return mSize.x;
+	return mRect.width;
 }
 
 float View::getHeight() const{
-	return mSize.y;
+	return mRect.height;
 }
 
 bool View::contains(float x, float y) const{
-	return x >= mPosition.x && x < mPosition.x+mSize.x &&
-		y >= mPosition.y && y < mPosition.y+mSize.y;
+	return mRect.contains(glm::vec2(x, y));
 }
 
 void View::setBackgroundColor(const Color& clr){
@@ -212,8 +211,8 @@ void View::setBackgroundTexture(Texture2D* texture){
 void View::setSize(float w, float h){
 	dirty();
 
-	mSize.x = w;
-	mSize.y = h;
+	mRect.width = w;
+	mRect.height = h;
 
 	// resize texture
 	mTexture.bind();
@@ -225,15 +224,19 @@ void View::setSize(float w, float h){
 
 void View::draw(Canvas& c){
 	if(mBackground.texture){
-		c.drawTexture(mBackground.texture, 0, 0, mSize.x, mSize.y, mBackground.color);
+		c.drawTexture(mBackground.texture, 0, 0, mRect.width, mRect.height, mBackground.color);
 	}
 	else{
-		c.drawRect(0, 0, mSize.x, mSize.y, mBackground.color);
+		c.drawRect(0, 0, mRect.width, mRect.height, mBackground.color);
 	}
 }
 
-Window* View::getParent() const{
-	return mParent;
+Layout* View::getLayout() const{
+	return mLayout;
+}
+
+const Rect& View::getRect() const{
+	return mRect;
 }
 
 } // </gui>

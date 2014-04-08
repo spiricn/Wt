@@ -22,7 +22,7 @@ void Button::onMouseLeave(const MouseMotionEvent* evt){
 	setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
 }
 
-Button::Button(Window* parent) : RectView(parent){
+Button::Button(Layout* parent) : RectView(parent){
 	setBackgroundColor(Color(127/255.0, 127/255.0, 127/255.0));
 
 	setDrawBorder(true);

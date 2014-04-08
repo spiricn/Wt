@@ -25,7 +25,7 @@ public:
 		eSCALE_FIXED
 	}; // </ScalingMode>
 
-	TextView(Window* parent);
+	TextView(Layout* parent);
 
 	void setScalingMode(ScalingMode mode);
 

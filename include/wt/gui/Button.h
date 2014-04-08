@@ -11,7 +11,7 @@ namespace gui{
 
 class Button : public RectView{
 public:
-	Button(Window* parent);
+	Button(Layout* parent);
 
 	void onClicked();
 
