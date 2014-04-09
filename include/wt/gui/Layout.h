@@ -11,6 +11,7 @@
 #include "wt/gui/SliderView.h"
 #include "wt/gui/CircleView.h"
 #include "wt/gui/Checkbox.h"
+#include "wt/gui/ListView.h"
 
 #include "wt/EventManager.h"
 #include "wt/EventEmitter.h"

@@ -67,10 +67,11 @@ void WindowManager::hook(EventManager* evtManager){
 	mEventManager->registerListener(this, MouseMotionEvent::TYPE);
 
 	mEventEmitter.hook(mEventManager,
-		3,
+		4,
 		ButtonClickedEvent::TYPE,
 		SliderValueChangedEvent::TYPE,
-		CheckboxClickedEvent::TYPE
+		CheckboxClickedEvent::TYPE,
+		ListItemSelectedEvent::TYPE
 	);
 }
 

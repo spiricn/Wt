@@ -60,10 +60,6 @@ void Layout::setInput(AGameInput* input){
 	mInput = input;
 }
 
-//Canvas& Layout::getCanvas(){
-//	return mCanvas;
-//}
-
 Texture2D* Layout::getTexture() const{
 	// TODO
 	return const_cast<Layout*>(this)->mCanvas.getTexture();

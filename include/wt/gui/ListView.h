@@ -13,12 +13,12 @@ namespace gui
 
 class ListView : public View{
 public:
-
 	struct Item{
 		void* userData;
 		String name;
-	};
+	}; //  </Item>
 
+public:
 	ListView(Layout* parent);
 
 	virtual ~ListView();
@@ -27,17 +27,51 @@ public:
 
 	void draw(Canvas& c);
 
-	void onMouseDrag(const MouseMotionEvent* evt);
+	void onMouseDown(const MousePressEvent* evt);
 
-protected:
+	Item* getCurrentItem();
+
+	void setActiveItem(Item* item);
 
 private:
 	typedef std::vector<Item*> ItemList;
 
-	ItemList mItems;
-	SliderView* mVerticalSlider;
+private:
+	void setActiveItem(uint32_t index);
 
+	float getArrowWidth() const;
+
+private:
+	
+	ItemList mItems;
+	uint32_t mCurrentItem;
 }; // </ListView>
+
+class ListItemSelectedEvent : public AEvent{
+public:
+	ListView::Item* item;
+
+public:
+	ListItemSelectedEvent(ListView::Item* item) : item(item){
+	}
+
+	const EventType& getType() const{
+		return TYPE;
+	}
+	
+private:
+	void serialize(LuaObject& dst){
+		AEvent::serialize(dst);
+	}
+
+	void deserialize(LuaObject& src){
+		AEvent::deserialize(src);
+	}
+	
+public:
+	static const EventType TYPE;
+	
+}; // </ListItemSelectedEvent>
 
 } // </gui>
 

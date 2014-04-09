@@ -8,6 +8,7 @@
 #include "wt/gui/SliderView.h"
 #include "wt/gui/CircleView.h"
 #include "wt/MemberCallback.h"
+#include "wt/gui/ListView.h"
 
 #define TD_TRACE_TAG "GuiDemo"
 
@@ -165,9 +166,40 @@ public:
 				gui::SliderValueChangedEvent::TYPE, v);
 		}
 
+		{
+			gui::ListView* v = mUi->createView<gui::ListView>("list");
+			
+			v->addItem("1) Red", reinterpret_cast<void*>(1));
+			v->addItem("2) Green", reinterpret_cast<void*>(2));
+			v->addItem("3) Blue", reinterpret_cast<void*>(3));
+
+			v->setGridLocation(18, 2, 1, 2);
+
+			getEventManager()->registerCallback(this, &GuiDemo::onListItemChanged,
+				gui::ListItemSelectedEvent::TYPE, v);
+		}
+
 		getRenderer()->setClearColor( Color::Black() );
 
 		getInput()->setMouseGrabbed(false);
+	}
+
+	void onListItemChanged(){
+		gui::ListView* v = dynamic_cast<gui::ListView*>(mUi->findView("list"));
+
+		LOG("Item changed %s", v->getCurrentItem()->name.c_str());
+
+		switch(reinterpret_cast<int>(v->getCurrentItem()->userData)){
+		case 1:
+			v->setBackgroundColor(Color::Red());
+			break;
+		case 2:
+			v->setBackgroundColor(Color::Green());
+			break;
+		case 3:
+			v->setBackgroundColor(Color::Blue());
+			break;
+		}
 	}
 
 	void onCheckboxClicked(){
@@ -210,7 +242,6 @@ public:
 
 	void rotateCamera(){
 		float val = dynamic_cast<gui::SliderView*>(mUi->findView("camera_slider"))->getValue()/100.0f;
-
 		
 		getScene()->getCamera().setRotation( glm::angleAxis(val*360.0f, glm::vec3(0, 1, 0)) );
 	}

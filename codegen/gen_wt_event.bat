@@ -1,0 +1,1 @@
+python CodeGen.py gen_wt_event.py %1
