@@ -11,7 +11,7 @@ namespace gui
 
 class Checkbox : public View{
 public:
-	Checkbox(Layout* parent);
+	Checkbox(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	Checkbox* setText(const String& text);
 
@@ -19,7 +19,7 @@ public:
 
 	bool isChecked() const;
 
-	void draw(Canvas& c);
+	void draw(ICanvas& c);
 
 	void onClicked();
 

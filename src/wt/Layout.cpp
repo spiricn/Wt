@@ -2,6 +2,7 @@
 #include "wt/gui/Layout.h"
 
 #include "wt/gui/ListView.h"
+#include "wt/GLTrace.h"
 
 #define TD_TRACE_TAG "Layout"
 
@@ -13,12 +14,7 @@ using namespace gl;
 namespace gui
 {
 
-Layout::Layout(EventManager* eventManager) : mFocus(NULL), mHoverView(NULL), mClickView(NULL), 
-	mDefaultFont(NULL), mDragView(NULL), mNumGridRows(5), mNumGridColumns(5),
-	mDefaultScaleMode(View::eSCALE_MODE_FIXED), mNeedsRescale(false), mVerticalCellSpacing(5.0f),
-	mHorizontalCellSpacing(5.0f), mVisible(true), mEventManager(eventManager){
-
-	mCanvas.create(640, 480);
+Layout::Layout(Layout* parent, EventManager* eventManager, AGameInput* input) : View(parent, eventManager, input), mFocus(NULL), mHoverView(NULL), mClickView(NULL), mDefaultFont(NULL), mDragView(NULL), mNumGridRows(5), mNumGridColumns(5), mDefaultScaleMode(View::eSCALE_MODE_FIXED), mNeedsRescale(false), mVerticalCellSpacing(5.0f), mHorizontalCellSpacing(5.0f), mVisible(true){
 }
 
 void Layout::setVisible(bool visible){
@@ -56,15 +52,6 @@ void Layout::setGridSize(uint32_t numRows, uint32_t numColumns){
 	mNeedsRescale = true;
 }
 
-void Layout::setInput(AGameInput* input){
-	mInput = input;
-}
-
-Texture2D* Layout::getTexture() const{
-	// TODO
-	return const_cast<Layout*>(this)->mCanvas.getTexture();
-}
-
 void Layout::removeView(View* view){
 	if(mFocus == view){
 		mFocus = NULL;
@@ -100,8 +87,6 @@ View* Layout::findView(const String& name){
 	return NULL;
 }
 
-
-
 bool Layout::handleEvent(const EventPtr evt){
 	if(!mVisible){
 		return true;
@@ -110,7 +95,8 @@ bool Layout::handleEvent(const EventPtr evt){
 	if(evt->getType() == MousePressEvent::TYPE){
 		const MousePressEvent* e = static_cast<const MousePressEvent*>(evt.get());
 
-		View* clicked = viewAt(e->mX, e->mY);
+		glm::vec2 localPos = toLocalCoords(e->mX, e->mY);
+		View* clicked = viewAt(localPos.x, localPos.y);
 
 		if(clicked){
 			if(e->mAction == MousePressEvent::eBUTTON_DOWN){
@@ -141,7 +127,8 @@ bool Layout::handleEvent(const EventPtr evt){
 	else if(evt->getType() == MouseMotionEvent::TYPE){
 		const MouseMotionEvent* e = static_cast<const MouseMotionEvent*>(evt.get());
 
-		View* view = viewAt(e->mX, e->mY);
+		glm::vec2 localPos = toLocalCoords(e->mX, e->mY);
+		View* view = viewAt(localPos.x, localPos.y);
 
 		if(view){
 			if(mInput->isMouseButtonDown(BTN_LEFT) && mDragView == view){
@@ -177,9 +164,11 @@ bool Layout::handleEvent(const EventPtr evt){
 	}
 
 	else{
-		const WindowSizeChange* e = static_cast<const WindowSizeChange*>(evt.get());
-		mCanvas.resize(e->newWidth, e->newHeight);
-		mNeedsRescale = true;
+		// TODO move to window manager
+		TRACEW("Resize");
+		/*const WindowSizeChange* e = static_cast<const WindowSizeChange*>(evt.get());
+		mCanvas.setSize(e->newWidth, e->newHeight);
+		mNeedsRescale = true;*/
 	}
 	return false;
 }
@@ -196,36 +185,10 @@ View* Layout::viewAt(float x, float y){
 	return NULL;
 }
 
-void Layout::draw(){
-	mCanvas.getFBO().bind(FrameBuffer::eMODE_DRAW);
-
-	mCanvas.getFBO().unbind(FrameBuffer::eMODE_READ);
-
-	mCanvas.clear();
-
-	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
-	glDrawBuffers(1, bfrMap);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf( glm::value_ptr(mCanvas.getProjMat()) );
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glm::vec2 cellSize = mCanvas.getSize() / glm::vec2(mNumGridColumns, mNumGridRows);
-
+void Layout::draw(ICanvas& canvas){
 	gl( ActiveTexture(GL_TEXTURE0) );
 
-#if 0
-	// Cell drawing for debugging purposes
-	for(uint32_t i=0; i<mNumGridColumns; i++){
-		mCanvas.drawLine( i*cellSize.x, 0, i*cellSize.x, mCanvas.getSize().y, Color::green(), 1);
-	}
-
-	for(uint32_t i=0; i<mNumGridRows; i++){
-		mCanvas.drawLine(0, i*cellSize.y, mCanvas.getSize().x, i*cellSize.y, Color::green(), 1);
-	}
-#endif
+	glm::vec2 cellSize = getCanvas().getSize() / glm::vec2(mNumGridColumns, mNumGridRows);
 
 	for(ViewMap::iterator i=mViews.begin(); i!=mViews.end(); i++){
 		View* view = i->second;
@@ -249,40 +212,19 @@ void Layout::draw(){
 
 		// Redraw the view if necessary
 		if(i->second->isDirty()){
-			mCanvas.setTranslation( glm::vec2(0, 0) );
-			glLoadMatrixf( glm::value_ptr(mCanvas.getModelViewMat()) );
-
-			mCanvas.setOutput(&i->second->getTexture());
-			mCanvas.clear();
-
-			i->second->draw(mCanvas);
-
-			mCanvas.setOutput(NULL);
-			i->second->clean();
+			i->second->redraw();
 		}
 
-		// Render the view
-		mCanvas.setTranslation( i->second->getPosition() );
-		glLoadMatrixf( glm::value_ptr(mCanvas.getModelViewMat()) );
+		// Render the view onto our canvas
+		canvas.bind();
 
-		mCanvas.drawTexture(&i->second->getTexture(), 
-			0, 0,
+		canvas.drawTexture(&i->second->getTexture(), 
+			i->second->getPosition().x, i->second->getPosition().y,
 			i->second->getSize().x, i->second->getSize().y, i->second->getBackgroundColor()
 		);
 	}
 
 	mNeedsRescale = false;
-#if 0
-	// highlight focus
-	if(mFocus){
-		glLoadIdentity();
-		mCanvas.drawRect(
-			mFocus->getPosition().x, mFocus->getPosition().y,
-			mFocus->getWidth(), mFocus->getHeight(), Color::blue(), Canvas::eRECT_LINE);
-	}
-#endif
-
-	mCanvas.getFBO().unbind();
 }
 
 Layout::~Layout(){
@@ -293,20 +235,23 @@ Layout::~Layout(){
 	mViews.clear();
 }
 
-const Rect& Layout::getRect() const{
-	return mRect;
-}
+void Layout::addView(View* view){
+	uint32_t id = mViews.size();
+	while(true){
+		if(mViews.find(id) == mViews.end()){
+			break;
+		}
+		id++;
+	}
+	
+	view->setScalingMode(mDefaultScaleMode);
+	view->setId(id);
 
-void Layout::setPosition(const glm::vec2& pos){
-	mRect.x = pos.x;
-	mRect.y = pos.y;
-}
+	if(view->getFont() == NULL){
+		view->setFont(mDefaultFont);
+	}
 
-void Layout::setSize(const glm::vec2& size){
-	mRect.width = size.x;
-	mRect.height = size.y;
-
-	mCanvas.resize(size.x, size.y);
+	mViews.insert(std::make_pair(id, view));
 }
 
 } // </gui>

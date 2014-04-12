@@ -34,7 +34,7 @@ public:
 
 public:
 
-	TextView(Layout* parent);
+	TextView(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	void setTextScaleMode(ScalingMode mode);
 
@@ -48,7 +48,7 @@ public:
 
 	void setTextColor(const Color& color);
 
-	void draw(Canvas& c);
+	void draw(ICanvas& c);
 	
 private:
 	Color mTextColor;

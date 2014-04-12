@@ -32,7 +32,7 @@ namespace wt
 
 namespace gui
 {
-	class Layout;
+	class Window;
 } // </gui>
 
 class DeferredRender;
@@ -137,7 +137,7 @@ private:
 
 	void godrayPass(Scene& scene);
 
-	void render(Scene& scene, gui::Layout* window);
+	void render(Scene& scene, gui::Window* window);
 
 private:
 	struct GodrayTech{

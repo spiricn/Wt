@@ -36,14 +36,6 @@ public:
 	GuiDemo() : mProgress(0.0f), mProgressBarPaused(true){
 	}
 
-	void onRender(float dt){
-		getRenderer()->render( *getScene() );
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	}
-
-	void onMouseMotion(const MouseMotionEvent* evt){
-	}
-
 
 	void onUpdate(float dt){
 		getCameraControl()->handle(dt);
@@ -67,7 +59,7 @@ public:
 		gui::Button* btn;
 
 		// TODO a better way of getting the default window?
-		mUi = *getScene()->getWindowManager()->getWindowsBeg();
+		mUi = (*getScene()->getWindowManager()->getWindowsBeg())->getRootLayout();
 		
 		mUi->setGridSize(20, 10);
 		mUi->setDefaultScaleMode(gui::View::eSCALE_MODE_GRID);
@@ -87,6 +79,7 @@ public:
 
 			btn->setGridLocation(4, 2, 1, 2);
 			btn->setText("Nudge");
+			btn->setBackgroundColor(Color(1, 1, 1, 0.5));
 
 			getEventManager()->registerCallback(this, &GuiDemo::onBtnNudgeClicked, 
 				gui::ButtonClickedEvent::TYPE, btn);
@@ -257,7 +250,7 @@ public:
 private:
 	float mProgress;
 	bool mProgressBarPaused;
-	gui::Window* mUi;
+	gui::Layout* mUi;
 
 }; // </GuiDemo>
 

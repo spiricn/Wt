@@ -2,6 +2,7 @@
 
 #include "wt/gui/View.h"
 #include "wt/Font.h"
+#include "wt/gui/Canvas.h"
 
 #define TD_TRACE_TAG "View"
 
@@ -11,11 +12,13 @@ namespace wt
 namespace gui
 {
 
-View::View(Layout* parent) : mRect(0, 0, 1, 1), mId(0),
+View::View(Layout* parent, EventManager* eventManager, AGameInput* input) : mRect(0, 0, 1, 1), mId(0),
 	mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eSCALE_MODE_FIXED),
-	mNeedsScale(false), mLayout(parent), mBackgroundColor(Color::White()){
+	mNeedsScale(false), mLayout(parent), mBackgroundColor(Color::White()), mEventManager(eventManager), mInput(input){
 
-	mTexture.create();
+	//mTexture.create();
+
+	mCanvas = new Canvas;
 }
 
 void View::setId(uint32_t id){
@@ -26,10 +29,10 @@ void View::setName(const String& name){
 	mName = name;
 }
 
-void View::setEventManager(EventManager* manager){
-	mEventManager = manager;
-	onHook(manager);
-}
+//void View::setEventManager(EventManager* manager){
+//	mEventManager = manager;
+//	onHook(manager);
+//}
 
 void View::dirty(){
 	mDirty = true;
@@ -52,7 +55,8 @@ void View::setNeedsScaling(bool state){
 }
 
 Texture2D& View::getTexture(){
-	return mTexture;
+	//return mTexture;
+	return *mCanvas->getTexture();
 }
 
 const View::GridLocation& View::getGridLoation() const{
@@ -139,7 +143,6 @@ void View::onMouseUp(const MousePressEvent* evt){
 }
 
 void View::onMouseMotion(const MouseMotionEvent* evt){
-	WT_UNUSED(evt);
 }
 
 void View::onMouseEnter(const MouseMotionEvent* evt){
@@ -205,14 +208,25 @@ void View::setSize(float w, float h){
 	mRect.width = w;
 	mRect.height = h;
 
-	// resize texture
-	mTexture.bind();
-	mTexture.setData(w, h, GL_RGBA, GL_RGBA8, NULL, GL_FLOAT);
+	//// resize texture
+	//mTexture.bind();
+	//mTexture.setData(w, h, GL_RGBA, GL_RGBA8, NULL, GL_FLOAT);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	mCanvas->setSize(w, h);
 }
 
+void View::redraw(){
+	mCanvas->bind();
+
+	//mCanvas->setClearColor(Color::Green());
+	mCanvas->clear();
+
+	draw(*mCanvas);
+	
+	clean();
+}
 
 Layout* View::getLayout() const{
 	return mLayout;
@@ -224,6 +238,36 @@ const Rect& View::getRect() const{
 
 const Color& View::getBackgroundColor() const{
 	return mBackgroundColor;
+}
+
+ICanvas& View::getCanvas(){
+	return *mCanvas;
+}
+
+AGameInput* View::getInput() const{
+	return mInput;
+}
+
+void View::debugDraw(){
+	mCanvas->setClearColor(Color::Cyan());
+	mCanvas->clear();
+
+	Paint p;
+
+	float w = getWidth()/2;
+	float h = getHeight()/2;
+
+	p.setFillColor(Color::Red());
+	mCanvas->drawRect(0, 0, w, h, &p);
+
+	p.setFillColor(Color::Green());
+	mCanvas->drawRect(w, 0, w, h,  &p);
+
+	p.setFillColor(Color::Blue());
+	mCanvas->drawRect(0, h, w, h, &p);
+
+	p.setFillColor(Color::Yellow());
+	mCanvas->drawRect(w, h, w, h, &p);
 }
 
 const EventType ViewClickedEvent::TYPE = "ViewClicked";

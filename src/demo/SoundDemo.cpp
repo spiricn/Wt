@@ -35,7 +35,7 @@ public:
 	void setupGui(){
 		getInput()->setMouseGrabbed(false);
 
-		mUi = *getScene()->getWindowManager()->getWindowsBeg();
+		mUi = (*getScene()->getWindowManager()->getWindowsBeg())->getRootLayout();
 
 		// Setup GUI
 		mUi->setDefaultScaleMode( gui::View::eSCALE_MODE_GRID );

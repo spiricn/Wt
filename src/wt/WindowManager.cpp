@@ -46,7 +46,7 @@ Window* WindowManager::createWindow(){
 		++id;
 	}
 
-	Window* window = new Window(id, mEventManager);
+	Window* window = new Window(id, mEventManager, mInput);
 
 	if(mActiveWindow == NULL){
 		mActiveWindow = window;
@@ -59,7 +59,7 @@ Window* WindowManager::createWindow(){
 	return window;
 }
 
-void WindowManager::hook(EventManager* evtManager){
+void WindowManager::hook(EventManager* evtManager, AGameInput* input){
 	mEventManager = evtManager;
 	mEventManager->registerListener(this, MousePressEvent::TYPE);
 	mEventManager->registerListener(this, WindowSizeChange::TYPE);
@@ -73,6 +73,8 @@ void WindowManager::hook(EventManager* evtManager){
 		CheckboxClickedEvent::TYPE,
 		ListItemSelectedEvent::TYPE
 	);
+
+	mInput = input;
 }
 
 bool WindowManager::handleEvent(const EventPtr evt){

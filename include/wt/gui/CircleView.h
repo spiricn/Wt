@@ -11,13 +11,13 @@ namespace gui
 
 class CircleView : public View{
 public:
-	CircleView(Layout* parent);
+	CircleView(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	void setColor(const Color& color);
 
 	void setRadius(float r);
 
-	void draw(Canvas& c);
+	void draw(ICanvas& c);
 
 private:
 	float mRadius;

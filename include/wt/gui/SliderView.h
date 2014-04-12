@@ -16,7 +16,7 @@ public:
 		eMODE_VERTICAL
 	}; // </Mode>
 
-	SliderView(Layout* parent);
+	SliderView(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	void setValue(float val);
 
@@ -24,7 +24,7 @@ public:
 
 	virtual void onMouseDrag(const MouseMotionEvent* evt);
 
-	void draw(Canvas& c);
+	void draw(ICanvas& c);
 
 	void setMode(Mode mode);
 

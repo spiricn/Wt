@@ -13,13 +13,13 @@ namespace gui
 
 class ProgressView : public View{
 public:
-	ProgressView(Layout* parent);
+	ProgressView(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	void setDrawProgress(bool state);
 
 	void setProgress(float progress);
 
-	void draw(Canvas& c);
+	void draw(ICanvas& c);
 
 private:
 	float mProgress;

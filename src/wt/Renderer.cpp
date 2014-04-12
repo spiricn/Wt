@@ -19,6 +19,7 @@
 #include "wt/SkyBox.h"
 #include "wt/Terrain.h"
 #include "wt/gui/WindowManager.h"
+#include "wt/RectRenderer.h"
 
 #define TD_TRACE_TAG "Renderer"
 
@@ -760,12 +761,20 @@ void Renderer::setFaceCulling(Culling mode){
 	gl( Enable(GL_CULL_FACE) );
 	gl( CullFace(mode) );
 }
-
+	
 void Renderer::setRenderAxes(bool state){
 	mRenderAxes = state;
 }
 
 void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& clr, bool flipVertically){
+#if 0
+
+	//glClear(GL_COLOR_BUFFER_BIT);
+	/*glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);*/
+	RectRenderer::getSingleton().draw(viewport, glm::vec2(x, y), glm::vec2(w, h), tex);
+#else
 	gl( UseProgram(0) );
 
 	gl( Viewport(0, 0, viewport.x, viewport.y) );
@@ -804,6 +813,7 @@ void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float 
 		glMatrixMode(GL_TEXTURE);
 		glLoadIdentity();
 	}
+#endif
 }
 
 void Renderer::setShaderMaterialUniforms(Material* material, gl::ShaderProgram& prog){
@@ -1066,7 +1076,6 @@ void Renderer::godrayPass(Scene& scene){
 	mRectShader.use();
 
 	gl( ActiveTexture(GL_TEXTURE0) );
-	mGodray.pass2.bind();
 
 	mRectShader.setUniformVal("uRectImage", 0);
 	mRectShader.setUniformVal("uMVPMat", glm::ortho(
@@ -1079,11 +1088,7 @@ void Renderer::godrayPass(Scene& scene){
 	mGodray.quadBatch.render();
 }
 
-void Renderer::render(Scene& scene, gui::Layout* window){
-	if(!window->isVisible()){
-		return;
-	}
-
+void Renderer::render(Scene& scene, gui::Window* window){
 	// Draw all the elements
 	window->draw();
 
@@ -1093,9 +1098,19 @@ void Renderer::render(Scene& scene, gui::Layout* window){
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-#if 0
-	window->getCanvas().getTexture()->dump("gui_dump.png");
-#endif
+	{
+		// TODO window draw changes framebuffers, do something about that
+		// Use default framebuffer
+		gl::FrameBuffer::unbind(gl::FrameBuffer::eMODE_DRAW);
+
+		GLint doubleBuffered; 
+		gl( GetIntegerv(GL_DOUBLEBUFFER, &doubleBuffered) );
+
+		GLenum defaultBfrs[1];
+		defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
+
+		gl( DrawBuffers(1, defaultBfrs) );
+	}
 
 	// Render the GUI texture on top of everything
 	render(
@@ -1107,7 +1122,7 @@ void Renderer::render(Scene& scene, gui::Layout* window){
 }
 
 void Renderer::render(Scene& scene, RenderTarget* target){
-	setClearColor(mClearColor);
+	setClearColor(Color::Magenta());
 	
 	if(!target){
 		// Use default framebuffer
@@ -1126,7 +1141,6 @@ void Renderer::render(Scene& scene, RenderTarget* target){
 	}
 
 	gl( Clear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) );
-		
 	gl( Enable(GL_CULL_FACE) );
 	gl( Disable(GL_BLEND) );
 

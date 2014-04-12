@@ -10,7 +10,7 @@ namespace wt
 namespace gui
 {
 
-Button::Button(Layout* parent) : View(parent), mHovering(false){
+Button::Button(Layout* parent, EventManager* eventManager, AGameInput* input) : View(parent, eventManager, input), mHovering(false){
 }
 
 
@@ -43,16 +43,14 @@ void Button::setText(const String& text){
 	mTextSize = getFont()->measureString(text);
 }
 
-void Button::draw(Canvas& c){
+void Button::draw(ICanvas& c){
 	WT_ASSERT(getFont(), "No font specified for button instance");
 
+	Paint paint;
+	paint.setStyle( Paint::eSTYLE_FILL_AND_STROKE );
 
-	Canvas::Paint paint;
-
-	paint.style = Canvas::Paint::eSTYLE_FILL_AND_STROKE;
-
-	paint.fillColor = mHovering ? Color(0.85, 0.85, 0.85) : Color::White();
-	paint.strokeColor = Color::Black();
+	paint.setFillColor( mHovering ? Color(0.85, 0.85, 0.85) : Color::White() );
+	paint.setStrokeColor( Color::Black() );
 
 	// Draw base
 	c.drawRect(0, 0, getWidth(), getHeight(), &paint);

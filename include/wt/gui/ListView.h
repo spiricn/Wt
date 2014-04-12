@@ -19,13 +19,13 @@ public:
 	}; //  </Item>
 
 public:
-	ListView(Layout* parent);
+	ListView(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	virtual ~ListView();
 
 	void addItem(const String& name, void* data=NULL);
 
-	void draw(Canvas& c);
+	void draw(ICanvas& c);
 
 	void onMouseDown(const MousePressEvent* evt);
 

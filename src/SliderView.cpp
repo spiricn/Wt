@@ -10,8 +10,8 @@ namespace wt
 namespace gui
 {
 
-SliderView::SliderView(Layout* parent) : mValue(30.0f), mBarWidth(25.0f), mBaseColor(127.0/255.0, 127.0/255.0, 127.0/255.0),
-	mSliderColor(181.0/255.0, 230.0/255.0, 29.0/255.0), mBorderColor(195.0/255.0, 195.0/255.0, 195.0/255.0), mMode(eMODE_HORIZONTAL), View(parent){
+SliderView::SliderView(Layout* parent, EventManager* eventManager, AGameInput* input) : mValue(30.0f), mBarWidth(25.0f), mBaseColor(127.0/255.0, 127.0/255.0, 127.0/255.0),
+	mSliderColor(181.0/255.0, 230.0/255.0, 29.0/255.0), mBorderColor(195.0/255.0, 195.0/255.0, 195.0/255.0), mMode(eMODE_HORIZONTAL), View(parent, eventManager, input){
 }
 
 void SliderView::setValue(float val){
@@ -42,19 +42,19 @@ void SliderView::onMouseDrag(const MouseMotionEvent* evt){
 	emitEvent(e);
 }
 
-void SliderView::draw(Canvas& c){
-	Canvas::Paint paint;
+void SliderView::draw(ICanvas& c){
+	Paint paint;
 
-	paint.style = Canvas::Paint::eSTYLE_FILL_AND_STROKE;
-	paint.fillColor = mBaseColor;
-	paint.strokeColor = mBorderColor;
+	paint.setStyle( Paint::eSTYLE_FILL_AND_STROKE );
+	paint.setFillColor( mBaseColor );
+	paint.setStrokeColor( mBorderColor );
 
 	// Base rect
 	c.drawRect(0, 0, getSize().x, getSize().y, &paint);
 	
 	// Slider
-	paint.style = Canvas::Paint::eSTYLE_FILL;
-	paint.fillColor = mSliderColor;
+	paint.setStyle( Paint::eSTYLE_FILL );
+	paint.setFillColor( mSliderColor );
 
 	if(mMode == eMODE_HORIZONTAL){
 		// Progress rect

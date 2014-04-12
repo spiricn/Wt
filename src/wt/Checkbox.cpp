@@ -19,7 +19,7 @@ void Checkbox::onClicked(){
 	emitEvent(e);
 }
 
-Checkbox::Checkbox(Layout* parent) : mChecked(false), View(parent){
+Checkbox::Checkbox(Layout* parent, EventManager* eventManager, AGameInput* input) : mChecked(false), View(parent, eventManager, input){
 	setBackgroundColor(Color::Gray());
 }
 
@@ -52,26 +52,26 @@ bool Checkbox::isChecked() const{
 	return mChecked;
 }
 
-void Checkbox::draw(Canvas& c){
-	Canvas::Paint paint;
-	paint.style = Canvas::Paint::eSTYLE_FILL;
+void Checkbox::draw(ICanvas& c){
+	Paint paint;
+	paint.setStyle( Paint::eSTYLE_FILL );
 	
 	// Base rect
 	c.drawRect(0, 0, getWidth(), getHeight(), &paint);
 
 	// Outer circle
-	paint.fillColor = Color::White();
+	paint.setFillColor( Color::White() );
 	c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/4, &paint);
 
 	// Inner circle
 	if(mChecked){
-		paint.fillColor = Color::Black();
+		paint.setFillColor( Color::Black() );
 		c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/8, &paint);
 	}
 
 	glm::vec2 textSize = getFont()->measureString(mText);
 
-	c.drawText(getFont(), mText, getSize().y, getSize().y/2.0f - textSize.y/2.0f, Color::Black());
+	c.drawText(getFont(), mText, getSize().y, getSize().y/2.0f - textSize.y/2.0f, Color::Black(), 1.0f);
 }
 
 const EventType CheckboxClickedEvent::TYPE = "CheckboxClicked";

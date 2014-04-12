@@ -35,7 +35,7 @@ public:
 
 	bool handleEvent(const EventPtr evt);
 
-	void hook(EventManager* evtManager);
+	void hook(EventManager* evtManager, AGameInput* input);
 
 	Window* getActiveWindow() const;
 
@@ -57,6 +57,7 @@ private:
 	EventEmitter mEventEmitter;
 	EventManager* mEventManager;
 	Window* mActiveWindow;
+	AGameInput* mInput;
 }; // </WindowManager>
 
 } // </gui>

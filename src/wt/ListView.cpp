@@ -11,7 +11,7 @@ namespace wt
 namespace gui
 {
 
-ListView::ListView(Layout* parent) : View(parent), mCurrentItem(0){
+ListView::ListView(Layout* parent, EventManager* eventManager, AGameInput* input) : View(parent, eventManager, input), mCurrentItem(0){
 }
 
 ListView::~ListView(){
@@ -28,17 +28,17 @@ void ListView::addItem(const String& name, void* data){
 	mItems.push_back(item);
 }
 
-void ListView::draw(Canvas& c){
-	Canvas::Paint paint;
+void ListView::draw(ICanvas& c){
+	Paint paint;
 
 	// Background
-	paint.style = Canvas::Paint::eSTYLE_FILL_AND_STROKE;
+	paint.setStyle( Paint::eSTYLE_FILL_AND_STROKE );
 	c.drawRect(0, 0, getSize().x, getSize().y, &paint);
 
 	float arrowWidth = getArrowWidth();
 	
 	// Left arrow
-	paint.strokeColor = Color::Blue();
+	paint.setStrokeColor( Color::Blue() );
 	c.drawRect(0, 0, arrowWidth, getHeight(), &paint);
 
 	// Right arrow
@@ -49,7 +49,7 @@ void ListView::draw(Canvas& c){
 
 		glm::vec2 textSize = getFont()->measureString(item->name);
 
-		c.drawText(getFont(), item->name, getWidth()/2.0f - textSize.x/2.0f, getHeight()/2.0f - textSize.y/2.0f, Color::Black());
+		c.drawText(getFont(), item->name, getWidth()/2.0f - textSize.x/2.0f, getHeight()/2.0f - textSize.y/2.0f, Color::Black(), 1.0f);
 	}
 }
 

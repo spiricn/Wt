@@ -12,13 +12,13 @@ namespace gui
 
 class Button : public View{
 public:
-	Button(Layout* parent);
+	Button(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	void onClicked();
 
 	void setText(const String& text);
 
-	void draw(Canvas& c);
+	void draw(ICanvas& c);
 
 private:
 	void onMouseEnter(const MouseMotionEvent* evt);

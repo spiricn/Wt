@@ -1,5 +1,7 @@
 #include "wt/stdafx.h"
 #include "wt/gui/TextView.h"
+#include "wt/Font.h"
+#include "wt/gui/Paint.h"
 
 #define TD_TRACE_TAG "TextView"
 
@@ -9,8 +11,8 @@ namespace wt
 namespace gui
 {
 
-TextView::TextView(Layout* parent) : mTextColor(Color::White()),
-	mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent), mPosFlags(0){
+TextView::TextView(Layout* parent, EventManager* eventManager, AGameInput* input) : mTextColor(Color::White()),
+	mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent, eventManager, input), mPosFlags(0){
 }
 
 void TextView::setTextScaleMode(ScalingMode mode){
@@ -52,13 +54,15 @@ void TextView::setTextColor(const Color& color){
 	mTextColor = color;
 }
 
-void TextView::draw(Canvas& c){
+void TextView::draw(ICanvas& c){
 	WT_ASSERT(getFont(), "No font specified for TextView instance");
 
 	// TODO hardcoded
-	Canvas::Paint backgroundPaint;
-	backgroundPaint.style = Canvas::Paint::eSTYLE_FILL;
-	backgroundPaint.fillColor = Color::White();
+	Paint backgroundPaint;
+	backgroundPaint
+		.setStyle( Paint::eSTYLE_FILL )
+		.setFillColor( Color::White() )
+		;
 
 	c.drawRect(0, 0, getSize().x, getSize().y, &backgroundPaint);
 

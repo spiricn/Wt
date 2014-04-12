@@ -2,6 +2,9 @@
 
 #include "wt/gui/Canvas.h"
 #include "wt/FontAtlas.h"
+#include "wt/Font.h"
+#include "wt/RectRenderer.h"
+#include "wt/TextRenderer.h"
 
 namespace wt
 {
@@ -11,10 +14,14 @@ namespace gui
 
 using namespace gl;
 
-void Canvas::create(){
+Canvas::Canvas(uint32_t width, uint32_t height) : mWidth(width), mHeight(height){
+	mClearColor = Color(0, 0, 0, 0);
+
 	mFrameBfr.create();
 
 	mFrameBfr.bind(FrameBuffer::eMODE_DRAW);
+
+	mTargetTex = new Texture2D();
 
 	mTargetTex->create();
 	mTargetTex->bind();
@@ -23,30 +30,22 @@ void Canvas::create(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	setOutput(mTargetTex);
-
-	mProjMat = glm::ortho(0.0f, (float)mWidth, 0.0f, (float)mHeight);
-
-	setTranslation(glm::vec2(0, 0));
-
-	mFontShader.create();
-	mFontShader.use();
-	mFontShader.setUniformVal("uMatProj", mProjMat);
-	mFontShader.setUniformVal("uTexture", 0);
-
-	mFontBatch.create(0, 0, 0, 0, 0, 0);
-	mFontBatch.setVertexAttribute(
-		FontShader::VERTEX,
-			4, GL_FLOAT, 0);
+	mFrameBfr.addAttachment(GL_COLOR_ATTACHMENT0, mTargetTex);
 }
 
+void Canvas::bind(){
+	gl( Viewport(0, 0, mWidth, mHeight) );
+
+	getFBO().bind(FrameBuffer::eMODE_DRAW);
+
+	getFBO().unbind(FrameBuffer::eMODE_READ);
+
+	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, bfrMap);
+}
 
 glm::vec2 Canvas::getSize() const{
 	return glm::vec2(mWidth, mHeight);
-}
-
-void Canvas::setOutput(Texture2D* output){
-	mFrameBfr.addAttachment(GL_COLOR_ATTACHMENT0, output==NULL ? mTargetTex : output);
 }
 
 uint32_t Canvas::getLineWidth(Font* font, const String& str, float maxWidth, float scale){
@@ -123,133 +122,15 @@ void Canvas::drawTextFmt(Font* font, const String& text,
 }
 
 void Canvas::drawText(Font* font, const String& text, float startX, float startY, const Color& color, float scale){
-#if 0
-	// Debug text bounding box
-	drawRect(startX, startY, font->measureString(text, scale).x, font->measureString(text, scale).y, Color::Green(), eRECT_LINE);
-#endif
-	// Height of the text string provided
-	const float maxY = font->measureString(text, scale).y;
-
-	struct Point{
-		float x;
-		float y;
-		float s;
-		float t;
-		Point(float x=0, float y=0, float s=0, float t=0) : x(x), y(y), s(s), t(t){
-		}
-	}; // </Point>
-
-
-	// Vertices & indices
-	uint32_t numPoints = 6*text.size();
-	Point* points = new Point[numPoints];
-
-	uint32_t vertexCnt = 0;
-
-	const float atlasWidth = font->getFontAtlas().getTexture()->getWidth();
-	const float atlasHeight = font->getFontAtlas().getTexture()->getHeigth();
-
-	float currX = startX;
-	float currY = startY;
-
-	for(uint32_t i=0; i<text.size(); i++){
-		// Atlas info of the current character we're drawing
-		const FontAtlas::CharInfo& info = font->getFontAtlas().getCharInfo( text[i] );
-
-		// Absolulte coordinates of the character texture
-		const float x = currX + info.bearingX * scale;
-		const float y = (currY - info.bearingY * scale) + maxY;
-
-		// Size of the character texture
-		const float w = info.width * scale;
-		const float h = info.height * scale;
-
-		// First triangle
-
-		// Top left
-		points[vertexCnt++] = Point(x, y, info.coord.left, info.coord.top);
-
-		// Top right
-		points[vertexCnt++] = Point(x+w, y, info.coord.right, info.coord.top);
-
-		// Bottom right
-		points[vertexCnt++] = Point(x+w, y+h, info.coord.right, info.coord.bottom);
-
-		// Second triangle
-		
-		// Top left
-		points[vertexCnt++] = Point(x, y, info.coord.left, info.coord.top);
-
-		// Bottom right
-		points[vertexCnt++] = Point(x+w, y+h, info.coord.right, info.coord.bottom);
-
-		// Bottom left
-		points[vertexCnt++] = Point(x, y+h, info.coord.left, info.coord.bottom);
-
-		// Advance to the next character
-		currX += info.advanceX * scale;
-		currY += info.advanceY * scale;
-	}
-
-
-	mFontBatch.create(
-		GL_TRIANGLES,
-		points, numPoints, sizeof(Point),
-		NULL, 0, 0,
-		GL_UNSIGNED_INT
-		);
-
-	mFontShader.use();
-	font->getFontAtlas().getTexture()->bind();
-	mFontShader.setUniformVal("uColor", color);
-		
-	mFontShader.setUniformVal("uModelViewMat", mModelView );
-
-	glEnable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-
-	glDisable(GL_DEPTH_TEST);
-
-	// TODO investigate this further, will probably cause some problems
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-		GL_SRC_ALPHA, 1.0f);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	mFontBatch.render();
-
-	delete[] points;
+	TextRenderer::getSingleton().draw(font, text, glm::vec2(mWidth, mHeight), startX, startY, color, scale);
 }
 
-void Canvas::resize(uint32_t w, uint32_t h){
+void Canvas::setSize(uint32_t w, uint32_t h){
 	mWidth = w;
 	mHeight = h;
-
-	mProjMat = glm::ortho(0.0f, (float)mWidth, 0.0f, (float)mHeight);
-	mFontShader.use();
-	mFontShader.setUniformVal("uMatProj", mProjMat);
 
 	mTargetTex->bind();
 	mTargetTex->setData(mWidth, mHeight, GL_RGBA, GL_RGBA8, NULL, GL_FLOAT);
-}
-
-void Canvas::create(uint32_t w, uint32_t h){
-	mWidth = w;
-	mHeight = h;
-	mTargetTex = new Texture2D();
-	create();
-}
-
-void Canvas::create(Texture2D* target){
-	mWidth = target->getWidth();
-	mHeight = target->getHeigth();
-	mTargetTex = target;
-	create();
-}
-
-void Canvas::setTranslation(const glm::vec2& pos){
-	mModelView = glm::translate(pos.x, pos.y, 0.0f);
 }
 
 FrameBuffer& Canvas::getFBO(){
@@ -269,12 +150,26 @@ void Canvas::clear(){
 	static GLenum bfrMap[] = {GL_COLOR_ATTACHMENT0};
 	gl( DrawBuffers(1, bfrMap) );
 
-	gl( ClearColor(1.0, 0.0, 0.0, 0.0) );
+	gl( ClearColor(mClearColor.red, mClearColor.green, mClearColor.blue, mClearColor.alpha) );
 	gl( Clear(GL_COLOR_BUFFER_BIT) );
 }
 
 void Canvas::drawTexture(Texture2D* texture, float x, float y, float w, float h, const Color& color){
+#if 1
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
+	RectRenderer::getSingleton().draw(glm::vec2(mWidth, mHeight), glm::vec2(x, y), glm::vec2(w, h), texture, color);
+#else
 	glUseProgram(0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glLoadMatrixf( glm::value_ptr(glm::translate(x, y, 0.0f) ));
 
 	// bind texture
 	glEnable(GL_TEXTURE_2D);
@@ -297,18 +192,10 @@ void Canvas::drawTexture(Texture2D* texture, float x, float y, float w, float h,
 	glVertex2f(x,	y+h);	glTexCoord2f(0.0, 0.0);
 
 	glEnd();
+#endif
 }
 
-glm::mat4& Canvas::getProjMat(){
-	return mProjMat;
-}
-
-glm::mat4& Canvas::getModelViewMat(){
-	return mModelView;
-}
-
-
-void Canvas::drawCircle(float x, float y, float radius, Paint* paint){
+void Canvas::drawCircle(float x, float y, float radius, const Paint* paint){
 	if(!paint){
 		paint = &mDefaultPaint;
 	}
@@ -323,17 +210,17 @@ void Canvas::drawCircle(float x, float y, float radius, Paint* paint){
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 	
-	if(paint->style == Paint::eSTYLE_FILL){
-		glColor4f(paint->fillColor.red, paint->fillColor.green, paint->fillColor.blue, paint->fillColor.alpha);
+	if(paint->getStyle() == Paint::eSTYLE_FILL){
+		glColor4f(paint->getFillColor().red, paint->getFillColor().green, paint->getFillColor().blue, paint->getFillColor().alpha);
 	}
-	else if(paint->style == Paint::eSTYLE_STROKE){
-		glColor4f(paint->strokeColor.red, paint->strokeColor.green, paint->strokeColor.blue, paint->strokeColor.alpha);
+	else if(paint->getStyle() == Paint::eSTYLE_STROKE){
+		glColor4f(paint->getStrokeColor().red, paint->getStrokeColor().green, paint->getStrokeColor().blue, paint->getStrokeColor().alpha);
 	}
 	else{
 		TRACEW("Not implemented");
 	}
 
-	glBegin(paint->style == Paint::eSTYLE_FILL ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+	glBegin(paint->getStyle() == Paint::eSTYLE_FILL ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
 
 	for(float angle=0.0f; angle<360.0f; angle+=5.0f){
 		glVertex2f(x + glm::sin(angle) * radius, y + glm::cos(angle) * radius);
@@ -342,11 +229,21 @@ void Canvas::drawCircle(float x, float y, float radius, Paint* paint){
 	glEnd();
 }
 
-void Canvas::drawRect(float x, float y, float w, float h, Paint* paint){
+void Canvas::drawRect(float x, float y, float w, float h, const Paint* paint){
 	if(!paint){
 		paint = &mDefaultPaint;
 	}
+#if 1
+	bind();
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
+	RectRenderer::getSingleton().draw(
+		glm::vec2(mWidth, mHeight), glm::vec2(x, y), glm::vec2(w, h), NULL, paint->getFillColor());
+#else
 	// State setup
 	glUseProgram(0);
 	glEnable(GL_BLEND);
@@ -355,11 +252,11 @@ void Canvas::drawRect(float x, float y, float w, float h, Paint* paint){
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 
-	if(paint->style == Paint::eSTYLE_FILL || paint->style == Paint::eSTYLE_FILL_AND_STROKE){
+	if(paint->getStyle() == Paint::eSTYLE_FILL || paint->getStyle() == Paint::eSTYLE_FILL_AND_STROKE){
 		// Draw fill
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glColor4f(paint->fillColor.red, paint->fillColor.green, paint->fillColor.blue, paint->fillColor.alpha);
+		glColor4f(paint->getFillColor().red, paint->getFillColor().green, paint->getFillColor().blue, paint->getFillColor().alpha);
 
 		glBegin(GL_QUADS);
 		glVertex2f(x + 0, y + 0);
@@ -370,15 +267,15 @@ void Canvas::drawRect(float x, float y, float w, float h, Paint* paint){
 		glFlush();
 	}
 
-	if(paint->style == Paint::eSTYLE_STROKE || paint->style == Paint::eSTYLE_FILL_AND_STROKE){
+	if(paint->getStyle() == Paint::eSTYLE_STROKE || paint->getStyle() == Paint::eSTYLE_FILL_AND_STROKE){
 		// Draw stroke
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		glColor4f(paint->strokeColor.red, paint->strokeColor.green, paint->strokeColor.blue, paint->strokeColor.alpha);
+		glColor4f(paint->getStrokeColor().red, paint->getStrokeColor().green, paint->getStrokeColor().blue, paint->getStrokeColor().alpha);
 
-		gl( LineWidth(paint->strokeWidth) );
+		gl( LineWidth(paint->getStrokeWidth()) );
 
-		const float o = paint->strokeWidth/2.0f;
+		const float o = paint->getStrokeWidth()/2.0f;
 
 		glBegin(GL_QUADS);
 		glVertex2f(x + o, y + o);
@@ -388,10 +285,10 @@ void Canvas::drawRect(float x, float y, float w, float h, Paint* paint){
 		glEnd();
 		glFlush();
 	}
-	
+#endif
 }
 
-void Canvas::drawLine(float sx, float sy, float ex, float ey, Paint* paint){
+void Canvas::drawLine(float sx, float sy, float ex, float ey, const Paint* paint){
 	if(!paint){
 		paint = &mDefaultPaint;
 	}
@@ -400,12 +297,12 @@ void Canvas::drawLine(float sx, float sy, float ex, float ey, Paint* paint){
 
 	gl( Enable(GL_LINE_SMOOTH) );
 
-	gl( LineWidth(paint->strokeWidth) );
+	gl( LineWidth(paint->getStrokeWidth()) );
 	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
 
 	gl( Disable(GL_DEPTH_TEST) );
 	gl( Disable(GL_TEXTURE_2D) );
-	gl( Color4f(paint->strokeColor.red, paint->strokeColor.green, paint->strokeColor.blue, paint->strokeColor.alpha) );
+	gl( Color4f(paint->getStrokeColor().red, paint->getStrokeColor().green, paint->getStrokeColor().blue, paint->getStrokeColor().alpha) );
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 
 	glBegin(GL_LINES);
@@ -414,6 +311,10 @@ void Canvas::drawLine(float sx, float sy, float ex, float ey, Paint* paint){
 	glEnd();
 
 	gl( Flush() );
+}
+
+void Canvas::setClearColor(const Color& color){
+	mClearColor = color;
 }
 
 } // </gui>

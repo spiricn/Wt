@@ -5,6 +5,7 @@
 
 #include "wt/stdafx.h"
 #include "wt/gui/ProgressView.h"
+#include "wt/Utils.h"
 
 #define TD_TRACE_TAG "ProgressView"
 
@@ -14,7 +15,7 @@ namespace wt
 namespace gui
 {
 
-ProgressView::ProgressView(Layout* parent) : mProgress(0.0f), mDrawProgress(true), mProgressText(""), View(parent){
+ProgressView::ProgressView(Layout* parent, EventManager* eventManager, AGameInput* input) : mProgress(0.0f), mDrawProgress(true), mProgressText(""), View(parent, eventManager, input){
 }
 
 
@@ -31,32 +32,34 @@ void ProgressView::setProgress(float progress){
 	}
 }
 
-void ProgressView::draw(Canvas& c){
+void ProgressView::draw(ICanvas& c){
 	WT_ASSERT(getFont(), "No font specified for ProgressView instance");
 
-	Canvas::Paint paint;
+	Paint paint;
 
 	// Base rect
-	paint.style = Canvas::Paint::eSTYLE_FILL;
-	paint.fillColor = Color(127.0/255.0, 127.0/255.0, 127.0/255.0);
+	paint
+		.setStyle( Paint::eSTYLE_FILL )
+		.setFillColor( Color(127.0/255.0, 127.0/255.0, 127.0/255.0))
+	;
 	c.drawRect(0, 0, getSize().x, getSize().y, &paint);
 
 	// Progress rect
-	paint.strokeColor = Canvas::Paint::eSTYLE_FILL_AND_STROKE;
-	paint.fillColor = Color(112/255.0, 146/255.0, 190/255.0);
-	paint.strokeColor = Color::Black();
+	paint.setStyle( Paint::eSTYLE_FILL_AND_STROKE );
+	paint.setFillColor( Color(112/255.0, 146/255.0, 190/255.0) );
+	paint.setStrokeColor( Color::Black() );
 	c.drawRect(0, 0, getSize().x * (mProgress/100.0f), getSize().y, &paint);
 
 	if(mDrawProgress){
 		String text = utils::print("%.2f%%", mProgress);
 
 		glm::vec2 s = getFont()->measureString(text);
-		c.drawTextFmt(getFont(), text, getSize()/2.0f - s/2.0f, getSize(), Color::Black());
+		c.drawTextFmt(getFont(), text, getSize()/2.0f - s/2.0f, getSize(), Color::Black(), 1.0f);
 	}
 
 	// Background rect
-	paint.style = Canvas::Paint::eSTYLE_STROKE;
-	paint.strokeColor = Color(195.0/255.0, 195.0/255.0, 195.0/255.0);
+	paint.setStyle( Paint::eSTYLE_STROKE );
+	paint.setStrokeColor( Color(195.0/255.0, 195.0/255.0, 195.0/255.0) );
 	c.drawRect(0, 0, getSize().x, getSize().y, &paint);
 }
 

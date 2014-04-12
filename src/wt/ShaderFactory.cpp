@@ -6,7 +6,7 @@
 // Directory containing shader files (used if WT_USE_EMBEDDEDD_SHADERS is not defined)
 #define SHADER_DIR "shaders"
 
-#define WT_USE_EMBEDDED_SHADERS
+//#define WT_USE_EMBEDDED_SHADERS
 
 namespace wt
 {

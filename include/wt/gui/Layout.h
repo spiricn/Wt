@@ -12,7 +12,6 @@
 #include "wt/gui/CircleView.h"
 #include "wt/gui/Checkbox.h"
 #include "wt/gui/ListView.h"
-
 #include "wt/EventManager.h"
 #include "wt/EventEmitter.h"
 
@@ -24,9 +23,9 @@ namespace gui
 
 class WindowManager;
 
-class Layout{
+class Layout : public View{
 public:
-	Layout(EventManager* eventManager);
+	Layout(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	~Layout();
 
@@ -42,12 +41,6 @@ public:
 
 	void setGridSize(uint32_t numRows, uint32_t numColumns);
 
-	void setInput(AGameInput* input);
-
-	//Canvas& getCanvas();
-
-	Texture2D* getTexture() const;
-
 	void removeView(View* view);
 
 	void setDefaultScaleMode(View::ScalingMode mode);
@@ -62,59 +55,37 @@ public:
 
 	View* viewAt(float x, float y);
 
-	void draw();
+	void draw(ICanvas& c);
 
 	bool handleEvent(const EventPtr evt);
 
-	const Rect& getRect() const;
-
-	void setPosition(const glm::vec2& pos);
-
-	void setSize(const glm::vec2& size);
+	void addView(View* view);
 
 private:
-	Rect mRect;
-	View* mFocus;
 	typedef std::map<uint32_t, View*> ViewMap;
+
+private:
+	View* mFocus;
 	ViewMap mViews;
-	Canvas mCanvas;
-	EventManager* mEventManager;
 	View* mHoverView;
 	View* mDragView;
 	View* mClickView;
 	Font* mDefaultFont;
-	AGameInput* mInput;
-	uint32_t mNumGridRows, mNumGridColumns;
+	uint32_t mNumGridRows;
+	uint32_t mNumGridColumns;
 	View::ScalingMode mDefaultScaleMode;
 	bool mNeedsRescale;
-	float mVerticalCellSpacing, mHorizontalCellSpacing;
+	float mVerticalCellSpacing;
+	float mHorizontalCellSpacing;
 	bool mVisible;
 }; // </Layout>
 
 template<class T>
 T* Layout::createView(const String& name){
-	uint32_t id = mViews.size();
-	while(true){
-		if(mViews.find(id) == mViews.end()){
-			break;
-		}
-		id++;
-	}
-
-	T* tView = new T(this);
-	View* view = static_cast<View*>(tView);
-	view->setScalingMode(mDefaultScaleMode);
-	view->setId(id);
-	view->setName(name);
-	view->setEventManager(mEventManager);
-
-	if(view->getFont() == NULL){
-		view->setFont(mDefaultFont);
-	}
-
-	mViews.insert(std::make_pair(id, view));
-
-	return tView;
+	T* res = NULL;
+	addView( res = new T(this, getEventManager(), getInput()) );
+	res->setName(name);
+	return res;
 }
 
 template<class T>
@@ -129,10 +100,8 @@ T* Layout::findView(const String& name){
 	return NULL;
 }
 
-}; // </gui>
+} // </gui>
 
-}; // </wt>
+} // </wt>
 
-
-
-#endif
+#endif // </WT_LAYOUT_H>

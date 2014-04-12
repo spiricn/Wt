@@ -4,20 +4,21 @@
 
 #include "wt/stdafx.h"
 
-#include "wt/gui/Canvas.h"
+#include "wt/gui/ICanvas.h"
 #include "wt/HashedString.h"
 #include "wt/EventManager.h"
 #include "wt/AGameInput.h"
 #include "wt/IEventEmitter.h"
 #include "wt/gui/Rect.h"
+#include "wt/Color.h"
+#include "wt/gui/Paint.h"
+#include "wt/Font.h"
 
 namespace wt
 {
 
 namespace gui
 {
-
-using namespace gl;
 
 class Layout;
 
@@ -40,7 +41,7 @@ public:
 	}; // </ScalingMode>
 
 public:
-	View(Layout* parent);
+	View(Layout* parent, EventManager* eventManager, AGameInput* input);
 
 	const GridLocation& getGridLoation() const;
 
@@ -110,7 +111,7 @@ public:
 
 	void setSize(float w, float h);
 
-	virtual void draw(Canvas& c) = 0;
+	virtual void draw(ICanvas& c) = 0;
 
 	Layout* getLayout() const;
 
@@ -118,12 +119,20 @@ public:
 
 	const Color& getBackgroundColor() const;
 
+	void redraw();
+
+	AGameInput* getInput() const;
+
+	ICanvas& getCanvas();
+
 protected:
+	void debugDraw();
+
 	void setId(uint32_t id);
 
 	void setName(const String& name);
 
-	void setEventManager(EventManager* manager);
+	//void setEventManager(EventManager* manager);
 
 	void dirty();
 
@@ -143,7 +152,7 @@ private:
 	bool mIsVisible;
 	String mName;
 	EventManager* mEventManager;
-	Texture2D mTexture;
+	ICanvas* mCanvas;
 	Font* mFont;
 	bool mDirty;
 	GridLocation mGridLocation;
@@ -151,6 +160,7 @@ private:
 	ScalingMode mScalingMode;
 	bool mNeedsScale;
 	Color mBackgroundColor;
+	AGameInput* mInput;
 
 private:
 	friend class Layout;

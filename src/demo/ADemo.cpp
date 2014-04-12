@@ -118,19 +118,18 @@ void ADemo::createDemo(DemoManager* manager){
 
 	getEventManager()->registerListener(this);
 
-	mWindowManager.hook(getEventManager() );
+	mWindowManager.hook(getEventManager(), getInput());
 
 	// Setup UI
 	gui::Window* window = mWindowManager.createWindow();
 
 	window->setSize(glm::vec2(getWindow()->getWidth(), getWindow()->getHeight()));
 
-	mWindowManager.getActiveWindow()->setInput(getInput());
 
 	Font* font = getAssets()->getFontManager()->create("_demo_font");
 	font->load("demo_workspace/shared/font/cour.ttf", 20);
 
-	mWindowManager.getActiveWindow()->setDefaultFont( font );
+	mWindowManager.getActiveWindow()->getRootLayout()->setDefaultFont( font );
 
 	getScene()->setWindowManager(&mWindowManager);
 
