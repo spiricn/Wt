@@ -6,12 +6,12 @@
 #include "wt/AIOStream.h"
 #include "wt/FileIOStream.h"
 #include "wt/Sp.h"
-
+#include "wt/AFileSystem.h"
 
 #define TD_TRACE_TAG "AResourceLoader"
 
-namespace wt{
-
+namespace wt
+{
 
 class AResourceProvider{
 public:
@@ -32,34 +32,25 @@ public:
 
 	virtual void save(AIOStream* stream, T* src) = 0;
 
+	virtual void load(const String& path, T* rsrc){
+		Sp<AIOStream> stream = rsrc->getManager()->getResourceSystem()->getFileSystem()->open(path, AIOStream::eMODE_READ);
+		WT_ASSERT(stream->isReadable(), "Error openning file stream \"%s\"", path.c_str());
+		load(stream, rsrc);
+	}
+
+	virtual void save(const String& path, T* rsrc){
+		Sp<AIOStream> stream = rsrc->getManager()->getResourceSystem()->getFileSystem()->open(path, AIOStream::eMODE_WRITE);
+		WT_ASSERT(stream->isReadable(), "Error openning file stream \"%s\"", path.c_str());
+		save(stream, rsrc);
+	}
+
 	virtual void create(T* resource){
 	}
 
-	virtual void load(const String& path, T* dst){
-		FileIOStream stream(path, AIOStream::eMODE_READ);
-		try{
-			load(&stream, dst);
-		}catch(...){
-			LOGE("Error loading resource from \"%s\"", path.c_str());
-			throw;
-		}
-	}
-
-	virtual void save(const String& path, T* dst){
-		FileIOStream stream(path, AIOStream::eMODE_WRITE);
-		try{
-			save(&stream, dst);
-		}catch(...){
-			LOGE("Error saving resource to \"%s\"", path.c_str());
-			throw;
-		}
-	}
-	
-
 }; // <AResourceLoader>
 
-}; // </wt>
+} // </wt>
 
 #define TD_TRACE_TAG ""
 
-#endif
+#endif // </WT_ARESOURCELOADER_H>

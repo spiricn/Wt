@@ -70,6 +70,10 @@ public:
 
 	virtual void load(const String& path) = 0;
 
+	virtual void append(const LuaPlus::LuaObject& table) = 0;
+
+	virtual void append(const String& path) = 0;
+
 	virtual void serialize(LuaPlus::LuaObject& assets) = 0;
 
 	virtual void serialize(const String& path) = 0;

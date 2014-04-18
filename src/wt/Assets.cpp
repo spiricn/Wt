@@ -46,6 +46,76 @@ void Assets::init(){
 	mScriptManager->setLoader( &ScriptLoader::getSingleton() );
 }
 
+
+template<class T>
+void deserializeSet(wt::lua::State* luaState, AResourceManager<T>* manager, const String& name, const lua::LuaObject& table, typename AResourceGroup<T>::ResourceSet& set){
+	if(!table.IsTable()){
+		TRACEW("Error deserializing manager - Invalid managers table");
+		return;
+	}
+
+	lua::LuaObject mngrTable = table.Get(name.c_str());
+
+	if(!mngrTable.IsTable()){
+		LOGW("Manager table \"%s\" not found - skipping deserialization", name.c_str());
+		return;
+	}
+
+	manager->deserialize(luaState, mngrTable.Get("$ROOT"), set);
+}
+
+void Assets::append(const LuaPlus::LuaObject& table){
+	// Crete & deserialize new resources
+	AResourceGroup<Image>::ResourceSet imageSet;
+	deserializeSet(&mLuaState, mImageManager, IMAGE_MANAGER_TABLE_NAME, table, imageSet);
+
+	AResourceGroup<Texture2D>::ResourceSet textureSet;
+	deserializeSet(&mLuaState, mTextureManager, TEXTURE_MANAGER_TABLE_NAME, table, textureSet);
+
+	AResourceGroup<SkyBox>::ResourceSet skyboxSet;
+	deserializeSet(&mLuaState, mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, table, skyboxSet);
+
+	AResourceGroup<Animation>::ResourceSet animationSet;
+	deserializeSet(&mLuaState, mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, table, animationSet);
+
+	AResourceGroup<Model>::ResourceSet modelSet;
+	deserializeSet(&mLuaState, mModelManager, MODEL_MANAGER_TABLE_NAME, table, modelSet);
+
+	AResourceGroup<ASoundBuffer>::ResourceSet soundSet;
+	deserializeSet(&mLuaState, mSoundManager, SOUND_MANAGER_TABLE_NAME, table, soundSet);
+
+	AResourceGroup<ParticleEffectResource>::ResourceSet particleSet;
+	deserializeSet(&mLuaState, mParticleManager, PARTICLE_MANAGER_TABLE_NAME, table, particleSet);
+
+	AResourceGroup<Heightmap>::ResourceSet heightmapSet;
+	deserializeSet(&mLuaState, mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME, table, heightmapSet);
+
+	AResourceGroup<ScriptResource>::ResourceSet scriptSet;
+	deserializeSet(&mLuaState, mScriptManager, SCRIPT_MANAGER_TABLE_NAME, table, scriptSet);
+
+	// Load new resources
+	mImageManager->loadSet(imageSet);
+	mTextureManager->loadSet(textureSet);
+	mSkyBoxManager->loadSet(skyboxSet);
+	mAnimationManager->loadSet(animationSet);
+	mModelManager->loadSet(modelSet);
+	mSoundManager->loadSet(soundSet);
+	mParticleManager->loadSet(particleSet);
+	mHeightmapManager->loadSet(heightmapSet);
+	mScriptManager->loadSet(scriptSet);
+
+	// Create new resources
+	mImageManager->createSet(imageSet);
+	mTextureManager->createSet(textureSet);
+	mSkyBoxManager->createSet(skyboxSet);
+	mAnimationManager->createSet(animationSet);
+	mModelManager->createSet(modelSet);
+	mSoundManager->createSet(soundSet);
+	mParticleManager->createSet(particleSet);
+	mHeightmapManager->createSet(heightmapSet);
+	mScriptManager->createSet(scriptSet);
+}
+
 void Assets::deserialize(const LuaObject& assets){
 	deserialize(mImageManager, IMAGE_MANAGER_TABLE_NAME, assets);
 	deserialize(mTextureManager, TEXTURE_MANAGER_TABLE_NAME, assets);
@@ -276,6 +346,25 @@ void Assets::reload(){
 
 String Assets::getRelativeURI(const String& uri){
 	return utils::toRelative(mFileSystem->getRoot(), uri);
+}
+
+void Assets::append(const String& path){
+	LuaPlus::LuaStateOwner state;
+	WT_ASSERT(mFileSystem, "No file system set");
+
+	String relativePath = utils::toRelative(mFileSystem->getRoot(), path);
+
+	Sp<AIOStream> stream = mFileSystem->open(relativePath, AIOStream::eMODE_READ);
+	try{
+		lua::doStream(state, *(stream.get()));
+	}catch(...){
+		LOGE("Error executing asset script");
+		throw;
+	}
+
+	LuaObject assets = state->GetGlobal("ASSETS");
+
+	append(assets);
 }
 
 void Assets::load(const LuaObject& table){

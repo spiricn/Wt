@@ -117,13 +117,7 @@ public:
 	}
 
 	void load(T* src){
-		Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(src->getUri(), AIOStream::eMODE_READ);
-
-		if(!stream->isOpen()){
-			WT_THROW("Error openning resource file \"%s\"", src->getUri().c_str());
-		}
-
-		load(stream, src);
+		load(src->getUri(), src);
 	}
 
 	void save(T* src){
@@ -134,6 +128,18 @@ public:
 		}
 
 		save(stream, src);
+	}
+
+	void loadSet(AResourceGroup<T>::ResourceSet& resources){
+		for(AResourceGroup<T>::ResourceSet::iterator iter=resources.begin(); iter!=resources.end(); iter++){
+			load(*iter);
+		}
+	}
+
+	void createSet(AResourceGroup<T>::ResourceSet& resources){
+		for(AResourceGroup<T>::ResourceSet::iterator iter=resources.begin(); iter!=resources.end(); iter++){
+			createResource(*iter);
+		}
 	}
 
 	T* load(AIOStream* stream, T* dst){
@@ -155,23 +161,23 @@ public:
 	}
 
 	void load(const String& path, T* src){
-		WT_ASSERT(mLoader != NULL, "No resoruce loader set, cannot load \"%s\"", path.c_str());
-
-		mLoader->load(path, src);
+		if(!src->isResourceLoaded() && mLoader != NULL){
+			if(src->getUri().size()){
+				try{
+					Sp<AIOStream> stream = mResourceSystem->getFileSystem()->open(src->getUri(), AIOStream::eMODE_READ);
+					WT_ASSERT(stream->isReadable(), "Error openning file stream \"%s\"", src->getUri().c_str());
+					mLoader->load(stream, src);
+				}catch(...){
+					TRACEE("Error loading resource \"%s\"", src->getPath().c_str());
+				}
+			}
+		}
 	}
 
 	void loadAll(){
 		for(AResourceManager<T>::ResourceMap::iterator i=AResourceManager<T>::mResources.begin();
 			i!=AResourceManager<T>::mResources.end(); i++){
-				if(!i->second->isResourceLoaded() && mLoader != NULL){
-					if(i->second->getUri().size()){
-						try{
-							load(i->second);
-						}catch(...){
-							TRACEE("Error loading resource \"%s\"", i->second->getPath().c_str());
-						}
-					}
-				}
+				load(i->second);
 		}
 	}
 
@@ -179,13 +185,18 @@ public:
 		return mLoader;
 	}
 
+	void createResource(T* rsrc){
+		if(!rsrc->isResourceReady() && mLoader != NULL){
+			mLoader->create(rsrc);
+		}
+
+		rsrc->setResourceState(AResource<T>::eSTATE_READY);
+	}
+
 	void createAll(){
 		for(AResourceManager<T>::ResourceMap::iterator i=AResourceManager<T>::mResources.begin();
 			i!=AResourceManager<T>::mResources.end(); i++){
-				if(!i->second->isResourceReady() && mLoader != NULL){
-					mLoader->create(i->second);
-					i->second->setResourceState(AResource<T>::eSTATE_READY);
-				}
+				createResource(i->second);
 		}
 	}
 

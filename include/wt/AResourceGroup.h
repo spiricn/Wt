@@ -27,48 +27,15 @@ public:
 };
 
 template<class T>
-class AResourceGroup : public lua::ASerializable{
-	friend class AResourceManager<T>;
+class AResourceGroup{
 public:
 	typedef std::map<String, AResourceGroup<T>*> GroupMap;
+
 	typedef std::map<ResourceHandle, T*> ResourceMap;
-private:
-	String mName;
-	GroupMap mChildren;
-	AResourceAllocator<T>* mAllocator;
-	ResourceMap mResources;
-	AResourceGroup<T>* mParent;
-	AResourceSystem* mResourceSystem;
 
-protected:
-	// Only resource manager is allowed access
-	void setResourceAllocator(AResourceAllocator<T>* allocator){
-		mAllocator = allocator;
-	}
-
-	void setName(const String& name){
-		mName = name;
-	}
-
-	void setResourceSystem(AResourceSystem* system){
-		mResourceSystem = system;
-	}
-
-	AResourceGroup(AResourceAllocator<T>* allocator,
-		AResourceGroup* parent, AResourceSystem* resourceSystem, const String& name) : mAllocator(allocator),
-		mName(name), mParent(parent), mResourceSystem(resourceSystem){
-	}
-
-	
-	AResourceGroup() : mAllocator(NULL),
-		mName(""), mParent(NULL), mResourceSystem(NULL){
-	}
-
-	// prevent copy constructor
-	AResourceGroup(const AResourceGroup& other){ assert(0&&"Copy constructor disabled"); }
+	typedef std::set<T*> ResourceSet;
 
 public:
-
 	AResourceSystem* getResourceSystem() const{
 		return mResourceSystem;
 	}
@@ -270,6 +237,11 @@ public:
 	}
 
 	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
+		ResourceSet set;
+		deserialize(luaState, table, set);
+	}
+
+	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table, ResourceSet& resources){
 		if(!table.IsTable()){
 			WT_THROW("Resoruce group deserialization failed [%s], Lua object not a table", mName.c_str());
 		}
@@ -291,11 +263,12 @@ public:
 		
 			// create & deserialize a child group or resource
 			if(strcmp("GROUP", type)==0){
-				createGroup(name)->deserialize(luaState, it.GetValue() );
+				createGroup(name)->deserialize(luaState, it.GetValue(), resources);
 			}
 			else if(strcmp("RESOURCE", type)==0){
 				T* rsrc = create(name);
 				rsrc->deserialize(luaState, it.GetValue() );
+				resources.insert(rsrc);
 			}
 		}
 	}
@@ -325,10 +298,48 @@ public:
 		child->destroy();
 		delete child;
 	}
-};
 
+private:
+	// Only resource manager is allowed access
+	void setResourceAllocator(AResourceAllocator<T>* allocator){
+		mAllocator = allocator;
+	}
 
+	void setName(const String& name){
+		mName = name;
+	}
 
-}; // </wt>
+	void setResourceSystem(AResourceSystem* system){
+		mResourceSystem = system;
+	}
 
-#endif
+	AResourceGroup(AResourceAllocator<T>* allocator,
+		AResourceGroup* parent, AResourceSystem* resourceSystem, const String& name) : mAllocator(allocator),
+		mName(name), mParent(parent), mResourceSystem(resourceSystem){
+	}
+
+	
+	AResourceGroup() : mAllocator(NULL),
+		mName(""), mParent(NULL), mResourceSystem(NULL){
+	}
+
+	// prevent copy constructor
+	AResourceGroup(const AResourceGroup& other){
+		WT_THROW("Copy constructor disabled");
+	}
+
+private:
+	String mName;
+	GroupMap mChildren;
+	AResourceAllocator<T>* mAllocator;
+	ResourceMap mResources;
+	AResourceGroup<T>* mParent;
+	AResourceSystem* mResourceSystem;
+
+private:
+	friend class AResourceManager<T>;
+}; // </AResourceGroup>
+
+} // </wt>
+
+#endif // </WT_ARESOURCEGROUP_H>

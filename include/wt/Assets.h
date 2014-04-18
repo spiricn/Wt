@@ -36,6 +36,23 @@ namespace wt
 
 class Assets : public AResourceSystem, public Singleton<Assets>{
 public:
+	enum ResourceType{
+		eTYPE_INVALID = -1,
+
+		eTYPE_IMAGE,
+		eTYPE_TEXTURE,
+		eTYPE_SKY_BOX,
+		eTYPE_ANIMATION,
+		eTYPE_MODEL,
+		eTYPE_SOUND,
+		eTYPE_PARTICLE,
+		eTYPE_HEIGHTMAP,
+		eTYPE_SCRIPT,
+
+		eTYPE_MAX
+	}; // </ResourceType>
+
+public:
 	Assets();
 
 	~Assets();
@@ -105,6 +122,10 @@ public:
 	void serialize(LuaObject& assets);
 
 	void serialize(const String& path);
+
+	void append(const LuaPlus::LuaObject& table);
+
+	void append(const String& path);
 
 private:
 	class IChunkedLoader{
