@@ -12,23 +12,20 @@ template<class T>
 class Interpolator{
 public:
 	enum InterpolationType{
-		eLINEAR,
-		eEASE_IN_QUAD
-	};
+		eTYPE_LINEAR_FORWARD,
+		eTYPE_LINEAR_BACKWARD,
+		eTYPE_HALF_SINE,
+	}; // </InterpolationType>
 
 	Interpolator() : mFinished(true){
 	}
 
-	Interpolator(const T& start, const T& end, float duration, bool loop=false, InterpolationType type=eLINEAR) : 
+	Interpolator(const T& start, const T& end, float duration, bool loop=false, InterpolationType type=eTYPE_LINEAR_FORWARD) : 
 	mStart(start), mEnd(end), mDuration(duration), mTime(0), mLoop(loop), mType(type), mFinished(false), mValue(start){
 	}
 
-	static float linearTimeFunc(float time){
-		return time;
-	}
-
-	static float quadTimeFunc(float time){
-		return time*time;
+	float getPercentage() const{
+		return mTime / mDuration;
 	}
 
 	const T& getValue() const{
@@ -53,13 +50,21 @@ public:
 		float a = mTime/mDuration;
 
 		switch(mType){
-		case eLINEAR: a = a; break;
-		case eEASE_IN_QUAD: a = a*a; break;
+		case eTYPE_LINEAR_FORWARD:
+			a = a;
+			break;
+
+		case eTYPE_LINEAR_BACKWARD:
+			a = 1.0f - a;
+			break;
+
+		case eTYPE_HALF_SINE:
+			a = glm::sin( a * math::PI );
+
+			break;
 		}
 
-		mValue = glm::mix(mStart, mEnd,
-			 a
-			 );
+		mValue = glm::mix(mStart, mEnd, a);
 
 		return mFinished;
 	}
@@ -85,9 +90,13 @@ private:
 }; // </Interpolator>
 
 typedef Interpolator<float> FloatInterpolator;
+
 typedef Interpolator<double> DoubleInterpolator;
+
 typedef Interpolator<int32_t> IntInterpolator;
+
 typedef Interpolator<glm::vec3> Vec3Interpolator;
+
 typedef Interpolator<glm::vec2> Vec2Interpolator;
 
 } // </wt>

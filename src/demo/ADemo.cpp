@@ -129,7 +129,7 @@ void ADemo::createDemo(DemoManager* manager){
 	Font* font = getAssets()->getFontManager()->create("_demo_font");
 	font->load("demo_workspace/shared/font/cour.ttf", 20);
 
-	mWindowManager.getActiveWindow()->getRootLayout()->setDefaultFont( font );
+	mWindowManager.getActiveWindow()->setDefaultFont( font );
 
 	getScene()->setWindowManager(&mWindowManager);
 

@@ -12,13 +12,9 @@ namespace wt
 namespace gui
 {
 
-View::View(Layout* parent, EventManager* eventManager, AGameInput* input) : mRect(0, 0, 1, 1), mId(0),
+View::View(View* parent, EventManager* eventManager, AGameInput* input) : mRect(0, 0, 1, 1), mId(0),
 	mIsVisible(true), mDirty(true), mFont(NULL), mScalingMode(eSCALE_MODE_FIXED),
-	mNeedsScale(false), mLayout(parent), mBackgroundColor(Color::White()), mEventManager(eventManager), mInput(input){
-
-	//mTexture.create();
-
-	mCanvas = new Canvas;
+	mNeedsScale(false), mParent(parent), mBackgroundColor(Color::White()), mEventManager(eventManager), mInput(input), mCanvas(new Canvas){
 }
 
 void View::setId(uint32_t id){
@@ -29,13 +25,12 @@ void View::setName(const String& name){
 	mName = name;
 }
 
-//void View::setEventManager(EventManager* manager){
-//	mEventManager = manager;
-//	onHook(manager);
-//}
-
 void View::dirty(){
 	mDirty = true;
+
+	if(mParent){
+		mParent->dirty();
+	}
 }
 
 void View::clean(){
@@ -55,7 +50,6 @@ void View::setNeedsScaling(bool state){
 }
 
 Texture2D& View::getTexture(){
-	//return mTexture;
 	return *mCanvas->getTexture();
 }
 
@@ -126,11 +120,25 @@ glm::vec2 View::getPosition() const{
 }
 
 glm::vec2 View::toLocalCoords(float x, float y) const{
-	return glm::vec2(x-mRect.x, y-mRect.y);
+	glm::vec2 local(x-mRect.x, y-mRect.y);
+
+	if(mParent){
+		return mParent->toLocalCoords(local.x, local.y);
+	}
+	else{
+		return local;
+	}
 }
 
 glm::vec2 View::toGlobalCoords(float x, float y) const{
-	return glm::vec2(mRect.x+x, mRect.y+y);
+	glm::vec2 global = glm::vec2(mRect.x + x, mRect.y + y);
+
+	if(mParent){
+		return mParent->toGlobalCoords(global.x, global.y);
+	}
+	else{
+		return global;
+	}
 }
 
 void View::onMouseDrag(const MouseMotionEvent* evt){
@@ -163,25 +171,19 @@ const String& View::getName() const{
 	return mName;
 }
 
-void View::setPosition(float x, float y){
-	mRect.x = x;
-	mRect.y = y;
+void View::setPosition(const glm::vec2& position){
+	mRect.x = position.x;
+	mRect.y = position.y;
+
+	mNeedsScale = true;
 }
 
 void View::emitEvent(AEvent* e){
 	mEventManager->emitEvent(e, this);
 }
 
-void View::setPosition(const glm::vec2& position){
-	setPosition(position.x, position.y);
-}
-
 glm::vec2 View::getSize() const{
 	return mRect.getSize();
-}
-
-void View::setSize(const glm::vec2& size){
-	setSize(size.x, size.y);
 }
 
 float View::getWidth() const{
@@ -202,25 +204,22 @@ void View::setBackgroundColor(const Color& clr){
 	mBackgroundColor = clr;
 }
 
-void View::setSize(float w, float h){
+void View::setSize(const glm::vec2& size){
 	dirty();
 
-	mRect.width = w;
-	mRect.height = h;
+	mRect.width = size.x;
+	mRect.height = size.y;
 
-	//// resize texture
-	//mTexture.bind();
-	//mTexture.setData(w, h, GL_RGBA, GL_RGBA8, NULL, GL_FLOAT);
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	mCanvas->setSize(w, h);
+	mCanvas->setSize(mRect.width, mRect.height);
 }
 
 void View::redraw(){
+	if(!mDirty){
+		return;
+	}
+
 	mCanvas->bind();
 
-	//mCanvas->setClearColor(Color::Green());
 	mCanvas->clear();
 
 	draw(*mCanvas);
@@ -228,8 +227,8 @@ void View::redraw(){
 	clean();
 }
 
-Layout* View::getLayout() const{
-	return mLayout;
+View* View::getParent() const{
+	return mParent;
 }
 
 const Rect& View::getRect() const{

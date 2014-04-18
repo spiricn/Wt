@@ -1,6 +1,9 @@
 #include "demo/stdafx.h"
 #include "demo/DemoManager.h"
 
+#include <wt/RectRenderer.h>
+#include <wt/TextRenderer.h>
+
 #define TD_TRACE_TAG "DemoManager"
 
 namespace wt
@@ -105,7 +108,10 @@ void DemoManager::startDemo(const String& name){
 
 	mActiveDemo->startDemo();
 
-	LOGI("Demo running");
+	// TODO these two need to be destroyed after we lose our GL context, and re-created after we create a new one
+	// so these two should really not be singletons
+	RectRenderer::releaseSingleton();
+	TextRenderer::releaseSingleton();
 }
 
 void DemoManager::initialize(){

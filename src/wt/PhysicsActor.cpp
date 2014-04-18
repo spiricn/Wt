@@ -56,15 +56,25 @@ bool PhysicsActor::getSceneActorCtrl() const{
 }
 
 void PhysicsActor::setTranslation(const glm::vec3& translation){
-	PxRigidActor* pxActor = static_cast<PxRigidActor*>(mPxActor);
+	PxController* ctrl = getController();
 
-	PxTransform pose = pxActor->getGlobalPose();
-	pxConvert(translation, pose.p);
+	if(ctrl){
+		PxExtendedVec3 pos;
+		pxConvert(translation, pos);
 
-	pxActor->setGlobalPose(pose, true);
+		ctrl->setFootPosition(pos);
+	}
+	else{
+		PxRigidActor* pxActor = static_cast<PxRigidActor*>(mPxActor);
+
+		PxTransform pose = pxActor->getGlobalPose();
+		pxConvert(translation, pose.p);
+
+		pxActor->setGlobalPose(pose, true);
 	
-	if(pxActor->isRigidStatic() && mSceneActor){
-		const_cast<ASceneActor*>(mSceneActor)->physicsControl(translation);
+		if(pxActor->isRigidStatic() && mSceneActor){
+			const_cast<ASceneActor*>(mSceneActor)->physicsControl(translation);
+		}
 	}
 }
 

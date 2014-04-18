@@ -13,7 +13,7 @@ namespace wt
 
 namespace gui
 {
-CircleView::CircleView(Layout* parent, EventManager* eventManager, AGameInput* input) : mRadius(1.0f), mColor(Color::White()), View(parent, eventManager, input){
+CircleView::CircleView(View* parent, EventManager* eventManager, AGameInput* input) : mRadius(1.0f), mColor(Color::White()), View(parent, eventManager, input){
 }
 
 void CircleView::setColor(const Color& color){
@@ -26,7 +26,7 @@ void CircleView::setRadius(float r){
 	dirty();
 
 	mRadius = r;
-	setSize(r, r);
+	setSize(glm::vec2(r, r));
 }
 
 void CircleView::draw(ICanvas& c){

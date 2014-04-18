@@ -6,7 +6,7 @@
 // Directory containing shader files (used if WT_USE_EMBEDDEDD_SHADERS is not defined)
 #define SHADER_DIR "shaders"
 
-//#define WT_USE_EMBEDDED_SHADERS
+#define WT_USE_EMBEDDED_SHADERS 1
 
 namespace wt
 {
@@ -21,7 +21,7 @@ static String getPath(const String& uri){
 }
 
 void ShaderFactory::createShader(gl::ShaderProgram& program, const String& vertexUri, const String& fragmentUri, const String& geometryUri){
-#ifdef WT_USE_EMBEDDED_SHADERS
+#if WT_USE_EMBEDDED_SHADERS == 1
 	const char* vertexSrc = getShaderSource(vertexUri.c_str());
 
 	if(vertexSrc == NULL && !vertexUri.empty()){
@@ -49,7 +49,7 @@ void ShaderFactory::createShader(gl::ShaderProgram& program, const String& verte
 }
 
 bool ShaderFactory::embeddedModuleProvider(const String& src, String& res){
-#ifdef WT_USE_EMBEDDED_SHADERS
+#if WT_USE_EMBEDDED_SHADERS == 1
 	const char* source = getShaderSource(src.c_str());
 
 	if(source){

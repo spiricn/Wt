@@ -34,7 +34,7 @@ void Toast::onProcStart(){
 	changeState( eSTATE_FADING_IN );
 
 	mFadeInterpolator = Interpolator<float>(0, mFadeInVal, mFadeInTime, false,
-		Interpolator<float>::eEASE_IN_QUAD);
+		Interpolator<float>::eTYPE_LINEAR_FORWARD);
 }
 
 void Toast::fadeOutNow(){
@@ -74,7 +74,7 @@ void Toast::onProcUpdate(float dt){
 
 		if(mDuration <= 0.0f){
 			mFadeInterpolator = Interpolator<float>(mCurrentAlpha, mFadeOutVal, mFadeOutTime, false,
-				Interpolator<float>::eLINEAR);
+				Interpolator<float>::eTYPE_LINEAR_FORWARD);
 			changeState( eSTATE_FADING_OUT );
 		}
 	}

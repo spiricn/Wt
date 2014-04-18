@@ -11,7 +11,7 @@ namespace gui
 
 class CircleView : public View{
 public:
-	CircleView(Layout* parent, EventManager* eventManager, AGameInput* input);
+	CircleView(View* parent, EventManager* eventManager, AGameInput* input);
 
 	void setColor(const Color& color);
 

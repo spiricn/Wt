@@ -5,9 +5,11 @@
 
 #include "wt/gui/View.h"
 
-namespace wt{
+namespace wt
+{
 
-namespace gui{
+namespace gui
+{
 
 class SliderView : public View{
 public:
@@ -16,7 +18,9 @@ public:
 		eMODE_VERTICAL
 	}; // </Mode>
 
-	SliderView(Layout* parent, EventManager* eventManager, AGameInput* input);
+public:
+
+	SliderView(View* parent, EventManager* eventManager, AGameInput* input);
 
 	void setValue(float val);
 

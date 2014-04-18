@@ -41,7 +41,7 @@ public:
 	}; // </ScalingMode>
 
 public:
-	View(Layout* parent, EventManager* eventManager, AGameInput* input);
+	View(View* parent, EventManager* eventManager, AGameInput* input);
 
 	const GridLocation& getGridLoation() const;
 
@@ -93,15 +93,13 @@ public:
 
 	const String& getName() const;
 
-	void setPosition(float x, float y);
-
 	void emitEvent(AEvent* e);
 
-	void setPosition(const glm::vec2& position);
+	virtual void setPosition(const glm::vec2& position);
 
 	glm::vec2 getSize() const;
 
-	void setSize(const glm::vec2& size);
+	virtual void setSize(const glm::vec2& size);
 
 	float getWidth() const;
 
@@ -109,11 +107,9 @@ public:
 
 	bool contains(float x, float y) const;
 
-	void setSize(float w, float h);
-
 	virtual void draw(ICanvas& c) = 0;
 
-	Layout* getLayout() const;
+	View* getParent() const;
 
 	void setBackgroundColor(const Color& clr);
 
@@ -131,8 +127,6 @@ protected:
 	void setId(uint32_t id);
 
 	void setName(const String& name);
-
-	//void setEventManager(EventManager* manager);
 
 	void dirty();
 
@@ -156,7 +150,7 @@ private:
 	Font* mFont;
 	bool mDirty;
 	GridLocation mGridLocation;
-	Layout* mLayout;
+	View* mParent;
 	ScalingMode mScalingMode;
 	bool mNeedsScale;
 	Color mBackgroundColor;

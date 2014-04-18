@@ -155,44 +155,14 @@ void Canvas::clear(){
 }
 
 void Canvas::drawTexture(Texture2D* texture, float x, float y, float w, float h, const Color& color){
-#if 1
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
+	gl( Enable(GL_BLEND) );
+	gl( BlendEquation(GL_FUNC_ADD) );
+	gl( BlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) );
+	gl( Disable(GL_DEPTH_TEST) );
+	gl( Disable(GL_CULL_FACE) );
+	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
 
 	RectRenderer::getSingleton().draw(glm::vec2(mWidth, mHeight), glm::vec2(x, y), glm::vec2(w, h), texture, color);
-#else
-	glUseProgram(0);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glLoadMatrixf( glm::value_ptr(glm::translate(x, y, 0.0f) ));
-
-	// bind texture
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture->getTexHandle());
-
-	// setup render state
-	glEnable(GL_BLEND);
-		
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDisable(GL_COLOR_MATERIAL);
-	// draw textured quad
-	glBegin(GL_QUADS);
-	glColor4f(color.red, color.green, color.blue, color.alpha);
-	glVertex2f(x,	y);		glTexCoord2f(1.0, 0.0);
-	glVertex2f(x+w, y);		glTexCoord2f(1.0, 1.0);
-	glVertex2f(x+w, y+h);	glTexCoord2f(0.0, 1.0);
-	glVertex2f(x,	y+h);	glTexCoord2f(0.0, 0.0);
-
-	glEnd();
-#endif
 }
 
 void Canvas::drawCircle(float x, float y, float radius, const Paint* paint){
@@ -234,15 +204,31 @@ void Canvas::drawRect(float x, float y, float w, float h, const Paint* paint){
 		paint = &mDefaultPaint;
 	}
 #if 1
-	bind();
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	RectRenderer::getSingleton().draw(
-		glm::vec2(mWidth, mHeight), glm::vec2(x, y), glm::vec2(w, h), NULL, paint->getFillColor());
+	if(paint->getStyle() == Paint::eSTYLE_FILL || paint->getStyle() == Paint::eSTYLE_FILL_AND_STROKE){
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		RectRenderer::getSingleton().draw(glm::vec2(mWidth, mHeight), glm::vec2(x, y), glm::vec2(w, h), NULL, paint->getFillColor());
+	}
+	
+	if(paint->getStyle() == Paint::eSTYLE_STROKE || paint->getStyle() == Paint::eSTYLE_FILL_AND_STROKE){
+		// Draw stroke
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		gl( LineWidth(paint->getStrokeWidth()) );
+
+		const float o = paint->getStrokeWidth()/2.0f;
+
+		RectRenderer::getSingleton().draw(
+			glm::vec2(mWidth, mHeight),
+			glm::vec2(x, y) + glm::vec2(o, o), glm::vec2(w, h) - 4.0f * glm::vec2(o, o), NULL, paint->getStrokeColor());
+	}
+
 #else
 	// State setup
 	glUseProgram(0);

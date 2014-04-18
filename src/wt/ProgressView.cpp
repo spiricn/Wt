@@ -15,7 +15,7 @@ namespace wt
 namespace gui
 {
 
-ProgressView::ProgressView(Layout* parent, EventManager* eventManager, AGameInput* input) : mProgress(0.0f), mDrawProgress(true), mProgressText(""), View(parent, eventManager, input){
+ProgressView::ProgressView(View* parent, EventManager* eventManager, AGameInput* input) : mProgress(0.0f), mDrawProgress(true), mProgressText(""), View(parent, eventManager, input){
 }
 
 
@@ -27,9 +27,15 @@ void ProgressView::setDrawProgress(bool state){
 
 void ProgressView::setProgress(float progress){
 	if(mProgress != progress){
-		mProgress = progress;
+		mProgress = glm::clamp(progress, 0.0f, 100.0f);
 		dirty();
 	}
+}
+
+void ProgressView::setProgressText(const String& text){
+	mProgressText = text;
+
+	dirty();
 }
 
 void ProgressView::draw(ICanvas& c){
@@ -51,7 +57,7 @@ void ProgressView::draw(ICanvas& c){
 	c.drawRect(0, 0, getSize().x * (mProgress/100.0f), getSize().y, &paint);
 
 	if(mDrawProgress){
-		String text = utils::print("%.2f%%", mProgress);
+		String text = utils::print("%s%.2f%%", mProgressText.c_str(), mProgress);
 
 		glm::vec2 s = getFont()->measureString(text);
 		c.drawTextFmt(getFont(), text, getSize()/2.0f - s/2.0f, getSize(), Color::Black(), 1.0f);

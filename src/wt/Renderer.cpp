@@ -766,14 +766,13 @@ void Renderer::setRenderAxes(bool state){
 	mRenderAxes = state;
 }
 
-void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& clr, bool flipVertically){
-#if 0
-
+void Renderer::render(Texture2D* tex, const glm::vec2& viewport, float x, float y, float w, float h, const Color& color, bool flipVertically){
+#if 1
 	//glClear(GL_COLOR_BUFFER_BIT);
 	/*glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);*/
-	RectRenderer::getSingleton().draw(viewport, glm::vec2(x, y), glm::vec2(w, h), tex);
+	RectRenderer::getSingleton().draw(viewport, glm::vec2(x, y), glm::vec2(w, h), tex, color);
 #else
 	gl( UseProgram(0) );
 
@@ -1090,7 +1089,7 @@ void Renderer::godrayPass(Scene& scene){
 
 void Renderer::render(Scene& scene, gui::Window* window){
 	// Draw all the elements
-	window->draw();
+	window->redraw();
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -1110,14 +1109,17 @@ void Renderer::render(Scene& scene, gui::Window* window){
 		defaultBfrs[0] = doubleBuffered? GL_BACK : GL_FRONT;
 
 		gl( DrawBuffers(1, defaultBfrs) );
+
+		gl( Viewport(0, 0, mViewPort.x, mViewPort.y) );
 	}
 
 	// Render the GUI texture on top of everything
 	render(
-		window->getTexture(),
+		window->getCanvas().getTexture(),
 		glm::vec2(mViewPort.x, mViewPort.y),
 		window->getRect().x, window->getRect().y,
-		window->getRect().width, window->getRect().height
+		window->getRect().width, window->getRect().height,
+		window->getBackgroundColor()
 	);
 }
 

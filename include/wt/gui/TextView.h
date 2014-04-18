@@ -34,7 +34,7 @@ public:
 
 public:
 
-	TextView(Layout* parent, EventManager* eventManager, AGameInput* input);
+	TextView(View* parent, EventManager* eventManager, AGameInput* input);
 
 	void setTextScaleMode(ScalingMode mode);
 

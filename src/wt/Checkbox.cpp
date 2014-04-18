@@ -19,8 +19,12 @@ void Checkbox::onClicked(){
 	emitEvent(e);
 }
 
-Checkbox::Checkbox(Layout* parent, EventManager* eventManager, AGameInput* input) : mChecked(false), View(parent, eventManager, input){
+Checkbox::Checkbox(View* parent, EventManager* eventManager, AGameInput* input) : mChecked(false), View(parent, eventManager, input){
 	setBackgroundColor(Color::Gray());
+}
+
+void Checkbox::toggle(){
+	setChecked( !isChecked() );
 }
 
 Checkbox* Checkbox::setText(const String& text){
@@ -54,23 +58,18 @@ bool Checkbox::isChecked() const{
 
 void Checkbox::draw(ICanvas& c){
 	Paint paint;
-	paint.setStyle( Paint::eSTYLE_FILL );
 	
 	// Base rect
+	paint.setFillColor(Color::Gray());
 	c.drawRect(0, 0, getWidth(), getHeight(), &paint);
 
-	// Outer circle
-	paint.setFillColor( Color::White() );
-	c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/4, &paint);
+	// Check box
+	paint.setFillColor( Color::Cyan() );
+	paint.setStyle( mChecked ? Paint::eSTYLE_FILL_AND_STROKE : Paint::eSTYLE_STROKE );
+	c.drawRect(getSize().y/4, getSize().y/4, getSize().y/2, getSize().y/2, &paint);
 
-	// Inner circle
-	if(mChecked){
-		paint.setFillColor( Color::Black() );
-		c.drawCircle(getSize().y/2, getSize().y/2, getSize().y/8, &paint);
-	}
-
+	// Text
 	glm::vec2 textSize = getFont()->measureString(mText);
-
 	c.drawText(getFont(), mText, getSize().y, getSize().y/2.0f - textSize.y/2.0f, Color::Black(), 1.0f);
 }
 

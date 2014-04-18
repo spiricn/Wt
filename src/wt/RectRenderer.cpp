@@ -23,20 +23,16 @@ RectRenderer::RectRenderer(){
 
 		// Top right ( 1 )
 		v, 0, 1, 1,
-			
-		// Bottom left ( 2 )
+		
+		// Bottom right ( 2 )
+		v, v, 1, 0,
+
+		// Bottom left ( 3 )
 		0, v, 0, 0,
 
-		// Bottom right ( 3 )
-		v, v, 1, 0,
-	};
+	}; // </vertices>
 
-	uint8_t indices[] = {
-		0, 1, 2,
-		1, 3, 2
-	};
-
-	mBatch.create(GL_TRIANGLES, vertices, 4, sizeof(Vertex), indices, 6, sizeof(uint32_t), GL_UNSIGNED_BYTE);
+	mBatch.create(GL_QUADS, vertices, 4, sizeof(Vertex));
 
 	// Position
 	mBatch.setVertexAttribute(eATTRIB_POSITION, 2, GL_FLOAT, offsetof(Vertex, x));
@@ -64,7 +60,7 @@ void RectRenderer::draw(const glm::vec2& viewport, const glm::vec2& pos, const g
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	glm::mat4 projMat = glm::ortho(0.0f, viewport.x, 0.0f, viewport.y);
+	glm::mat4 projMat = glm::ortho(0.0f, viewport.x, viewport.y, 0.0f);
 	mShader.setUniformVal("uProjMat", projMat);
 
 	glm::mat4 modelMat = glm::translate(pos.x, pos.y, 0.0f) * glm::scale(size.x, size.y, 1.0f);

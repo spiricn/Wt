@@ -11,7 +11,7 @@ namespace wt
 namespace gui
 {
 
-TextView::TextView(Layout* parent, EventManager* eventManager, AGameInput* input) : mTextColor(Color::White()),
+TextView::TextView(View* parent, EventManager* eventManager, AGameInput* input) : mTextColor(Color::White()),
 	mFontScale(1.0f), mScalingMode(eSCALE_FIXED), View(parent, eventManager, input), mPosFlags(0){
 }
 
@@ -60,7 +60,7 @@ void TextView::draw(ICanvas& c){
 	// TODO hardcoded
 	Paint backgroundPaint;
 	backgroundPaint
-		.setStyle( Paint::eSTYLE_FILL )
+		.setStyle( Paint::eSTYLE_FILL_AND_STROKE )
 		.setFillColor( Color::White() )
 		;
 

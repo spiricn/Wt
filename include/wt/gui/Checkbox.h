@@ -11,11 +11,13 @@ namespace gui
 
 class Checkbox : public View{
 public:
-	Checkbox(Layout* parent, EventManager* eventManager, AGameInput* input);
+	Checkbox(View* parent, EventManager* eventManager, AGameInput* input);
 
 	Checkbox* setText(const String& text);
 
 	Checkbox* setChecked(bool checked);
+
+	void toggle();
 
 	bool isChecked() const;
 

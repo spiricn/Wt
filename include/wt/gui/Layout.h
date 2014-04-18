@@ -43,6 +43,8 @@ public:
 
 	void removeView(View* view);
 
+	void setColor(const Color& color);
+
 	void setDefaultScaleMode(View::ScalingMode mode);
 
 	template<class T>
@@ -60,6 +62,10 @@ public:
 	bool handleEvent(const EventPtr evt);
 
 	void addView(View* view);
+
+	void setSize(const glm::vec2& size);
+
+	void setPosition(const glm::vec2& position);
 
 private:
 	typedef std::map<uint32_t, View*> ViewMap;

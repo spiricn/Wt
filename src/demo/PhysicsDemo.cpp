@@ -130,9 +130,9 @@ public:
 					getScene()->getPhysics()->removeActor(door->getPhysicsActor());
 					return true;
 				}
-			/*	else if(!evt->regionActor->getSceneActor()->getName().compare("scene_end_region")){
-					LOGI("END!");
-				}*/
+				else if(!evt->regionActor->getSceneActor()->getName().compare("scene_end_region")){
+					evt->collidingActor->getSceneActor()->getTransformable()->setTranslation(glm::vec3(293.076385, 71.425499, 271.170258));
+				}
 			}
 		}
 

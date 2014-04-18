@@ -10,7 +10,7 @@ namespace wt
 namespace gui
 {
 
-Button::Button(Layout* parent, EventManager* eventManager, AGameInput* input) : View(parent, eventManager, input), mHovering(false){
+Button::Button(View* parent, EventManager* eventManager, AGameInput* input) : View(parent, eventManager, input), mHovering(false){
 }
 
 

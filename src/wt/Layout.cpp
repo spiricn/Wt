@@ -173,6 +173,15 @@ bool Layout::handleEvent(const EventPtr evt){
 	return false;
 }
 
+void Layout::setSize(const glm::vec2& size){
+	mNeedsRescale = true;
+	View::setSize(size);
+}
+
+void Layout::setPosition(const glm::vec2& position){
+	mNeedsRescale = true;
+	View::setPosition(position);
+}
 
 View* Layout::viewAt(float x, float y){
 		
@@ -186,9 +195,7 @@ View* Layout::viewAt(float x, float y){
 }
 
 void Layout::draw(ICanvas& canvas){
-	gl( ActiveTexture(GL_TEXTURE0) );
-
-	glm::vec2 cellSize = getCanvas().getSize() / glm::vec2(mNumGridColumns, mNumGridRows);
+	const glm::vec2 cellSize = getSize() / glm::vec2(mNumGridColumns, mNumGridRows);
 
 	for(ViewMap::iterator i=mViews.begin(); i!=mViews.end(); i++){
 		View* view = i->second;
@@ -199,12 +206,18 @@ void Layout::draw(ICanvas& canvas){
 
 		// Handle view grid scaling
 		if(view->getScalingMode() == View::eSCALE_MODE_GRID && (view->needsRescaling() || mNeedsRescale)){
-			glm::vec2 size = cellSize * glm::vec2(view->getGridLoation().columnSpan, view->getGridLoation().rowSpan) ;
+			// New size of the view
+			glm::vec2 size = cellSize * glm::vec2(view->getGridLoation().columnSpan, view->getGridLoation().rowSpan);
+
+			// New position of the view (relative to us)
 			glm::vec2 pos = cellSize * glm::vec2(view->getGridLoation().column, view->getGridLoation().row) ;
 
+			// Account for padding 
 			size -= glm::vec2(mHorizontalCellSpacing/2.0f, mVerticalCellSpacing/2.0f);
+
 			pos += glm::vec2(mHorizontalCellSpacing/2.0f, mVerticalCellSpacing/2.0f);
-				
+			
+			// Set new position / size
 			view->setSize( size );
 			view->setPosition( pos );
 			view->setNeedsScaling(false);
@@ -225,6 +238,12 @@ void Layout::draw(ICanvas& canvas){
 	}
 
 	mNeedsRescale = false;
+}
+
+void Layout::setColor(const Color& color){
+	dirty();
+
+	getCanvas().setClearColor(color);
 }
 
 Layout::~Layout(){
