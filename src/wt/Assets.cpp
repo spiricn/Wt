@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/Assets.h"
+#include "wt/Texture2DLoader.h"
 
 #define TD_TRACE_TAG "Assets"
 
@@ -23,11 +24,11 @@ Assets::Assets() : mFileSystem(NULL){
 }
 
 void Assets::init(){
-	mImageManager = new ImageManager(this);
-	mTextureManager = new TextureManager(this);
+	mImageManager = new AResourceManager<Image>(this);
+	mTextureManager = new AResourceManager<Texture2D>(this);
 	mAnimationManager = new AnimationManager(this);
 	mModelManager = new ModelManager(this);
-	mSkyBoxManager = new SkyBoxManager(this);
+	mSkyBoxManager = new AResourceManager<SkyBox>(this);
 	mSoundManager = new SFSoundManager(this);
 	mParticleManager = new ParticleEffectResourceManager(this);
 	mHeightmapManager = new AResourceManager<Heightmap>(this);
@@ -35,7 +36,7 @@ void Assets::init(){
 	mScriptManager = new AResourceManager<ScriptResource>(this);
 
 	mImageManager->setLoader( &DevilImageLoader::getSingleton() );
-	mTextureManager->setLoader( &TextureLoader::getSingleton() );
+	mTextureManager->setLoader( &Texture2DLoader::getSingleton() );
 	mSkyBoxManager->setLoader( &SkyBoxLoader::getSingleton() );
 	mModelManager->setLoader( &ModelLoader::getSingleton() );
 	mAnimationManager->setLoader( &AnimationLoader::getSingleton() );
@@ -61,7 +62,7 @@ AFileSystem* Assets::getFileSystem(){
 	return mFileSystem;
 }
 
-ImageManager* Assets::getImageManager(){
+AResourceManager<Image>* Assets::getImageManager(){
 	return mImageManager;
 }
 
@@ -77,7 +78,7 @@ AResourceManager<ScriptResource>* Assets::getScriptManager(){
 	return mScriptManager;
 }
 
-TextureManager* Assets::getTextureManager(){
+AResourceManager<Texture2D>* Assets::getTextureManager(){
 	return mTextureManager;
 }
 
@@ -97,7 +98,7 @@ AResourceManager<Heightmap>* Assets::getHeightmapManager(){
 	return mHeightmapManager;
 }
 
-SkyBoxManager* Assets::getSkyBoxManager(){
+AResourceManager<SkyBox>* Assets::getSkyBoxManager(){
 	return mSkyBoxManager;
 }
 

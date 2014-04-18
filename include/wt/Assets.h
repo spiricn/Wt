@@ -5,7 +5,6 @@
 #include "wt/stdafx.h"
 
 #include "wt/FileIOStream.h"
-#include "wt/ImageManager.h"
 #include "wt/Texture.h"
 #include "wt/Material.h"
 #include "wt/ModelManager.h"
@@ -45,11 +44,11 @@ public:
 
 	AFileSystem* getFileSystem();
 
-	ImageManager* getImageManager();
+	AResourceManager<Image>* getImageManager();
 
 	AResourceManager<ParticleEffectResource>* getParticleResourceManager();
 
-	TextureManager* getTextureManager();
+	AResourceManager<Texture2D>* getTextureManager();
 
 	lua::State* getLuastate();
 
@@ -57,7 +56,7 @@ public:
 
 	ModelManager* getModelManager();
 
-	SkyBoxManager* getSkyBoxManager();
+	AResourceManager<SkyBox>* getSkyBoxManager();
 
 	AnimationManager* getAnimationManager();
 
@@ -171,10 +170,10 @@ private:
 
 	Profiler mProfiler;
 
-	ImageManager* mImageManager;
-	TextureManager* mTextureManager;
+	AResourceManager<Image>* mImageManager;
+	AResourceManager<Texture2D>* mTextureManager;
 	ModelManager* mModelManager;
-	SkyBoxManager* mSkyBoxManager;
+	AResourceManager<SkyBox>* mSkyBoxManager;
 	FontManager* mFontManager;
 	AnimationManager* mAnimationManager;
 	SFSoundManager* mSoundManager;

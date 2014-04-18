@@ -21,60 +21,16 @@ typedef unsigned long ResourceHandle;
 template<class T>
 class AResource;
 
-template<class T>
-class ResourceLink{
-private:
-	String mPath;
-	AResource<T>* mPtr;
-public:
-	ResourceLink(AResource<T>* ptr, const String& path) : mPtr(ptr),
-		mPath(path){
-	}
-
-	ResourceLink() : mPtr(NULL), mPath(""){
-	}
-
-
-	ResourceLink(const ResourceLink& other){
-		mPath = other.mPath;
-		mPtr = other.mPtr;
-	}
-
-	AResource<T>* getPtr(){
-		return mPtr;
-	}
-
-	const AResource<T>* getPtr() const{
-		return mPtr;
-	}
-
-	const String& getPath() const{
-		return mPath;
-	}
-}; // </ResourceLink>
-
 class AResourceSystem;
 
 template<class T>
 class AResource : public lua::ASerializable{
 public:
 	enum ResourceState{
-		eUNLOADED,
-		eLOADED,
-		eREADY
+		eSTATE_UNLOADED,
+		eSTATE_LOADED,
+		eSTATE_READY
 	}; // </ResourceState>
-
-protected:
-	String mName;
-	String mUri;
-	ResourceHandle mHandle;
-	AResourceGroup<T>* mGroup;
-	ResourceState mState;
-	AResourceManager<T>* mManager;
-
-
-private:
-	AResource(const AResource& other){}
 
 public:
 	const String& getUri() const{
@@ -90,11 +46,11 @@ public:
 	}
 
 	bool isResourceLoaded() const{
-		return mState == eLOADED || mState == eREADY;
+		return mState == eSTATE_LOADED || mState == eSTATE_READY;
 	}
 
 	bool isResourceReady() const{
-		return mState == eREADY;
+		return mState == eSTATE_READY;
 	}
 
 	virtual ~AResource(){
@@ -110,15 +66,11 @@ public:
 		mUri = uri;
 	}
 
-	ResourceLink<T> getLink(){
-		return ResourceLink<T>(this, getPath());
-	}
-
-	AResource() : mName(""), mHandle(0), mGroup(NULL), mUri(""), mState(eUNLOADED), mManager(NULL){
+	AResource() : mName(""), mHandle(0), mGroup(NULL), mUri(""), mState(eSTATE_UNLOADED), mManager(NULL){
 	}
 
 	AResource(AResourceManager<T>* manager, ResourceHandle handle,
-			const String& name) : mName(name), mHandle(handle), mState(eUNLOADED), mManager(manager){
+			const String& name) : mName(name), mHandle(handle), mState(eSTATE_UNLOADED), mManager(manager){
 	}
 
 	ResourceState getResourceState() const{
@@ -157,9 +109,21 @@ public:
 		}
 	}
 
+private:
+	AResource(const AResource& other){
+	}
+
+private:
+	String mName;
+	String mUri;
+	ResourceHandle mHandle;
+	AResourceGroup<T>* mGroup;
+	ResourceState mState;
+	AResourceManager<T>* mManager;
+
 }; // </AResource>
 
 
-}; // </wt>
+} // </wt>
 
-#endif
+#endif // </WT_ARESOURCE_H>

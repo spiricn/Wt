@@ -4,7 +4,6 @@
 #include <qdialog.h>
 
 #include <wt/SkyBox.h>
-#include <wt/ImageManager.h>
 #include <wt/Assets.h>
 
 #include "ui_SkyboxEditDialog.h"
@@ -34,13 +33,13 @@ public:
 		ui.setupUi(this);
 
 		if(skybox){
-			setSideImage(skybox, wt::SkyBox::ePOS_X);
-			setSideImage(skybox, wt::SkyBox::ePOS_Y);
-			setSideImage(skybox, wt::SkyBox::ePOS_Z);
+			setSideImage(skybox, wt::SkyBox::eSIDE_POS_X);
+			setSideImage(skybox, wt::SkyBox::eSIDE_POS_Y);
+			setSideImage(skybox, wt::SkyBox::eSIDE_POS_Z);
 
-			setSideImage(skybox, wt::SkyBox::eNEG_X);
-			setSideImage(skybox, wt::SkyBox::eNEG_Y);
-			setSideImage(skybox, wt::SkyBox::eNEG_Z);
+			setSideImage(skybox, wt::SkyBox::eSIDE_NEG_X);
+			setSideImage(skybox, wt::SkyBox::eSIDE_NEG_Y);
+			setSideImage(skybox, wt::SkyBox::eSIDE_NEG_Z);
 
 
 			ui.nameEdit->setText(
@@ -74,22 +73,22 @@ protected slots:
 			wt::SkyBox::Side side;
 
 			if(!strcmp(img->getName().c_str(), "pos_x")){
-				side = wt::SkyBox::ePOS_X;
+				side = wt::SkyBox::eSIDE_POS_X;
 			}
 			else if(!strcmp(img->getName().c_str(), "pos_y")){
-				side = wt::SkyBox::ePOS_Y;
+				side = wt::SkyBox::eSIDE_POS_Y;
 			}
 			else if(!strcmp(img->getName().c_str(), "neg_x")){
-				side = wt::SkyBox::eNEG_X;
+				side = wt::SkyBox::eSIDE_NEG_X;
 			}
 			else if(!strcmp(img->getName().c_str(), "neg_y")){
-				side = wt::SkyBox::eNEG_Y;
+				side = wt::SkyBox::eSIDE_NEG_Y;
 			}
 			else if(!strcmp(img->getName().c_str(), "pos_z")){
-				side = wt::SkyBox::ePOS_Z;
+				side = wt::SkyBox::eSIDE_POS_Z;
 			}
 			else if(!strcmp(img->getName().c_str(), "neg_z")){
-				side = wt::SkyBox::eNEG_Z;
+				side = wt::SkyBox::eSIDE_NEG_Z;
 			}
 			else{
 				continue;
@@ -101,7 +100,7 @@ protected slots:
 
 
 	void setSideImage(const wt::SkyBox* sky, wt::SkyBox::Side side){
-		setSideImage(side, (const wt::Image*)sky->getSideImage(side).getPtr());
+		setSideImage(side, sky->getSideImage(side));
 	}
 
 	void setSideImage(wt::SkyBox::Side side, const wt::Image* image){
@@ -110,27 +109,27 @@ protected slots:
 		}
 
 		switch(side){
-			case wt::SkyBox::ePOS_X:
+			case wt::SkyBox::eSIDE_POS_X:
 				mResult.posX = image;
 				ui.posXEdit->setText( image->getPath().c_str() );
 				break;
-			case wt::SkyBox::ePOS_Y:
+			case wt::SkyBox::eSIDE_POS_Y:
 				mResult.posY = image;
 				ui.posYEdit->setText( image->getPath().c_str() );
 				break;
-			case wt::SkyBox::ePOS_Z:
+			case wt::SkyBox::eSIDE_POS_Z:
 				mResult.posZ = image;
 				ui.posZEdit->setText( image->getPath().c_str() );
 				break;
-			case wt::SkyBox::eNEG_X:
+			case wt::SkyBox::eSIDE_NEG_X:
 				mResult.negX= image;
 				ui.negXEdit->setText( image->getPath().c_str() );
 				break;
-			case wt::SkyBox::eNEG_Y:
+			case wt::SkyBox::eSIDE_NEG_Y:
 				mResult.negY= image;
 				ui.negYEdit->setText( image->getPath().c_str() );
 				break;
-			case wt::SkyBox::eNEG_Z:
+			case wt::SkyBox::eSIDE_NEG_Z:
 				mResult.negZ= image;
 				ui.negZEdit->setText( image->getPath().c_str() );
 				break;
@@ -138,37 +137,37 @@ protected slots:
 	}
 
 	void onPosXClicked(){
-		setSideImage(wt::SkyBox::ePOS_X,
+		setSideImage(wt::SkyBox::eSIDE_POS_X,
 			ResourcePickerDialog::pickResource(this, mAssets->getImageManager())
 			);
 	}
 
 	void onPosYClicked(){
-		setSideImage(wt::SkyBox::ePOS_Y,
+		setSideImage(wt::SkyBox::eSIDE_POS_Y,
 			ResourcePickerDialog::pickResource(this, mAssets->getImageManager())
 			);
 	}
 
 	void onPosZClicked(){
-		setSideImage(wt::SkyBox::ePOS_Z,
+		setSideImage(wt::SkyBox::eSIDE_POS_Z,
 			ResourcePickerDialog::pickResource(this, mAssets->getImageManager())
 			);
 	}
 
 	void onNegXClicked(){
-		setSideImage(wt::SkyBox::eNEG_X,
+		setSideImage(wt::SkyBox::eSIDE_NEG_X,
 			ResourcePickerDialog::pickResource(this, mAssets->getImageManager())
 			);
 	}
 
 	void onNegYClicked(){
-		setSideImage(wt::SkyBox::eNEG_Y,
+		setSideImage(wt::SkyBox::eSIDE_NEG_Y,
 			ResourcePickerDialog::pickResource(this, mAssets->getImageManager())
 			);
 	}
 
 	void onNegZClicked(){
-		setSideImage(wt::SkyBox::eNEG_Z,
+		setSideImage(wt::SkyBox::eSIDE_NEG_Z,
 			ResourcePickerDialog::pickResource(this, mAssets->getImageManager())
 			);
 	}

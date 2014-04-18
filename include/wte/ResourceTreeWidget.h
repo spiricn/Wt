@@ -6,8 +6,7 @@
 #include <qtreewidget.h>
 #include <qaction.h>
 
-#include <wt/ImageManager.h>
-#include <wt/DevilImageLoader.h>
+#include <wt/AResourceManager.h>
 
 class RTWItem{
 public:

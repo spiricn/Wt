@@ -21,6 +21,7 @@ public:
 	enum PassType{
 		ePASS_NONE = -1,
 		ePASS_NORMAL = 0,
+		ePASS_TRANSPARENT,
 		ePASS_GODRAY,
 		ePASS_SHADOW,
 	};

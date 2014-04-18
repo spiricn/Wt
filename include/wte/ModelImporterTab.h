@@ -29,7 +29,7 @@ struct ImportData{
 	wt::AssimpModelLoader::TextureMap textureMap;
 	QString modelName;
 	wt::ModelSkin* skin;
-	wt::TextureGroup* textureGroup;
+	wt::AResourceGroup<wt::Texture2D>* textureGroup;
 };
 
 class ModelImporterTab : public QWidget{

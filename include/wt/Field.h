@@ -17,6 +17,9 @@ public:
 	virtual void deserialize(lua::State* state, LuaObject table) = 0;
 
 	virtual void serialize(lua::State* state, LuaObject table) = 0;
+
+	virtual ~ISerializator(){
+	}
 }; // </ISerializator>
 
 
@@ -25,6 +28,9 @@ public:
 	virtual void serialize(lua::State* state, void* holder, LuaObject table) = 0;
 
 	virtual void deserialize(lua::State* state, void* holder, LuaObject table) = 0;
+
+	virtual ~IField(){
+	}
 }; // </IField>
 
 template<class ValueType, class HolderType>

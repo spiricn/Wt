@@ -169,7 +169,7 @@ void Texture2D::setData(GLint width, GLint height,
 	GLenum format, GLenum internalFormat, const GLbyte* data, GLenum type, bool mmap){
 
 	if(!isCreated()){
-		WT_THROW("Must create texture before setting data (%s)", mName.c_str());
+		WT_THROW("Must create texture before setting data (%s)", getName().c_str());
 	}
 
 	mFormat = format;
@@ -182,14 +182,14 @@ void Texture2D::setData(GLint width, GLint height,
 	glTexImage2D(getType(), 0, internalFormat, mWidth, mHeight,
 		0, mFormat, type, data);
 
-	if(mmap && getType() != eRECT_TEXTURE){
+	if(mmap && getType() != eTYPE_RECT){
 		glGenerateMipmap(getType());
 	}
 }
 
 void Texture2D::setData(Image* image){
 	if(!isCreated()){
-		WT_THROW("Must create texture before setting data (%s)", mName.c_str());
+		WT_THROW("Must create texture before setting data (%s)", getName().c_str());
 	}
 
 	mFormat = image->getFormat();
@@ -202,9 +202,49 @@ void Texture2D::setData(Image* image){
 	glTexImage2D(getType(), 0, mInternalFormat, mWidth, mHeight,
 		0, mFormat, GL_UNSIGNED_BYTE, image->getData());
 
-	if(getType() != eRECT_TEXTURE){
+	if(getType() != eTYPE_RECT){
 		glGenerateMipmap(getType());
 	}
 }
 
-};
+Texture2D::Texture2D(AResourceManager<Texture2D>* manager, ResourceHandle handle, const String& name, Type type) : AResource(manager, handle, name), Texture(type), mWidth(0),
+		mHeight(0), mFormat(0), mInternalFormat(0){
+}
+
+void Texture2D::copy(Texture2D* src, Texture2D* dst){
+	dst->create();
+
+	Buffer<uint8_t> p;
+	uint32_t w=src->getWidth();
+	uint32_t h=src->getHeigth();
+	p.create(w*h*3);
+
+	src->bind();
+	glGetTexImage(src->getType(), 0, Image::RGB, GL_UNSIGNED_BYTE, (GLvoid*)p.getData());
+
+	dst->setData(w, h, Image::RGB, Image::RGB, (const GLbyte*)p.getData(), GL_UNSIGNED_BYTE, false);
+}
+
+void Texture2D::setSubData(uint32_t xOffset, uint32_t yOffset, uint32_t width, uint32_t height,
+	void* data){
+
+	if(xOffset+width > mWidth || yOffset+height > mHeight){
+		WT_THROW("Texture sub data dimensions out of bounds by {%d, %d}",
+			mWidth-(xOffset+width), mHeight-(yOffset+height)
+			);
+	}
+
+	bind();
+	glTexSubImage2D(GL_TEXTURE_2D,
+		0, xOffset, yOffset, width, height, mInternalFormat, GL_UNSIGNED_BYTE, data);
+}
+
+GLuint Texture2D::getWidth() const{
+	return mWidth;
+}
+
+GLuint Texture2D::getHeigth() const{
+	return mHeight;
+}
+
+} // </wt>

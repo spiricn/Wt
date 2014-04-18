@@ -20,6 +20,7 @@
 #include "wt/Terrain.h"
 #include "wt/gui/WindowManager.h"
 #include "wt/RectRenderer.h"
+#include "wt/Texture2DLoader.h"
 
 #define TD_TRACE_TAG "Renderer"
 
@@ -165,7 +166,7 @@ void Renderer::init(uint32_t portW, uint32_t portH ){
 
 	// TODO acquire this from elsewhere
 	FileIOStream stream("d:\\Documents\\prog\\c++\\workspace\\Wt\\rsrc\\godray_sun.png", AIOStream::eMODE_READ);
-	TextureLoader::getSingleton().load(&stream, &mGodray.defaultSourceTexture);
+	Texture2DLoader::getSingleton().load(&stream, &mGodray.defaultSourceTexture);
 
 	// Shadow mapping
 	mShadowMapping.shadowMap.create();

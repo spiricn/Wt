@@ -56,8 +56,6 @@ public:
 
 }; // </Image>
 
-typedef ResourceLink<Image> ImageLink;
+} // </wt>
 
-}; // </wt>
-
-#endif
+#endif // </WT_IMAGE_H>

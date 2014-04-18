@@ -150,7 +150,7 @@ private:
 		gl::RenderBuffer depthBuffer;
 		gl::ShaderProgram sourceShader;
 
-		GodrayTech() : pass1(NULL, 0, "", Texture2D::eRECT_TEXTURE), pass2(NULL, 0, "", Texture2D::eRECT_TEXTURE){
+		GodrayTech() : pass1(NULL, 0, "", Texture2D::eTYPE_RECT), pass2(NULL, 0, "", Texture2D::eTYPE_RECT){
 		}
 	} mGodray;
 

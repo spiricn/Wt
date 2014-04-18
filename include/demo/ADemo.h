@@ -17,7 +17,6 @@
 #include "wt/Buffer.h"
 #include "wt/Animation.h"
 #include "wt/Font.h"
-#include "wt/ImageManager.h"
 #include "wt/Physics.h"
 #include "wt/TextureArray.h"
 #include "wt/ModelManager.h"

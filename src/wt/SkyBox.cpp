@@ -1,10 +1,10 @@
 #include "wt/stdafx.h"
 #include "wt/SkyBox.h"
-#include "wt/ImageManager.h"
 
 #define TD_TRACE_TAG "SkyBox"
 
-namespace wt{
+namespace wt
+{
 
 SkyBox::SkyBox(AResourceManager<SkyBox>* manager, ResourceHandle handle, const std::string& name) : AResource(manager, handle, name){
 	mTransform.setScale(1000, 1000, 1000);
@@ -22,46 +22,32 @@ void SkyBox::bind(){
 void SkyBox::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 	AResource::serialize(luaState, dst);
 
-	lua::LuaObject map = luaState->newTable();
-
-	dst.Set("map", map);
-
-	map.Set("pos_x", mPosX.getPath().c_str());
-	map.Set("neg_x", mNegX.getPath().c_str());
-
-	map.Set("pos_y", mPosY.getPath().c_str());
-	map.Set("neg_y", mNegY.getPath().c_str());
-
-	map.Set("pos_z", mPosZ.getPath().c_str());
-	map.Set("neg_z", mNegZ.getPath().c_str());
+	mDesc.serialize(luaState, dst);
 }
 
 void SkyBox::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
-	setImages(
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("pos_x").ToString()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("neg_x").ToString()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("pos_y").ToString()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("neg_y").ToString()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("pos_z").ToString()),
-		getManager()->getResourceSystem()->getImageManager()->getFromPath(table.Get("map").Get("neg_z").ToString())
-		);
+	AResource::deserialize(luaState, table);
+
+	mDesc.deserialize(luaState, table);
 }
 
 gl::Batch& SkyBox::getBatch(){
 	return mBatch;
 }
 
-void SkyBox::setImages(Image* posX, Image* negX,
-		Image* posY, Image* negY, 
-		Image* posZ, Image* negZ){
-	mPosX = posX->getLink();
-	mNegX = negX->getLink();
+math::Transform& SkyBox::getTransform(){
+		return mTransform;
+}
 
-	mPosY = posY->getLink();
-	mNegY = negY->getLink();
+void SkyBox::setImages(Image* posX, Image* negX, Image* posY, Image* negY, Image* posZ, Image* negZ){
+	mDesc.map.pos_x = posX->getPath();
+	mDesc.map.neg_x = negX->getPath();
 
-	mPosZ = posZ->getLink();
-	mNegZ = negZ->getLink();
+	mDesc.map.pos_y = posY->getPath();
+	mDesc.map.neg_y = negY->getPath();
+
+	mDesc.map.pos_z = posZ->getPath();
+	mDesc.map.neg_z = negZ->getPath();
 }
 
 void SkyBox::create(){
@@ -77,25 +63,24 @@ void SkyBox::create(){
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         
 	// Temporary macro for loading textures
-	#ifndef LoadFace
-	#define LoadFace(link, face) \
+	#define __tmp_load_face(side, face) \
 		do{\
-			Image* image = (Image*)link.getPtr(); \
+			Image* image = getSideImage(side); \
+			WT_ASSERT(image, "Side image missing for side %d", side); \
 			glTexImage2D(face, 0, image->getNumComponents(), \
 			image->getWidth(), image->getHeigth(), 0, image->getFormat(), GL_UNSIGNED_BYTE, image->getData()); \
 		}while(0)
-	#endif
   
-	LoadFace(mPosX, GL_TEXTURE_CUBE_MAP_POSITIVE_X);
-	LoadFace(mNegX, GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
+	__tmp_load_face(eSIDE_POS_X, GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+	__tmp_load_face(eSIDE_NEG_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
 
-	LoadFace(mPosY, GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
-	LoadFace(mNegY, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
+	__tmp_load_face(eSIDE_POS_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
+	__tmp_load_face(eSIDE_NEG_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
 
-	LoadFace(mPosZ, GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
-	LoadFace(mNegZ, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+	__tmp_load_face(eSIDE_POS_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+	__tmp_load_face(eSIDE_NEG_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
 
-	#undef LoadFace
+	#undef __tmp_load_face
 			
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
@@ -141,7 +126,41 @@ void SkyBox::create(){
 	);
 
 	mBatch.setVertexAttribute(0, 3, GL_FLOAT, 0);
+}
 
+Image* SkyBox::getSideImage(Side side) const{
+	String rsrcPath = "";
+
+	switch(side){
+	case eSIDE_POS_X:
+		rsrcPath = mDesc.map.pos_x;
+		break;
+
+	case eSIDE_POS_Y:
+		rsrcPath = mDesc.map.pos_y;
+		break;
+
+	case eSIDE_POS_Z:
+		rsrcPath = mDesc.map.pos_z;
+		break;
+
+	case eSIDE_NEG_X:
+		rsrcPath = mDesc.map.neg_x;
+		break;
+
+	case eSIDE_NEG_Y:
+		rsrcPath = mDesc.map.neg_y;
+		break;
+
+	case eSIDE_NEG_Z:
+		rsrcPath = mDesc.map.neg_z;
+		break;
+
+	default:
+		WT_THROW("Invalid SkyBox side %d", side);
+	}
+
+	return getManager()->getResourceSystem()->getImageManager()->getFromPath(rsrcPath);
 }
 
 }; // </wt>

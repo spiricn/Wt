@@ -31,6 +31,9 @@ public:
 	ASerializator() : mImpl(NULL){
 	}
 
+	virtual ~ASerializator(){
+	}
+
 	virtual void __createSerializatorFields(){
 	}
 

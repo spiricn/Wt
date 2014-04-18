@@ -5,8 +5,6 @@
 
 #include <QtGui/QMainWindow>
 #include <qsettings.h>
-#include <wt/ImageManager.h>
-#include <wt/DevilImageLoader.h>
 #include <wt/Renderer.h>
 #include <Wt/Assets.h>
 

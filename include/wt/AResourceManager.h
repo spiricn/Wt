@@ -139,7 +139,7 @@ public:
 	T* load(AIOStream* stream, T* dst){
 		mLoader->load(stream, dst);
 
-		dst->setResourceState(AResource<T>::eLOADED);
+		dst->setResourceState(AResource<T>::eSTATE_LOADED);
 
 		return dst;
 	}
@@ -184,7 +184,7 @@ public:
 			i!=AResourceManager<T>::mResources.end(); i++){
 				if(!i->second->isResourceReady() && mLoader != NULL){
 					mLoader->create(i->second);
-					i->second->setResourceState(AResource<T>::eREADY);
+					i->second->setResourceState(AResource<T>::eSTATE_READY);
 				}
 		}
 	}
