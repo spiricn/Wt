@@ -194,7 +194,7 @@ public:
 			->setFadeInTime(0.3)
 			->setFadeOutTime(0.3)
 			->setFadeInValue(1.0f)
-			);
+		);
 	}
 
 	void onBtnStopClicked(){
@@ -209,7 +209,7 @@ public:
 	}
 
 	void setColor(const Color& clr){
-		mUi->findView<gui::TextView>("clr_text")->setText( utils::print("Current text color: %s", clr.hex()) );
+		mUi->findView<gui::TextView>("clr_text")->setText( utils::print("Current text color: %s", clr.hex().c_str()) );
 
 		mUi->findView<gui::TextView>("text")->setTextColor(clr);
 	}
