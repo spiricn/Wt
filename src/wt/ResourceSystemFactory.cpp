@@ -7,7 +7,7 @@
 namespace wt
 {
 
-AResourceSystem* ResourceSystemFactory::create(const AResourceSystem::Desc& desc){
+AResourceSystem* ResourceSystemFactory::create(){
 	return new Assets;
 }
 

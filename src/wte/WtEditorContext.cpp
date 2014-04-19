@@ -215,7 +215,7 @@ void WtEditorContext::saveScene(const QString& path){
 }
 
 void WtEditorContext::saveAssets(const QString& path){
-	mAssets.serialize(path.toStdString());
+	mAssets.save(path.toStdString());
 
 	mAssetsFilePath = path;
 }

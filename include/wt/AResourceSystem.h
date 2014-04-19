@@ -19,7 +19,8 @@ class ASoundSystem;
 class Heightmap;
 class ScriptResource;
 
-namespace lua{
+namespace lua
+{
 	class State;
 }; // </lua>
 
@@ -28,11 +29,8 @@ class AResourceManager;
 
 class AResourceSystem{
 public:
-	struct Desc{
-		// TODO
 
-	}; // <Desc>
-
+public:
 	virtual ~AResourceSystem(){
 	}
 
@@ -64,19 +62,19 @@ public:
 
 	virtual void unloadAll() = 0;
 
-	virtual void reload() = 0;
+	virtual void reloadAll() = 0;
 
-	virtual void load(const LuaPlus::LuaObject& table) = 0;
+	virtual void reload(const String& set="") = 0;
 
-	virtual void load(const String& path) = 0;
+	virtual void unload(const String& set="") = 0;
 
-	virtual void append(const LuaPlus::LuaObject& table) = 0;
+	virtual void load(const LuaPlus::LuaObject& table, const String& set="") = 0;
 
-	virtual void append(const String& path) = 0;
+	virtual void load(const String& path, const String& set="") = 0;
 
-	virtual void serialize(LuaPlus::LuaObject& assets) = 0;
+	virtual void save(LuaPlus::LuaObject& assets, const String& set="") = 0;
 
-	virtual void serialize(const String& path) = 0;
+	virtual void save(const String& path, const String& set="") = 0;
 
 	virtual String getRelativeURI(const String& uri) = 0;
 

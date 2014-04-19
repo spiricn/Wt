@@ -9,14 +9,12 @@
 #include "wt/Exception.h"
 #include "wt/AResourceLoader.h"
 #include "wt/AResourceSystem.h"
+#include "wt/IResourceManager.h"
 
-namespace wt{
+namespace wt
+{
 
 class AResourceSystem;
-
-class IResourceManager{
-public:
-};
 
 template <class T>
 class AResourceManager : public AResourceAllocator<T>, public AResourceGroup<T>, public IResourceManager{
@@ -80,6 +78,7 @@ protected:
 
 		// Allcoate the resource & store it
 		T* rsrc = new T(this, handle, resourceName);
+		rsrc->setResourceType(mType);
 		mResources[handle] = rsrc;
 		rsrc->setGroup(parent);
 
@@ -96,7 +95,7 @@ public:
 		return mResourceSystem;
 	}
 
-	AResourceManager(AResourceSystem* assets) : mHandleCount(0), mLoader(NULL), mResourceSystem(assets){
+	AResourceManager(AResourceSystem* assets, IResource::ResourceType type) : mHandleCount(0), mLoader(NULL), mResourceSystem(assets), mType(type){
 		AResourceGroup<T>::setResourceAllocator(this);
 		AResourceGroup<T>::setName("$ROOT");
 		AResourceGroup<T>::setResourceSystem(mResourceSystem);
@@ -218,10 +217,15 @@ public:
 		return mResources[handle];
 	}
 
+	IResource::ResourceType getResourceType(){
+		return mType;
+	}
+
 private:
 	ResourceHandle mHandleCount;
 	typedef std::map<ResourceHandle, T*> ResourceMap;
 	AResourceSystem* mResourceSystem;
+	IResource::ResourceType mType;
 };
 
 

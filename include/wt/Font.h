@@ -42,8 +42,6 @@ private:
 
 }; // </Font>
 
-typedef AResourceManager<Font> FontManager;
-
 } // </wt>
 
 #endif // </WT_FONT_H>

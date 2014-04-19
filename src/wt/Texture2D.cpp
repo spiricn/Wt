@@ -5,7 +5,8 @@
 
 #define TD_TRACE_TAG "Texture2D"
 
-namespace wt{
+namespace wt
+{
 
 void Texture2D::depthDump(Texture2D* src, const char* dst){
 	src->bind();
@@ -44,7 +45,6 @@ void Texture2D::depthDump(Texture2D* src, const char* dst){
 
 Color Texture2D::sample(float s, float t) const{
 	Color res;
-	
 	GLint internalFormat, width, height;
 	gl( GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPONENTS, &internalFormat) ); // get internal format type of GL texture
 	gl( GetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width) ); // get width of GL texture

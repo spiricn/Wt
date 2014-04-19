@@ -1,13 +1,13 @@
 #ifndef WT_MODELLOADER_H
 #define WT_MODELLOADER_H
 
-
 #include "wt/stdafx.h"
+#include "wt/Singleton.h"
+#include "wt/AResourceLoader.h"
+#include "wt/Model.h"
 
-
-#include "wt/ModelManager.h"
-
-namespace wt{
+namespace wt
+{
 
 class ModelLoader : public Singleton<ModelLoader>, public AResourceLoader<Model>{
 private:

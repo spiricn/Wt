@@ -8,7 +8,7 @@ namespace wt
 
 class ResourceSystemFactory{
 public:
-	static AResourceSystem* create(const AResourceSystem::Desc& desc);
+	static AResourceSystem* create();
 	
 }; // </ResourceSystemFactory>
 

@@ -49,13 +49,6 @@ public:
 	}
 }; // </ParticleEffectLoader>
 
-class ParticleEffectResourceManager : public AResourceManager<ParticleEffectResource>{
-public:
-	ParticleEffectResourceManager(AResourceSystem* assets) : AResourceManager(assets){
-	}
-}; // </ParticleEffectResourceManager>
-
-
-}; // </wt>
+} // </wt>
 
 #endif // </WT_PARTICLEEFFECTRESOURCE_H>

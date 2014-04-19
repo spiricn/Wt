@@ -4,7 +4,6 @@
 #include <qdialog.h>
 
 #include <wt/SkyBox.h>
-#include <Wt/ModelManager.h>
 #include <Wt/Model.h>
 #include <Wt/Animation.h>
 #include <wt/Assets.h>

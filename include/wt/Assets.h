@@ -7,7 +7,6 @@
 #include "wt/FileIOStream.h"
 #include "wt/Texture.h"
 #include "wt/Material.h"
-#include "wt/ModelManager.h"
 #include "wt/Model.h"
 #include "wt/SkyBox.h"
 #include "wt/ModelLoader.h"
@@ -69,13 +68,13 @@ public:
 
 	lua::State* getLuastate();
 
-	FontManager* getFontManager();
+	AResourceManager<Font>* getFontManager();
 
-	ModelManager* getModelManager();
+	AResourceManager<Model>* getModelManager();
 
 	AResourceManager<SkyBox>* getSkyBoxManager();
 
-	AnimationManager* getAnimationManager();
+	AResourceManager<Animation>* getAnimationManager();
 
 	AResourceManager<ASoundBuffer>* getSoundManager();
 
@@ -96,13 +95,8 @@ public:
 
 	void unloadAll();
 
-	void reload();
 
 	String getRelativeURI(const String& uri);
-
-	void load(const LuaObject& table);
-
-	void load(const String& path);
 
 	struct ChunkedLoadStatus{
 		uint32_t totalResources;
@@ -119,13 +113,19 @@ public:
 
 	ChunkedLoadStatus chunkedLoad();
 
-	void serialize(LuaObject& assets);
+	virtual void reload(const String& set="");
 
-	void serialize(const String& path);
+	virtual void unload(const String& set="");
 
-	void append(const LuaPlus::LuaObject& table);
+	virtual void load(const LuaPlus::LuaObject& table, const String& set="");
 
-	void append(const String& path);
+	virtual void load(const String& path, const String& set="");
+
+	virtual void save(LuaPlus::LuaObject& assets, const String& set="");
+
+	virtual void save(const String& path, const String& set="");
+
+	void reloadAll();
 
 private:
 	class IChunkedLoader{
@@ -193,13 +193,13 @@ private:
 
 	AResourceManager<Image>* mImageManager;
 	AResourceManager<Texture2D>* mTextureManager;
-	ModelManager* mModelManager;
+	AResourceManager<Model>* mModelManager;
 	AResourceManager<SkyBox>* mSkyBoxManager;
-	FontManager* mFontManager;
-	AnimationManager* mAnimationManager;
+	AResourceManager<Font>* mFontManager;
+	AResourceManager<Animation>* mAnimationManager;
 	SFSoundManager* mSoundManager;
 	AFileSystem* mFileSystem;
-	ParticleEffectResourceManager* mParticleManager;
+	AResourceManager<ParticleEffectResource>* mParticleManager;
 	lua::State mLuaState;
 	AResourceManager<Heightmap>* mHeightmapManager;
 	AResourceManager<ScriptResource>* mScriptManager;

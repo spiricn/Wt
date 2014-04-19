@@ -100,8 +100,6 @@ public:
 
 		float mainLoopStep;
 
-		AResourceSystem::Desc assets;
-
 		AFileSystem::Desc fileSystem;
 
 		struct PhysicsDebugging{

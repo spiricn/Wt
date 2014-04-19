@@ -19,7 +19,6 @@
 #include "wt/Font.h"
 #include "wt/Physics.h"
 #include "wt/TextureArray.h"
-#include "wt/ModelManager.h"
 #include "wt/Model.h"
 #include "wt/Assets.h"
 #include "wt/GameWindowFactory.h"

@@ -7,7 +7,7 @@
 namespace wt
 {
 
-SFSoundManager::SFSoundManager(AResourceSystem* assets) : AResourceManager(assets), mMuted(false){
+SFSoundManager::SFSoundManager(AResourceSystem* assets) : AResourceManager(assets, IResource::eTYPE_SOUND), mMuted(false){
 }
 
 SoundPtr SFSoundManager::createSound(const String& path){

@@ -24,16 +24,16 @@ Assets::Assets() : mFileSystem(NULL){
 }
 
 void Assets::init(){
-	mImageManager = new AResourceManager<Image>(this);
-	mTextureManager = new AResourceManager<Texture2D>(this);
-	mAnimationManager = new AnimationManager(this);
-	mModelManager = new ModelManager(this);
-	mSkyBoxManager = new AResourceManager<SkyBox>(this);
+	mImageManager = new AResourceManager<Image>(this, IResource::eTYPE_IMAGE);
+	mTextureManager = new AResourceManager<Texture2D>(this, IResource::eTYPE_TEXTURE);
+	mAnimationManager = new AResourceManager<Animation>(this, IResource::eTYPE_ANIMATION);
+	mModelManager = new AResourceManager<Model>(this, IResource::eTYPE_MODEL);
+	mSkyBoxManager = new AResourceManager<SkyBox>(this, IResource::eTYPE_SKYBOX);
 	mSoundManager = new SFSoundManager(this);
-	mParticleManager = new ParticleEffectResourceManager(this);
-	mHeightmapManager = new AResourceManager<Heightmap>(this);
-	mFontManager = new FontManager(this);
-	mScriptManager = new AResourceManager<ScriptResource>(this);
+	mParticleManager = new AResourceManager<ParticleEffectResource>(this, IResource::eTYPE_PARTICLE);
+	mHeightmapManager = new AResourceManager<Heightmap>(this, IResource::eTYPE_HEIGHTMAP);
+	mFontManager = new AResourceManager<Font>(this, IResource::eTYPE_FONT);
+	mScriptManager = new AResourceManager<ScriptResource>(this, IResource::eTYPE_SCRIPT);
 
 	mImageManager->setLoader( &DevilImageLoader::getSingleton() );
 	mTextureManager->setLoader( &Texture2DLoader::getSingleton() );
@@ -63,58 +63,58 @@ void deserializeSet(wt::lua::State* luaState, AResourceManager<T>* manager, cons
 
 	manager->deserialize(luaState, mngrTable.Get("$ROOT"), set);
 }
-
-void Assets::append(const LuaPlus::LuaObject& table){
-	// Crete & deserialize new resources
-	AResourceGroup<Image>::ResourceSet imageSet;
-	deserializeSet(&mLuaState, mImageManager, IMAGE_MANAGER_TABLE_NAME, table, imageSet);
-
-	AResourceGroup<Texture2D>::ResourceSet textureSet;
-	deserializeSet(&mLuaState, mTextureManager, TEXTURE_MANAGER_TABLE_NAME, table, textureSet);
-
-	AResourceGroup<SkyBox>::ResourceSet skyboxSet;
-	deserializeSet(&mLuaState, mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, table, skyboxSet);
-
-	AResourceGroup<Animation>::ResourceSet animationSet;
-	deserializeSet(&mLuaState, mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, table, animationSet);
-
-	AResourceGroup<Model>::ResourceSet modelSet;
-	deserializeSet(&mLuaState, mModelManager, MODEL_MANAGER_TABLE_NAME, table, modelSet);
-
-	AResourceGroup<ASoundBuffer>::ResourceSet soundSet;
-	deserializeSet(&mLuaState, mSoundManager, SOUND_MANAGER_TABLE_NAME, table, soundSet);
-
-	AResourceGroup<ParticleEffectResource>::ResourceSet particleSet;
-	deserializeSet(&mLuaState, mParticleManager, PARTICLE_MANAGER_TABLE_NAME, table, particleSet);
-
-	AResourceGroup<Heightmap>::ResourceSet heightmapSet;
-	deserializeSet(&mLuaState, mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME, table, heightmapSet);
-
-	AResourceGroup<ScriptResource>::ResourceSet scriptSet;
-	deserializeSet(&mLuaState, mScriptManager, SCRIPT_MANAGER_TABLE_NAME, table, scriptSet);
-
-	// Load new resources
-	mImageManager->loadSet(imageSet);
-	mTextureManager->loadSet(textureSet);
-	mSkyBoxManager->loadSet(skyboxSet);
-	mAnimationManager->loadSet(animationSet);
-	mModelManager->loadSet(modelSet);
-	mSoundManager->loadSet(soundSet);
-	mParticleManager->loadSet(particleSet);
-	mHeightmapManager->loadSet(heightmapSet);
-	mScriptManager->loadSet(scriptSet);
-
-	// Create new resources
-	mImageManager->createSet(imageSet);
-	mTextureManager->createSet(textureSet);
-	mSkyBoxManager->createSet(skyboxSet);
-	mAnimationManager->createSet(animationSet);
-	mModelManager->createSet(modelSet);
-	mSoundManager->createSet(soundSet);
-	mParticleManager->createSet(particleSet);
-	mHeightmapManager->createSet(heightmapSet);
-	mScriptManager->createSet(scriptSet);
-}
+//
+//void Assets::append(const LuaPlus::LuaObject& table){
+//	// Crete & deserialize new resources
+//	AResourceGroup<Image>::ResourceSet imageSet;
+//	deserializeSet(&mLuaState, mImageManager, IMAGE_MANAGER_TABLE_NAME, table, imageSet);
+//
+//	AResourceGroup<Texture2D>::ResourceSet textureSet;
+//	deserializeSet(&mLuaState, mTextureManager, TEXTURE_MANAGER_TABLE_NAME, table, textureSet);
+//
+//	AResourceGroup<SkyBox>::ResourceSet skyboxSet;
+//	deserializeSet(&mLuaState, mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, table, skyboxSet);
+//
+//	AResourceGroup<Animation>::ResourceSet animationSet;
+//	deserializeSet(&mLuaState, mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, table, animationSet);
+//
+//	AResourceGroup<Model>::ResourceSet modelSet;
+//	deserializeSet(&mLuaState, mModelManager, MODEL_MANAGER_TABLE_NAME, table, modelSet);
+//
+//	AResourceGroup<ASoundBuffer>::ResourceSet soundSet;
+//	deserializeSet(&mLuaState, mSoundManager, SOUND_MANAGER_TABLE_NAME, table, soundSet);
+//
+//	AResourceGroup<ParticleEffectResource>::ResourceSet particleSet;
+//	deserializeSet(&mLuaState, mParticleManager, PARTICLE_MANAGER_TABLE_NAME, table, particleSet);
+//
+//	AResourceGroup<Heightmap>::ResourceSet heightmapSet;
+//	deserializeSet(&mLuaState, mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME, table, heightmapSet);
+//
+//	AResourceGroup<ScriptResource>::ResourceSet scriptSet;
+//	deserializeSet(&mLuaState, mScriptManager, SCRIPT_MANAGER_TABLE_NAME, table, scriptSet);
+//
+//	// Load new resources
+//	mImageManager->loadSet(imageSet);
+//	mTextureManager->loadSet(textureSet);
+//	mSkyBoxManager->loadSet(skyboxSet);
+//	mAnimationManager->loadSet(animationSet);
+//	mModelManager->loadSet(modelSet);
+//	mSoundManager->loadSet(soundSet);
+//	mParticleManager->loadSet(particleSet);
+//	mHeightmapManager->loadSet(heightmapSet);
+//	mScriptManager->loadSet(scriptSet);
+//
+//	// Create new resources
+//	mImageManager->createSet(imageSet);
+//	mTextureManager->createSet(textureSet);
+//	mSkyBoxManager->createSet(skyboxSet);
+//	mAnimationManager->createSet(animationSet);
+//	mModelManager->createSet(modelSet);
+//	mSoundManager->createSet(soundSet);
+//	mParticleManager->createSet(particleSet);
+//	mHeightmapManager->createSet(heightmapSet);
+//	mScriptManager->createSet(scriptSet);
+//}
 
 void Assets::deserialize(const LuaObject& assets){
 	deserialize(mImageManager, IMAGE_MANAGER_TABLE_NAME, assets);
@@ -156,11 +156,11 @@ lua::State* Assets::getLuastate(){
 	return &mLuaState;
 }
 
-FontManager* Assets::getFontManager(){
+AResourceManager<Font>* Assets::getFontManager(){
 	return mFontManager;
 }
 
-ModelManager* Assets::getModelManager(){
+AResourceManager<Model>* Assets::getModelManager(){
 	return mModelManager;
 }
 
@@ -172,7 +172,7 @@ AResourceManager<SkyBox>* Assets::getSkyBoxManager(){
 	return mSkyBoxManager;
 }
 
-AnimationManager* Assets::getAnimationManager(){
+AResourceManager<Animation>* Assets::getAnimationManager(){
 	return mAnimationManager;
 }
 
@@ -293,7 +293,7 @@ Assets::ChunkedLoadStatus Assets::chunkedLoad(){
 	return stat;
 }
 
-void Assets::reload(){
+void Assets::reload(const String& set){
 	LOGD("Loading images . . .");
 	mImageManager->loadAll();
 
@@ -348,32 +348,32 @@ String Assets::getRelativeURI(const String& uri){
 	return utils::toRelative(mFileSystem->getRoot(), uri);
 }
 
-void Assets::append(const String& path){
-	LuaPlus::LuaStateOwner state;
-	WT_ASSERT(mFileSystem, "No file system set");
+//void Assets::append(const String& path){
+//	LuaPlus::LuaStateOwner state;
+//	WT_ASSERT(mFileSystem, "No file system set");
+//
+//	String relativePath = utils::toRelative(mFileSystem->getRoot(), path);
+//
+//	Sp<AIOStream> stream = mFileSystem->open(relativePath, AIOStream::eMODE_READ);
+//	try{
+//		lua::doStream(state, *(stream.get()));
+//	}catch(...){
+//		LOGE("Error executing asset script");
+//		throw;
+//	}
+//
+//	LuaObject assets = state->GetGlobal("ASSETS");
+//
+//	append(assets);
+//}
 
-	String relativePath = utils::toRelative(mFileSystem->getRoot(), path);
-
-	Sp<AIOStream> stream = mFileSystem->open(relativePath, AIOStream::eMODE_READ);
-	try{
-		lua::doStream(state, *(stream.get()));
-	}catch(...){
-		LOGE("Error executing asset script");
-		throw;
-	}
-
-	LuaObject assets = state->GetGlobal("ASSETS");
-
-	append(assets);
-}
-
-void Assets::load(const LuaObject& table){
+void Assets::load(const LuaObject& table, const String& set){
 	deserialize(table);
 
-	reload();
+	reload(set);
 }
 
-void Assets::load(const String& path){
+void Assets::load(const String& path, const String& set){
 	LuaPlus::LuaStateOwner state;
 	WT_ASSERT(mFileSystem, "No file system set");
 
@@ -392,7 +392,7 @@ void Assets::load(const String& path){
 }
 
 
-void Assets::serialize(LuaObject& assets){
+void Assets::save(LuaObject& assets, const String& set){
 	serialize(mImageManager, IMAGE_MANAGER_TABLE_NAME,
 		assets);
 
@@ -421,10 +421,10 @@ void Assets::serialize(LuaObject& assets){
 		assets);
 }
 
-void Assets::serialize(const String& path){
+void Assets::save(const String& path, const String& set){
 	lua::LuaObject assets = getLuastate()->newTable();
 
-	serialize(assets);
+	save(assets, set);
 
 	WT_ASSERT(mFileSystem, "No file system set");
 
@@ -459,6 +459,12 @@ Assets::~Assets(){
 	delete mFontManager;
 
 	delete mScriptManager;
+}
+
+void Assets::reloadAll(){
+}
+
+void Assets::unload(const String& set){
 }
 
 } // </wt>

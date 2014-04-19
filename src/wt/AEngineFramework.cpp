@@ -229,7 +229,7 @@ void AEngineFramework::initializeFramework(const Desc& desc){
 	}
 
 	// Resource system
-	mAssets = ResourceSystemFactory::create(mDesc.assets);
+	mAssets = ResourceSystemFactory::create();
 
 	mAssets->setFileSystem( FileSystemFactory::create(mDesc.fileSystem) );
 

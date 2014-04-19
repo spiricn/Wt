@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include <Wt/Model.h>
-#include <Wt/ModelManager.h>
 
 #include "wte/ModelManagerTab.h"
 #include "wte/ModelEditDialog.h"
