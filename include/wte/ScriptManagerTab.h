@@ -12,7 +12,7 @@ class ScriptManagerTab : public ARsrcManagerTab{
 Q_OBJECT;
 
 public:
-	ScriptManagerTab(QWidget* parent, wt::Assets* assets);
+	ScriptManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onCtxMenuSetUri(RTWItem*);

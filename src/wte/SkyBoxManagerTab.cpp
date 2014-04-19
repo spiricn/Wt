@@ -6,7 +6,7 @@
 #include "wte/SkyboxEditDialog.h"
 
 
-SkyBoxManagerTab::SkyBoxManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
+SkyBoxManagerTab::SkyBoxManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets,
 	assets->getSkyBoxManager()){
 
 	ui.setupUi(this);

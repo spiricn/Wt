@@ -11,7 +11,6 @@
 #include "wt/DirectionalLight.h"
 #include "wt/SpotLight.h"
 #include "wt/PointLight.h"
-#include "wt/Assets.h"
 #include "wt/Fog.h"
 #include "wt/ASceneActor.h"
 #include "wt/EventManager.h"

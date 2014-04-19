@@ -15,7 +15,7 @@ class SkyBoxManagerTab : public ARsrcManagerTab{
 	Q_OBJECT;
 
 public:
-	SkyBoxManagerTab(QWidget* parent, wt::Assets* assets);
+	SkyBoxManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onTreeItemActivated(RTWItem* item);

@@ -4,7 +4,8 @@
 
 #include "wte/ActorCreationDialog.h"
 #include "wte/ResourcePickerDialog.h"
-
+#include <wt/Sound.h>
+#include <wt/ParticleEffect.h>
 #include <wt/Model.h>
 
 #define TD_TRACE_TAG "ActorCreationDialog"

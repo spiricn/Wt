@@ -3,7 +3,7 @@
 
 #define TD_TRACE_TAG "ScriptManagerTab"
 
-ScriptManagerTab::ScriptManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets, assets->getScriptManager(), true){
+ScriptManagerTab::ScriptManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets, assets->getScriptManager(), true){
 	ui.setupUi(this);
 
 	initialize<wt::ScriptResource>(ui.treeWidget);

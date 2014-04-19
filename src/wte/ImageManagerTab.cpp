@@ -4,7 +4,7 @@
 #include "wte/ResourcePickerDialog.h"
 #include "wte/WtEditorContext.h"
 
-ImageManagerTab::ImageManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
+ImageManagerTab::ImageManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets,
 	assets->getImageManager(), true){
 
 	ui.setupUi(this);

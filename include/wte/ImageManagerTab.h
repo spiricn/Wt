@@ -13,7 +13,7 @@ class ImageManagerTab : public ARsrcManagerTab{
 Q_OBJECT;
 
 public:
-	ImageManagerTab(QWidget* parent, wt::Assets* assets);
+	ImageManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onCtxMenuSetUri(RTWItem*);

@@ -4,7 +4,6 @@
 #include "ui_TerrainEditDialog.h"
 
 #include <wt/Terrain.h>
-#include <wt/Assets.h>
 
 class TerrainEditDialog : public QDialog{
 Q_OBJECT

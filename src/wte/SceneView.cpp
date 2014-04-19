@@ -2,7 +2,6 @@
 
 #include <qcursor.h>
 
-#include <wt/Assets.h>
 #include <wt/FrameBuffer.h>
 #include <wt/AGameInput.h>
 

@@ -13,7 +13,7 @@ class TextureManagerTab : public ARsrcManagerTab{
 Q_OBJECT;
 
 public:
-	TextureManagerTab(QWidget* parent, wt::Assets* assets);
+	TextureManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onCtxMenuSetUri(RTWItem*);

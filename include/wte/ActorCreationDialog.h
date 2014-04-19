@@ -5,9 +5,9 @@
 
 #include <wt/ModelledActor.h>
 #include <wt/Physics.h>
-#include <wt/Assets.h>
 
-namespace wt{
+namespace wt
+{
 	class Model;
 	class ModelSkin;
 }

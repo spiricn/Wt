@@ -6,14 +6,14 @@
 #include <wt/SceneLoader.h>
 #include <wt/FileSystemFactory.h>
 #include <wt/Timer.h>
-
+#include <wt/ResourceSystemFactory.h>
 #define TD_TRACE_TAG "WtEditorContext"
 
 #define WORKSPACE_TABLE_NAME "WORKSPACE"
 #define SETTINGS_TABLE_NAME "SETTINGS"
 
-WtEditorContext::WtEditorContext() : mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false), mLuaState(new wt::lua::State()),
-	mEventManager(mLuaState), mScene(new wt::Physics(&mEventManager), &mAssets, &mEventManager, mLuaState), mRenderer(&mEventManager, &mScene){
+WtEditorContext::WtEditorContext() : mAssetsFilePath(""), mSceneFilePath(""), mSceneLoaded(false), mAssetsLoaded(false), mLuaState(new wt::lua::State()), mAssets(wt::ResourceSystemFactory::create()),
+	mEventManager(mLuaState), mScene(new wt::Physics(&mEventManager), mAssets, &mEventManager, mLuaState), mRenderer(&mEventManager, &mScene){
 
 	connect(&mTimer, SIGNAL(timeout()),
 		this, SLOT(onTimeout()));
@@ -39,8 +39,8 @@ void WtEditorContext::stopLoop(){
 	}
 }
 
-wt::Assets* WtEditorContext::getAssets(){
-	return &mAssets;
+wt::AResourceSystem* WtEditorContext::getAssets(){
+	return mAssets;
 }
 
 wt::lua::State* WtEditorContext::getLuaState(){
@@ -58,7 +58,7 @@ void WtEditorContext::loadScene(const QString& path){
 	unloadScene();
 
 	try{
-		wt::SceneLoader loader(&mScene, &mAssets);
+		wt::SceneLoader loader(&mScene, mAssets);
 
 		wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_READ);
 
@@ -107,7 +107,7 @@ void WtEditorContext::loadAssets(const QString& path){
 	LuaPlus::LuaStateOwner state;
 	//try{
 		state->DoFile(path.toStdString().c_str());
-		mAssets.load( state->GetGlobal("ASSETS") );
+		mAssets->load( state->GetGlobal("ASSETS") );
 	// TODO move this catch to WtEditor
 	//}catch(...){
 		//QMessageBox::critical(this, "Error", "Error loading assets from \"" + path + "\"");
@@ -172,7 +172,7 @@ void WtEditorContext::unloadAssets(){
 	// Unload existing scene
 	unloadScene();
 
-	mAssets.unloadAll();
+	mAssets->unloadAll();
 
 	mAssetsFilePath = "";
 
@@ -205,7 +205,7 @@ QString WtEditorContext::getWorkspaceFilePath() const{
 }
 
 void WtEditorContext::saveScene(const QString& path){
-	wt::SceneLoader loader(&mScene, &mAssets);
+	wt::SceneLoader loader(&mScene, mAssets);
 
 	wt::FileIOStream stream(path.toStdString(), wt::AIOStream::eMODE_WRITE);
 
@@ -215,7 +215,7 @@ void WtEditorContext::saveScene(const QString& path){
 }
 
 void WtEditorContext::saveAssets(const QString& path){
-	mAssets.save(path.toStdString());
+	mAssets->save(path.toStdString());
 
 	mAssetsFilePath = path;
 }
@@ -362,7 +362,7 @@ void WtEditorContext::loadWorkspace(QString filePath){
 	fsDesc.type = wt::AFileSystem::eTYPE_LOCAL;
 	fsDesc.dir.root = root;
 
-	mAssets.setFileSystem( wt::FileSystemFactory::create(fsDesc) );
+	mAssets->setFileSystem( wt::FileSystemFactory::create(fsDesc) );
 
 	// Load assets if necessary
 	if(wt::lua::luaConv(workspace.Get("assets"), assets) && !assets.empty()){

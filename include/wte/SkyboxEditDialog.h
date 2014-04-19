@@ -4,7 +4,6 @@
 #include <qdialog.h>
 
 #include <wt/SkyBox.h>
-#include <wt/Assets.h>
 
 #include "ui_SkyboxEditDialog.h"
 
@@ -26,10 +25,10 @@ public:
 private:
 	Ui::SkyboxEditDialog ui;
 	EditResult mResult;
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
 
 public:
-	SkyboxEditDialog(QWidget* parent, wt::Assets* assets, const wt::SkyBox* skybox=NULL) : QDialog(parent), mAssets(assets){
+	SkyboxEditDialog(QWidget* parent, wt::AResourceSystem* assets, const wt::SkyBox* skybox=NULL) : QDialog(parent), mAssets(assets){
 		ui.setupUi(this);
 
 		if(skybox){
@@ -47,7 +46,7 @@ public:
 		}
 	}
 
-	static EditResult createSkyBox(QWidget* parent, wt::Assets* assets, wt::SkyBox* skybox=NULL){
+	static EditResult createSkyBox(QWidget* parent, wt::AResourceSystem* assets, wt::SkyBox* skybox=NULL){
 		SkyboxEditDialog dlg(parent, assets, skybox);
 		dlg.exec();
 		return dlg.mResult;

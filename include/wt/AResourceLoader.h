@@ -33,13 +33,19 @@ public:
 	virtual void save(AIOStream* stream, T* src) = 0;
 
 	virtual void load(const String& path, T* rsrc){
-		Sp<AIOStream> stream = rsrc->getManager()->getResourceSystem()->getFileSystem()->open(path, AIOStream::eMODE_READ);
+		AResourceManager<T>* manager = rsrc->getManager();
+		WT_ASSERT(manager, "Resource not managed");
+
+		Sp<AIOStream> stream = manager->getResourceSystem()->getFileSystem()->open(path, AIOStream::eMODE_READ);
 		WT_ASSERT(stream->isReadable(), "Error openning file stream \"%s\"", path.c_str());
 		load(stream, rsrc);
 	}
 
 	virtual void save(const String& path, T* rsrc){
-		Sp<AIOStream> stream = rsrc->getManager()->getResourceSystem()->getFileSystem()->open(path, AIOStream::eMODE_WRITE);
+		AResourceManager<T>* manager = rsrc->getManager();
+		WT_ASSERT(manager, "Resource not managed");
+
+		Sp<AIOStream> stream = manager->getResourceSystem()->getFileSystem()->open(path, AIOStream::eMODE_WRITE);
 		WT_ASSERT(stream->isReadable(), "Error openning file stream \"%s\"", path.c_str());
 		save(stream, rsrc);
 	}

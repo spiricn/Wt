@@ -11,7 +11,7 @@ class HeightmapManagerTab : public ARsrcManagerTab{
 Q_OBJECT;
 
 public:
-	HeightmapManagerTab(QWidget* parent, wt::Assets* assets);
+	HeightmapManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onCtxMenuSetUri(RTWItem*);

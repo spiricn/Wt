@@ -3,7 +3,7 @@
 
 #include "wte/ARsrcManagerTab.h"
 
-ARsrcManagerTab::ARsrcManagerTab(QWidget* parent, wt::Assets* assets, void* manager, bool uriSettable) : mParent(parent),
+ARsrcManagerTab::ARsrcManagerTab(QWidget* parent, wt::AResourceSystem* assets, void* manager, bool uriSettable) : mParent(parent),
 	mTree(NULL), mManager(manager), QWidget(parent), mUriSettable(uriSettable), mAssets(assets), mImpl(NULL){
 
 
@@ -15,7 +15,7 @@ ARsrcManagerTab::ARsrcManagerTab(QWidget* parent, wt::Assets* assets, void* mana
 
 }
 
-wt::Assets* ARsrcManagerTab::getAssets() const{
+wt::AResourceSystem* ARsrcManagerTab::getAssets() const{
 	return mAssets;
 }
 

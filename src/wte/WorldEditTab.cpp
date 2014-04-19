@@ -6,6 +6,7 @@
 #include <qprocess.h>
 #include <qmessagebox.h>
 
+#include <wt/SkyBox.h>
 #include "wte/WorldEditTab.h"
 #include "wte/CameraAnimationDialog.h"
 #include "wte/MainGLWidget.h"

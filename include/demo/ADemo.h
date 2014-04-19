@@ -20,7 +20,6 @@
 #include "wt/Physics.h"
 #include "wt/TextureArray.h"
 #include "wt/Model.h"
-#include "wt/Assets.h"
 #include "wt/SDLGameWindow.h"
 #include "wt/SDLGameInput.h"
 #include "wt/Font.h"

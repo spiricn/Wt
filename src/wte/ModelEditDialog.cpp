@@ -3,7 +3,7 @@
 
 #define TD_TRACE_TAG "ModelEditDialog"
 
-ModelEditDialog::ModelEditDialog(QWidget* parent, wt::Assets* assets, wt::Model* model) : QDialog(parent), mModel(model), mAssets(assets){
+ModelEditDialog::ModelEditDialog(QWidget* parent, wt::AResourceSystem* assets, wt::Model* model) : QDialog(parent), mModel(model), mAssets(assets){
 	ui.setupUi(this);
 
 
@@ -32,7 +32,7 @@ void ModelEditDialog::addAnimation(const QString& name, wt::Animation* ani){
 	ui.animationTree->addTopLevelItem(item);
 }
 
-ModelEditDialog::EditResult ModelEditDialog::edit(QWidget* parent, wt::Assets* assets, wt::Model* model){
+ModelEditDialog::EditResult ModelEditDialog::edit(QWidget* parent, wt::AResourceSystem* assets, wt::Model* model){
 	ModelEditDialog dlg(parent, assets, model);
 
 	dlg.exec();

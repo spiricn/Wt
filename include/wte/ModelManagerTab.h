@@ -15,7 +15,7 @@
 class ModelManagerTab : public ARsrcManagerTab{
 Q_OBJECT;
 public:
-	ModelManagerTab(QWidget* parent, wt::Assets* assets);
+	ModelManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onCtxMenuSetUri(RTWItem*);

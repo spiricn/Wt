@@ -15,7 +15,7 @@
 class AnimationManagerTab : public ARsrcManagerTab{
 Q_OBJECT;
 public:
-	AnimationManagerTab(QWidget* parent, wt::Assets* assets);
+	AnimationManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 	void onCtxMenuSetUri(RTWItem*);
 

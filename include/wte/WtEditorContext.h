@@ -1,7 +1,6 @@
 #ifndef WTE_WTEDITORCONTEXT_H
 #define WTE_WTEDITORCONTEXT_H
 
-#include <wt/Assets.h>
 #include <wt/lua/State.h>
 #include <wt/Singleton.h>
 #include <wt/Scene.h>
@@ -16,7 +15,7 @@ Q_OBJECT;
 public:
 	WtEditorContext();
 
-	wt::Assets* getAssets();
+	wt::AResourceSystem* getAssets();
 
 	wt::lua::State* getLuaState();
 
@@ -102,13 +101,13 @@ signals:
 	void update(float);
 
 protected:
-	void setAssets(wt::Assets* assets);
+	void setAssets(wt::AResourceSystem* assets);
 
 private slots:
 	void onTimeout();
 
 private:
-	wt::Assets mAssets;
+	wt::AResourceSystem* mAssets;
 	wt::lua::State* mLuaState;
 	QString mAssetsFilePath;
 	QString mSceneFilePath;

@@ -11,7 +11,7 @@ class SoundManagerTab : public ARsrcManagerTab{
 Q_OBJECT
 
 public:
-    SoundManagerTab(QWidget* parent, wt::Assets* assets);
+    SoundManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onCtxMenuSetUri(RTWItem*);

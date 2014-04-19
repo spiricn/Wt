@@ -6,7 +6,7 @@
 
 #define TD_TRACE_TAG "SoundManagerTab"
 
-SoundManagerTab::SoundManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
+SoundManagerTab::SoundManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets,
 	assets->getSoundManager(), true){
     ui.setupUi(this);
 

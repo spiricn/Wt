@@ -6,8 +6,6 @@
 #include "ui_SkinEditDialog.h"
 
 #include <wt/Model.h>
-#include <wt/Assets.h>
-
 #include "wte/MeshEditDialog.h"
 #include "wte/ResourcePickerDialog.h"
 
@@ -26,10 +24,10 @@ private:
 	Ui::SkinEditDialog ui;
 	EditResult mResult;
 	wt::ModelSkin* mSkin;
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
 
 public:
-	SkinEditDialog(QWidget* parent, wt::Assets* assets, wt::ModelSkin* skin) : QDialog(parent), mSkin(skin), mAssets(assets){
+	SkinEditDialog(QWidget* parent, wt::AResourceSystem* assets, wt::ModelSkin* skin) : QDialog(parent), mSkin(skin), mAssets(assets){
 		ui.setupUi(this);
 
 		int id=0;
@@ -54,7 +52,7 @@ public:
 		}
 	}
 
-	static EditResult edit(QWidget* parent, wt::Assets* assets, wt::ModelSkin* skin){
+	static EditResult edit(QWidget* parent, wt::AResourceSystem* assets, wt::ModelSkin* skin){
 		SkinEditDialog dlg(parent, assets, skin);
 
 		dlg.exec();

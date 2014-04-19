@@ -68,7 +68,8 @@ void TerrainEditTool::onSceneLoaded(){
 		mBrushTexture = new wt::Texture2D;
 
 		// TODO acquire this texture some other way
-		WTE_CTX.getAssets()->getTextureManager()->getLoader()->load("assets/images/brushes/circle_hard.png", mBrushTexture);
+		wt::StreamPtr stream = new wt::FileIOStream("assets/images/brushes/circle_hard.png", wt::AIOStream::eMODE_READ);
+		WTE_CTX.getAssets()->getTextureManager()->getLoader()->load(stream, mBrushTexture);
 	}
 
 	// TODO upon terrain loading scene target texture probably needs to be reloaded

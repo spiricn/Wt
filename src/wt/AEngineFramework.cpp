@@ -4,6 +4,8 @@
 #include "wt/ResourceSystemFactory.h"
 #include "wt/FileSystemFactory.h"
 #include "wt/Lua.h"
+#include "wt/AResourceSystem.h"
+#include "wt/ASoundSystem.h"
 
 #define TD_TRACE_TAG "AEngineFramework"
 

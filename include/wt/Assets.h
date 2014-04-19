@@ -28,6 +28,7 @@
 #include "wt/SFSoundLoader.h"
 #include "wt/Heightmap.h"
 #include "wt/lua/State.h"
+
 #include "wt/ScriptResource.h"
 
 namespace wt

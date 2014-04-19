@@ -5,13 +5,11 @@
 
 #include "wte/ARsrcManagerTab.h"
 
-#include <wt/Assets.h>
-
 class ParticleManagerTab : public ARsrcManagerTab{
 Q_OBJECT
 
 public:
-    ParticleManagerTab(QWidget* parent, wt::Assets* assets);
+    ParticleManagerTab(QWidget* parent, wt::AResourceSystem* assets);
 
 private:
 	void onTreeItemActivated(RTWItem* item);

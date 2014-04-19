@@ -6,7 +6,6 @@
 #include <wt/SkyBox.h>
 #include <Wt/Model.h>
 #include <Wt/Animation.h>
-#include <wt/Assets.h>
 
 #include "ui_ModelEditDialog.h"
 
@@ -30,7 +29,7 @@ public:
 		}
 	}; // </EditResult>
 
-	static EditResult edit(QWidget* parent, wt::Assets* assets, wt::Model* model=NULL);
+	static EditResult edit(QWidget* parent, wt::AResourceSystem* assets, wt::Model* model=NULL);
 
 protected slots:
 	void onSave();
@@ -46,7 +45,7 @@ protected slots:
 	void onAddSkin();
 
 private:
-	ModelEditDialog(QWidget* parent, wt::Assets* assets, wt::Model* model);
+	ModelEditDialog(QWidget* parent, wt::AResourceSystem* assets, wt::Model* model);
 
 	void addAnimation(const QString& name, wt::Animation* ani);
 
@@ -54,7 +53,7 @@ private:
 	Ui::ModelEditDialog ui;
 	EditResult mResult;
 	wt::Model* mModel;
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
 
 }; // </ModelEditDialog>
 

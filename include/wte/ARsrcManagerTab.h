@@ -4,8 +4,6 @@
 #include <qmenu.h>
 #include <qmessagebox.h>
 
-#include <wt/Assets.h>
-
 #include "wte/ResourceTreeWidget.h"
 #include "wte/WtEditorContext.h"
 
@@ -30,9 +28,9 @@ class ARsrcManagerTab : public QWidget{
 Q_OBJECT;
 
 public:
-	ARsrcManagerTab(QWidget* parent, wt::Assets* assets, void* manager, bool uriSettable=false);
+	ARsrcManagerTab(QWidget* parent, wt::AResourceSystem* assets, void* manager, bool uriSettable=false);
 
-	wt::Assets* getAssets() const;
+	wt::AResourceSystem* getAssets() const;
 
 	void setTreeWidget(ResourceTreeWidget* tree);
 
@@ -80,7 +78,7 @@ private:
 	QWidget* mParent;
 	void* mManager;
 	bool mUriSettable;
-	wt::Assets* mAssets;
+	wt::AResourceSystem* mAssets;
 	IResourceImpl* mImpl;
 
 }; // </ARsrcManagerTab>

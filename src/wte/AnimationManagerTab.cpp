@@ -2,7 +2,7 @@
 
 #include "wte/AnimationManagerTab.h"
 
-AnimationManagerTab::AnimationManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
+AnimationManagerTab::AnimationManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets,
 	assets->getAnimationManager(), true){
 
 	ui.setupUi(this);

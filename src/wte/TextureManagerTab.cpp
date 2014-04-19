@@ -4,7 +4,7 @@
 
 #include "wte/TextureManagerTab.h"
 
-TextureManagerTab::TextureManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets,
+TextureManagerTab::TextureManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets,
 	assets->getTextureManager(), true){
 
 	ui.setupUi(this);

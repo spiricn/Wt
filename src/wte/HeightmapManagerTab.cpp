@@ -3,7 +3,7 @@
 
 #define TD_TRACE_TAG "HeightmapManagerTab"
 
-HeightmapManagerTab::HeightmapManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent,  assets, static_cast<void*>(assets->getHeightmapManager()), true){
+HeightmapManagerTab::HeightmapManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent,  assets, static_cast<void*>(assets->getHeightmapManager()), true){
 	ui.setupUi(this);
 
 	initialize<wt::Heightmap>(ui.treeWidget);

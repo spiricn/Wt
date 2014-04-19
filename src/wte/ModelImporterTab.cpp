@@ -9,7 +9,6 @@
 #include <Wt/AnimationLoader.h>
 #include <Wt/Texture.h>
 #include <wt/Model.h>
-#include <wt/Assets.h>
 #include <wt/Utils.h>
 
 #include "wte/ModelImporterTab.h"

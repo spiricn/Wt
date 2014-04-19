@@ -5,7 +5,7 @@
 
 #define TD_TRACE_TAG "ParticleManagerTab"
 
-ParticleManagerTab::ParticleManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets, assets->getParticleResourceManager(), false){
+ParticleManagerTab::ParticleManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets, assets->getParticleResourceManager(), false){
     ui.setupUi(this);
 
 	initialize<wt::ParticleEffectResource>(ui.treeWidget);

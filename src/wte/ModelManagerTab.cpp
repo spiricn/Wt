@@ -5,7 +5,7 @@
 #include "wte/ModelManagerTab.h"
 #include "wte/ModelEditDialog.h"
 
-ModelManagerTab::ModelManagerTab(QWidget* parent, wt::Assets* assets) : ARsrcManagerTab(parent, assets, assets->getModelManager(), true){
+ModelManagerTab::ModelManagerTab(QWidget* parent, wt::AResourceSystem* assets) : ARsrcManagerTab(parent, assets, assets->getModelManager(), true){
 	ui.setupUi(this);
 
 	initialize<wt::Model>(ui.treeWidget);

@@ -93,7 +93,7 @@ void ActorEditTool::onEditModel(){
 		wt::ModelledActor* actor = dynamic_cast<wt::ModelledActor*>(mSelectedActor);
 
 		if(actor->getModel()){
-			ModelEditDialog::edit(this, dynamic_cast<wt::Assets*>(WTE_CTX.getAssets()), actor->getModel());
+			ModelEditDialog::edit(this, dynamic_cast<wt::AResourceSystem*>(WTE_CTX.getAssets()), actor->getModel());
 		}
 	}
 }

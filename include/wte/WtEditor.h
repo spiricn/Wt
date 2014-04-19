@@ -6,7 +6,6 @@
 #include <QtGui/QMainWindow>
 #include <qsettings.h>
 #include <wt/Renderer.h>
-#include <Wt/Assets.h>
 
 #include "wte/ImageManagerTab.h"
 #include "wte/SkyBoxManagerTab.h"
