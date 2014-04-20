@@ -215,8 +215,9 @@ void ModelImporterTab::importModel(ImportData& data){
 	}
 
 	// Save the converted model to workspace
-	mAssets->getModelManager()->save(destinationModelPath.toStdString(), data.model);
-	data.model->setUri(wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), destinationModelPath.toStdString()));
+	wt::String relUri = wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), destinationModelPath.toStdString());
+	mAssets->getModelManager()->save(relUri, data.model);
+	data.model->setUri(relUri);
 
 	for(wt::AssimpModelLoader::TextureMap::iterator iter=data.textureMap.begin(); iter!=data.textureMap.end(); iter++){
 		importTexture(data, iter->first.c_str(), iter->second.c_str());

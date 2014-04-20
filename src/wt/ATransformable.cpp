@@ -62,7 +62,14 @@ void ATransformable::getForwardVector(glm::vec3& result) const{
 	glm::quat rotation;
 	getRotation(rotation);
 
+#if 1
+	glm::mat4 mat = glm::mat4_cast(rotation);
+
+	result = mat[2].swizzle(glm::X, glm::Y, glm::Z);
+
+#else
 	result = glm::normalize( rotation*kFORWARD_VEC );
+#endif
 }
 
 void ATransformable::getRightVector(glm::vec3& result) const{
@@ -210,37 +217,31 @@ void ATransformable::getCameraMatrix(glm::mat4& dst) const{
 }
 
 void ATransformable::lookAt(const glm::vec3& position){
-	// TODO there's probably a better way of doing this
 	glm::vec3 translation;
 	getTranslation(translation);
 
-	glm::vec3 forward = glm::normalize( position-translation );
+#if 0
+	setRotation( glm::quat_cast( glm::lookAt(translation, position, glm::vec3(0, 1, 0)) ) );
+#else
 
-	glm::vec3 right = glm::normalize( glm::vec3(forward.z, 0, -forward.x) );
+	// TODO there's probably a better way of doing this
+	glm::vec3 forward = glm::normalize( position - translation );
+
+	glm::vec3 right = glm::normalize( glm::cross(glm::vec3(0, 1, 0), forward) );
 
 	glm::vec3 up = glm::normalize( glm::cross(forward, right) );
 
-
 	glm::mat4 rotMat(1.0f);
 
-	// X Column
-	rotMat[0][0] = right.x;
-	rotMat[0][1] = right.y;
-	rotMat[0][2] = right.z;
-
-    // Y Column
-	rotMat[1][0] = up.x;
-	rotMat[1][1] = up.y;
-	rotMat[1][2] = up.z;
-                                    
-    // Z Column
-	rotMat[2][0] = forward.x;
-	rotMat[2][1] = forward.y;
-	rotMat[2][2] = forward.z;
+	rotMat[0] = glm::vec4(right, 0.0f);
+	rotMat[1] = glm::vec4(up, 0.0f);
+	rotMat[2] = glm::vec4(forward, 0.0f);
+	rotMat[3] = glm::vec4(0, 0, 0, 1);
 
 	glm::quat rot = glm::quat_cast(rotMat);
 
-	setRotation(rot);
+ 	setRotation(rot);
+#endif
 }
 
 void ATransformable::orbit(float radius, float theta, float rho, const glm::vec3& pos){

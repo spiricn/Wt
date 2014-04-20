@@ -2,6 +2,7 @@
 
 #include "wte/CameraAnimationDialog.h"
 #include <wt/TransformableAnimator.h>
+#include "wte/WtEditorContext.h"
 
 #define TD_TRACE_TAG "CameraAnimationDialog"
 
@@ -247,7 +248,9 @@ void CameraAnimationDialog::onAnimationSave(){
 	
 	node->setName("default");
 
-	mScene->getAssets()->getAnimationManager()->getLoader()->save(res.toStdString(), anim);
+	wt::StreamPtr stream = new wt::FileIOStream(res.toStdString(), wt::AIOStream::eMODE_WRITE);
+
+	mScene->getAssets()->getAnimationManager()->getLoader()->save(stream, anim);
 
 	anim->setDuration(node->getDuration());
 
@@ -280,7 +283,9 @@ void CameraAnimationDialog::onAnimationLoad(){
 
 	wt::Animation* anim = new wt::Animation;
 
-	mScene->getAssets()->getAnimationManager()->getLoader()->load(res.toStdString(), anim);
+	wt::StreamPtr stream = new wt::FileIOStream(res.toStdString(), wt::AIOStream::eMODE_READ);
+
+	mScene->getAssets()->getAnimationManager()->getLoader()->load(stream, anim);
 
 	wt::NodeAnimation* node = *anim->getNodeAnimationList().begin();
 

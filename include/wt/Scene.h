@@ -148,6 +148,9 @@ public:
 
 	Terrain* createTerrain(const String& name="");
 
+	template<class T>
+	T* findActorByName(const String& name) const;
+
 	ASceneActor* findActorByName(const String& name) const;
 
 	ASceneActor* getActorById(uint32_t id);
@@ -241,6 +244,13 @@ friend class Renderer;
 friend class ARenderer;
 
 }; // </Scene>
+
+
+template<class T>
+T* Scene::findActorByName(const String& name) const{
+	ASceneActor* actor = findActorByName(name);
+	return (T*)(actor);
+}
 
 }; // </wt>
 

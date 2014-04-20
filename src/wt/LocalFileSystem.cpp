@@ -29,7 +29,8 @@ String LocalFileSystem::getRoot() const{
 	return mRoot;
 }
 
-Sp<AIOStream> LocalFileSystem::open(const String& relUri, AIOStream::Mode mode){
+Sp<AIOStream> LocalFileSystem::open(const String& uri, AIOStream::Mode mode){
+	String relUri = utils::toRelative(mRoot, uri);
 	return new FileIOStream(/* convert to absolute uri */ mRoot + PATH_SEPARATOR +  relUri, mode);
 }
 

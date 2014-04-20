@@ -21,14 +21,26 @@ public:
 	public:
 		virtual void onAnimationStateChanged(TransformableAnimator*, State) {};
 		virtual void onAnimationProgress(TransformableAnimator*, float) {};
-
 	}; // </IListener>
+
+
+	typedef uint32_t AnimationAttrib;
+
+	static const AnimationAttrib eATTRIB_POSITION = 1 << 0;
+
+	static const AnimationAttrib eATTRIB_ROTATION = 1 << 1;
+
+	static const AnimationAttrib eATTRIB_SCALE = 1 << 2;
+
+public:
 
 	TransformableAnimator(ATransformable* target, NodeAnimation* animation, bool loop, bool selfDestruct=true);
 
 	TransformableAnimator(ATransformable* target, Animation* animation, const String& node, bool loop, bool selfDestruct=true);
 
 	void setSpeed(float speed);
+
+	void setAnimationAttribs(AnimationAttrib attribs);
 
 	State getState() const;
 
@@ -48,8 +60,6 @@ public:
 
 	NodeAnimation* getNodeAnimation() const;
 
-	// Process interface
-
 	void onProcUpdate(float dt);
 
 	void onProcStart();
@@ -63,6 +73,7 @@ private:
 
 	TransformableAnimator(const TransformableAnimator&);
 
+private:
 	State mState;
 	ATransformable* mTarget;
 	float mSpeed;
@@ -71,6 +82,7 @@ private:
 	bool mLoop;
 	IListener* mListener;
 	bool mSelfDestruct;
+	AnimationAttrib mAttribs;
 }; // </TransformableAnimator>
 
 } // </wt>

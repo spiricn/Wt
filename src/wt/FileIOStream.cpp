@@ -42,9 +42,11 @@ void FileIOStream::open(const String& path, Mode mode){
 
 	mFile = fopen(path.c_str(), mode == eMODE_READ ? "rb" : "wb");
 
-	if(!mFile){
-		TRACEE("fopen failed for \"%s\" (mode=\"%s\" errno=%d, desc=\"%s\")",
-			path.c_str(), mode == eMODE_READ ? "rb" : "wb", errno, strerror(errno));
+	if(mFile == NULL){
+		const char* errMessage = strerror(errno);
+
+		LOGE("fopen failed for \"%s\" (mode=\"%s\" errno=%d, desc=\"%s\")",
+			path.c_str(), mode == eMODE_READ ? "rb" : "wb", errno, errMessage);
 	}
 
 	mFileOwned = true;

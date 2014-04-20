@@ -8,11 +8,11 @@ namespace wt
 {
 
 TransformableAnimator::TransformableAnimator(ATransformable* target, NodeAnimation* animation, bool loop, bool selfDestruct) : mTarget(target),
-	mAnimation(animation), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f), mSelfDestruct(selfDestruct){
+	mAnimation(animation), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f), mSelfDestruct(selfDestruct), mAttribs(0xFFFFFFFF){
 }
 
 TransformableAnimator::TransformableAnimator(ATransformable* target, Animation* animation, const String& node, bool loop, bool selfDestruct) : mTarget(target),
-	mAnimation(NULL), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f), mSelfDestruct(selfDestruct){
+	mAnimation(NULL), mCurrentTime(0.0f), mLoop(loop), mState(eSTATE_PLAYING), mListener(NULL), mSpeed(1.0f), mSelfDestruct(selfDestruct), mAttribs(0xFFFFFFFF){
 		mAnimation = animation->findNodeAnimation(node);
 
 		WT_ASSERT(mAnimation != NULL, "Invalid node animation name \"%s\" for animatino \"%s\"", node.c_str(), animation->getPath().c_str());
@@ -111,8 +111,35 @@ void TransformableAnimator::onProcEnd(){
 }
 
 void TransformableAnimator::animate(){
-	glm::mat4 mat;
-	mAnimation->evaluate(mCurrentTime, mat, false);
+	if(!mAttribs){
+		return;
+	}
+
+	glm::vec3 animPos;
+	glm::vec3 animScale;
+	glm::quat animRotation;
+
+	mAnimation->evaluate(mCurrentTime, animPos, animRotation, animScale);
+
+	if(! (mAttribs & eATTRIB_SCALE)){
+		mTarget->getScale(animScale);
+	}
+
+	if(! (mAttribs & eATTRIB_ROTATION)){
+		mTarget->getRotation(animRotation);
+	}
+
+	if(! (mAttribs & eATTRIB_POSITION) ){
+		mTarget->getTranslation(animPos);
+	}
+
+	glm::mat4 mat(1.0f);
+
+	mat = glm::scale(animScale);
+
+	mat = glm::mat4_cast( animRotation ) * mat;
+
+	mat = glm::translate(animPos) * mat;
 
 	mTarget->setTransformMatrix(mat);
 }
@@ -148,6 +175,10 @@ void TransformableAnimator::onProcUpdate(float dt){
 			killProcess();
 		}
 	}
+}
+
+void TransformableAnimator::setAnimationAttribs(AnimationAttrib attribs){
+	mAttribs = attribs;
 }
 
 } // </wt>
