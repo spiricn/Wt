@@ -151,7 +151,7 @@ void WtEditor::updateTitle(){
 	ui.statusBar->showMessage( WTE_CTX.getWorkspaceFilePath() + " " + WTE_CTX.getAssetsFilePath() + " " + WTE_CTX.getSceneFilePath());
 }
 
-void WtEditor::onWorkspaceSwitch(){
+void WtEditor::onWorkspaceNew(){
 #if 0
 #if 0
 	if(!askYesNo(this, "Warning: All unsaved assets/scenes are going to be lost. Switch workspace?")){
@@ -409,4 +409,12 @@ void WtEditor::onAssetsUnloaded(){
 }
 
 void WtEditor::onAssetsLoaded(){
+}
+
+void WtEditor::onGlobalSave(){
+	if(!askYesNo(this, "Save everything ?\nThis includes assets, scene, importer settings, terrain heightmap, terrain map etc..")){
+		return;
+	}
+
+	WTE_CTX.save();
 }

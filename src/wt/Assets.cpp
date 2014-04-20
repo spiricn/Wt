@@ -19,6 +19,17 @@
 namespace wt
 {
 
+
+template<class T>
+void fixAbsolutePaths(Assets* thiz, AResourceManager<T>* manager){
+	for(AResourceManager<T>::ResourceIterator i=manager->getResourceIterator(); i.next(); i++){
+		i->setUri(
+			thiz->getRelativeURI(i->getUri())
+		);
+	}
+}
+
+
 Assets::Assets() : mFileSystem(NULL){
 	init();
 }

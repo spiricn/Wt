@@ -376,6 +376,8 @@ void TerrainEditTool::editAt(float x, float y){
 
 				float height = tex->getHeigth();
 
+				glViewport(0, 0, width, height);
+
 
 				wt::Color clr(
 					ui.materialIndex->currentIndex()==0, 
@@ -390,7 +392,7 @@ void TerrainEditTool::editAt(float x, float y){
 					// X
 					(width * uv.x) - brushSize/2,
 					// Y
-					(height*uv.y) - brushSize/2,
+					(height * uv.y) - brushSize/2,
 					brushSize,
 					brushSize,
 					clr);

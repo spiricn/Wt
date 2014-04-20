@@ -1,7 +1,6 @@
 #ifndef WT_GLSHADERPROGRAM_H
 #define WT_GLSHADERPROGRAM_H
 
-
 #include "wt/stdafx.h"
 
 #include "wt/GLShader.h"
@@ -18,13 +17,9 @@ namespace gl
 
 class ShaderProgram{
 public:
-	ShaderProgram() : mVertexShader(GL_VERTEX_SHADER),
-		mFragmentShader(GL_FRAGMENT_SHADER), mGeometryShader(GL_GEOMETRY_SHADER), mHasGeometryShader(false), mHasFragmentShader(false){
-	}
+	ShaderProgram();
 
-	~ShaderProgram(){
-		destroy();
-	}
+	~ShaderProgram();
 
 	void setTransformFeedbackVaryings(uint32_t count, ...);
 
@@ -47,9 +42,6 @@ public:
 	GLuint getUniformBlockIndex(const String& name) const;
 
 	void createUniformBlockBindPoint(const String& blockName, uint32_t point);
-
-	template<typename T>
-	void setUniformValFmt(const T& val, const char* nameFmt, ...);
 
 	GLint getUniformLocationFmt(const String& nameFmt, ...);
 
@@ -108,14 +100,11 @@ public:
 
 	void use();
 
+	template<typename T>
+	void setUniformValFmt(const T& val, const char* nameFmt, ...);
+
 private:
 	WT_DISALLOW_COPY(ShaderProgram)
-
-	Shader mVertexShader, mFragmentShader, mGeometryShader;
-	String mLogs, mLog;
-	GLuint mProgHandle;
-	bool mHasGeometryShader;
-	bool mHasFragmentShader;
 
 	void create();
 
@@ -125,26 +114,17 @@ private:
 
 	void attach(Shader& shader);
 
-}; // </GLShaderPRogram>
-
-
-template<class T>
-class ShaderUniform{
 private:
-	ShaderProgram* mProgram;
-	GLint mLocation;
-	T mValue;
-public:
-	ShaderUniform(ShaderProgram* program, const String& name) : mProgram(program){
-		mLocation = mProgram->getUniformLocation(name);
-	}
-
-	ShaderUniform& operator=(const T& value){
-		mProgram->setUniformVal(mLocation, value);
-		return *this;
-	}
-
-};
+	Shader mVertexShader;
+	Shader mFragmentShader;
+	Shader mGeometryShader;
+	String mLogs;
+	String mLog;
+	GLuint mProgHandle;
+	bool mHasGeometryShader;
+	bool mHasFragmentShader;
+	bool mCreated;
+}; // </GLShaderPRogram>
 
 template<typename T>
 void ShaderProgram::setUniformValFmt(const T& val, const char* nameFmt, ...){
@@ -161,8 +141,8 @@ void ShaderProgram::setUniformValFmt(const T& val, const char* nameFmt, ...){
 	setUniformVal(loc, val);
 }
 
-}; // </gl>
+} // </gl>
 
+} // </wt>
 
-}; // </wt>
-#endif
+#endif // </WT_GLSHADERPROGRAM_H>

@@ -14,6 +14,7 @@ WT_DECLARE_DEMO(GuiDemo);
 WT_DECLARE_DEMO(ParticleDemo);
 WT_DECLARE_DEMO(ScriptDemo);
 WT_DECLARE_DEMO(SoundDemo);
+WT_DECLARE_DEMO(TransformDemo);
 
 #undef WT_DEMO_NO_CONSOLE
 
@@ -53,6 +54,8 @@ int main(){
 		WT_REGISTER_DEMO(ScriptDemo);
 
 		WT_REGISTER_DEMO(SoundDemo);
+
+		WT_REGISTER_DEMO(TransformDemo);
 	}
 
 	DemoManager::getSingleton().start();

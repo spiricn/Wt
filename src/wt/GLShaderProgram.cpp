@@ -9,12 +9,25 @@
 
 #define TD_TRACE_TAG "ShaderProgram"
 
-namespace wt{
+namespace wt
+{
 
-namespace gl{
+namespace gl
+{
+
+
+ShaderProgram::ShaderProgram() : mVertexShader(GL_VERTEX_SHADER),
+	mFragmentShader(GL_FRAGMENT_SHADER), mGeometryShader(GL_GEOMETRY_SHADER),
+	mHasGeometryShader(false), mHasFragmentShader(false), mCreated(false){
+}
+
+ShaderProgram::~ShaderProgram(){
+	destroy();
+}
 
 void ShaderProgram::create(){
 	mProgHandle = glCreateProgram();
+	mCreated = true;
 }
 
 GLint ShaderProgram::getUniformLocationFmt(const String& nameFmt, ...){
@@ -52,6 +65,10 @@ void ShaderProgram::createUniformBlockBindPoint(const String& blockName, uint32_
 }
 
 void ShaderProgram::destroy(){
+	if(!mCreated){
+		return;
+	}
+
 	gl( UseProgram(0) );
 	detach(mVertexShader);
 

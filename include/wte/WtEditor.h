@@ -59,7 +59,7 @@ private slots:
 
 	void onSceneReload();
 
-	void onWorkspaceSwitch();
+	void onWorkspaceNew();
 
 	void onWorkspaceSave();
 
@@ -68,6 +68,8 @@ private slots:
 	void onAssetsUnloaded();
 
 	void onAssetsLoaded();
+
+	void onGlobalSave();
 
 private:
 	QString mCmdArg;

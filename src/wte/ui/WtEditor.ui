@@ -67,8 +67,9 @@
     <property name="title">
      <string>Workspace</string>
     </property>
-    <addaction name="actionWorkspaceSwitch"/>
+    <addaction name="actionWorkspaceNew_2"/>
     <addaction name="actionWorkspaceSave"/>
+    <addaction name="actionSave_Everything"/>
    </widget>
    <addaction name="menuWorkspace"/>
    <addaction name="menuAssets"/>
@@ -95,24 +96,15 @@
    <property name="text">
     <string>Save</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
   </action>
   <action name="actionAssetsNew">
    <property name="text">
     <string>New</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+N, Ctrl+S</string>
-   </property>
   </action>
   <action name="actionAssetsOpen">
    <property name="text">
     <string>Open</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionAssetsReload">
@@ -179,9 +171,9 @@
     <string>Clear</string>
    </property>
   </action>
-  <action name="actionWorkspaceSwitch">
+  <action name="actionWorkspaceNew_2">
    <property name="text">
-    <string>Switch</string>
+    <string>New</string>
    </property>
   </action>
   <action name="actionWorkspaceNew">
@@ -192,6 +184,14 @@
   <action name="actionWorkspaceSave">
    <property name="text">
     <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_Everything">
+   <property name="text">
+    <string>Save Everything</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>
@@ -393,10 +393,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionWorkspaceSwitch</sender>
+   <sender>actionWorkspaceNew_2</sender>
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
-   <slot>onWorkspaceSwitch()</slot>
+   <slot>onWorkspaceNew()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -413,6 +413,22 @@
    <signal>triggered()</signal>
    <receiver>WtEditorClass</receiver>
    <slot>onWorkspaceSave()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave_Everything</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onGlobalSave()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -441,7 +457,8 @@
   <slot>onSceneSaveAs()</slot>
   <slot>onSceneReload()</slot>
   <slot>onSceneClear()</slot>
-  <slot>onWorkspaceSwitch()</slot>
+  <slot>onWorkspaceNew()</slot>
   <slot>onWorkspaceSave()</slot>
+  <slot>onGlobalSave()</slot>
  </slots>
 </ui>

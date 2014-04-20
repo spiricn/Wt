@@ -6,6 +6,8 @@
 #include "wt/Transform.h"
 #include "wt/ATransformable.h"
 
+#include "wt/stdafx.h"
+
 namespace wt
 {
 
@@ -75,9 +77,13 @@ public:
 
 	void setOrientation(const glm::vec3& fw, const glm::vec3& up);
 
+	bool contains(const glm::vec3& point);
+
+	bool contains(const physx::PxBounds3& bounds);
+
 private:
 	void rebuildProjectionMatrix();
-
+	
 private:
 	// Projection params
 	ProjectionType mProjectionType;
@@ -91,6 +97,7 @@ private:
 	glm::vec3 mUpVector;
 	glm::vec3 mRightVector;
 
+	float mFrustum[6][4];
 }; // </Camera>
 
 } // </wt>

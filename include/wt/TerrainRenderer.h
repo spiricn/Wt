@@ -14,7 +14,7 @@ class TerrainNode;
 
 class TerrainRenderer : public ARenderer{
 public:
-	TerrainRenderer();
+	TerrainRenderer(bool boundsRenderer);
 
 	void create();
 
@@ -27,7 +27,9 @@ public:
 private:
 	void render(Scene* scene, const TerrainNode* node);
 
+private:
 	gl::ShaderProgram mShader;
+	bool mBoundsRenderer;
 
 }; // </TerrainRenderer>
 

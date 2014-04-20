@@ -36,23 +36,6 @@ namespace wt
 
 class Assets : public AResourceSystem, public Singleton<Assets>{
 public:
-	enum ResourceType{
-		eTYPE_INVALID = -1,
-
-		eTYPE_IMAGE,
-		eTYPE_TEXTURE,
-		eTYPE_SKY_BOX,
-		eTYPE_ANIMATION,
-		eTYPE_MODEL,
-		eTYPE_SOUND,
-		eTYPE_PARTICLE,
-		eTYPE_HEIGHTMAP,
-		eTYPE_SCRIPT,
-
-		eTYPE_MAX
-	}; // </ResourceType>
-
-public:
 	Assets();
 
 	~Assets();
@@ -82,9 +65,6 @@ public:
 	AResourceManager<Heightmap>* getHeightmapManager();
 
 	AResourceManager<ScriptResource>* getScriptManager();
-
-	template<class T>
-	void fixAbsolutePaths(AResourceManager<T>* manager);
 
 	template<class T>
 	void load(AResourceManager<T>* manager);
@@ -190,8 +170,17 @@ private:
 
 	void init();
 
-	Profiler mProfiler;
 
+	template<class T>
+	void serialize(AResourceManager<T>* manager, const String& name, lua::LuaObject& table);
+
+	template<class T>
+	void deserialize(AResourceManager<T>* manager, const String& name, const lua::LuaObject& table);
+
+	void deserialize(const LuaObject& assets);
+
+private:
+	Profiler mProfiler;
 	AResourceManager<Image>* mImageManager;
 	AResourceManager<Texture2D>* mTextureManager;
 	AResourceManager<Model>* mModelManager;
@@ -204,27 +193,9 @@ private:
 	lua::State mLuaState;
 	AResourceManager<Heightmap>* mHeightmapManager;
 	AResourceManager<ScriptResource>* mScriptManager;
-
-	template<class T>
-	void serialize(AResourceManager<T>* manager, const String& name, lua::LuaObject& table);
-
-	template<class T>
-	void deserialize(AResourceManager<T>* manager, const String& name, const lua::LuaObject& table);
-
-	void deserialize(const LuaObject& assets);
-
 }; // </Assets>
 
 #define TD_TRACE_TAG "Assets"
-
-template<class T>
-void Assets::fixAbsolutePaths(AResourceManager<T>* manager){
-	for(AResourceManager<T>::ResourceIterator i=manager->getResourceIterator(); i.next(); i++){
-		i->setUri(
-			getRelativeURI(i->getUri())
-			);
-	}
-}
 
 template<class T>
 void Assets::load(AResourceManager<T>* manager){
@@ -251,7 +222,7 @@ void Assets::create(AResourceManager<T>* manager){
 template<class T>
 void Assets::serialize(AResourceManager<T>* manager, const String& name, lua::LuaObject& table){
 
-	fixAbsolutePaths(manager);
+	fixAbsolutePaths(this, manager);
 
 	lua::LuaObject managerTable = getLuastate()->newTable();
 	table.Set(name.c_str(), managerTable);

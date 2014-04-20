@@ -318,7 +318,8 @@ void WtEditorContext::createWorkspace(QString rootDir, QString filePath){
 
 	saveWorkspace(filePath);
 
-	emit workspaceLoaded();
+	loadWorkspace(filePath);
+	//emit workspaceLoaded();
 }
 
 void WtEditorContext::unloadWorkspace(){
