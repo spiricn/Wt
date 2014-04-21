@@ -19,6 +19,8 @@ public:
 	void onToolGainFocus();
 
 protected slots:
+	void onAnimateActor();
+
 	void onEditModel();
 
 	void onAttachBoneChanged(QString);

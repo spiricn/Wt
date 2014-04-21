@@ -5,7 +5,6 @@
 #include <wt/FileSystemFactory.h>
 #include <wt/Lua.h>
 
-#include "wte/ModelImporterTab.h"
 #include "wte/FilePicker.h"
 #include "wte/WtEditor.h"
 #include "wte/Utils.h"
@@ -43,10 +42,6 @@ WtEditor::WtEditor(QWidget *parent, Qt::WFlags flags, int argc, char* argv[])
 	connect(mWorldEdit->ui.sceneView, SIGNAL(initialized()),
 		this, SLOT(onOpenGLContextCreated()));
 
-	// Model importer tab
-	ModelImporterTab* importer = new ModelImporterTab(this, WTE_CTX.getAssets());
-	ui.mainTabWidget->addTab(importer, "Model importer");
-	
 	ui.mainTabWidget->setCurrentWidget(mWorldEdit);
 
 	try{

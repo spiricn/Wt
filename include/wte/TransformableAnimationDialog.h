@@ -1,18 +1,19 @@
 #ifndef WTE_CAMERAANIMATIONDIALOG_H
 #define WTE_CAMERAANIMATIONDIALOG_H
 
-#include "ui_CameraAnimationDialog.h"
+#include "ui_TransformableAnimationDialog.h"
 
 #include <wt/Scene.h>
 #include <wt/NodeAnimation.h>
 #include <wt/ProcessManager.h>
 #include <wt/TransformableAnimator.h>
 
-class CameraAnimationDialog : public QDialog, public wt::TransformableAnimator::IListener{
-Q_OBJECT
+class TransformableAnimationDialog : public QDialog, public wt::TransformableAnimator::IListener{
+public:
+	Q_OBJECT
 
 public:
-    CameraAnimationDialog(QWidget* parent, wt::Scene* scene, wt::ProcessManager* procManager);
+    TransformableAnimationDialog(QWidget* parent, wt::ATransformable* tf, wt::ProcessManager* procManager);
 
 	void onAnimationProgress(wt::TransformableAnimator* animator, float progress);
 
@@ -25,32 +26,11 @@ private:
 		QTreeWidgetItem* widgetItem;
 		wt::NodeAnimation::PositionKey* posKey;
 		wt::NodeAnimation::RotationKey* rotKey;
-	};
-
-
-	void clear();
-
-	void refreshTimes();
-
-	float getKeyframeAbsTime(Keyframe* kf);
-
-	void selectKeyframe(Keyframe* kf);
-
-	void setKeyframe();
-
-	Keyframe* findById(int32_t id);
+	}; // </Keyframe>
 
 	typedef std::vector<Keyframe*> KeyframeSet;
 
-    Ui::CameraAnimationDialog ui;
-	wt::Scene* mScene;
-	wt::ProcessManager* mProcManager;
-	KeyframeSet mKeyframes;
-	Keyframe* mCurrentKeyframe;
-	wt::NodeAnimation* mNodeAnimation;
-	wt::TransformableAnimator* mAnimationPlayer;
-
-protected slots:
+private slots:
 	void onAnimationSave();
 
 	void onKeyframeAdd();
@@ -77,6 +57,28 @@ protected slots:
 
 	void onPlay();
 
+private:
+
+	void clear();
+
+	void refreshTimes();
+
+	float getKeyframeAbsTime(Keyframe* kf);
+
+	void selectKeyframe(Keyframe* kf);
+
+	void setKeyframe();
+
+	Keyframe* findById(int32_t id);
+
+private:
+	Ui::TransformableAnimationDialog ui;
+	wt::ProcessManager* mProcManager;
+	KeyframeSet mKeyframes;
+	Keyframe* mCurrentKeyframe;
+	wt::NodeAnimation* mNodeAnimation;
+	wt::TransformableAnimator* mAnimationPlayer;
+	wt::ATransformable* mTarget;
 }; // </CameraAnimationDialog>
 
 #endif // </WTE_CAMERAANIMATIONDIALOG_H>

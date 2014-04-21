@@ -21,7 +21,7 @@
 
 #define IMPORTER_SETTINGS_TABLE_NAME "importer_settings"
 
-ModelImporterTab::ModelImporterTab(QWidget* parent, wt::AResourceSystem* assets) : QWidget(parent), mAssets(assets){
+ModelImporterTab::ModelImporterTab(QWidget* parent, AToolManager* manager) : QWidget(parent), ATool(manager){
 	ui.setupUi(this);
 
 	setAcceptDrops(true);
@@ -124,7 +124,7 @@ void ModelImporterTab::importTexture(ImportData& data, const QString& meshName, 
 	bool textureExists = false;
 
 	if(duplicateTexture){
-		const QString duplicateTexturePath = mAssets->getFileSystem()->getRoot().c_str() + QString("/") + QString(duplicateTexture->getUri().c_str());
+		const QString duplicateTexturePath = WTE_CTX.getAssets()->getFileSystem()->getRoot().c_str() + QString("/") + QString(duplicateTexture->getUri().c_str());
 		
 		// Compare duplicate texture with the one we're importing
 		if(wt::utils::compareFiles(sourceTexturePath.toStdString(), duplicateTexturePath.toStdString())){
@@ -146,7 +146,7 @@ void ModelImporterTab::importTexture(ImportData& data, const QString& meshName, 
 				if(texture){
 					// Found a texture with this generated name, check if it's the same file
 					if(wt::utils::compareFiles(sourceTexturePath.toStdString(),
-						(mAssets->getFileSystem()->getRoot().c_str() + QString("/") + texture->getUri().c_str()).toStdString())){
+						(WTE_CTX.getAssets()->getFileSystem()->getRoot().c_str() + QString("/") + texture->getUri().c_str()).toStdString())){
 							// Same files we can use this texture instead
 							resultTexture = texture;
 							textureExists = true;
@@ -215,8 +215,8 @@ void ModelImporterTab::importModel(ImportData& data){
 	}
 
 	// Save the converted model to workspace
-	wt::String relUri = wt::utils::toRelative(mAssets->getFileSystem()->getRoot(), destinationModelPath.toStdString());
-	mAssets->getModelManager()->save(relUri, data.model);
+	wt::String relUri = wt::utils::toRelative(WTE_CTX.getAssets()->getFileSystem()->getRoot(), destinationModelPath.toStdString());
+	WTE_CTX.getAssets()->getModelManager()->save(relUri, data.model);
 	data.model->setUri(relUri);
 
 	for(wt::AssimpModelLoader::TextureMap::iterator iter=data.textureMap.begin(); iter!=data.textureMap.end(); iter++){
@@ -238,7 +238,7 @@ void ModelImporterTab::import(const QString& srcModel){
 	}
 
 	// Get model group
-	data.modelGroup = ResourcePickerDialog::pickGroup<wt::Model>(this, mAssets->getModelManager(), "Pick model group");
+	data.modelGroup = ResourcePickerDialog::pickGroup<wt::Model>(this, WTE_CTX.getAssets()->getModelManager(), "Pick model group");
 	if(data.modelGroup == NULL){
 		TRACEW("Group not picked, aborting");
 		return;
@@ -275,10 +275,10 @@ void ModelImporterTab::import(const QString& srcModel){
 
 	// Texture group where the new skin textures are going to be created in
 	// TODO don't hard core this?
-	data.textureGroup = mAssets->getTextureManager()->getGroupFromPath("$ROOT/model");
+	data.textureGroup = WTE_CTX.getAssets()->getTextureManager()->getGroupFromPath("$ROOT/model");
 	if(!data.textureGroup){
 		// Create the group if it doesn't exist
-		data.textureGroup = mAssets->getTextureManager()->createGroup("model");
+		data.textureGroup = WTE_CTX.getAssets()->getTextureManager()->createGroup("model");
 	}
 
 	importModel(data);
@@ -312,7 +312,7 @@ void ModelImporterTab::onBatchConvert(){
 		std::string convModelName = baseName+".wtm";
 		
 		/*try{*/
-			mAssets->getModelManager()->save(convModelName, &model);
+			WTE_CTX.getAssets()->getModelManager()->save(convModelName, &model);
 			LOGI("Converted model saved to \"%s\"", convModelName.c_str());
 		/*}catch(wt::Exception& e){
 			QMessageBox::critical(this,
@@ -324,7 +324,7 @@ void ModelImporterTab::onBatchConvert(){
 
 		std::string convAniName = baseName+".wta";
 		/*try{*/
-			mAssets->getAnimationManager()->save(convAniName, &animation);
+			WTE_CTX.getAssets()->getAnimationManager()->save(convAniName, &animation);
 			LOGI("Converted animation saved to \"%s\"", convAniName.c_str());
 	/*	}catch(wt::Exception& e){
 			QMessageBox::critical(this,

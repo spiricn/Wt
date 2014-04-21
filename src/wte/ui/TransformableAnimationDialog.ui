@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CameraAnimationDialog</class>
- <widget class="QWidget" name="CameraAnimationDialog">
+ <class>TransformableAnimationDialog</class>
+ <widget class="QWidget" name="TransformableAnimationDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    <item row="3" column="2">
     <widget class="QPushButton" name="pushButton_8">
      <property name="text">
-      <string>Load</string>
+      <string>Load from file</string>
      </property>
     </widget>
    </item>
@@ -149,6 +149,13 @@
      </layout>
     </widget>
    </item>
+   <item row="4" column="2">
+    <widget class="QPushButton" name="pushButton_9">
+     <property name="text">
+      <string>Load</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
@@ -156,12 +163,12 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onKeyframeAdd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>137</x>
-     <y>264</y>
+     <x>146</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
      <x>463</x>
@@ -172,12 +179,12 @@
   <connection>
    <sender>pushButton_5</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onKeyframeSet()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>419</y>
+     <x>100</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>320</x>
@@ -188,12 +195,12 @@
   <connection>
    <sender>time</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onKeyframeTimeSet(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>212</x>
-     <y>446</y>
+     <x>444</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
      <x>334</x>
@@ -204,12 +211,12 @@
   <connection>
    <sender>treeWidget</sender>
    <signal>activated(QModelIndex)</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onKeyframeSelected()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>80</y>
+     <x>113</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>224</x>
@@ -220,12 +227,12 @@
   <connection>
    <sender>playPause</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onPlay()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>120</x>
-     <y>362</y>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
      <x>463</x>
@@ -236,12 +243,12 @@
   <connection>
    <sender>pushButton_6</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onAnimationSave()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>303</x>
-     <y>264</y>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
      <x>463</x>
@@ -252,12 +259,12 @@
   <connection>
    <sender>pushButton_7</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onKeyframeGoTo()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>191</x>
-     <y>420</y>
+     <x>426</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>282</x>
@@ -268,12 +275,12 @@
   <connection>
    <sender>pushButton_8</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onAnimationLoad()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>454</x>
-     <y>264</y>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
      <x>328</x>
@@ -284,12 +291,12 @@
   <connection>
    <sender>pushButton_3</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onClear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>439</x>
-     <y>434</y>
+     <x>454</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
      <x>464</x>
@@ -300,12 +307,12 @@
   <connection>
    <sender>horizontalSlider</sender>
    <signal>sliderMoved(int)</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onAnimationSeek(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>194</x>
-     <y>328</y>
+     <x>213</x>
+     <y>400</y>
     </hint>
     <hint type="destinationlabel">
      <x>200</x>
@@ -316,12 +323,12 @@
   <connection>
    <sender>pushButton_2</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onStop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>158</x>
-     <y>361</y>
+     <x>228</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -332,12 +339,12 @@
   <connection>
    <sender>pushButton_4</sender>
    <signal>clicked()</signal>
-   <receiver>CameraAnimationDialog</receiver>
+   <receiver>TransformableAnimationDialog</receiver>
    <slot>onKeyframeDelete()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>280</y>
+     <x>93</x>
+     <y>352</y>
     </hint>
     <hint type="destinationlabel">
      <x>216</x>

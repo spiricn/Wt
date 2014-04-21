@@ -11,6 +11,7 @@
 #include "wte/ModelEditDialog.h"
 #include "wte/WtEditorContext.h"
 #include "wte/PhysicsDescDialog.h"
+#include "wte/TransformableAnimationDialog.h"
 
 #include <wt/ColliderActor.h>
 #include <wt/Sound.h>
@@ -688,4 +689,14 @@ void ActorEditTool::onEditPhysics(){
 		QMessageBox::critical(this, "Error", 
 			QString("Error creating physics actor\n\n") + e.getDescription().c_str());
 	}
+}
+
+void ActorEditTool::onAnimateActor(){
+	if(!mSelectedActor){
+		return;
+	}
+
+	TransformableAnimationDialog* dlg = new TransformableAnimationDialog(this, mSelectedActor->getTransformable(), WTE_CTX.getProcManager());
+
+	dlg->show();
 }

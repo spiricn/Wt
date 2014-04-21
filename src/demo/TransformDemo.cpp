@@ -31,12 +31,7 @@ public:
 		}
 
 		//getScene()->getCamera().lookAt(lookPos);
-		//mCube1->lookAt(lookPos);
-
-		{
-			//glm::vec3 pos;
-			mCube1->getTransformable()->moveForward(5 * dt);
-		}
+		mCube1->lookAt(lookPos);
 	}
 
 	void onDemoStart(const LuaObject& config){
@@ -72,6 +67,7 @@ public:
 			animator->setAnimationAttribs( TransformableAnimator::eATTRIB_POSITION | TransformableAnimator::eATTRIB_ROTATION );
 		}
 
+		getRenderer()->setRenderAxes(true);
 
 		setupGui();
 	}

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>635</width>
-    <height>492</height>
+    <width>412</width>
+    <height>535</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,8 +24,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>615</width>
-        <height>472</height>
+        <width>392</width>
+        <height>515</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
@@ -51,7 +51,7 @@
           <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="currentIndex">
-          <number>4</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="modelledActor">
           <layout class="QGridLayout" name="gridLayout_2">
@@ -258,13 +258,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>New actor</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="pushButton_3">
            <property name="text">
             <string>Delete selected</string>
@@ -279,6 +272,24 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>New actor</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="5" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="pushButton_6">
+           <property name="text">
+            <string>Edit Actor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="pushButton_9">
            <property name="text">
             <string>Edit Collider</string>
@@ -286,9 +297,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_6">
+          <widget class="QPushButton" name="pushButton_10">
            <property name="text">
-            <string>Edit Actor</string>
+            <string>Animate</string>
            </property>
           </widget>
          </item>
@@ -349,8 +360,8 @@
    <slot>onNewActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>204</x>
-     <y>471</y>
+     <x>287</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>490</x>
@@ -381,8 +392,8 @@
    <slot>onToggleBrush()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>471</y>
+     <x>97</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>190</x>
@@ -445,8 +456,8 @@
    <slot>onDeleteActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>471</y>
+     <x>389</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>357</x>
@@ -541,8 +552,8 @@
    <slot>onActorRename()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>409</x>
-     <y>471</y>
+     <x>484</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>379</x>
@@ -621,8 +632,8 @@
    <slot>onEditActor()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>614</x>
-     <y>471</y>
+     <x>674</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -653,8 +664,8 @@
    <slot>onAttach()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>605</x>
-     <y>274</y>
+     <x>665</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>495</x>
@@ -717,12 +728,28 @@
    <slot>onEditPhysics()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>497</x>
-     <y>469</y>
+     <x>579</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>493</x>
      <y>491</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_10</sender>
+   <signal>clicked()</signal>
+   <receiver>ActorEditTool</receiver>
+   <slot>onAnimateActor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>443</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>489</y>
     </hint>
    </hints>
   </connection>
@@ -756,5 +783,6 @@
   <slot>onActorVisibilityChange(bool)</slot>
   <slot>onEditModel()</slot>
   <slot>onEditPhysics()</slot>
+  <slot>onAnimateActor()</slot>
  </slots>
 </ui>

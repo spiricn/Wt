@@ -8,7 +8,7 @@
 
 #include <wt/SkyBox.h>
 #include "wte/WorldEditTab.h"
-#include "wte/CameraAnimationDialog.h"
+#include "wte/TransformableAnimationDialog.h"
 #include "wte/MainGLWidget.h"
 #include "wte/ResourcePickerDialog.h"
 #include "wte/TerrainEditTool.h"
@@ -20,6 +20,7 @@
 #include "wte/ProcessManagerTool.h"
 #include "wte/Scripter.h"
 #include "wte/ResourceTool.h"
+#include "wte/ModelImporterTab.h"
 
 #include <wt/SFSound.h>
 #include <wt/SceneLoader.h>
@@ -67,6 +68,11 @@ WorldEditTab::WorldEditTab(QWidget* parent) : QMainWindow(parent), mPrevDockWidg
 	addTool(
 		"Resource",
 		new ResourceTool(this, this)
+	);
+
+	addTool(
+		"Importer",
+		new ModelImporterTab(this, this)
 	);
 
 	connect(&WTE_CTX, SIGNAL(sceneLoaded()),
@@ -171,7 +177,7 @@ void WorldEditTab::onSetTransClicked(){
 
 
 void WorldEditTab::onCameraNewAnimation(){
-	CameraAnimationDialog* dlg = new CameraAnimationDialog(this, WTE_CTX.getScene(), &mProcManager);
+	TransformableAnimationDialog* dlg = new TransformableAnimationDialog(this, &WTE_CTX.getScene()->getCamera(), &mProcManager);
 
 	dlg->show();
 }

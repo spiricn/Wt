@@ -1,27 +1,29 @@
 #include "stdafx.h"
 
-#include "wte/CameraAnimationDialog.h"
+#include "wte/TransformableAnimationDialog.h"
 #include <wt/TransformableAnimator.h>
 #include "wte/WtEditorContext.h"
 
-#define TD_TRACE_TAG "CameraAnimationDialog"
+#define TD_TRACE_TAG "TransformableAnimationDialog"
 
-CameraAnimationDialog::CameraAnimationDialog(QWidget* parent, wt::Scene* scene, wt::ProcessManager* procManager) : QDialog(parent), 
-	mScene(scene), mCurrentKeyframe(NULL), mProcManager(procManager), mNodeAnimation(NULL), mAnimationPlayer(NULL){
+TransformableAnimationDialog::TransformableAnimationDialog(QWidget* parent, wt::ATransformable* tf, wt::ProcessManager* procManager) : QDialog(parent), 
+	mTarget(tf), mCurrentKeyframe(NULL), mProcManager(procManager), mNodeAnimation(NULL), mAnimationPlayer(NULL){
 
     ui.setupUi(this);
 
 	mNodeAnimation = new wt::NodeAnimation;
 
-	mAnimationPlayer = new wt::TransformableAnimator(&mScene->getCamera(), mNodeAnimation, false, false);
+	mAnimationPlayer = new wt::TransformableAnimator(mTarget, mNodeAnimation, false, false);
 	mAnimationPlayer->pause();
 
 	mProcManager->attach( mAnimationPlayer );
 
 	mAnimationPlayer->setListener(this);
+
+	mAnimationPlayer->setAnimationAttribs(0xFFFFFFFF);
 }
 
-float CameraAnimationDialog::getKeyframeAbsTime(Keyframe* kf){
+float TransformableAnimationDialog::getKeyframeAbsTime(Keyframe* kf){
 	float absTime = 0.0f;
 
 	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
@@ -35,7 +37,7 @@ float CameraAnimationDialog::getKeyframeAbsTime(Keyframe* kf){
 	return absTime;
 }
 
-CameraAnimationDialog::Keyframe* CameraAnimationDialog::addKeyframe(const glm::vec3& pos, const glm::quat& rot, float relTime){
+TransformableAnimationDialog::Keyframe* TransformableAnimationDialog::addKeyframe(const glm::vec3& pos, const glm::quat& rot, float relTime){
 	QTreeWidgetItem* item = new QTreeWidgetItem(ui.treeWidget);
 	
 	item->setText(0, QString("Keyframe %1").arg(mKeyframes.size()+1));
@@ -70,17 +72,17 @@ CameraAnimationDialog::Keyframe* CameraAnimationDialog::addKeyframe(const glm::v
 	return kf;
 }
 
-void CameraAnimationDialog::onAnimationSeek(int pos){
+void TransformableAnimationDialog::onAnimationSeek(int pos){
 	if(mAnimationPlayer){
 		mAnimationPlayer->setPosition( ((float)pos/100.0f) * mAnimationPlayer->getNodeAnimation()->getDuration() );
 	}
 }
 
-void CameraAnimationDialog::onClear(){
+void TransformableAnimationDialog::onClear(){
 	clear();
 }
 
-void CameraAnimationDialog::onKeyframeAdd(){
+void TransformableAnimationDialog::onKeyframeAdd(){
 	glm::vec3 pos;
 	glm::quat rot;
 	Keyframe* kf = addKeyframe(pos, rot, mKeyframes.empty() ? 0.0f : 1.0f);
@@ -89,7 +91,7 @@ void CameraAnimationDialog::onKeyframeAdd(){
 	setKeyframe();
 }
 
-void CameraAnimationDialog::selectKeyframe(Keyframe* newKeyframe){
+void TransformableAnimationDialog::selectKeyframe(Keyframe* newKeyframe){
 	Keyframe* prevKeyframe = mCurrentKeyframe;
 
 	mCurrentKeyframe = newKeyframe;
@@ -111,7 +113,7 @@ void CameraAnimationDialog::selectKeyframe(Keyframe* newKeyframe){
 	}
 }
 
-void CameraAnimationDialog::onKeyframeTimeSet(double val){
+void TransformableAnimationDialog::onKeyframeTimeSet(double val){
 	if(!mCurrentKeyframe){
 		return;
 	}
@@ -124,12 +126,12 @@ void CameraAnimationDialog::onKeyframeTimeSet(double val){
 	refreshTimes();
 }
 
-void CameraAnimationDialog::setKeyframe(){
-	mScene->getCamera().getTranslation(mCurrentKeyframe->posKey->value);
-	mScene->getCamera().getRotation(mCurrentKeyframe->rotKey->value);
+void TransformableAnimationDialog::setKeyframe(){
+	mTarget->getTranslation(mCurrentKeyframe->posKey->value);
+	mTarget->getRotation(mCurrentKeyframe->rotKey->value);
 }
 
-void CameraAnimationDialog::onKeyframeSet(){
+void TransformableAnimationDialog::onKeyframeSet(){
 	if(!mCurrentKeyframe){
 		return;
 	}
@@ -137,7 +139,7 @@ void CameraAnimationDialog::onKeyframeSet(){
 	setKeyframe();
 }
 
-void CameraAnimationDialog::onAnimationProgress(wt::TransformableAnimator* animator, float progress){
+void TransformableAnimationDialog::onAnimationProgress(wt::TransformableAnimator* animator, float progress){
 	ui.horizontalSlider->setValue(100*progress);
 	ui.labelTime->setText(
 		QString("Time: %1 sec").arg(progress*animator->getNodeAnimation()->getDuration())
@@ -155,7 +157,7 @@ void CameraAnimationDialog::onAnimationProgress(wt::TransformableAnimator* anima
 }
 
 // Brute force approach to updating NodeAnimation's keyframe absolute time from our relatives
-void CameraAnimationDialog::refreshTimes(){
+void TransformableAnimationDialog::refreshTimes(){
 	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
 		const float absTime = getKeyframeAbsTime(*iter);
 		(*iter)->posKey->time = absTime;
@@ -163,7 +165,7 @@ void CameraAnimationDialog::refreshTimes(){
 	}
 }
 
-void CameraAnimationDialog::onKeyframeDelete(){
+void TransformableAnimationDialog::onKeyframeDelete(){
 	QList<QTreeWidgetItem*> items = ui.treeWidget->selectedItems();
 
 	for(QList<QTreeWidgetItem*>::Iterator iter=items.begin(); iter!=items.end(); iter++){
@@ -189,19 +191,19 @@ void CameraAnimationDialog::onKeyframeDelete(){
 	refreshTimes();
 }
 
-void CameraAnimationDialog::onKeyframeGoTo(){
+void TransformableAnimationDialog::onKeyframeGoTo(){
 	if(!mCurrentKeyframe){
 		return;
 	}
 
-	mScene->getCamera().setTranslation(mCurrentKeyframe->posKey->value);
-	mScene->getCamera().setRotation(mCurrentKeyframe->rotKey->value);
+	mTarget->setTranslation(mCurrentKeyframe->posKey->value);
+	mTarget->setRotation(mCurrentKeyframe->rotKey->value);
 }
 
-void CameraAnimationDialog::onAnimationStateChanged(wt::TransformableAnimator*, wt::TransformableAnimator::State state){
+void TransformableAnimationDialog::onAnimationStateChanged(wt::TransformableAnimator*, wt::TransformableAnimator::State state){
 }
 
-void CameraAnimationDialog::onPlay(){
+void TransformableAnimationDialog::onPlay(){
 	if(mAnimationPlayer->getState() == wt::TransformableAnimator::eSTATE_PLAYING){
 		mAnimationPlayer->pause();
 	}
@@ -212,11 +214,11 @@ void CameraAnimationDialog::onPlay(){
 	}
 }
 
-void CameraAnimationDialog::onStop(){
+void TransformableAnimationDialog::onStop(){
 	mAnimationPlayer->stop();
 }
 
-CameraAnimationDialog::Keyframe* CameraAnimationDialog::findById(int32_t id){
+TransformableAnimationDialog::Keyframe* TransformableAnimationDialog::findById(int32_t id){
 	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
 		if((*iter)->id == id){
 			return *iter;
@@ -227,14 +229,14 @@ CameraAnimationDialog::Keyframe* CameraAnimationDialog::findById(int32_t id){
 }
 
 
-void CameraAnimationDialog::onKeyframeSelected(){
+void TransformableAnimationDialog::onKeyframeSelected(){
 	QTreeWidgetItem* item  = ui.treeWidget->currentItem();
 
 	selectKeyframe( findById( item->data(0, Qt::UserRole).toInt() ) );
 }
 
 
-void CameraAnimationDialog::onAnimationSave(){
+void TransformableAnimationDialog::onAnimationSave(){
 	QString res = QFileDialog::getSaveFileName(this, "Save animation", ".", "*.wta");;
 	if(!res.size()){
 		return;
@@ -250,7 +252,7 @@ void CameraAnimationDialog::onAnimationSave(){
 
 	wt::StreamPtr stream = new wt::FileIOStream(res.toStdString(), wt::AIOStream::eMODE_WRITE);
 
-	mScene->getAssets()->getAnimationManager()->getLoader()->save(stream, anim);
+	WTE_CTX.getAssets()->getAnimationManager()->getLoader()->save(stream, anim);
 
 	anim->setDuration(node->getDuration());
 
@@ -259,7 +261,7 @@ void CameraAnimationDialog::onAnimationSave(){
 	LOGI("Animation saved to \"%s\"", res.toStdString().c_str());
 }
 
-void CameraAnimationDialog::clear(){
+void TransformableAnimationDialog::clear(){
 	for(KeyframeSet::iterator iter=mKeyframes.begin(); iter!=mKeyframes.end(); iter++){
 		delete *iter;
 	}
@@ -274,7 +276,7 @@ void CameraAnimationDialog::clear(){
 	selectKeyframe(NULL);
 }
 
-void CameraAnimationDialog::onAnimationLoad(){
+void TransformableAnimationDialog::onAnimationLoad(){
 	QString res = QFileDialog::getOpenFileName(this, "Load animation", ".", "*.wta");
 
 	if(!res.size()){
@@ -285,7 +287,7 @@ void CameraAnimationDialog::onAnimationLoad(){
 
 	wt::StreamPtr stream = new wt::FileIOStream(res.toStdString(), wt::AIOStream::eMODE_READ);
 
-	mScene->getAssets()->getAnimationManager()->getLoader()->load(stream, anim);
+	WTE_CTX.getAssets()->getAnimationManager()->getLoader()->load(stream, anim);
 
 	wt::NodeAnimation* node = *anim->getNodeAnimationList().begin();
 

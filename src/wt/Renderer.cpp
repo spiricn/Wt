@@ -516,6 +516,8 @@ void Renderer::render(const ATransformable* tf, Camera* camera){
 	glm::vec3 start = pos;
 	glm::vec3 end;
 
+	gl( Disable(GL_TEXTURE_2D) );
+
 	glColor3f(1.0f, 0.0f, 0.0f);
 	{
 		glBegin(GL_LINES);
@@ -562,6 +564,8 @@ void Renderer::render(const PxBounds3& bounds, Camera* camera, const Color& clr)
 	gl( Disable(GL_DEPTH_TEST) );
 	gl( Disable(GL_BLEND) );
 
+	gl( Disable(GL_TEXTURE_2D) );
+
 	PxVec3 center = bounds.getCenter();
 	PxVec3 extents = bounds.getExtents();
 
@@ -597,6 +601,8 @@ void Renderer::render(const PxBounds3& bounds, Camera* camera, const Color& clr)
 	glEnd();
 
 	gl( PolygonMode(GL_FRONT_AND_BACK, GL_FILL) );
+
+	gl( Enable(GL_TEXTURE_2D) );
 }
 
 void Renderer::saveScreenshot(const String& path){

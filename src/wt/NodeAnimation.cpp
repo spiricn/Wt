@@ -240,7 +240,13 @@ void NodeAnimation::evaluate(float time, glm::vec3& translation,
 #endif
 
 	interpolate(mRotKeys, time, rotation);
+
+#if 1
+	// TODO scale disabled for now ( remove this after converting all current animations )
+	scale = glm::vec3(1.0f, 1.0f, 1.0f);
+#else
 	interpolate(mScaleKeys, time, scale);
+#endif
 }
 
 void NodeAnimation::evaluate(float time, glm::mat4x4& dst, bool useSplines) const{
@@ -248,9 +254,6 @@ void NodeAnimation::evaluate(float time, glm::mat4x4& dst, bool useSplines) cons
 	glm::quat rotation;
 
 	evaluate(time, translation, rotation, scale, useSplines);
-
-	// TODO remove this after converting all current animations
-	scale = glm::vec3(1, 1, 1);
 
 	dst = glm::translate(translation) * ( glm::mat4_cast(rotation) * glm::scale(scale) );
 }
