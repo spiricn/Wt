@@ -119,6 +119,8 @@ protected slots:
 
 	void onExecuteScript();
 
+	void onToggleAxes();
+
 signals:
 	void initialized();
 

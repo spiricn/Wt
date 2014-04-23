@@ -121,15 +121,18 @@ void TransformableAnimator::animate(){
 
 	mAnimation->evaluate(mCurrentTime, animPos, animRotation, animScale);
 
-	if(mAttribs & eATTRIB_SCALE == 0){
+	if( (mAttribs & eATTRIB_SCALE) == 0){
+		// Don't animate scale
 		mTarget->getScale(animScale);
 	}
 
-	if(mAttribs & eATTRIB_ROTATION == 0){
+	if( (mAttribs & eATTRIB_ROTATION) == 0){
+		// Don't animate rotation
 		mTarget->getRotation(animRotation);
 	}
 
-	if(mAttribs & eATTRIB_POSITION == 0){
+	if( (mAttribs & eATTRIB_POSITION) == 0){
+		// Don't animate position
 		mTarget->getTranslation(animPos);
 	}
 

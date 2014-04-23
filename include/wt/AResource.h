@@ -17,8 +17,6 @@ class AResourceGroup;
 template<typename T>
 class AResourceManager;
 
-typedef unsigned long ResourceHandle;
-
 template<class T>
 class AResource;
 
@@ -26,7 +24,7 @@ class AResourceSystem;
 
 
 template<class T>
-class AResource : public lua::ASerializable{
+class AResource : public IResource{
 public:
 	enum ResourceState{
 		eSTATE_UNLOADED,

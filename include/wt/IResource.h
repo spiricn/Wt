@@ -9,6 +9,8 @@
 namespace wt
 {
 
+typedef unsigned long ResourceHandle;
+
 class IResource{
 public:
 	enum ResourceType{
@@ -31,7 +33,19 @@ public:
 public:
 	virtual ResourceType getResourceType() = 0;
 
+	virtual String getPath() const = 0;
+
+	virtual ResourceHandle getHandle() const = 0;
+
+	virtual const String& getName() const = 0;
+
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const = 0;
+
+	virtual void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table) = 0;
+
 }; // </IResource>
+
+typedef std::set<IResource*> IResourceSet;
 
 } // </wt>
 

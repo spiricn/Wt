@@ -47,6 +47,10 @@ public:
 
 	MeshList::iterator getMeshListEnd();
 
+	MeshList::const_iterator getMeshListCBeg() const;
+
+	MeshList::const_iterator getMeshListCEnd() const;
+
 private:
 	void deleteMesh(Mesh* mesh);
 

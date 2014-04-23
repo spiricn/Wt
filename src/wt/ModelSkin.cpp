@@ -70,5 +70,13 @@ ModelSkin::Mesh* ModelSkin::createMesh(Geometry* geometry){
 	return mesh;
 }
 
+ModelSkin::MeshList::const_iterator ModelSkin::getMeshListCBeg() const{
+	return mMeshes.cbegin();
+}
+
+ModelSkin::MeshList::const_iterator ModelSkin::getMeshListCEnd() const{
+	return mMeshes.cend();
+}
+
 } // </wt>
 

@@ -42,7 +42,7 @@ public:
 
 	void create();
 
-	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst);
+	void serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const;
 
 	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& src);
 

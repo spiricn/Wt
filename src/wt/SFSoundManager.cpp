@@ -55,11 +55,14 @@ void SFSoundManager::setMuted(bool state){
 }
 
 ASoundBuffer* SFSoundManager::allocate(AResourceGroup<ASoundBuffer>* parent, const String& resourceName){
+	// TODO duplicate code
+
 	// Generate a new handle
 	ResourceHandle handle = newHandle();
 
 	// Allcoate the resource & store it
 	ASoundBuffer* rsrc = new SFSoundBuffer(this, handle, resourceName);
+	rsrc->setResourceType(IResource::eTYPE_SOUND);
 	mResources[handle] = rsrc;
 
 	rsrc->setGroup(parent);

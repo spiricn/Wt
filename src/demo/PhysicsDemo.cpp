@@ -189,6 +189,8 @@ public:
 		mActor = dynamic_cast<wt::ModelledActor*>(getScene()->findActorByName("actor"));
 		WT_ASSERT(mActor != NULL, "Missing actor");
 
+		getRenderer()->setRenderAxes(true);
+
 		PhysicsActor::Desc desc;
 		desc.type = PhysicsActor::eTYPE_DYNAMIC;
 		desc.controlMode = PhysicsActor::eCTRL_MODE_CONTROLLER;

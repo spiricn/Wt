@@ -67,6 +67,7 @@
     <property name="title">
      <string>Workspace</string>
     </property>
+    <addaction name="actionWorkspaceOpen"/>
     <addaction name="actionWorkspaceNew_2"/>
     <addaction name="actionWorkspaceSave"/>
     <addaction name="actionSave_Everything"/>
@@ -192,6 +193,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionWorkspaceOpen">
+   <property name="text">
+    <string>Open</string>
    </property>
   </action>
  </widget>
@@ -440,6 +446,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionWorkspaceOpen</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onWorkspaceOpen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onBtnSaveClick()</slot>
@@ -460,5 +482,6 @@
   <slot>onWorkspaceNew()</slot>
   <slot>onWorkspaceSave()</slot>
   <slot>onGlobalSave()</slot>
+  <slot>onWorkspaceOpen()</slot>
  </slots>
 </ui>

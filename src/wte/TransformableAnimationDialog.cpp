@@ -20,7 +20,7 @@ TransformableAnimationDialog::TransformableAnimationDialog(QWidget* parent, wt::
 
 	mAnimationPlayer->setListener(this);
 
-	mAnimationPlayer->setAnimationAttribs(0xFFFFFFFF);
+	mAnimationPlayer->setAnimationAttribs( wt::TransformableAnimator::eATTRIB_POSITION | wt::TransformableAnimator::eATTRIB_ROTATION );
 }
 
 float TransformableAnimationDialog::getKeyframeAbsTime(Keyframe* kf){

@@ -248,3 +248,10 @@ void WorldEditTab::onExecuteScript(){
 
 	WTE_CTX.getLuaState()->getStateOwner()->DoFile(path.toStdString().c_str());
 }
+
+void WorldEditTab::onToggleAxes(){
+	// TODO fix this
+	static bool state = false;
+	state = !state;
+	WTE_CTX.getRenderer()->setRenderAxes(state);
+}

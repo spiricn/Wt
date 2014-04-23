@@ -292,6 +292,8 @@ void WtEditorContext::save(){
 	// Notify everyone to save their settings
 	emit saveRequest();
 
+	saveWorkspace(mWorkspaceFilePath);
+
 	saveAssets(mAssetsFilePath);
 
 	saveScene(mSceneFilePath);

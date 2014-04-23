@@ -266,19 +266,19 @@ void Model::createHwBuffers(){
 }
 
 
-void Model::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+void Model::serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const{
 	AResource::serialize(luaState, dst);
 
 	// Skins
 	lua::LuaObject skins = getManager()->getResourceSystem()->getLuastate()->newTable();
 
 	dst.Set("skins", skins);
-	for(SkinMap::iterator i=mSkins.begin(); i!=mSkins.end(); i++){
+	for(SkinMap::const_iterator i=mSkins.cbegin(); i!=mSkins.cend(); i++){
 		// Create a skin table
 		lua::LuaObject skin = getManager()->getResourceSystem()->getLuastate()->newTable();
 		skins.Set(i->first.c_str(), skin);
 
-		for(ModelSkin::MeshList::iterator j=i->second->getMeshListBeg(); j!=i->second->getMeshListEnd(); j++){
+		for(ModelSkin::MeshList::const_iterator j=i->second->getMeshListCBeg(); j!=i->second->getMeshListCEnd(); j++){
 			ModelSkin::Mesh* mesh = *j;
 
 			lua::LuaObject skinEntry = getManager()->getResourceSystem()->getLuastate()->newTable();
@@ -318,7 +318,7 @@ void Model::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
 	lua::LuaObject animations = getManager()->getResourceSystem()->getLuastate()->newTable();
 	dst.Set("animations", animations);
 
-	for(AnimationMap::iterator i=mAnimations.begin(); i!=mAnimations.end(); i++){
+	for(AnimationMap::const_iterator i=mAnimations.cbegin(); i!=mAnimations.cend(); i++){
 		animations.Set(i->first.c_str(), i->second->getAnimation()->getPath().c_str());
 	}
 }

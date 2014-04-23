@@ -22,6 +22,8 @@ T* ARsrcManagerTab::createResource(RTWItem* item, const QString& rsrcName){
 	}
 
 	T* rsrc = parent->create(name.toStdString());
+	// TODO hardcoded set
+	mAssets->addToSet(rsrc, "");
 	mTree->createItem(item, RTWItem::RESOURCE, name, rsrc);
 
 	return rsrc;

@@ -2,9 +2,11 @@
 #ifndef WT_ARESOURCESYSTEM_H
 #define WT_ARESOURCESYSTEM_H
 
-namespace wt{
+namespace wt
+{
 
 // Forward declarations
+class IResource;
 class Image;
 class Animation;
 class Font;
@@ -28,8 +30,6 @@ template<class T>
 class AResourceManager;
 
 class AResourceSystem{
-public:
-
 public:
 	virtual ~AResourceSystem(){
 	}
@@ -79,8 +79,11 @@ public:
 	virtual String getRelativeURI(const String& uri) = 0;
 
 	virtual ASoundSystem* getSoundSystem() = 0;
-};
 
-}; // </wt>
+	virtual void addToSet(IResource* resource, const String& set) = 0;
+
+}; // </AResourceSystem>
+
+} // </wt>
 
 #endif // </WT_ARESOURCESYSTEM_H>

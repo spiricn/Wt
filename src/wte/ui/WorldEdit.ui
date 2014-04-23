@@ -57,6 +57,7 @@
    </attribute>
    <addaction name="actionToggleBones"/>
    <addaction name="actionToggleBoundingBoxes"/>
+   <addaction name="actionToggle_axes"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -144,6 +145,11 @@
   <action name="actionExecute_script">
    <property name="text">
     <string>Execute script</string>
+   </property>
+  </action>
+  <action name="actionToggle_axes">
+   <property name="text">
+    <string>Toggle axes</string>
    </property>
   </action>
  </widget>
@@ -255,6 +261,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionToggle_axes</sender>
+   <signal>triggered()</signal>
+   <receiver>WorldEdit</receiver>
+   <slot>onToggleAxes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onScreenshot()</slot>
@@ -272,5 +294,6 @@
   <slot>onCameraNewAnimation()</slot>
   <slot>onToggleToolFog()</slot>
   <slot>onExecuteScript()</slot>
+  <slot>onToggleAxes()</slot>
  </slots>
 </ui>

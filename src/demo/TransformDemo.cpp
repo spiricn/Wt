@@ -20,18 +20,45 @@ public:
 	void onUpdate(float dt){
 		getCameraControl()->handle(dt);
 
+		glm::vec3 eyePos;
+		getScene()->getCamera().getTranslation(eyePos);
 
-		glm::vec3 lookPos;
-		
+		glm::vec3 cube2Pos;
+		mCube2->getTransformable()->getTranslation(cube2Pos);
+
+		// Handle Camera
 		if(mUi->findView<gui::Checkbox>("cb_camera_look")->isChecked()){
-			getScene()->getCamera().getTranslation(lookPos);
-		}
-		else{
-			mCube2->getTransformable()->getTranslation(lookPos);
+
+			glm::vec3 fw;
+			mCube2->getTransformable()->getForwardVector(fw);
+
+			getScene()->getCamera().setTranslation( cube2Pos + fw * 50.0f );
+			getScene()->getCamera().lookAt(cube2Pos);
 		}
 
-		//getScene()->getCamera().lookAt(lookPos);
-		mCube1->lookAt(lookPos);
+		
+		// Handle Cube 1
+		{
+			mCube1->lookAt(cube2Pos);
+		}
+
+		// Handle Cube 3
+		{
+			glm::vec3 pos;
+			mCube3->getTransformable()->getTranslation(pos);
+
+			glm::vec3 currFw;
+			mCube3->getTransformable()->getForwardVector(currFw);
+
+			glm::vec3 endFw = glm::normalize( glm::vec3(eyePos.x, pos.y, eyePos.z) - pos );
+
+
+			float delta = glm::length(currFw - endFw);
+			if(delta > 00.1){
+				mCube3->rotate(glm::vec3(0, 1, 0), dt*60);
+			}
+		}
+
 	}
 
 	void onDemoStart(const LuaObject& config){
@@ -67,6 +94,11 @@ public:
 			animator->setAnimationAttribs( TransformableAnimator::eATTRIB_POSITION | TransformableAnimator::eATTRIB_ROTATION );
 		}
 
+		{
+			mCube3 = getScene()->findActorByName<ModelledActor>("cube_3");
+			WT_ASSERT(mCube2, "Missing resource");
+		}
+
 		getRenderer()->setRenderAxes(true);
 
 		setupGui();
@@ -78,7 +110,7 @@ public:
 
 		gui::Checkbox*  v = mUi->createView<gui::Checkbox>("cb_camera_look");
 		v->setSize(glm::vec2(200, 30));
-		v->setText("Look at camera");
+		v->setText("Lock camera");
 	}
 
 	String getScriptPath() const{
@@ -89,6 +121,7 @@ private:
 	gui::Layout* mUi;
 	ModelledActor* mCube1;
 	ModelledActor* mCube2;
+	ModelledActor* mCube3;
 	FloatInterpolator mCube2Interpolator;
 }; // </FogDemo>
 

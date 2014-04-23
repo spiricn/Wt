@@ -71,6 +71,8 @@ private slots:
 
 	void onGlobalSave();
 
+	void onWorkspaceOpen();
+
 private:
 	QString mCmdArg;
 	MainGLWidget* mMainGLWidget;

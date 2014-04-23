@@ -164,6 +164,8 @@ void ModelImporterTab::importTexture(ImportData& data, const QString& meshName, 
 	// Texture with that name does not exist, we need to import it
 	if(!textureExists){
 		resultTexture = data.textureGroup->create(destinationTextureName.toStdString());
+		// TODO hardcoded set
+		WTE_CTX.getAssets()->addToSet(resultTexture, "");
 
 		// Generate texture path
 		destinationTexturePath = data.imageDir + "/" + destinationTextureName + "." + sourceTextureExtension;
@@ -210,6 +212,10 @@ void ModelImporterTab::importModel(ImportData& data){
 	QString destinationModelPath = data.modelDir + "/" + data.modelName + "." WT_MODEL_EXTENSION;
 
 	if(QFile::exists(destinationModelPath)){
+		if(wt::utils::compareFiles(destinationModelPath.toStdString(), data.sourcePath.toStdString())){
+			TRACEW("Files same, reuse model?");
+		}
+
 		destinationModelPath = data.modelDir + "/" + generateFileName(data.modelDir, data.modelName, WT_MODEL_EXTENSION);
 		LOGW("Model file already exists, new name generated");
 	}
@@ -228,6 +234,8 @@ void ModelImporterTab::importModel(ImportData& data){
 
 void ModelImporterTab::import(const QString& srcModel){
 	ImportData data;
+	
+	data.sourcePath = srcModel;
 
 	// Get model name
 	bool ok;
@@ -266,6 +274,8 @@ void ModelImporterTab::import(const QString& srcModel){
 
 	// Create new model
 	data.model = data.modelGroup->create(data.modelName.toStdString());
+	// TODO hardcoded set
+	WTE_CTX.getAssets()->addToSet(data.model, "");
 
 	// Load the animation and the model along with the texture map (used for skinning)
 	wt::AssimpModelLoader::getSingleton().load(srcModel.toStdString(), *data.model, &animation, &data.textureMap);

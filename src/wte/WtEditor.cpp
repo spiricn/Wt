@@ -413,3 +413,14 @@ void WtEditor::onGlobalSave(){
 
 	WTE_CTX.save();
 }
+
+void WtEditor::onWorkspaceOpen(){
+	QString path = QFileDialog::getOpenFileName(this,
+		"Load workspace", "", "Workspace files (*." WORKSPACE_FILE_EXTENSION ")");
+
+	if(!path.size()){
+		return;
+	}
+
+	WTE_CTX.loadWorkspace(path);
+}

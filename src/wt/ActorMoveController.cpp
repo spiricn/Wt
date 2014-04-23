@@ -40,7 +40,7 @@ void ActorMoveController::update(float dt, bool moveForward, bool moveBackward, 
 	// Get the actor forward vector
 	glm::vec3 forward;
 	mActor->getTransformable()->getForwardVector(forward);
-	forward = glm::normalize( glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec3(1.0f, 0.0f, 1.0f) );
+	//forward = glm::normalize( glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec3(1.0f, 0.0f, 1.0f) );
 
 	glm::vec3 right = glm::normalize( glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)) );
 

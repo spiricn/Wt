@@ -40,6 +40,7 @@ private slots:
 private:
 	struct ImportData{
 		wt::ModelGroup* modelGroup;
+		QString sourcePath;
 		QString rootDir;
 		QString modelDir;
 		QString imageDir;

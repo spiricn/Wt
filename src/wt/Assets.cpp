@@ -14,6 +14,7 @@
 #define PARTICLE_MANAGER_TABLE_NAME "PARTICLE_MANAGER"
 #define HEIGHTMAP_MANAGER_TABLE_NAME "HEIGHTMAP_MANAGER"
 #define SCRIPT_MANAGER_TABLE_NAME "SCRIPT_MANAGER"
+#define FONT_MANAGER_TABLE_NAME "FONT_MANAGER"
 #define ASSETS_TABLE_NAME "ASSETS"
 
 namespace wt
@@ -36,15 +37,34 @@ Assets::Assets() : mFileSystem(NULL){
 
 void Assets::init(){
 	mImageManager = new AResourceManager<Image>(this, IResource::eTYPE_IMAGE);
+	mManagers.insert(new RegisteredManager(mImageManager, IMAGE_MANAGER_TABLE_NAME));
+
 	mTextureManager = new AResourceManager<Texture2D>(this, IResource::eTYPE_TEXTURE);
+	mManagers.insert(new RegisteredManager(mTextureManager, TEXTURE_MANAGER_TABLE_NAME));
+
 	mAnimationManager = new AResourceManager<Animation>(this, IResource::eTYPE_ANIMATION);
+	mManagers.insert(new RegisteredManager(mAnimationManager, ANIMATION_MANAGER_TABLE_NAME));
+
 	mModelManager = new AResourceManager<Model>(this, IResource::eTYPE_MODEL);
+	mManagers.insert(new RegisteredManager(mModelManager, MODEL_MANAGER_TABLE_NAME));
+
 	mSkyBoxManager = new AResourceManager<SkyBox>(this, IResource::eTYPE_SKYBOX);
+	mManagers.insert(new RegisteredManager(mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME));
+
 	mSoundManager = new SFSoundManager(this);
+	mManagers.insert(new RegisteredManager(mSoundManager, SOUND_MANAGER_TABLE_NAME));
+
 	mParticleManager = new AResourceManager<ParticleEffectResource>(this, IResource::eTYPE_PARTICLE);
+	mManagers.insert(new RegisteredManager(mParticleManager, PARTICLE_MANAGER_TABLE_NAME));
+
 	mHeightmapManager = new AResourceManager<Heightmap>(this, IResource::eTYPE_HEIGHTMAP);
+	mManagers.insert(new RegisteredManager(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME));
+
 	mFontManager = new AResourceManager<Font>(this, IResource::eTYPE_FONT);
+	mManagers.insert(new RegisteredManager(mFontManager, FONT_MANAGER_TABLE_NAME));
+
 	mScriptManager = new AResourceManager<ScriptResource>(this, IResource::eTYPE_SCRIPT);
+	mManagers.insert(new RegisteredManager(mScriptManager, SCRIPT_MANAGER_TABLE_NAME));
 
 	mImageManager->setLoader( &DevilImageLoader::getSingleton() );
 	mTextureManager->setLoader( &Texture2DLoader::getSingleton() );
@@ -56,7 +76,6 @@ void Assets::init(){
 	mHeightmapManager->setLoader( &HeightmapLoader::getSingleton() );
 	mScriptManager->setLoader( &ScriptLoader::getSingleton() );
 }
-
 
 template<class T>
 void deserializeSet(wt::lua::State* luaState, AResourceManager<T>* manager, const String& name, const lua::LuaObject& table, typename AResourceGroup<T>::ResourceSet& set){
@@ -127,17 +146,17 @@ void deserializeSet(wt::lua::State* luaState, AResourceManager<T>* manager, cons
 //	mScriptManager->createSet(scriptSet);
 //}
 
-void Assets::deserialize(const LuaObject& assets){
-	deserialize(mImageManager, IMAGE_MANAGER_TABLE_NAME, assets);
-	deserialize(mTextureManager, TEXTURE_MANAGER_TABLE_NAME, assets);
-	deserialize(mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, assets);
-	deserialize(mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, assets);
-	deserialize(mModelManager, MODEL_MANAGER_TABLE_NAME, assets);
-	deserialize(mSoundManager, SOUND_MANAGER_TABLE_NAME, assets);
-	deserialize(mParticleManager, PARTICLE_MANAGER_TABLE_NAME, assets);
-	deserialize(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME, assets);
-	deserialize(mScriptManager, SCRIPT_MANAGER_TABLE_NAME, assets);
-}
+//void Assets::deserialize(const LuaObject& assets){
+//	deserialize(mImageManager, IMAGE_MANAGER_TABLE_NAME, assets);
+//	deserialize(mTextureManager, TEXTURE_MANAGER_TABLE_NAME, assets);
+//	deserialize(mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, assets);
+//	deserialize(mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, assets);
+//	deserialize(mModelManager, MODEL_MANAGER_TABLE_NAME, assets);
+//	deserialize(mSoundManager, SOUND_MANAGER_TABLE_NAME, assets);
+//	deserialize(mParticleManager, PARTICLE_MANAGER_TABLE_NAME, assets);
+//	deserialize(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME, assets);
+//	deserialize(mScriptManager, SCRIPT_MANAGER_TABLE_NAME, assets);
+//}
 
 AFileSystem* Assets::getFileSystem(){
 	return mFileSystem;
@@ -196,192 +215,73 @@ ASoundSystem* Assets::getSoundSystem(){
 }
 
 void Assets::unloadAll(){
-	LOGD("Unloading assets..");
-
-	mImageManager->destroy();
-
-	mTextureManager->destroy();
-
-	mSkyBoxManager->destroy();
-
-	mAnimationManager->destroy();
-
-	mModelManager->destroy();
-
-	mSoundManager->destroy();
-
-	mFontManager->destroy();
-
-	mParticleManager->destroy();
-
-	mHeightmapManager->destroy();
-
-	mScriptManager->destroy();
-
-	LOGD("Done..");
+	for(ResourceSetMap::iterator i=mResourceSets.begin(); i!=mResourceSets.end(); i++){
+		unload(i->first);
+	}
 }
 
-void Assets::chunkedLoadStart(const String& path){
-	LuaPlus::LuaStateOwner state;
-	WT_ASSERT(mFileSystem, "No file system set");
+void Assets::reload(const String& setName){
+	for(ManagerSet::iterator iter=mManagers.begin(); iter!=mManagers.end(); iter++){
+		IResourceSet* set = getSet((*iter)->manager, setName);
 
-	String relativePath = utils::toRelative(mFileSystem->getRoot(), path);
-
-	Sp<AIOStream> stream = mFileSystem->open(relativePath, AIOStream::eMODE_READ);
-	try{
-		lua::doStream(state, *(stream.get()));
-	}catch(...){
-		LOGE("Error executing asset script");
-		throw;
-	}
-	LuaObject assets = state->GetGlobal("ASSETS");
-
-	chunkedLoadStart(assets);
-}
-
-void Assets::chunkedLoadStart(const LuaObject& table){
-	WT_ASSERT(!mChunkedLoadState.inProgress, "chunkedLoadStart already called");
-
-	deserialize(table);
-
-	mChunkedLoadState.inProgress = true;
-
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Image>(mImageManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Texture2D>(mTextureManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<SkyBox>(mSkyBoxManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Animation>(mAnimationManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Model>(mModelManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<ASoundBuffer>(mSoundManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Font>(mFontManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<ParticleEffectResource>(mParticleManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<Heightmap>(mHeightmapManager) );
-	mChunkedLoadState.loaders.push_back( new ChunkedLoader<ScriptResource>(mScriptManager) );
-
-	for(ChunkedLoaderList::iterator iter=mChunkedLoadState.loaders.begin(); iter!=mChunkedLoadState.loaders.end(); iter++){
-		mChunkedLoadState.totalResources += (*iter)->getTotalResources();
+		(*iter)->manager->loadSet(*set);
 	}
 
-	LOGD("Starting chunked load; totalResources=%u", mChunkedLoadState.totalResources);
-}
+	for(ManagerSet::iterator iter=mManagers.begin(); iter!=mManagers.end(); iter++){
+		IResourceSet* set = getSet((*iter)->manager, setName);
 
-Assets::ChunkedLoadStatus Assets::chunkedLoad(){
-	WT_ASSERT(mChunkedLoadState.inProgress, "chunkedLoadStart not called");
-
-	ChunkedLoadStatus stat;
-
-	IChunkedLoader* currentLoader = mChunkedLoadState.loaders[0];
-
-	if(currentLoader->load()){
-		stat.resourcesLoaded = ++mChunkedLoadState.currentResource;
-		stat.totalResources = mChunkedLoadState.totalResources;
-
-		return stat;
+		(*iter)->manager->createSet(*set);
 	}
-	else{
-		mChunkedLoadState.loaders.erase( mChunkedLoadState.loaders.begin() );
-
-		// Reached the end
-		if(mChunkedLoadState.loaders.empty()){
-			stat.finished = true;
-			mChunkedLoadState.inProgress = false;
-
-			// TODO move this elsewhere
-			mImageManager->createAll();
-			mTextureManager->createAll();
-			mSkyBoxManager->createAll();
-			mAnimationManager->createAll();
-			mSoundManager->createAll();
-			mModelManager->createAll();
-			mParticleManager->createAll();
-			mHeightmapManager->createAll();
-			mScriptManager->createAll();
-		}
-		else{
-			return chunkedLoad();
-		}
-	}
-
-	return stat;
-}
-
-void Assets::reload(const String& set){
-	LOGD("Loading images . . .");
-	mImageManager->loadAll();
-
-	LOGD("Loading textures . . .");
-	mTextureManager->loadAll();
-
-	LOGD("Loading skyboxes . . .");
-	mSkyBoxManager->loadAll();
-
-	LOGD("Loading animations . . .");
-	mAnimationManager->loadAll();
-
-	LOGD("Loading models . . .");
-	mModelManager->loadAll();
-
-	LOGD("Loading sounds . . .");
-	mSoundManager->loadAll();
-
-	LOGD("Loading particles . . .");
-	mParticleManager->loadAll();
-
-	LOGD("Loading heightmaps . . .");
-	mHeightmapManager->loadAll();
-
-	LOGD("Loading scripts . . .");
-	mScriptManager->loadAll();
-
-	LOGD("Creating resources");
-
-	mImageManager->createAll();
-
-	mTextureManager->createAll();
-
-	mSkyBoxManager->createAll();
-
-	mAnimationManager->createAll();
-
-	mSoundManager->createAll();
-
-	mModelManager->createAll();
-
-	mParticleManager->createAll();
-
-	mHeightmapManager->createAll();
-
-	mScriptManager->createAll();
-
-	LOGD("All assets created.");
 }
 
 String Assets::getRelativeURI(const String& uri){
 	return utils::toRelative(mFileSystem->getRoot(), uri);
 }
 
-//void Assets::append(const String& path){
-//	LuaPlus::LuaStateOwner state;
-//	WT_ASSERT(mFileSystem, "No file system set");
-//
-//	String relativePath = utils::toRelative(mFileSystem->getRoot(), path);
-//
-//	Sp<AIOStream> stream = mFileSystem->open(relativePath, AIOStream::eMODE_READ);
-//	try{
-//		lua::doStream(state, *(stream.get()));
-//	}catch(...){
-//		LOGE("Error executing asset script");
-//		throw;
-//	}
-//
-//	LuaObject assets = state->GetGlobal("ASSETS");
-//
-//	append(assets);
-//}
+Assets::ResourceTypeSetMap* Assets::getSetMap(const String& name){
+	ResourceTypeSetMap* res = NULL;
 
-void Assets::load(const LuaObject& table, const String& set){
-	deserialize(table);
+	ResourceSetMap::iterator iter = mResourceSets.find(name);
 
-	reload(set);
+	if(iter == mResourceSets.end()){
+		// Create new set
+		mResourceSets.insert( std::make_pair(name, res = new ResourceTypeSetMap) );
+
+		// Create a set for each resource type
+		for(int32_t i=0; i<IResource::eTYPE_MAX; i++){
+			res->insert(std::make_pair(static_cast<IResource::ResourceType>(i), new IResourceSet));
+		}
+	}
+	else{
+		res = iter->second;
+	}
+
+	return res;
+}
+
+IResourceSet* Assets::getSet(IResourceManager* manager, const String& name){
+	ResourceTypeSetMap* sets = getSetMap(name);
+
+	return sets->find(manager->getResourceType())->second;
+}
+
+void Assets::load(const LuaObject& table, const String& setName){
+	for(ManagerSet::iterator iter=mManagers.begin(); iter!=mManagers.end(); iter++){
+		RegisteredManager* rm = *iter;
+
+		IResourceSet* set = getSet(rm->manager, setName);
+
+		LuaObject managerTable = table.Get(rm->tableName.c_str());
+
+		if(!managerTable.IsTable()){
+			LOGW("Manager table \"%s\" not found - skipping deserialization", rm->tableName.c_str());
+			continue;
+		}
+
+		rm->manager->deserialize(&mLuaState, managerTable.Get("$ROOT"), *set);
+	}
+
+	reload(setName);
 }
 
 void Assets::load(const String& path, const String& set){
@@ -403,33 +303,35 @@ void Assets::load(const String& path, const String& set){
 }
 
 
-void Assets::save(LuaObject& assets, const String& set){
-	serialize(mImageManager, IMAGE_MANAGER_TABLE_NAME,
-		assets);
+void Assets::save(LuaObject& table, const String& setName){
+	for(ManagerSet::iterator iter=mManagers.begin(); iter!=mManagers.end(); iter++){
+		RegisteredManager* rm = *iter;
 
-	serialize(mTextureManager, TEXTURE_MANAGER_TABLE_NAME, 
-		assets);
+		IResourceSet* set = getSet(rm->manager, setName);
 
-	serialize(mSkyBoxManager, SKYBOX_MANAGER_TABLE_NAME, 
-		assets);
+		// Create a manager table
+		lua::LuaObject managerTable = getLuastate()->newTable();
+		table.Set(rm->tableName.c_str(), managerTable);
 
-	serialize(mModelManager, MODEL_MANAGER_TABLE_NAME, 
-		assets);
+		// Create a root group table
+		lua::LuaObject root = getLuastate()->newTable();
+		managerTable.Set("$ROOT", root);
 
-	serialize(mAnimationManager, ANIMATION_MANAGER_TABLE_NAME, 
-		assets);
+		// Serialize
+		rm->manager->serialize(&mLuaState, root, *set);
+	}
 
-	serialize(mSoundManager, SOUND_MANAGER_TABLE_NAME,
-		assets);
-
-	serialize(mParticleManager, PARTICLE_MANAGER_TABLE_NAME,
-		assets);
-
-	serialize(mHeightmapManager, HEIGHTMAP_MANAGER_TABLE_NAME,
-		assets);
-
-	serialize(mScriptManager, SCRIPT_MANAGER_TABLE_NAME,
-		assets);
+	// TODO figure out a better way of doing this
+	fixAbsolutePaths(this, mImageManager);
+	fixAbsolutePaths(this, mTextureManager);
+	fixAbsolutePaths(this, mAnimationManager);
+	fixAbsolutePaths(this, mModelManager);
+	fixAbsolutePaths(this, mSkyBoxManager);
+	fixAbsolutePaths(this, mSoundManager);
+	fixAbsolutePaths(this, mParticleManager);
+	fixAbsolutePaths(this, mHeightmapManager);
+	fixAbsolutePaths(this, mFontManager);
+	fixAbsolutePaths(this, mScriptManager);
 }
 
 void Assets::save(const String& path, const String& set){
@@ -447,35 +349,69 @@ void Assets::save(const String& path, const String& set){
 }
 
 Assets::~Assets(){
-	delete mImageManager;
-
-	delete mTextureManager;
-
-	delete mModelManager;
-
-	delete mSkyBoxManager;
-
-	delete mAnimationManager;
-
 	if(mFileSystem){
 		delete mFileSystem;
 	}
 
-	delete mParticleManager;
+	for(ResourceSetMap::iterator i=mResourceSets.begin(); i!=mResourceSets.end(); i++){
+		for(ResourceTypeSetMap::iterator j=i->second->begin(); j!=i->second->end(); j++){
+			delete j->second;
+		}
 
-	delete mSoundManager;
+		delete i->second;
+	}
 
-	delete mHeightmapManager;
-
-	delete mFontManager;
-
-	delete mScriptManager;
+	for(ManagerSet::iterator iter=mManagers.begin(); iter!=mManagers.end(); iter++){
+		delete (*iter)->manager;
+	}
 }
 
 void Assets::reloadAll(){
 }
 
-void Assets::unload(const String& set){
+void Assets::unload(const String& setName){
+	for(ManagerSet::iterator iter=mManagers.begin(); iter!=mManagers.end(); iter++){
+		RegisteredManager* rm = *iter;
+
+		IResourceSet* set = getSet(rm->manager, setName);
+
+		rm->manager->destroySet(*set);
+
+		set->clear();
+	}
+}
+
+IResourceManager* Assets::getManager(IResource::ResourceType type){
+	switch(type){
+	case IResource::eTYPE_ANIMATION:
+		return mAnimationManager;
+	case IResource::eTYPE_FONT:
+		return mFontManager;
+	case IResource::eTYPE_HEIGHTMAP:
+		return mHeightmapManager;
+	case IResource::eTYPE_IMAGE:
+		return mImageManager;
+	case IResource::eTYPE_MODEL:
+		return mModelManager;
+	case IResource::eTYPE_PARTICLE:
+		return mParticleManager;
+	case IResource::eTYPE_SCRIPT:
+		return mScriptManager;
+	case IResource::eTYPE_SKYBOX:
+		return mSkyBoxManager;
+	case IResource::eTYPE_TEXTURE:
+		return mTextureManager;
+	case IResource::eTYPE_SOUND:
+		return mSoundManager;
+	default:
+		WT_THROW("Unhandled resource type %d", type);
+	}
+}
+
+void Assets::addToSet(IResource* resource, const String& set){
+	IResourceManager* manager = getManager(resource->getResourceType());
+
+	getSet(manager, set)->insert(resource);
 }
 
 } // </wt>

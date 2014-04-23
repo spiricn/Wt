@@ -129,16 +129,28 @@ public:
 		save(stream, src);
 	}
 
-	void loadSet(AResourceGroup<T>::ResourceSet& resources){
-		for(AResourceGroup<T>::ResourceSet::iterator iter=resources.begin(); iter!=resources.end(); iter++){
-			load(*iter);
+	void loadSet(IResourceSet& resources){
+		for(IResourceSet::iterator iter=resources.begin(); iter!=resources.end(); iter++){
+			WT_ASSERT((*iter)->getResourceType() == mType, "Invalid resource type");
+
+			load( dynamic_cast<T*>(*iter) );
 		}
 	}
 
-	void createSet(AResourceGroup<T>::ResourceSet& resources){
-		for(AResourceGroup<T>::ResourceSet::iterator iter=resources.begin(); iter!=resources.end(); iter++){
-			createResource(*iter);
+	void createSet(IResourceSet& resources){
+		for(IResourceSet::iterator iter=resources.begin(); iter!=resources.end(); iter++){
+			WT_ASSERT((*iter)->getResourceType() == mType, "Invalid resource type");
+
+			createResource( dynamic_cast<T*>(*iter) );
 		}
+	}
+
+	virtual void serialize(lua::State* luaState, LuaPlus::LuaObject& table, IResourceSet& set){
+		AResourceGroup::serialize(luaState, table, set);
+	}
+
+	void deserialize(lua::State* luaState, const LuaPlus::LuaObject& table, IResourceSet& set){
+		AResourceGroup::deserialize(luaState, table, set);
 	}
 
 	T* load(AIOStream* stream, T* dst){
@@ -203,7 +215,35 @@ public:
 		return mResources.size();
 	}
 
-	virtual void destroy(){
+	void destroySet(IResourceSet& set){
+		for(IResourceSet::iterator iter=set.begin(); iter!=set.end(); iter++){
+			WT_ASSERT((*iter)->getResourceType() == mType, "Invalid resource type");
+
+			T* rsrc = dynamic_cast<T*>(*iter);
+
+			AResourceGroup* group = rsrc->getGroup();
+
+			// Delete a resource from this group
+			rsrc->getGroup()->deleteResource(rsrc);
+
+			AResourceGroup* currGroup = group;
+			do{
+				if(currGroup->getResources().empty() && currGroup->getChildren().empty() && currGroup->getParent() != NULL){
+					// The group is empty, we may delete it as well
+					AResourceGroup* parent = currGroup->getParent();
+
+					parent->deleteChild(currGroup);
+
+					currGroup = parent;
+				}
+				else{
+					break;
+				}
+			}while(currGroup && currGroup->getParent());
+		}
+	}
+
+	virtual void destroyAll(){
 		AResourceGroup<T>::destroy();
 
 		for(ResourceMap::iterator i=mResources.begin(); i!=mResources.end(); i++){

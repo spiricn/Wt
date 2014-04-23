@@ -106,6 +106,10 @@ void ADemo::createDemo(DemoManager* manager){
 		LOGD("Assets path provided, loading ...");
 
 		getAssets()->load(assetsPath);
+
+		getAssets()->unloadAll();
+
+		getAssets()->load(assetsPath);
 	}
 
 	if(lua::luaConv(mMainScript->getState().Get("loadScene"), scenePath)){

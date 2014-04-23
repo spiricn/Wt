@@ -2,6 +2,7 @@
 
 #include "wt/SFSoundStream.h"
 #include "wt/Exception.h"
+#include <wt/AResourceGroup.h>
 
 namespace wt
 {
@@ -19,7 +20,7 @@ void SFSoundStream::setRelativeToListener(bool state){
 }
 
 void SFSoundStream::setSource(const String& src){
-	ASoundStream::setSource(src);
+	//ASoundStream::setSource(src);
 
 	if(!mMusic.openFromFile(src)){
 		WT_THROW(

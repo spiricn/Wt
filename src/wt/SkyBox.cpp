@@ -19,10 +19,11 @@ void SkyBox::bind(){
 	glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture);
 }
 
-void SkyBox::serialize(lua::State* luaState, LuaPlus::LuaObject& dst){
+void SkyBox::serialize(lua::State* luaState, LuaPlus::LuaObject& dst) const{
 	AResource::serialize(luaState, dst);
 
-	mDesc.serialize(luaState, dst);
+	// FIXME
+	const_cast<SkyBox*>(this)->mDesc.serialize(luaState, dst);
 }
 
 void SkyBox::deserialize(lua::State* luaState, const LuaPlus::LuaObject& table){
