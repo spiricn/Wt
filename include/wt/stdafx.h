@@ -4,7 +4,9 @@
 #define WT_STDAFX_H
 
 
-#pragma message("\nCreating wt precompiled header!\n")
+#pragma message("-------------------------------------")
+#pragma message("-- Creating Wt precompiled header. --")
+#pragma message("-------------------------------------")
 
 // Tracedog
 #include <td/td.h>

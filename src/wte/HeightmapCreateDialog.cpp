@@ -15,7 +15,7 @@ HeightmapCreateDialog::HeightmapCreateDialog(QWidget* parent) : QDialog(parent){
 
 void HeightmapCreateDialog::onCreate(){
 	QString path = QFileDialog::getSaveFileName(this,
-		"Save heightmap");
+		"Save heightmap", "", "Heightmap files (*.wth)");
 
 	if(!path.size()){
 		return;
@@ -31,7 +31,10 @@ void HeightmapCreateDialog::onCreate(){
 
 	heightmap.setColumnScale(ui.columnScale->value());
 
-	WTE_CTX.getAssets()->getHeightmapManager()->getLoader()->save(path.toStdString(), &heightmap);
+	// We have to open the stream ourselves since the resource is not managed (thus has no file system associated with it)
+	wt::StreamPtr stream = WTE_CTX.getAssets()->getFileSystem()->open(path.toStdString(), wt::AIOStream::eMODE_WRITE);
+
+	WTE_CTX.getAssets()->getHeightmapManager()->getLoader()->save(stream, &heightmap);
 
 	mResult = path;
 

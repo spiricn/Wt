@@ -49,6 +49,8 @@
     <addaction name="actionAssetsReload"/>
     <addaction name="actionAssetsClear"/>
     <addaction name="separator"/>
+    <addaction name="actionEdit_sets"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuScene">
     <property name="title">
@@ -91,7 +93,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionAssetsSave">
    <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
+    <iconset>
      <normaloff>:/icons/Actions-document-save-icon.png</normaloff>:/icons/Actions-document-save-icon.png</iconset>
    </property>
    <property name="text">
@@ -120,7 +122,7 @@
   </action>
   <action name="actionSceneSave">
    <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
+    <iconset>
      <normaloff>:/icons/Actions-document-save-icon.png</normaloff>:/icons/Actions-document-save-icon.png</iconset>
    </property>
    <property name="text">
@@ -183,6 +185,10 @@
    </property>
   </action>
   <action name="actionWorkspaceSave">
+   <property name="icon">
+    <iconset resource="../../../rsrc/ui/WtEditor.qrc">
+     <normaloff>:/icons/icons/Actions-document-save-icon.png</normaloff>:/icons/icons/Actions-document-save-icon.png</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -200,11 +206,13 @@
     <string>Open</string>
    </property>
   </action>
+  <action name="actionEdit_sets">
+   <property name="text">
+    <string>Edit sets</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="../../../build/vs10/WtEditor/WtEditor.qrc"/>
- </resources>
  <connections>
   <connection>
    <sender>actionAssetsClear</sender>
@@ -462,6 +470,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionEdit_sets</sender>
+   <signal>triggered()</signal>
+   <receiver>WtEditorClass</receiver>
+   <slot>onEditSets()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onBtnSaveClick()</slot>
@@ -483,5 +507,6 @@
   <slot>onWorkspaceSave()</slot>
   <slot>onGlobalSave()</slot>
   <slot>onWorkspaceOpen()</slot>
+  <slot>onEditSets()</slot>
  </slots>
 </ui>

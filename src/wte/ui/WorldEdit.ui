@@ -98,7 +98,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
+    <iconset>
      <normaloff>:/icons/Button-Log-Off-icon.png</normaloff>:/icons/Button-Log-Off-icon.png</iconset>
    </property>
    <property name="text">
@@ -110,7 +110,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../build/vs10/WtEditor/WtEditor.qrc">
+    <iconset>
      <normaloff>:/icons/Button-Log-Off-icon.png</normaloff>:/icons/Button-Log-Off-icon.png</iconset>
    </property>
    <property name="text">
@@ -161,9 +161,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../../build/vs10/WtEditor/WtEditor.qrc"/>
- </resources>
  <connections>
   <connection>
    <sender>actionToggleBones</sender>

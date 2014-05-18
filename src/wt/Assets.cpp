@@ -299,7 +299,7 @@ void Assets::load(const String& path, const String& set){
 	}
 	LuaObject assets = state->GetGlobal("ASSETS");
 
-	load(assets);
+	load(assets, set);
 }
 
 

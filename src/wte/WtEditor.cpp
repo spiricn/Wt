@@ -9,7 +9,7 @@
 #include "wte/WtEditor.h"
 #include "wte/Utils.h"
 #include "wte/WtEditorContext.h"
-
+#include "wte/SetEditor.h"
 
 #define TD_TRACE_TAG "WtEditor"
 
@@ -423,4 +423,10 @@ void WtEditor::onWorkspaceOpen(){
 	}
 
 	WTE_CTX.loadWorkspace(path);
+}
+
+void WtEditor::onEditSets(){
+	SetEditor e;
+
+	e.exec();
 }

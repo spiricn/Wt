@@ -5,7 +5,7 @@
 namespace wt
 {
 
-CameraController::CameraController(AGameInput* input) : mMode(eCTRL_MODE_FPS), mInput(input){
+CameraController::CameraController(AGameInput* input, ATransformable* camera) : mMode(eCTRL_MODE_FPS), mInput(input), mCamera(camera){
 }
 
 CameraController::FPSParams::FPSParams() : mouseSensitivity(0.3f), moveSpeed(70.0f){
@@ -34,6 +34,10 @@ void CameraController::update(){
 }
 
 void CameraController::handle(float dt){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
+	WT_ASSERT(mInput, "Input not set");
+
 	if(mMode == eCTRL_MODE_TPS){
 		if(mInput->isMouseGrabbed()){
 			orbitHorizontal(mInput->getMouseDeltaX() * mTps.mouseSensitivity);
@@ -78,32 +82,44 @@ void CameraController::handle(float dt){
 	update();
 }
 
-void CameraController::setCamera(Camera* camera){
+void CameraController::setCamera(ATransformable* camera){
 	mCamera = camera;
 }
 
 void CameraController::setMode(ControlMode mode){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mMode = mode;
 }
 
 void CameraController::setTarget(const ATransformable* target, const glm::vec3& offset){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mTps.target = target;
 	mTps.offset = offset;
 }
 
 void CameraController::setDistance(float distance){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mTps.distance = distance;
 }
 
 float CameraController::getDistance() const{
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	return mTps.distance;
 }
 
 void CameraController::zoom(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mTps.distance += delta;
 }
 
 void CameraController::orbitHorizontal(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	if(delta == 0.0f){
 		return;
 	}
@@ -112,6 +128,8 @@ void CameraController::orbitHorizontal(float delta){
 }
 
 void CameraController::orbitVertical(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	if(delta == 0.0f){
 		return;
 	}
@@ -127,34 +145,50 @@ void CameraController::orbitVertical(float delta){
 }
 
 void CameraController::setMoveSpeed(float speed){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mFps.moveSpeed = speed;
 }
 
 void CameraController::moveForward(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mCamera->moveForward(-delta);
 }
 
 void CameraController::moveBackward(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mCamera->moveForward(delta);
 }
 
 void CameraController::strifeLeft(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mCamera->strife(-delta);
 }
 
 void CameraController::strifeRight(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mCamera->strife(delta);
 }
 
 void CameraController::moveUp(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mCamera->translate( glm::vec3(0.0f, 1.0f, 0.0f) * delta);
 }
 
 void CameraController::moveDown(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	mCamera->translate( glm::vec3(0.0f, -1.0f, 0.0f) * delta );
 }
 
 void CameraController::lookHorizontal(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	if(delta == 0.0f){
 		return;
 	}
@@ -163,11 +197,17 @@ void CameraController::lookHorizontal(float delta){
 }
 
 void CameraController::lookVertical(float delta){
+	WT_ASSERT(mCamera, "Camera transformable not set");
+
 	if(delta == 0.0f){
 		return;
 	}
 
 	mCamera->pitch(-delta);
+}
+
+void CameraController::setInput(AGameInput* input){
+	mInput = input;
 }
 
 } // </wt>

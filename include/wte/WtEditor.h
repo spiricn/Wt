@@ -73,6 +73,8 @@ private slots:
 
 	void onWorkspaceOpen();
 
+	void onEditSets();
+
 private:
 	QString mCmdArg;
 	MainGLWidget* mMainGLWidget;

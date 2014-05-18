@@ -9,7 +9,6 @@ namespace wt
 
 class ATransformable;
 class AGameInput;
-class Camera;
 
 class CameraController{
 public:
@@ -19,11 +18,13 @@ public:
 	}; // </ControlMode>
 
 public:
-	CameraController(AGameInput* input);
+	CameraController(AGameInput* input=NULL, ATransformable* camera=NULL);
+
+	void setInput(AGameInput* input);
 
 	void handle(float dt);
 
-	void setCamera(Camera* camera);
+	void setCamera(ATransformable* camera);
 
 	void setMode(ControlMode mode);
 
@@ -81,7 +82,7 @@ private:
 
 private:
 	ControlMode mMode;
-	Camera* mCamera;
+	ATransformable* mCamera;
 	TPSParams mTps;
 	FPSParams mFps;
 	AGameInput* mInput;

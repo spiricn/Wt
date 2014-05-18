@@ -121,13 +121,21 @@ public:
 
 	virtual void destroy();
 
-private:
+	bool isBillboard() const;
 
+	void setBillboard(bool sate);
+
+private:
+	typedef std::vector<ASceneActor*> ActorList;
+
+private:
 	void setId(uint32_t id);
 
 	void setParent(Scene* scene);
 
-	typedef std::vector<ASceneActor*> ActorList;
+	void setLuaState(lua::State* state);
+
+private:
 	ActorList mAttachedActors;
 
 	lua::State* mLuaState;
@@ -160,9 +168,9 @@ private:
 	/** Color of the bounding box for this object (used mainly for debugging) */
 	Color mBoundingBoxColor;
 
-	void setLuaState(lua::State* state);
-
 	bool mVisible;
+
+	bool mBillboard;
 }; // </ASceneActor>
 
 

@@ -351,7 +351,6 @@
    </slots>
   </customwidget>
  </customwidgets>
- <resources/>
  <connections>
   <connection>
    <sender>pushButton</sender>

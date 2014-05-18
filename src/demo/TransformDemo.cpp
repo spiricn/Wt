@@ -99,6 +99,10 @@ public:
 			WT_ASSERT(mCube2, "Missing resource");
 		}
 
+		{
+			getScene()->findActorByName<ModelledActor>("billboard")->setBillboard(true);
+		}
+
 		getRenderer()->setRenderAxes(true);
 
 		setupGui();

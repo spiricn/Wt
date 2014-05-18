@@ -9,7 +9,7 @@ namespace wt
 
 ASceneActor::ASceneActor(Scene* parent, ActorType type, uint32_t id, const String& name) : mName(name), mId(id),
 	mUserData(NULL), mUserDataSet(false), mParent(parent), mPhysicsActor(NULL), mType(type), mBBox(NULL),
-	mBoundingBoxColor(Color::Green()), mLuaState(NULL), mVisible(true){
+	mBoundingBoxColor(Color::Green()), mLuaState(NULL), mVisible(true), mBillboard(false){
 }
 
 void ASceneActor::setId(uint32_t id){
@@ -203,6 +203,13 @@ void ASceneActor::update(float /*dt*/){
 
 		getTransformable()->setTransformMatrix(mat);
 	}
+
+	if(mBillboard){
+		glm::vec3 eyePos;
+		mParent->getCamera().getTranslation(eyePos);
+
+		getTransformable()->lookAt(eyePos);
+	}
 }
 
 void ASceneActor::setParent(Scene* scene){
@@ -268,4 +275,13 @@ void ASceneActor::deserialize(AResourceSystem* assets, const LuaPlus::LuaObject&
 	}
 }
 
-}; // </wt>
+bool ASceneActor::isBillboard() const{
+	return mBillboard;
+}
+
+void ASceneActor::setBillboard(bool state){
+	mBillboard = state;
+}
+
+} // </wt>
+

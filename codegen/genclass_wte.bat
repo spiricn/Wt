@@ -1,1 +1,1 @@
-python CodeGen.py gen_wte_class.py %1 %2
+python CodeGen.py gen_wte_class.py $1 $2

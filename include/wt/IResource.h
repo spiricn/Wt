@@ -6,10 +6,24 @@
 #ifndef WT_IRESOURCE_H
 #define WT_IRESOURCE_H
 
+namespace LuaPlus
+{
+
+class LuaObject;
+
+} // </LuaPlus>
+
 namespace wt
 {
 
 typedef unsigned long ResourceHandle;
+
+namespace lua
+{
+
+class State;
+
+} // </lua>
 
 class IResource{
 public:

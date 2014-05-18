@@ -13,6 +13,9 @@ void MusicPlayer::play(const String& _track){
 	if(_track.empty()){
 		track = mPlaylist.getNext();
 	}
+	else{
+		track = _track;
+	}
 
 	if(mCurrentStream.get() && mCurrentStream->getSource().compare(track) == 0){
 		// same track, do nothing
