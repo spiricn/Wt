@@ -6,6 +6,7 @@
 #include "wt/IcosphereBuilder.h"
 #include "wt/ModelledActor.h"
 #include "wt/ShaderFactory.h"
+#include "wt/Geometry.h"
 
 #define  TD_TRACE_TAG "ModelRenderer"
 

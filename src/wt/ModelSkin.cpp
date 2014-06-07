@@ -1,5 +1,6 @@
 #include "wt/stdafx.h"
 #include "wt/ModelSkin.h"
+#include "wt/Geometry.h"
 
 #define TD_TRACE_TAG "ModelSkin"
 

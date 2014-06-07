@@ -4,17 +4,19 @@
 
 #include "wt/AResourceManager.h"
 #include "wt/Animation.h"
-#include "wt/Geometry.h"
 #include "wt/SkeletonBone.h"
 #include "wt/Texture2D.h"
 #include "wt/Sp.h"
 #include "wt/SkeletalAnimation.h"
 #include "wt/Material.h"
-#include "ModelSkin.h"
+#include "wt/ModelSkin.h"
+#include "wt/Vertex.h"
+#include "wt/GLBatch.h"
 
-namespace wt{
+namespace wt
+{
 
-
+class Geometry;
 class ModelManager;
 
 class Model : public AResource<Model>{
@@ -87,7 +89,7 @@ public:
 	
 	void setSize(uint32_t numVertices, uint32_t numIndices);
 
-	Geometry* addGeometry(const String& name, const Buffer<Geometry::Vertex>& vertices, 
+	Geometry* addGeometry(const String& name, const Buffer<Vertex>& vertices, 
 		const Buffer<uint32_t>& indices);
 
 	void removeGeometry(const String& name);

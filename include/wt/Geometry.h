@@ -7,6 +7,8 @@
 #include "wt/AResourceManager.h"
 #include "wt/Singleton.h"
 #include "wt/Buffer.h"
+#include "wt/Vertex.h"
+#include "wt/BoundingBox.h"
 
 namespace wt
 {
@@ -15,55 +17,20 @@ class Geometry{
 public:
 	friend class Model;
 
-	//WT_DISALLOW_COPY(Geometry);
-
-	static const int MAX_BONES = 200;
-
-	/* shouldn't do anything since struct size is already 4 byte aligned */
-	#pragma pack(push)
-	#pragma pack(1)
-
-	struct Vertex{
-		/* position */
-		float x, y, z;
-
-		/* texture coordinates */
-		float s, t;
-
-		/* normal */
-		float nx, ny, nz;
-
-		/* bone IDs this vertex is affected by */
-		uint8_t bones[4];
-
-		/* bone weights of said bones */
-		float weights[4];
-
-		/* tangent vector (relevant if normal map is present) */
-		float tx, ty, tz;
-
-		Vertex();
-
-		void addBone(int32_t index, float weight);
-	};
-	#pragma pack(pop)
-
+public:
 	typedef Buffer<Vertex> VertexBuffer;
 
 	typedef Buffer<uint32_t> IndexBuffer;
+
+public:
+	Geometry(const String& name, gl::Batch* batch, const gl::SubBatch& subBatch, const VertexBuffer& vertices,
+		const IndexBuffer& indices);
 
 	gl::Batch* getBatch();
 
 	VertexBuffer& getVertices();
 
 	IndexBuffer& getIndices();
-
-	const VertexBuffer& getVertices() const;
-
-	const IndexBuffer& getIndices() const;
-
-	Geometry(const String& name, gl::Batch* batch, const gl::SubBatch& subBatch, const VertexBuffer& vertices,
-		const IndexBuffer& indices);
 
 	const String& getName() const;
 
@@ -86,4 +53,4 @@ private:
 
 } // </wt>
 
-#endif
+#endif // </WT_GEOMETRY_H>

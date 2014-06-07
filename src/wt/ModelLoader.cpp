@@ -1,5 +1,6 @@
 #include "wt/stdafx.h"
 #include "wt/ModelLoader.h"
+#include "wt/Geometry.h"
 
 #define TD_TRACE_TAG "ModelLoader"
 
@@ -125,7 +126,7 @@ void ModelLoader::load(AIOStream* stream, Model* model){
 		if(i < numGeometry-1){
 			/* skip the vertex/index data since we're only interested in the number
 			of vertices/indices*/
-			stream->seek(AIOStream::eSEEK_CURRENT, nov*sizeof(Geometry::Vertex) + noi*sizeof(uint32_t));
+			stream->seek(AIOStream::eSEEK_CURRENT, nov*sizeof(Vertex) + noi*sizeof(uint32_t));
 		}
 
 	}
@@ -155,8 +156,8 @@ void ModelLoader::load(AIOStream* stream, Model* model){
 		//LOGV("noi: %d", noi);
 
 		// vertex_data
-		Buffer<Geometry::Vertex> vertices(nov);
-		stream->read((char*)vertices.getData(), nov*sizeof(Geometry::Vertex));
+		Buffer<Vertex> vertices(nov);
+		stream->read((char*)vertices.getData(), nov*sizeof(Vertex));
 
 		// Verify vertices
 		for(uint32_t i=0; i<nov; i++){
@@ -222,10 +223,10 @@ void ModelLoader::postProcess(SkeletonBone* bone, const glm::mat4& transform){
 void ModelLoader::postProcess(Model* model, const glm::mat4& transform){
 	for(Model::GeoList::iterator i = model->getGeometry().begin(); i!=model->getGeometry().end(); i++){
 
-		Geometry::VertexBuffer& vertices = (*i)->getVertices();
+		Buffer<Vertex>& vertices = (*i)->getVertices();
 
 		for(uint32_t j=0; j<vertices.getCapacity(); j++){
-			Geometry::Vertex& vertex = vertices[j];
+			Vertex& vertex = vertices[j];
 
 			glm::vec4 position = transform * glm::vec4(vertex.x, vertex.y, vertex.z, 0.0f);
 			glm::vec4 normal = transform * glm::vec4(vertex.nx, vertex.ny, vertex.nz, 0.0f);
@@ -276,7 +277,7 @@ void ModelLoader::save(AIOStream* stream, Model* model){
 
 		// vertex_data
 		void* vertices = (void*)geo->getVertices().getData();
-		stream->write((const char*)vertices, nov*sizeof(Geometry::Vertex));
+		stream->write((const char*)vertices, nov*sizeof(Vertex));
 		
 		// index_data
 		void* indices = (void*)geo->getIndices().getData();

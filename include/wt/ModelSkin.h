@@ -4,7 +4,6 @@
 
 #include "wt/AResourceManager.h"
 #include "wt/Animation.h"
-#include "wt/Geometry.h"
 #include "wt/SkeletonBone.h"
 #include "wt/Texture2D.h"
 #include "wt/Sp.h"
@@ -15,6 +14,7 @@ namespace wt
 {
 
 class Model;
+class Geometry;
 
 class ModelSkin{
 public:

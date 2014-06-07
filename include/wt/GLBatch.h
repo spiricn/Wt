@@ -13,7 +13,10 @@ class VertexArray;
 
 class SubBatch{
 public:
-	uint32_t mMinIndex, mMaxIndex, mStartIndex, mNumIndices;
+	uint32_t mMinIndex;
+	uint32_t mMaxIndex;
+	uint32_t mStartIndex;
+	uint32_t mNumIndices;
 
 	SubBatch(uint32_t minIndex, uint32_t maxIndex, uint32_t start, uint32_t num) : mMinIndex(minIndex),
 		mMaxIndex(maxIndex), mStartIndex(start), mNumIndices(num){

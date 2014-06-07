@@ -11,7 +11,6 @@
 #include "wt/FrameBuffer.h"
 #include "wt/Color.h"
 #include "wt/Utils.h"
-#include "wt/Geometry.h"
 #include "wt/Material.h"
 #include "wt/Mesh.h"
 #include "wt/Model.h"

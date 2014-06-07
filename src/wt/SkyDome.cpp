@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 #include "wt/SkyDome.h"
 #include "wt/ShaderFactory.h"
+#include "wt/Geometry.h"
 
 #define TD_TRACE_TAG "SkyDome"
 

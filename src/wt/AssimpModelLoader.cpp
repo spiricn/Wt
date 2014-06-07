@@ -1,6 +1,7 @@
 #include "wt/stdafx.h"
 
 #include "wt/AssimpModelLoader.h"
+#include "wt/Geometry.h"
 
 #define TD_TRACE_TAG "AssimpModelLoader"
 
@@ -127,7 +128,7 @@ void AssimpModelLoader::load(const String& filePath, Model& model, Animation* an
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		Buffer<Geometry::Vertex> vertices(mesh->mNumVertices);
+		Buffer<Vertex> vertices(mesh->mNumVertices);
 		Buffer<GLuint> indices(mesh->mNumFaces*3);
 
 		// Copy indices
@@ -142,7 +143,7 @@ void AssimpModelLoader::load(const String& filePath, Model& model, Animation* an
 			vertices[j].y = invertAxis?mesh->mVertices[j].z:mesh->mVertices[j].y;
 			vertices[j].z = invertAxis?mesh->mVertices[j].y:mesh->mVertices[j].z;
 
-			Geometry::Vertex& v = vertices[j];
+			Vertex& v = vertices[j];
 
 			// Vertex normal
 			if(mesh->HasNormals()){

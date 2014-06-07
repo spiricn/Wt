@@ -3,6 +3,7 @@
 #include "wt/Model.h"
 #include "wt/GLBuffer.h"
 #include "wt/Lua.h"
+#include "wt/Geometry.h"
 
 #define TD_TRACE_TAG "Model"
 
@@ -122,7 +123,7 @@ void Model::removeGeometry(const String& name){
 	mGeometry.erase(geometry);
 }
 
-Geometry* Model::addGeometry(const String& name, const Geometry::VertexBuffer& vertices, 
+Geometry* Model::addGeometry(const String& name, const Buffer<Vertex>& vertices, 
 		const Geometry::IndexBuffer& indices){
 
 	/* assign a unique name to the structure */
@@ -217,28 +218,28 @@ void Model::createHwBuffers(){
 	// Allocate a hardware buffer
 	mBatch.create(
 		GL_TRIANGLES,
-		NULL, mNumVertices, sizeof(Geometry::Vertex),
+		NULL, mNumVertices, sizeof(Vertex),
 		NULL, mNumIndices, sizeof(GLuint),
 		GL_UNSIGNED_INT
 	);
 
 	// Position stream
-	mBatch.setVertexAttribute(eATTRIB_POSITION, 3, GL_FLOAT, offsetof(Geometry::Vertex, x));
+	mBatch.setVertexAttribute(eATTRIB_POSITION, 3, GL_FLOAT, offsetof(Vertex, x));
 
 	// Texture coordinate stream
-	mBatch.setVertexAttribute(eATTRIB_TEXCOORD, 2, GL_FLOAT, offsetof(Geometry::Vertex, s));
+	mBatch.setVertexAttribute(eATTRIB_TEXCOORD, 2, GL_FLOAT, offsetof(Vertex, s));
 
 	// Bbone IDs stream
-	mBatch.setVertexAttribute(eATTRIB_BONE_ID, 4, GL_UNSIGNED_BYTE, offsetof(Geometry::Vertex, bones));
+	mBatch.setVertexAttribute(eATTRIB_BONE_ID, 4, GL_UNSIGNED_BYTE, offsetof(Vertex, bones));
 
 	// Normal stream
-	mBatch.setVertexAttribute(eATTRIB_NORMAL, 3, GL_FLOAT, offsetof(Geometry::Vertex, nx));
+	mBatch.setVertexAttribute(eATTRIB_NORMAL, 3, GL_FLOAT, offsetof(Vertex, nx));
 
 	// Tangent stream
-	mBatch.setVertexAttribute(eATTRIB_TANGENT, 3, GL_FLOAT, offsetof(Geometry::Vertex, tx));
+	mBatch.setVertexAttribute(eATTRIB_TANGENT, 3, GL_FLOAT, offsetof(Vertex, tx));
 
 	// Bone weight stream
-	mBatch.setVertexAttribute(eATTRIB_BONE_WEIGHT, 4, GL_FLOAT, offsetof(Geometry::Vertex, weights));
+	mBatch.setVertexAttribute(eATTRIB_BONE_WEIGHT, 4, GL_FLOAT, offsetof(Vertex, weights));
 
 	
 	uint32_t vertexOffset=0;
@@ -248,8 +249,8 @@ void Model::createHwBuffers(){
 	for(GeoList::iterator i=mGeometry.begin(); i!=mGeometry.end(); i++){
 
 		// Copy vertex data
-		const Geometry::VertexBuffer& vertices = (*i)->getVertices();
-		mBatch.getVertexBuffer().setSubData(vertexOffset*sizeof(Geometry::Vertex), vertices.getData(), vertices.getSize());
+		const Buffer<Vertex>& vertices = (*i)->getVertices();
+		mBatch.getVertexBuffer().setSubData(vertexOffset*sizeof(Vertex), vertices.getData(), vertices.getSize());
 
 		// Copy offset index data
 		Geometry::IndexBuffer& indices = (*i)->getIndices();
